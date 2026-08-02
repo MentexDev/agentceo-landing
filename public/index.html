@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Agent · CEO — Tu empresa, operada por un equipo de IA</title>
+  <meta name="description" content="AgentCEO es la plataforma donde creas tu empresa y contratas un equipo de agentes de IA que la operan de verdad: contenido, ventas, inventario y atención. Hecho para dueños de negocio, no para programadores." />
+
+  <meta property="og:title" content="Agent · CEO — Tu empresa, operada por un equipo de IA" />
+  <meta property="og:description" content="Crea tu empresa y contrata un equipo de agentes de IA que la opera de verdad. Gratis para empezar." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://agentceo.io" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#08080b" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #08080b;
+      --bg-2: #0c0c11;
+      --bg-3: #101017;
+      --ink: #f4f1ea;
+      --muted: #9d9a92;
+      --muted-2: #74716b;
+      --line: rgba(255, 255, 255, 0.10);
+      --line-soft: rgba(255, 255, 255, 0.06);
+      /* Acento champagne: el toque "ejecutivo/premium" del logo cromado, en vez
+         del durazno de la referencia. Es el único color fuerte de la página. */
+      --accent: #e3c592;
+      --accent-ink: #f0dcb4;
+      --accent-soft: rgba(227, 197, 146, 0.13);
+      --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+      --sans: 'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+      --maxw: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 17px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      /* 'clip' y no 'hidden': hidden convierte al body en contenedor de scroll y
+         rompe el position:sticky del card-stack. clip recorta sin ese efecto. */
+      overflow-x: clip;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    h1, h2, h3 { margin: 0; font-weight: 400; letter-spacing: -0.02em; }
+    p { margin: 0; }
+    ::selection { background: var(--accent-soft); }
+
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(20px, 5vw, 48px); }
+    .serif { font-family: var(--serif); }
+    .accent { color: var(--accent); }
+    em.hl { font-family: var(--serif); font-style: italic; color: var(--accent); font-weight: 400; }
+
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 9px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .eyebrow::before {
+      content: ""; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 12px 1px var(--accent);
+    }
+
+    /* ── Botones ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      height: 54px; padding: 0 26px; border-radius: 999px;
+      font-size: 14px; font-weight: 650; letter-spacing: 0.01em;
+      cursor: pointer; border: 1px solid transparent;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--ink); color: #14110c; box-shadow: 0 18px 50px rgba(244, 241, 234, 0.14); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 22px 60px rgba(244, 241, 234, 0.22); }
+    .btn-ghost { background: rgba(255,255,255,0.03); color: var(--ink); border-color: var(--line); }
+    .btn-ghost:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.28); }
+    .btn-sm { height: 44px; padding: 0 18px; font-size: 13px; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+    /* ── Nav ── */
+    nav {
+      position: absolute; inset: 0 0 auto; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: var(--maxw); margin: 0 auto; height: 84px;
+      padding: 0 clamp(20px, 5vw, 48px);
+      left: 0; right: 0;
+    }
+    .brand { display: flex; align-items: center; gap: 8px; }
+    .brand img.a { height: 30px; width: auto; }
+    .brand img.b { height: 19px; width: auto; }
+    .brand .dot { font-family: var(--serif); font-weight: 600; font-size: 20px; color: var(--accent); line-height: 1; }
+    .nav-links { display: flex; align-items: center; gap: 30px; }
+    .nav-links a.link { font-size: 13.5px; color: var(--muted); font-weight: 500; transition: color .18s ease; }
+    .nav-links a.link:hover { color: var(--ink); }
+    .nav-cta { display: flex; align-items: center; gap: 12px; }
+
+    /* ── Hero en dos columnas: video a la IZQUIERDA, contenido a la DERECHA ── */
+    .hero {
+      position: relative; min-height: 100svh;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: 100svh; align-items: center;
+    }
+    .hero-media {
+      position: relative; align-self: stretch; min-height: 100svh; background: #000;
+    }
+    .hero-video {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      /* El video es luminoso; se atenúa un pelo. */
+      filter: saturate(1.05) contrast(1.02);
+    }
+    /* Vela sutil: arriba, para que el logo del nav se lea sobre el video; a la
+       derecha, para fundir el video hacia el fondo de la columna de texto. */
+    .hero-media-shade {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(8,8,11,0.55) 0%, rgba(8,8,11,0) 22%),
+        linear-gradient(90deg, rgba(8,8,11,0) 80%, rgba(8,8,11,0.9) 100%);
+    }
+    .hero-content {
+      padding: 108px clamp(28px, 5vw, 76px) 90px clamp(28px, 4.5vw, 64px);
+      text-align: left;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 5vw, 76px);
+      line-height: 0.98; letter-spacing: -0.035em;
+      margin: 22px 0 0; max-width: 15ch;
+      text-wrap: balance;
+    }
+    .hero .sub {
+      max-width: 520px; margin: 26px 0 0;
+      color: #cfccc4; font-size: clamp(16px, 1.4vw, 18px); line-height: 1.65;
+    }
+    .hero .actions { margin-top: 36px; display: flex; gap: 14px; justify-content: flex-start; flex-wrap: wrap; }
+    .hero .trust {
+      margin-top: 28px; display: flex; gap: 10px 22px; justify-content: flex-start; flex-wrap: wrap;
+      font-size: 13px; color: var(--muted);
+    }
+    .hero .trust span { display: inline-flex; align-items: center; gap: 8px; }
+    .hero .trust span::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+
+    /* ── Secciones ── */
+    section { padding: clamp(80px, 10vw, 140px) 0; border-bottom: 1px solid var(--line-soft); }
+    .sec-head { max-width: 720px; margin: 0 auto 64px; text-align: center; }
+    .sec-head.left { text-align: left; margin-left: 0; }
+    .sec-head h2 { font-family: var(--serif); font-size: clamp(32px, 4.6vw, 58px); line-height: 1.02; margin-top: 18px; text-wrap: balance; }
+    .sec-head p { margin-top: 20px; color: var(--muted); font-size: 18px; }
+
+    /* Cómo funciona — baraja que se apila al hacer scroll (card-stack-scroll) */
+    .stack { position: relative; }
+    .scard {
+      position: sticky;
+      display: grid; grid-template-columns: 1.05fr 0.95fr;
+      min-height: 56vh;
+      border-radius: 26px; overflow: hidden;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+      box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.5), 0 34px 90px rgba(0, 0, 0, 0.45);
+    }
+    .scard + .scard { margin-top: 46px; }
+    /* Tope incremental: cada tarjeta se pega un poco más abajo → se ve el borde
+       de las anteriores, como una baraja apilada. */
+    .scard.s1 { top: 96px; }
+    .scard.s2 { top: 120px; }
+    .scard.s3 { top: 144px; }
+    .scard-body { padding: clamp(32px, 5vw, 66px); display: flex; flex-direction: column; justify-content: center; }
+    .scard-kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+    .scard-body h3 { font-family: var(--serif); font-size: clamp(30px, 3.5vw, 48px); margin-top: 16px; letter-spacing: -0.02em; }
+    .scard-body p { margin-top: 18px; color: var(--muted); font-size: clamp(15px, 1.4vw, 18px); max-width: 46ch; line-height: 1.72; }
+    .scard-art {
+      position: relative; overflow: hidden;
+      background:
+        radial-gradient(130% 120% at 100% 0%, rgba(227, 197, 146, 0.18), transparent 55%),
+        linear-gradient(160deg, #10101a, #08080b);
+      border-left: 1px solid var(--line-soft);
+      display: grid; place-items: center;
+    }
+    .scard-ghost {
+      font-family: var(--serif); font-style: italic; font-weight: 400;
+      font-size: clamp(150px, 22vw, 300px); line-height: 1;
+      color: transparent; -webkit-text-stroke: 1.5px rgba(227, 197, 146, 0.42);
+    }
+
+    /* Tu equipo — carrusel 3D coverflow de agentes (mecánica calcada de la landing NINA) */
+    .deck-wrap { position: relative; }
+    .deck {
+      position: relative; width: 100%; height: 500px;
+      perspective: 1500px; perspective-origin: 50% 50%;
+      display: flex; align-items: center; justify-content: center;
+      touch-action: pan-y; user-select: none;
+    }
+    .acard {
+      position: absolute; width: 300px; height: 434px;
+      margin: 0; padding: 0; border: none; background: transparent;
+      transform-style: preserve-3d; cursor: pointer;
+      transition: transform .55s cubic-bezier(.22, .61, .36, 1), opacity .5s ease, filter .5s ease;
+      will-change: transform, opacity;
+    }
+    .acard.is-active { cursor: default; }
+    .acard-inner {
+      width: 100%; height: 100%; border-radius: 26px; overflow: hidden;
+      border: 1px solid var(--line); display: flex; flex-direction: column;
+      background: #0c0c12;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .04);
+      transition: box-shadow .4s ease, border-color .4s ease;
+    }
+    .acard.is-active .acard-inner {
+      border-color: rgba(227, 197, 146, .4);
+      box-shadow: 0 50px 100px rgba(0, 0, 0, .7), 0 0 0 1px rgba(227, 197, 146, .22), 0 0 60px rgba(227, 197, 146, .2);
+    }
+    /* La "imagen": una escena de color propia del rol + el emblema del agente. */
+    .acard-scene {
+      position: relative; flex: 1; overflow: hidden; display: grid; place-items: center;
+      background:
+        radial-gradient(120% 92% at 50% 14%, var(--c2, rgba(227, 197, 146, .24)), transparent 60%),
+        radial-gradient(150% 130% at 100% 0%, rgba(227, 197, 146, .14), transparent 55%),
+        linear-gradient(170deg, #14141e, #08080b);
+    }
+    .acard-scene::after {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 45%, transparent 58%, rgba(0, 0, 0, .4));
+    }
+    .acard-emblem { width: 88px; height: 88px; color: var(--accent); position: relative; z-index: 1; opacity: .92; }
+    .acard-mono {
+      position: absolute; top: 15px; left: 18px; z-index: 2;
+      font-family: var(--serif); font-style: italic; font-size: 21px; color: rgba(255, 255, 255, .55);
+    }
+    .acard-info { padding: 20px 22px 24px; background: linear-gradient(180deg, rgba(10, 10, 16, .3), #0a0a10); border-top: 1px solid var(--line-soft); }
+    .acard-role { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .acard-info h3 { font-family: var(--serif); font-size: 25px; margin-top: 6px; letter-spacing: -.01em; }
+    .acard-info p { margin-top: 9px; color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+    /* Flechas */
+    .deck-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 46px; height: 46px; border-radius: 50%; z-index: 30;
+      background: rgba(20, 20, 28, .7); border: 1px solid var(--line);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      color: var(--ink); cursor: pointer; display: grid; place-items: center;
+      transition: border-color .2s, background .2s;
+    }
+    .deck-arrow:hover { border-color: rgba(255, 255, 255, .3); background: rgba(30, 30, 40, .85); }
+    .deck-prev { left: 6px; } .deck-next { right: 6px; }
+    /* Puntos */
+    .deck-dots { display: flex; gap: 9px; justify-content: center; margin-top: 30px; }
+    .ddot { width: 8px; height: 8px; border-radius: 50%; border: none; padding: 0; cursor: pointer; background: rgba(255, 255, 255, .18); transition: background .2s, transform .2s; }
+    .ddot.on { background: var(--accent); transform: scale(1.3); }
+
+    /* La diferencia — dos columnas */
+    .diff { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .diff-card { border-radius: 20px; padding: 34px; border: 1px solid var(--line); }
+    .diff-card.old { background: var(--bg-2); }
+    .diff-card.new { background: linear-gradient(165deg, rgba(227,197,146,0.10), rgba(227,197,146,0.02)); border-color: rgba(227,197,146,0.32); }
+    .diff-card .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+    .diff-card.new .tag { color: var(--accent); }
+    .diff-card h3 { font-family: var(--serif); font-size: 24px; margin-top: 12px; }
+    .diff-list { margin: 22px 0 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+    .diff-list li { display: flex; gap: 12px; align-items: flex-start; color: var(--muted); font-size: 15px; }
+    .diff-list li b { color: var(--ink); font-weight: 600; }
+    .diff-list .mk { flex: none; margin-top: 2px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; }
+    .old .mk { background: rgba(255,255,255,0.06); color: var(--muted-2); }
+    .new .mk { background: var(--accent); color: #14110c; font-weight: 700; }
+
+    /* Integraciones */
+    .integrations { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 760px; margin: 0 auto; }
+    .chip {
+      border: 1px solid var(--line); border-radius: 999px; padding: 12px 20px;
+      color: var(--ink); font-size: 14.5px; font-weight: 500; background: var(--bg-2);
+      display: inline-flex; align-items: center; gap: 9px;
+    }
+    .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+
+    /* Precios */
+    .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; max-width: 860px; margin: 0 auto; }
+    .plan { border: 1px solid var(--line); border-radius: 22px; padding: 38px 34px; background: var(--bg-2); }
+    .plan.feat { background: linear-gradient(180deg, rgba(227,197,146,0.09), rgba(227,197,146,0.015)); border-color: rgba(227,197,146,0.34); }
+    .plan .pname { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+    .plan.feat .pname { color: var(--accent); }
+    .plan .price { font-family: var(--serif); font-size: 52px; margin-top: 14px; line-height: 1; }
+    .plan .price small { font-size: 16px; color: var(--muted); font-family: var(--sans); }
+    .plan .pdesc { color: var(--muted); margin-top: 12px; font-size: 15px; }
+    .plan ul { margin: 26px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+    .plan li { display: flex; gap: 11px; align-items: flex-start; font-size: 14.5px; color: #d8d5cd; }
+    .plan li::before { content: "✓"; color: var(--accent); font-weight: 700; flex: none; }
+    .plan .btn { width: 100%; margin-top: 28px; }
+
+    /* FAQ */
+    .faq { max-width: 780px; margin: 0 auto; border-top: 1px solid var(--line); }
+    .faq details { border-bottom: 1px solid var(--line); }
+    .faq summary {
+      list-style: none; cursor: pointer; padding: 24px 4px;
+      display: flex; justify-content: space-between; align-items: center; gap: 20px;
+      font-size: 18px; font-weight: 500; color: var(--ink);
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary .ic { flex: none; color: var(--accent); font-size: 22px; transition: transform .2s ease; font-family: var(--serif); }
+    .faq details[open] summary .ic { transform: rotate(45deg); }
+    .faq .ans { padding: 0 4px 26px; color: var(--muted); font-size: 15.5px; line-height: 1.7; max-width: 90%; }
+
+    /* CTA final */
+    .cta { text-align: center; }
+    .cta h2 { font-family: var(--serif); font-size: clamp(36px, 5.4vw, 68px); line-height: 1.0; text-wrap: balance; }
+    .cta p { margin: 22px auto 0; max-width: 520px; color: var(--muted); font-size: 18px; }
+    .cta .actions { margin-top: 38px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── Footer (estructura estilo NeuralOS) ── */
+    footer { background: var(--bg-2); border-top: 1px solid var(--line); padding: 72px 0 40px; }
+    .foot-top { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 40px; }
+    .foot-brand .brand { margin-bottom: 18px; }
+    .foot-brand p { color: var(--muted); font-size: 14.5px; max-width: 300px; }
+    .foot-col h4 { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-2); margin: 0 0 18px; }
+    .foot-col a { display: block; color: var(--muted); font-size: 14.5px; margin-bottom: 12px; transition: color .16s ease; }
+    .foot-col a:hover { color: var(--ink); }
+    .foot-bottom {
+      margin-top: 56px; padding-top: 26px; border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;
+      color: var(--muted-2); font-size: 13px;
+    }
+    .foot-bottom .legal-links { display: flex; gap: 22px; flex-wrap: wrap; }
+    .foot-bottom .legal-links a { color: var(--muted); transition: color .16s ease; }
+    .foot-bottom .legal-links a:hover { color: var(--ink); }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      /* Hero apilado: el video arriba, el contenido debajo y centrado. */
+      .hero-grid { grid-template-columns: 1fr; min-height: 0; }
+      .hero-media { min-height: 42svh; height: 42svh; }
+      .hero-media-shade {
+        background: linear-gradient(180deg, rgba(8,8,11,0.5) 0%, rgba(8,8,11,0) 34%, rgba(8,8,11,0.9) 100%);
+      }
+      .hero-content { padding: 44px clamp(24px, 6vw, 40px) 72px; text-align: center; }
+      .hero h1, .hero .sub { margin-left: auto; margin-right: auto; }
+      .hero .actions, .hero .trust { justify-content: center; }
+      .diff, .plans { grid-template-columns: 1fr; }
+      .deck { height: 470px; }
+      .acard { width: 268px; height: 404px; }
+      .foot-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .foot-brand { grid-column: 1 / -1; }
+      /* Card-stack en móvil: una columna (el número gigante como banda arriba); sigue apilándose. */
+      .scard { grid-template-columns: 1fr; min-height: auto; }
+      .scard-art { order: -1; min-height: 148px; }
+      .scard-ghost { font-size: 116px; }
+      .scard.s1 { top: 74px; }
+      .scard.s2 { top: 92px; }
+      .scard.s3 { top: 110px; }
+    }
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .btn { height: 50px; }
+      .hero .actions .btn { width: 100%; }
+      /* Footer en móvil a DOS columnas (menos scroll, como pidió el jefe). */
+      .foot-top { grid-template-columns: 1fr 1fr; gap: 26px 20px; }
+      .foot-bottom { flex-direction: column; align-items: flex-start; }
+      .deck { height: 430px; }
+      .acard { width: 220px; height: 356px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .acard, .btn { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <header class="hero">
+    <nav>
+      <a href="#top" class="brand" aria-label="AgentCEO — inicio">
+        <img class="a" src="/logo-agent.png" alt="Agent" />
+        <span class="dot">·</span>
+        <img class="b" src="/logo-ceo.png" alt="CEO" />
+      </a>
+      <div class="nav-links">
+        <a class="link" href="#como-funciona">Cómo funciona</a>
+        <a class="link" href="#equipo">Agentes</a>
+        <a class="link" href="#diferencia">Por qué</a>
+        <a class="link" href="#precios">Precios</a>
+      </div>
+      <div class="nav-cta">
+        <a class="link" style="font-size:13.5px;color:var(--muted)" href="https://app.agentceo.io/login">Entrar</a>
+        <a class="btn btn-primary btn-sm" href="https://app.agentceo.io/signup">Crear empresa</a>
+      </div>
+    </nav>
+
+    <div class="hero-grid">
+      <div class="hero-media">
+        <video class="hero-video" id="heroVideo" muted playsinline preload="auto" aria-hidden="true">
+          <source src="/AgentCEO_video.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-media-shade"></div>
+      </div>
+
+      <div class="hero-content" id="top">
+        <span class="eyebrow">Un equipo ejecutivo de IA</span>
+        <h1>Haz crecer tu empresa, <em class="hl">sin hacerlo todo tú</em>.</h1>
+        <p class="sub">
+          AgentCEO es la plataforma donde creas tu empresa y contratas un equipo de
+          agentes de IA que la opera de verdad: contenido, ventas, inventario y
+          atención. Hecho para dueños de negocio, no para programadores.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="https://app.agentceo.io/signup">Crear mi empresa →</a>
+          <a class="btn btn-ghost" href="#como-funciona">Ver cómo funciona</a>
+        </div>
+        <div class="trust">
+          <span>Gratis para empezar</span>
+          <span>Tus agentes trabajan solos</span>
+          <span>Se conecta a Shopify y WhatsApp</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════ CÓMO FUNCIONA ═══════════ -->
+  <section id="como-funciona">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Cómo funciona</span>
+        <h2>Describes el resultado. <br />Tus agentes hacen el resto.</h2>
+      </div>
+      <!-- Baraja que se apila al hacer scroll (card-stack-scroll). Cada tarjeta
+           es sticky con un tope incremental: se queda fija y la siguiente sube y
+           se apila encima, dejando ver el borde de las anteriores. Sin librerías. -->
+      <div class="stack">
+        <article class="scard s1">
+          <div class="scard-body">
+            <span class="scard-kicker">Paso 01</span>
+            <h3>Crea tu empresa</h3>
+            <p>En un minuto. Le cuentas a tu CEO Global qué haces y a quién le vendes; él entiende tu negocio y queda listo para coordinar.</p>
+          </div>
+          <div class="scard-art"><span class="scard-ghost">01</span></div>
+        </article>
+        <article class="scard s2">
+          <div class="scard-body">
+            <span class="scard-kicker">Paso 02</span>
+            <h3>Arma tu equipo</h3>
+            <p>Contratas agentes con roles reales —contenido, ventas, inventario— y los conectas a las herramientas que ya usas. Sin prompts que aprender.</p>
+          </div>
+          <div class="scard-art"><span class="scard-ghost">02</span></div>
+        </article>
+        <article class="scard s3">
+          <div class="scard-body">
+            <span class="scard-kicker">Paso 03</span>
+            <h3>Delega y aprueba</h3>
+            <p>Ellos ejecutan solos mientras tú haces otra cosa; lo importante lo apruebas con una firma. Nada sale sin tu visto bueno.</p>
+          </div>
+          <div class="scard-art"><span class="scard-ghost">03</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ TU EQUIPO ═══════════ -->
+  <section id="equipo">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Tu equipo</span>
+        <h2>Roles reales, no un chatbot.</h2>
+        <p>Cada agente está entrenado para un cargo, conectado a tus herramientas y aprende tus preferencias con cada tarea.</p>
+      </div>
+      <!-- Carrusel 3D (coverflow): la tarjeta del centro al frente y las de los
+           lados en perspectiva. Autoplay con pausa al pasar el mouse, arrastre y
+           flechas. Vanilla JS abajo (ver initDeck). -->
+      <div class="deck-wrap">
+        <div class="deck" id="deck">
+          <button class="acard" type="button" style="--c2: rgba(227,197,146,.26)" aria-label="CEO Global">
+            <div class="acard-inner">
+              <div class="acard-scene">
+                <span class="acard-mono">01</span>
+                <svg class="acard-emblem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4 3.5L12 4l5 7.5L21 8l-2 11H5L3 8z"/></svg>
+              </div>
+              <div class="acard-info"><span class="acard-role">Dirección</span><h3>CEO Global</h3><p>Entiende tu negocio, coordina al equipo y te reporta. Es con quien conversas para poner todo en marcha.</p></div>
+            </div>
+          </button>
+          <button class="acard" type="button" style="--c2: rgba(203,182,230,.26)" aria-label="Creador de Contenido">
+            <div class="acard-inner">
+              <div class="acard-scene">
+                <span class="acard-mono">02</span>
+                <svg class="acard-emblem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2.5"/><circle cx="12" cy="13.5" r="3.4"/><path d="M8.5 7l1.4-2.4h4.2L15.5 7"/></svg>
+              </div>
+              <div class="acard-info"><span class="acard-role">Marketing</span><h3>Creador de Contenido</h3><p>Diseña y publica. Genera imágenes con IA, arma correos para tus clientes y hasta edita tu tienda.</p></div>
+            </div>
+          </button>
+          <button class="acard" type="button" style="--c2: rgba(232,185,138,.26)" aria-label="Estratega de Pauta">
+            <div class="acard-inner">
+              <div class="acard-scene">
+                <span class="acard-mono">03</span>
+                <svg class="acard-emblem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></svg>
+              </div>
+              <div class="acard-info"><span class="acard-role">Paid media</span><h3>Estratega de Pauta</h3><p>Planea tus campañas y tu presupuesto de publicidad, con criterio de un experto en medios pagos.</p></div>
+            </div>
+          </button>
+          <button class="acard" type="button" style="--c2: rgba(169,198,218,.26)" aria-label="Inventarista">
+            <div class="acard-inner">
+              <div class="acard-scene">
+                <span class="acard-mono">04</span>
+                <svg class="acard-emblem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-4 9 4-9 4-9-4z"/><path d="M3 8v8l9 4 9-4V8"/><path d="M12 12v8"/></svg>
+              </div>
+              <div class="acard-info"><span class="acard-role">Operación</span><h3>Inventarista</h3><p>Vigila tu stock y tus ventas en Shopify, y te manda el reporte del día sin que se lo pidas.</p></div>
+            </div>
+          </button>
+          <button class="acard" type="button" style="--c2: rgba(159,214,180,.26)" aria-label="Vendedor de WhatsApp">
+            <div class="acard-inner">
+              <div class="acard-scene">
+                <span class="acard-mono">05</span>
+                <svg class="acard-emblem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9.5L4 20V5z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>
+              </div>
+              <div class="acard-info"><span class="acard-role">Ventas</span><h3>Vendedor de WhatsApp</h3><p>Atiende, responde y vende por chat. Mueve a cada cliente por tu embudo sin que se te enfríe un lead.</p></div>
+            </div>
+          </button>
+          <button class="acard" type="button" style="--c2: rgba(227,197,146,.26)" aria-label="Y los que necesites">
+            <div class="acard-inner">
+              <div class="acard-scene">
+                <span class="acard-mono">06</span>
+                <svg class="acard-emblem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.1 6.2 6.4.1-5.1 3.9 1.9 6.3L12 15.9 6.8 19.5l1.9-6.3-5.1-3.9 6.4-.1L12 3z"/></svg>
+              </div>
+              <div class="acard-info"><span class="acard-role">A tu medida</span><h3>Y los que necesites</h3><p>Creas agentes nuevos para lo que haga falta, con su propio conocimiento, herramientas y personalidad.</p></div>
+            </div>
+          </button>
+        </div>
+        <button class="deck-arrow deck-prev" id="deckPrev" type="button" aria-label="Agente anterior">&#8249;</button>
+        <button class="deck-arrow deck-next" id="deckNext" type="button" aria-label="Siguiente agente">&#8250;</button>
+      </div>
+      <div class="deck-dots" id="deckDots" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ LA DIFERENCIA ═══════════ -->
+  <section id="diferencia">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">La diferencia</span>
+        <h2>Deja de ser el puente entre la IA y tus herramientas.</h2>
+      </div>
+      <div class="diff">
+        <div class="diff-card old">
+          <div class="tag">Un chat de IA cualquiera</div>
+          <h3>Te da texto. El trabajo lo haces tú.</h3>
+          <ul class="diff-list">
+            <li><span class="mk">1</span><span>Le pides una idea y te da un párrafo.</span></li>
+            <li><span class="mk">2</span><span>Copias, abres Shopify, pegas, ajustas a mano.</span></li>
+            <li><span class="mk">3</span><span>Abres el correo, pegas, personalizas, envías. Tú eres la integración.</span></li>
+          </ul>
+        </div>
+        <div class="diff-card new">
+          <div class="tag">AgentCEO</div>
+          <h3>Se conecta directo y <em class="hl">ejecuta</em>.</h3>
+          <ul class="diff-list">
+            <li><span class="mk">✓</span><span><b>Actúa en tus herramientas</b>, no solo escribe: edita la tienda, manda los correos, ajusta el inventario.</span></li>
+            <li><span class="mk">✓</span><span><b>Trabaja solo</b> mientras tú haces otra cosa, y te avisa cuando algo necesita tu firma.</span></li>
+            <li><span class="mk">✓</span><span><b>Recuerda tu negocio</b>: tu marca, tus clientes, tu forma de vender.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ INTEGRACIONES ═══════════ -->
+  <section id="integraciones">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Conectado a tu negocio</span>
+        <h2>Vive donde ya trabajas.</h2>
+        <p>Tus agentes operan sobre las herramientas que ya usas todos los días.</p>
+      </div>
+      <div class="integrations">
+        <span class="chip"><i></i>Shopify</span>
+        <span class="chip"><i></i>WhatsApp</span>
+        <span class="chip"><i></i>Gmail</span>
+        <span class="chip"><i></i>Google Drive</span>
+        <span class="chip"><i></i>Correo masivo</span>
+        <span class="chip"><i></i>Instagram &amp; TikTok</span>
+        <span class="chip"><i></i>Generación de imágenes</span>
+        <span class="chip"><i></i>Generación de video</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ PRECIOS ═══════════ -->
+  <section id="precios">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Precios</span>
+        <h2>Empieza gratis. Crece cuando quieras.</h2>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <div class="pname">Para empezar</div>
+          <div class="price">Gratis</div>
+          <p class="pdesc">Crea tu empresa y conversa con tu CEO Global. Sin tarjeta.</p>
+          <ul>
+            <li>Tu empresa y tu primera marca</li>
+            <li>CEO Global que entiende tu negocio</li>
+            <li>Crea tus primeros agentes</li>
+            <li>Conecta tus herramientas</li>
+          </ul>
+          <a class="btn btn-ghost" href="https://app.agentceo.io/signup">Crear mi empresa</a>
+        </div>
+        <div class="plan feat">
+          <div class="pname">Para tu equipo</div>
+          <div class="price">A tu medida</div>
+          <p class="pdesc">Cuando tu operación crece: más agentes, más marcas, más automatización.</p>
+          <ul>
+            <li>Agentes ilimitados y varias marcas</li>
+            <li>Automatizaciones y tareas autónomas</li>
+            <li>Aprobaciones y guardrails por firma</li>
+            <li>Acompañamiento para montarlo todo</li>
+          </ul>
+          <a class="btn btn-primary" href="https://app.agentceo.io/signup">Hablemos</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ FAQ ═══════════ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Preguntas</span>
+        <h2>Preguntas, resueltas</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>¿Necesito saber programar? <span class="ic">+</span></summary>
+          <div class="ans">No. AgentCEO está hecho para dueños de negocio. Conversas con tus agentes en español, como con una persona de tu equipo; no hay prompts que aprender ni código que escribir.</div>
+        </details>
+        <details>
+          <summary>¿Mis agentes de verdad trabajan solos? <span class="ic">+</span></summary>
+          <div class="ans">Sí. Ejecutan tareas por su cuenta —publican, responden, ajustan inventario— y lo que es delicado o irreversible se frena hasta que tú lo apruebas con una firma. Nunca actúan a ciegas.</div>
+        </details>
+        <details>
+          <summary>¿A qué herramientas se conectan? <span class="ic">+</span></summary>
+          <div class="ans">A las que ya usas: Shopify, WhatsApp, Gmail, Google Drive, correo masivo y más. Operan directamente sobre ellas, no te devuelven texto para que lo pegues tú.</div>
+        </details>
+        <details>
+          <summary>¿Mis datos están seguros? <span class="ic">+</span></summary>
+          <div class="ans">Sí. Cada empresa está aislada de las demás: tus agentes, tus clientes y tu información solo los ve tu equipo. Las acciones sensibles requieren autorización explícita.</div>
+        </details>
+        <details>
+          <summary>¿Cuánto cuesta empezar? <span class="ic">+</span></summary>
+          <div class="ans">Crear tu empresa y arrancar es gratis, sin tarjeta. Cuando tu operación crece y quieres más agentes, marcas y automatización, armamos un plan a tu medida.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ CTA FINAL ═══════════ -->
+  <section class="cta">
+    <div class="wrap">
+      <span class="eyebrow">Empieza hoy</span>
+      <h2 style="margin-top:20px">Tu empresa está <em class="hl">a un minuto</em>.</h2>
+      <p>Crea tu empresa, conoce a tu CEO Global y arma tu equipo. Gratis para empezar.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="https://app.agentceo.io/signup">Crear mi empresa →</a>
+        <a class="btn btn-ghost" href="https://app.agentceo.io/login">Ya tengo cuenta</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer>
+    <div class="wrap">
+      <div class="foot-top">
+        <div class="foot-brand">
+          <a href="#top" class="brand" aria-label="AgentCEO">
+            <img class="a" src="/logo-agent.png" alt="Agent" />
+            <span class="dot">·</span>
+            <img class="b" src="/logo-ceo.png" alt="CEO" />
+          </a>
+          <p>La plataforma donde creas tu empresa y un equipo de agentes de IA la opera de verdad.</p>
+        </div>
+        <div class="foot-col">
+          <h4>Producto</h4>
+          <a href="#como-funciona">Cómo funciona</a>
+          <a href="#equipo">Agentes</a>
+          <a href="#integraciones">Integraciones</a>
+          <a href="#precios">Precios</a>
+        </div>
+        <div class="foot-col">
+          <h4>Empresa</h4>
+          <a href="https://app.agentceo.io/signup">Crear empresa</a>
+          <a href="https://app.agentceo.io/login">Entrar</a>
+          <a href="mailto:hola@agentceo.io">Contacto</a>
+        </div>
+        <div class="foot-col">
+          <h4>Recursos</h4>
+          <a href="#faq">Preguntas frecuentes</a>
+          <a href="#diferencia">Por qué AgentCEO</a>
+          <a href="mailto:soporte@agentceo.io">Soporte</a>
+        </div>
+        <div class="foot-col">
+          <h4>Legal</h4>
+          <a href="/legal/terminos.html">Términos del servicio</a>
+          <a href="/legal/privacidad.html">Política de privacidad</a>
+          <a href="/legal/cookies.html">Política de cookies</a>
+          <a href="/legal/seguridad.html">Seguridad</a>
+          <a href="/legal/gdpr.html">GDPR</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <div>© <span id="year">2026</span> AgentCEO · agentceo.io — Todos los derechos reservados.</div>
+        <div class="legal-links">
+          <a href="/legal/terminos.html">Términos</a>
+          <a href="/legal/privacidad.html">Privacidad</a>
+          <a href="/legal/cookies.html">Cookies</a>
+          <a href="/legal/seguridad.html">Seguridad</a>
+          <a href="/legal/gdpr.html">GDPR</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Video de fondo: se REPITE CADA 10 SEGUNDOS ──
+    // El clip dura ~7s. En vez de un loop pegado, se respeta un ciclo de 10s:
+    // reproduce, y cuando termina espera lo que falte para completar los 10s
+    // antes de volver a empezar. Se apaga con "reducir movimiento".
+    (function () {
+      var v = document.getElementById('heroVideo');
+      if (!v) return;
+      var CYCLE = 10000, started = 0;
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function playCycle() {
+        started = Date.now();
+        try { v.currentTime = 0; } catch (e) {}
+        var p = v.play();
+        if (p && p.catch) p.catch(function () {});
+      }
+      v.addEventListener('ended', function () {
+        var wait = Math.max(0, CYCLE - (Date.now() - started));
+        setTimeout(playCycle, wait);
+      });
+      // Algunos navegadores exigen interacción; si autoplay falla, se reintenta al primer toque.
+      if (!reduce) {
+        playCycle();
+        document.addEventListener('click', function once() {
+          if (v.paused) playCycle();
+          document.removeEventListener('click', once);
+        }, { once: true });
+      }
+    })();
+
+    // ── Carrusel 3D coverflow de agentes (mecánica calcada de la landing NINA) ──
+    (function initDeck() {
+      var deck = document.getElementById('deck');
+      if (!deck) return;
+      var cards = Array.prototype.slice.call(deck.querySelectorAll('.acard'));
+      var N = cards.length;
+      if (!N) return;
+      var dotsWrap = document.getElementById('deckDots');
+      var prevBtn = document.getElementById('deckPrev');
+      var nextBtn = document.getElementById('deckNext');
+      var index = 0, paused = false, gap = 210;
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var dots = [];
+      if (dotsWrap) {
+        for (var k = 0; k < N; k++) {
+          var d = document.createElement('button');
+          d.type = 'button'; d.className = 'ddot';
+          d.setAttribute('aria-label', 'Ver agente ' + (k + 1));
+          (function (kk) { d.addEventListener('click', function () { go(kk); }); })(k);
+          dotsWrap.appendChild(d); dots.push(d);
+        }
+      }
+
+      function gapFor() {
+        var w = window.innerWidth;
+        if (w < 480) return 132;
+        if (w < 720) return 172;
+        return 210;
+      }
+      function render() {
+        var half = N / 2;
+        for (var i = 0; i < N; i++) {
+          var off = i - index;
+          if (off > half) off -= N;
+          if (off < -half) off += N;
+          var abs = Math.abs(off);
+          var hidden = abs > 2;
+          var scale = off === 0 ? 1 : abs === 1 ? 0.82 : 0.66;
+          var opacity = hidden ? 0 : abs === 0 ? 1 : abs === 1 ? 0.85 : 0.42;
+          var blur = off === 0 ? 0 : abs === 1 ? 0.5 : 2;
+          var c = cards[i];
+          c.style.transform = 'translateX(' + (off * gap) + 'px) rotateY(' + (off * -22) + 'deg) scale(' + scale + ')';
+          c.style.opacity = opacity;
+          c.style.filter = 'blur(' + blur + 'px)';
+          c.style.zIndex = String(10 - abs);
+          c.style.pointerEvents = hidden ? 'none' : 'auto';
+          c.classList.toggle('is-active', off === 0);
+        }
+        for (var j = 0; j < dots.length; j++) dots[j].classList.toggle('on', j === index);
+      }
+      function go(i) { index = ((i % N) + N) % N; render(); }
+      function next() { go(index + 1); }
+      function prev() { go(index - 1); }
+
+      if (prevBtn) prevBtn.addEventListener('click', prev);
+      if (nextBtn) nextBtn.addEventListener('click', next);
+      cards.forEach(function (c, i) { c.addEventListener('click', function () { if (i !== index) go(i); }); });
+
+      var startX = 0, down = false;
+      deck.addEventListener('pointerdown', function (e) { down = true; startX = e.clientX; });
+      deck.addEventListener('pointerup', function (e) {
+        if (!down) return; down = false;
+        var dx = e.clientX - startX;
+        if (Math.abs(dx) > 40) { if (dx < 0) next(); else prev(); }
+      });
+      deck.addEventListener('pointerleave', function () { down = false; });
+      deck.addEventListener('mouseenter', function () { paused = true; });
+      deck.addEventListener('mouseleave', function () { paused = false; });
+
+      window.addEventListener('resize', function () { gap = gapFor(); render(); });
+      gap = gapFor();
+      render();
+      if (!reduce) { setInterval(function () { if (!paused) next(); }, 4500); }
+    })();
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
