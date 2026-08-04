@@ -2,12 +2,22 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "agentceo-landing",
   "compatibility_date": "2026-05-04",
+  "main": "worker/index.js",
   "assets": {
-    "directory": "./public"
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
   },
   "workers_dev": true,
   "routes": [
     { "pattern": "agentceo.io", "custom_domain": true },
     { "pattern": "www.agentceo.io", "custom_domain": true }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "agentceo-waitlist",
+      "database_id": "06f5dc3a-1355-4518-b5c0-665a9809fba5"
+    }
   ]
 }

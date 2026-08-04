@@ -377,6 +377,32 @@
       html { scroll-behavior: auto; }
       .acard, .btn { transition: none; }
     }
+
+    /* ── Lista de espera (pre-lanzamiento) ── */
+    .waitlist-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; max-width: 500px; }
+    .waitlist-form input[type="email"] {
+      flex: 1 1 240px; min-width: 0; height: 54px; padding: 0 20px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 999px;
+      color: var(--ink); font-family: inherit; font-size: 15px; outline: none;
+      transition: border-color .2s ease;
+    }
+    .waitlist-form input[type="email"]:focus { border-color: var(--accent); }
+    .waitlist-form input[type="email"]::placeholder { color: var(--muted-2); }
+    .waitlist-form .hp { position: absolute !important; left: -9999px; top: auto; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .wl-msg { flex-basis: 100%; margin: 2px 4px 0; font-size: 13px; color: var(--muted); }
+    .wl-msg.wl-err { color: #e6a79c; }
+    .wl-ok { margin: 0; color: var(--accent); font-family: var(--serif); font-size: clamp(19px, 2.4vw, 24px); }
+    .wl-note { margin-top: 14px; font-size: 12.5px; color: var(--muted-2); }
+    .cta .waitlist-form { margin: 0 auto; justify-content: center; }
+    @media (max-width: 560px) {
+      .waitlist-form { flex-direction: column; align-items: stretch; }
+      .waitlist-form input[type="email"], .waitlist-form button { width: 100%; }
+    }
+
+    /* Fix scroll horizontal en móvil: 'clip' también en <html> (no solo en body), y
+       contener el carrusel 3D de agentes, cuyas tarjetas transformadas se salían del viewport. */
+    html { overflow-x: clip; }
+    .deck-wrap { overflow: hidden; }
   </style>
 </head>
 <body>
@@ -396,8 +422,7 @@
         <a class="link" href="#precios">Precios</a>
       </div>
       <div class="nav-cta">
-        <a class="link" style="font-size:13.5px;color:var(--muted)" href="https://app.agentceo.io/login">Entrar</a>
-        <a class="btn btn-primary btn-sm" href="https://app.agentceo.io/signup">Crear empresa</a>
+        <a class="btn btn-primary btn-sm" href="#waitlist">Únete a la lista</a>
       </div>
     </nav>
 
@@ -410,7 +435,7 @@
       </div>
 
       <div class="hero-content" id="top">
-        <span class="eyebrow">Un equipo ejecutivo de IA</span>
+        <span class="eyebrow">Pre-lanzamiento · Lista de espera</span>
         <h1>Haz crecer tu empresa, <em class="hl">sin hacerlo todo tú</em>.</h1>
         <p class="sub">
           AgentCEO es la plataforma donde creas tu empresa y contratas un equipo de
@@ -418,9 +443,14 @@
           atención. Hecho para dueños de negocio, no para programadores.
         </p>
         <div class="actions">
-          <a class="btn btn-primary" href="https://app.agentceo.io/signup">Crear mi empresa →</a>
-          <a class="btn btn-ghost" href="#como-funciona">Ver cómo funciona</a>
+          <form class="waitlist-form" id="waitlist" novalidate>
+            <input type="email" name="email" required placeholder="Tu correo" autocomplete="email" aria-label="Tu correo" />
+            <input type="text" name="company" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <button class="btn btn-primary" type="submit">Únete a la lista →</button>
+            <p class="wl-msg" role="status" aria-live="polite"></p>
+          </form>
         </div>
+        <p class="wl-note">Estamos por lanzar. Déjanos tu correo y sé de los primeros en probar AgentCEO. · <a href="#como-funciona" style="color:var(--muted);text-decoration:underline;text-underline-offset:3px">Ver cómo funciona ↓</a></p>
         <div class="trust">
           <span>Gratis para empezar</span>
           <span>Tus agentes trabajan solos</span>
@@ -613,7 +643,7 @@
             <li>Crea tus primeros agentes</li>
             <li>Conecta tus herramientas</li>
           </ul>
-          <a class="btn btn-ghost" href="https://app.agentceo.io/signup">Crear mi empresa</a>
+          <a class="btn btn-ghost" href="#waitlist">Únete a la lista</a>
         </div>
         <div class="plan feat">
           <div class="pname">Para tu equipo</div>
@@ -625,7 +655,7 @@
             <li>Aprobaciones y guardrails por firma</li>
             <li>Acompañamiento para montarlo todo</li>
           </ul>
-          <a class="btn btn-primary" href="https://app.agentceo.io/signup">Hablemos</a>
+          <a class="btn btn-primary" href="#waitlist">Únete a la lista</a>
         </div>
       </div>
     </div>
@@ -666,12 +696,16 @@
   <!-- ═══════════ CTA FINAL ═══════════ -->
   <section class="cta">
     <div class="wrap">
-      <span class="eyebrow">Empieza hoy</span>
-      <h2 style="margin-top:20px">Tu empresa está <em class="hl">a un minuto</em>.</h2>
-      <p>Crea tu empresa, conoce a tu CEO Global y arma tu equipo. Gratis para empezar.</p>
-      <div class="actions">
-        <a class="btn btn-primary" href="https://app.agentceo.io/signup">Crear mi empresa →</a>
-        <a class="btn btn-ghost" href="https://app.agentceo.io/login">Ya tengo cuenta</a>
+      <span class="eyebrow">Pre-lanzamiento</span>
+      <h2 style="margin-top:20px">Sé de los <em class="hl">primeros</em>.</h2>
+      <p>Estamos afinando los últimos detalles. Déjanos tu correo y te avisamos apenas AgentCEO esté disponible.</p>
+      <div class="actions" style="justify-content:center">
+        <form class="waitlist-form" novalidate>
+          <input type="email" name="email" required placeholder="Tu correo" autocomplete="email" aria-label="Tu correo" />
+          <input type="text" name="company" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button class="btn btn-primary" type="submit">Únete a la lista →</button>
+          <p class="wl-msg" role="status" aria-live="polite"></p>
+        </form>
       </div>
     </div>
   </section>
@@ -697,15 +731,15 @@
         </div>
         <div class="foot-col">
           <h4>Empresa</h4>
-          <a href="https://app.agentceo.io/signup">Crear empresa</a>
-          <a href="https://app.agentceo.io/login">Entrar</a>
-          <a href="mailto:hola@agentceo.io">Contacto</a>
+          <a href="#waitlist">Únete a la lista</a>
+          <a href="mailto:ceo@agentceo.io">Contacto</a>
+          <a href="#faq">Preguntas</a>
         </div>
         <div class="foot-col">
           <h4>Recursos</h4>
           <a href="#faq">Preguntas frecuentes</a>
           <a href="#diferencia">Por qué AgentCEO</a>
-          <a href="mailto:soporte@agentceo.io">Soporte</a>
+          <a href="mailto:ceo@agentceo.io">Soporte</a>
         </div>
         <div class="foot-col">
           <h4>Legal</h4>
@@ -835,6 +869,35 @@
       render();
       if (!reduce) { setInterval(function () { if (!paused) next(); }, 4500); }
     })();
+
+    // ── Lista de espera: guarda el correo en D1 (POST /api/waitlist) ──
+    document.querySelectorAll('.waitlist-form').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var btn = form.querySelector('button');
+        var msg = form.querySelector('.wl-msg');
+        var email = ((form.email && form.email.value) || '').trim();
+        var company = (form.company && form.company.value) || '';
+        if (msg) { msg.textContent = ''; msg.classList.remove('wl-err'); }
+        if (!email) { return; }
+        var orig = btn ? btn.textContent : '';
+        if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+        fetch('/api/waitlist', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email: email, company: company, source: 'landing', referrer: document.referrer || '' })
+        })
+          .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (!res.ok || !res.d.ok) { throw new Error(res.d.error || 'No pudimos enviarlo.'); }
+            form.innerHTML = '<p class="wl-ok">✓ ¡Estás en la lista! Te avisamos apenas lancemos.</p>';
+          })
+          .catch(function (err) {
+            if (msg) { msg.textContent = err.message || 'No pudimos enviarlo. Intenta de nuevo.'; msg.classList.add('wl-err'); }
+            if (btn) { btn.disabled = false; btn.textContent = orig; }
+          });
+      });
+    });
 
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
