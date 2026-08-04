@@ -396,7 +396,9 @@
     .cta .waitlist-form { margin: 0 auto; justify-content: center; }
     @media (max-width: 560px) {
       .waitlist-form { flex-direction: column; align-items: stretch; }
-      .waitlist-form input[type="email"], .waitlist-form button { width: 100%; }
+      /* En columna el eje principal es vertical: sin flex:0 0 auto, el input crecería
+         de ALTO (se veía como un óvalo gigante). Así respeta su height de 54px. */
+      .waitlist-form input[type="email"], .waitlist-form button { width: 100%; flex: 0 0 auto; }
     }
 
     /* Fix scroll horizontal en móvil: 'clip' también en <html> (no solo en body), y
