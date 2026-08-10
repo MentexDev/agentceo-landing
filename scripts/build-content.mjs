@@ -167,6 +167,24 @@ function footerHTML() {
   </footer>`
 }
 
+// Botones de compartir en redes. Facebook/X abren su sharer oficial; Instagram y
+// TikTok NO aceptan compartir un enlace por URL desde la web, así que usan el menú
+// nativo (navigator.share) en móvil o copian el enlace en escritorio (ver COMMON_SCRIPT).
+function shareHTML() {
+  const b = (net, label, svg) =>
+    `<button class="share-btn" type="button" data-share="${net}" aria-label="Compartir en ${label}"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">${svg}</svg></button>`
+  return `
+    <div class="share" data-share-box>
+      <span class="share-label">Compartir</span>
+      ${b('facebook', 'Facebook', '<path fill="currentColor" d="M15 8.5h-2a.9.9 0 00-1 .9V11h3l-.4 3H12v7H9v-7H7v-3h2V9a3.5 3.5 0 013.5-3.5H15v3z"/>')}
+      ${b('x', 'X', '<path fill="currentColor" d="M17.5 3H21l-7.2 8.2L22 21h-6.6l-4.3-5.6L6 21H2.5l7.7-8.8L2 3h6.8l3.9 5.1L17.5 3zm-1.2 16h1.9L7.8 4.9H5.8L16.3 19z"/>')}
+      ${b('instagram', 'Instagram', '<rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.3" cy="6.7" r="1.2" fill="currentColor"/>')}
+      ${b('tiktok', 'TikTok', '<path fill="currentColor" d="M16.5 3c.35 2.1 1.6 3.55 3.5 3.85v3c-1.4 0-2.75-.42-3.9-1.18v6.15a5.4 5.4 0 11-5.4-5.4c.3 0 .6.02.9.07v3.1a2.3 2.3 0 101.6 2.18V3h3.3z"/>')}
+      ${b('copy', 'Copiar enlace', '<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 007 0l2-2a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-2 2a5 5 0 007 7l1-1"/>')}
+      <span class="share-msg" role="status" aria-live="polite"></span>
+    </div>`
+}
+
 // Modal de lista de espera (se abre desde cualquier botón [data-open-waitlist]).
 const WAITLIST_MODAL = `
   <div class="wl-modal" id="wlModal" hidden>
@@ -220,6 +238,28 @@ const COMMON_SCRIPT = `
             form.email.value = ''; msg.textContent = '¡Listo! Te avisamos apenas abramos.'; msg.classList.add('wl-ok');
             btn.innerHTML = prev; btn.disabled = false;
           } catch (err) { msg.textContent = 'No pudimos guardarlo. Intenta de nuevo.'; msg.classList.add('wl-err'); btn.innerHTML = prev; btn.disabled = false; }
+        });
+      }
+      // Compartir en redes: FB/X abren su sharer; IG/TikTok usan el menú nativo o copian.
+      var shareBox = document.querySelector('[data-share-box]');
+      if (shareBox) {
+        var shareUrl = function () { return location.href.split('#')[0]; };
+        var win = function (u) { window.open(u, '_blank', 'noopener,noreferrer,width=600,height=540'); };
+        var say = function (m) { var s = shareBox.querySelector('.share-msg'); if (s) { s.textContent = m; setTimeout(function () { s.textContent = ''; }, 3500); } };
+        var copyLink = function (net) {
+          var u = shareUrl();
+          if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { say(net ? ('Enlace copiado — pégalo en tu ' + net) : 'Enlace copiado'); }).catch(function () { say('Copia el enlace: ' + u); });
+          else say('Copia el enlace: ' + u);
+        };
+        shareBox.addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-share]'); if (!btn) return;
+          var t = btn.dataset.share, u = encodeURIComponent(shareUrl()), tx = encodeURIComponent(document.title);
+          if (t === 'facebook') win('https://www.facebook.com/sharer/sharer.php?u=' + u);
+          else if (t === 'x') win('https://twitter.com/intent/tweet?url=' + u + '&text=' + tx);
+          else if (t === 'instagram' || t === 'tiktok') {
+            if (navigator.share) navigator.share({ title: document.title, url: shareUrl() }).catch(function () {});
+            else copyLink(t === 'instagram' ? 'Instagram' : 'TikTok');
+          } else if (t === 'copy') copyLink(null);
         });
       }
     })();
@@ -417,6 +457,8 @@ function renderArticulo({ item, base, active, sectionUrl, sectionName, related, 
         <p class="sources-note">Cada nota se contrasta con su fuente primaria antes de publicarse. Si ves algo que debamos corregir, escríbenos a <a href="mailto:ceo@agentceo.io">ceo@agentceo.io</a>.</p>
       </div>` : ''}
 
+      ${shareHTML()}
+
       <a class="back back-bottom" href="${esc(sectionUrl)}"><span aria-hidden="true">←</span> Volver a ${esc(sectionName)}</a>
     </div>
     <div class="wrap">${relatedHTML}</div>
@@ -471,6 +513,8 @@ function renderRecurso({ item, base, active, sectionUrl, sectionName, related })
           <button type="button" class="btn btn-ghost" onclick="window.print()">Guardar como PDF <span aria-hidden="true">↓</span></button>
         </div>
       </article>
+
+      ${shareHTML()}
 
       <a class="back back-bottom" href="${esc(sectionUrl)}"><span aria-hidden="true">←</span> Volver a ${esc(sectionName)}</a>
     </div>
