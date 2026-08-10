@@ -6,10 +6,15 @@
   <title>Agent · CEO — Tu empresa, operada por un equipo de IA</title>
   <meta name="description" content="AgentCEO es la plataforma donde creas tu empresa y contratas un equipo de agentes de IA que la operan de verdad: contenido, ventas, inventario y atención. Hecho para dueños de negocio, no para programadores." />
 
+  <link rel="canonical" href="https://agentceo.io/" />
   <meta property="og:title" content="Agent · CEO — Tu empresa, operada por un equipo de IA" />
   <meta property="og:description" content="Crea tu empresa y contrata un equipo de agentes de IA que la opera de verdad. Gratis para empezar." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://agentceo.io" />
+  <meta property="og:url" content="https://agentceo.io/" />
+  <meta property="og:image" content="https://agentceo.io/apple-touch-icon.png" />
+  <meta property="og:site_name" content="AgentCEO" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://agentceo.io/apple-touch-icon.png" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
   <link rel="icon" type="image/png" href="/favicon.png" />
@@ -108,6 +113,10 @@
     .nav-links a.link { font-size: 13.5px; color: var(--muted); font-weight: 500; transition: color .18s ease; }
     .nav-links a.link:hover { color: var(--ink); }
     .nav-cta { display: flex; align-items: center; gap: 12px; }
+    .skip-link { position: absolute; left: -9999px; top: 0; z-index: 100; background: var(--accent); color: #14110c; padding: 10px 16px; border-radius: 0 0 8px 0; font-weight: 650; font-size: 14px; }
+    .skip-link:focus { left: 0; }
+    .nav-toggle { display: none; }
+    .nav-toggle span { display: block; height: 2px; width: 20px; background: var(--ink); border-radius: 2px; transition: transform .2s ease, opacity .2s ease; }
 
     /* ── Hero en dos columnas: video a la IZQUIERDA, contenido a la DERECHA ── */
     .hero {
@@ -340,7 +349,24 @@
 
     /* ── Responsive ── */
     @media (max-width: 900px) {
-      .nav-links { display: none; }
+      .nav-toggle {
+        display: inline-flex; flex-direction: column; justify-content: center; gap: 5px;
+        width: 44px; height: 44px; margin-left: auto; padding: 0 11px;
+        background: rgba(12, 12, 17, 0.5); border: 1px solid var(--line); border-radius: 10px; cursor: pointer;
+      }
+      .nav-toggle.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      .nav-toggle.is-open span:nth-child(2) { opacity: 0; }
+      .nav-toggle.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+      .nav-cta { display: none; }
+      .nav-links {
+        display: none; position: absolute; top: 100%; left: 0; right: 0;
+        flex-direction: column; align-items: stretch; gap: 0;
+        background: rgba(10, 10, 14, 0.98); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+        border: 1px solid var(--line); border-radius: 14px; margin: 6px 12px 0;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a.link { padding: 15px 22px; font-size: 15px; border-top: 1px solid var(--line-soft); }
+      .nav-links a.link:first-child { border-top: none; }
       /* Hero apilado: el video arriba, el contenido debajo y centrado. */
       .hero-grid { grid-template-columns: 1fr; min-height: 0; }
       .hero-media { min-height: 42svh; height: 42svh; }
@@ -409,6 +435,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#como-funciona">Saltar al contenido</a>
 
   <!-- ═══════════ HERO ═══════════ -->
   <header class="hero">
@@ -418,11 +445,16 @@
         <span class="dot">·</span>
         <img class="b" src="/logo-ceo.png" alt="CEO" />
       </a>
-      <div class="nav-links">
+      <button class="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="navlinks">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links" id="navlinks">
         <a class="link" href="#como-funciona">Cómo funciona</a>
         <a class="link" href="#equipo">Agentes</a>
-        <a class="link" href="#diferencia">Por qué</a>
-        <a class="link" href="#precios">Precios</a>
+        <a class="link" href="/noticias/">Noticias</a>
+        <a class="link" href="/blog/">Blog</a>
+        <a class="link" href="/recursos/">Recursos</a>
+        <a class="link" href="/precios/">Precios</a>
       </div>
       <div class="nav-cta">
         <a class="btn btn-primary btn-sm" href="#waitlist">Únete a la lista</a>
@@ -629,40 +661,7 @@
   </section>
 
   <!-- ═══════════ PRECIOS ═══════════ -->
-  <section id="precios">
-    <div class="wrap">
-      <div class="sec-head">
-        <span class="eyebrow">Precios</span>
-        <h2>Empieza gratis. Crece cuando quieras.</h2>
-      </div>
-      <div class="plans">
-        <div class="plan">
-          <div class="pname">Para empezar</div>
-          <div class="price">Gratis</div>
-          <p class="pdesc">Crea tu empresa y conversa con tu CEO Global. Sin tarjeta.</p>
-          <ul>
-            <li>Tu empresa y tu primera marca</li>
-            <li>CEO Global que entiende tu negocio</li>
-            <li>Crea tus primeros agentes</li>
-            <li>Conecta tus herramientas</li>
-          </ul>
-          <a class="btn btn-ghost" href="#waitlist">Únete a la lista</a>
-        </div>
-        <div class="plan feat">
-          <div class="pname">Para tu equipo</div>
-          <div class="price">A tu medida</div>
-          <p class="pdesc">Cuando tu operación crece: más agentes, más marcas, más automatización.</p>
-          <ul>
-            <li>Agentes ilimitados y varias marcas</li>
-            <li>Automatizaciones y tareas autónomas</li>
-            <li>Aprobaciones y guardrails por firma</li>
-            <li>Acompañamiento para montarlo todo</li>
-          </ul>
-          <a class="btn btn-primary" href="#waitlist">Únete a la lista</a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- Precios movidos a la página dedicada /precios/ (antes: sección #precios con autoscroll). -->
 
   <!-- ═══════════ FAQ ═══════════ -->
   <section id="faq">
@@ -729,8 +728,8 @@
           <h4>Producto</h4>
           <a href="#como-funciona">Cómo funciona</a>
           <a href="#equipo">Agentes</a>
-          <a href="#integraciones">Integraciones</a>
-          <a href="#precios">Precios</a>
+          <a href="/precios/">Precios</a>
+          <a href="/noticias/">Noticias</a>
         </div>
         <div class="foot-col">
           <h4>Empresa</h4>
@@ -903,6 +902,17 @@
     });
 
     document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+  <script>
+    (function () {
+      var t = document.querySelector('.nav-toggle'), n = document.getElementById('navlinks');
+      if (t && n) t.addEventListener('click', function () {
+        var o = n.classList.toggle('open');
+        t.classList.toggle('is-open', o);
+        t.setAttribute('aria-expanded', o ? 'true' : 'false');
+        t.setAttribute('aria-label', o ? 'Cerrar menú' : 'Abrir menú');
+      });
+    })();
   </script>
 </body>
 </html>

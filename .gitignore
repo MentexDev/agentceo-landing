@@ -1,3 +1,15 @@
 .wrangler/
 node_modules/
 .DS_Store
+
+# Entorno local
+.env
+
+# Contenido GENERADO por scripts/build-content.mjs (fuente = content/ + scripts/).
+# Se regenera con `npm run build`. Despliega siempre con `npm run deploy`.
+/public/noticias/
+/public/blog/
+/public/recursos/
+/public/precios/
+/public/sitemap.xml
+/public/robots.txt
