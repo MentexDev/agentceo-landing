@@ -303,6 +303,26 @@ footer { background: var(--bg-2); border-top: 1px solid var(--line); padding: 72
 .precios-cta .btn { margin-top: 30px; }
 @media (max-width: 720px) { .plans { grid-template-columns: 1fr; max-width: 460px; } }
 
+/* ── Modal de lista de espera ── */
+.wl-modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.wl-modal[hidden] { display: none; }
+.wl-backdrop { position: absolute; inset: 0; background: rgba(4, 4, 6, 0.72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.wl-card { position: relative; z-index: 1; width: 100%; max-width: 440px; background: linear-gradient(180deg, var(--bg-3), var(--bg-2)); border: 1px solid var(--line); border-radius: 22px; padding: 42px 34px 34px; box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6); animation: wl-pop .25s ease; }
+@keyframes wl-pop { from { transform: translateY(12px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+.wl-close { position: absolute; top: 15px; right: 15px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line); color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; transition: background .18s ease; }
+.wl-close:hover { background: rgba(255, 255, 255, 0.1); }
+.wl-card h2 { font-family: var(--serif); font-size: 30px; margin-top: 14px; }
+.wl-modal-sub { color: var(--muted); margin-top: 12px; font-size: 15px; line-height: 1.55; }
+.wl-modal-form { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+.wl-modal-form input[type="email"] { height: 54px; padding: 0 20px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); border-radius: 999px; color: var(--ink); font-family: inherit; font-size: 15px; outline: none; transition: border-color .2s ease; }
+.wl-modal-form input[type="email"]:focus { border-color: var(--accent); }
+.wl-modal-form input[type="email"]::placeholder { color: var(--muted-2); }
+.wl-modal-form .hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.wl-modal-form .btn { width: 100%; }
+.wl-modal-msg { font-size: 13px; color: var(--muted); text-align: center; }
+.wl-modal-msg.wl-err { color: #e6a79c; }
+.wl-modal-msg.wl-ok { color: var(--accent); font-family: var(--serif); font-size: 18px; }
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   /* Menú hamburguesa: el nav ya NO queda sin salida en móvil. */

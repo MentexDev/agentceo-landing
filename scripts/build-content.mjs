@@ -108,7 +108,7 @@ function navHTML(active = '') {
         ${link('/precios/', 'Precios', 'precios')}
       </div>
       <div class="nav-cta">
-        <a class="btn btn-primary btn-sm" href="/#waitlist">Únete a la lista</a>
+        <a class="btn btn-primary btn-sm" href="/#waitlist" data-open-waitlist>Únete a la lista</a>
       </div>
     </nav>`
 }
@@ -167,7 +167,26 @@ function footerHTML() {
   </footer>`
 }
 
-// Script común (año + menú móvil hamburguesa). Va una vez por página.
+// Modal de lista de espera (se abre desde cualquier botón [data-open-waitlist]).
+const WAITLIST_MODAL = `
+  <div class="wl-modal" id="wlModal" hidden>
+    <div class="wl-backdrop" data-close-waitlist></div>
+    <div class="wl-card" role="dialog" aria-modal="true" aria-labelledby="wlModalTitle">
+      <button class="wl-close" type="button" aria-label="Cerrar" data-close-waitlist>&times;</button>
+      <span class="eyebrow">Pre-lanzamiento</span>
+      <h2 id="wlModalTitle">Únete a la lista</h2>
+      <p class="wl-modal-sub">Déjanos tu correo y sé de los primeros en probar AgentCEO. Gratis para empezar.</p>
+      <form class="wl-modal-form" id="wlModalForm" novalidate>
+        <label class="sr-only" for="wl-modal-email">Tu correo</label>
+        <input type="email" id="wl-modal-email" name="email" required placeholder="Tu correo" autocomplete="email" />
+        <input type="text" name="company" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <button class="btn btn-primary" type="submit">Únete a la lista <span aria-hidden="true">→</span></button>
+        <p class="wl-modal-msg" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>`
+
+// Script común (año + menú móvil hamburguesa + modal de lista de espera). Va una vez por página.
 const COMMON_SCRIPT = `
   <script>
     (function () {
@@ -179,6 +198,30 @@ const COMMON_SCRIPT = `
         t.setAttribute('aria-expanded', open ? 'true' : 'false');
         t.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
       });
+      var modal = document.getElementById('wlModal');
+      if (modal) {
+        var form = document.getElementById('wlModalForm'), msg = form.querySelector('.wl-modal-msg'), last = null;
+        function open() { last = document.activeElement; modal.hidden = false; document.body.style.overflow = 'hidden'; var i = form.querySelector('input[type=email]'); if (i) i.focus(); }
+        function close() { modal.hidden = true; document.body.style.overflow = ''; if (last && last.focus) last.focus(); }
+        document.addEventListener('click', function (e) {
+          if (e.target.closest('[data-open-waitlist]')) { e.preventDefault(); open(); return; }
+          if (e.target.closest('[data-close-waitlist]')) close();
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) close(); });
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault(); msg.textContent = ''; msg.className = 'wl-modal-msg';
+          var email = form.email.value.trim();
+          if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) { msg.textContent = 'Escribe un correo válido.'; msg.classList.add('wl-err'); return; }
+          var btn = form.querySelector('button[type=submit]'), prev = btn.innerHTML; btn.disabled = true; btn.textContent = 'Enviando…';
+          try {
+            var res = await fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, company: form.company.value.trim(), source: 'modal', referrer: document.referrer }) });
+            var data = {}; try { data = await res.json(); } catch (e) {}
+            if (!res.ok) throw new Error((data && data.error) || 'fail');
+            form.email.value = ''; msg.textContent = '¡Listo! Te avisamos apenas abramos.'; msg.classList.add('wl-ok');
+            btn.innerHTML = prev; btn.disabled = false;
+          } catch (err) { msg.textContent = 'No pudimos guardarlo. Intenta de nuevo.'; msg.classList.add('wl-err'); btn.innerHTML = prev; btn.disabled = false; }
+        });
+      }
     })();
   </script>`
 
@@ -221,6 +264,7 @@ function layout({ title, description, canonical, active, body, jsonLd = null, og
   ${body}
   </div>
   ${footerHTML()}
+  ${WAITLIST_MODAL}
   ${COMMON_SCRIPT}
 </body>
 </html>`

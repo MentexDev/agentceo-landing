@@ -117,6 +117,37 @@
     .skip-link:focus { left: 0; }
     .nav-toggle { display: none; }
     .nav-toggle span { display: block; height: 2px; width: 20px; background: var(--ink); border-radius: 2px; transition: transform .2s ease, opacity .2s ease; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .wl-modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .wl-modal[hidden] { display: none; }
+    .wl-backdrop { position: absolute; inset: 0; background: rgba(4,4,6,0.72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .wl-card { position: relative; z-index: 1; width: 100%; max-width: 440px; background: linear-gradient(180deg, var(--bg-3), var(--bg-2)); border: 1px solid var(--line); border-radius: 22px; padding: 42px 34px 34px; box-shadow: 0 40px 100px rgba(0,0,0,0.6); animation: wl-pop .25s ease; }
+    @keyframes wl-pop { from { transform: translateY(12px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+    .wl-close { position: absolute; top: 15px; right: 15px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--line); color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; transition: background .18s ease; }
+    .wl-close:hover { background: rgba(255,255,255,0.1); }
+    .wl-card h2 { font-family: var(--serif); font-size: 30px; margin-top: 14px; font-weight: 400; }
+    .wl-modal-sub { color: var(--muted); margin-top: 12px; font-size: 15px; line-height: 1.55; }
+    .wl-modal-form { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+    .wl-modal-form input[type="email"] { height: 54px; padding: 0 20px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 999px; color: var(--ink); font-family: inherit; font-size: 15px; outline: none; transition: border-color .2s ease; }
+    .wl-modal-form input[type="email"]:focus { border-color: var(--accent); }
+    .wl-modal-form input[type="email"]::placeholder { color: var(--muted-2); }
+    .wl-modal-form .hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .wl-modal-form .btn { width: 100%; }
+    .wl-modal-msg { font-size: 13px; color: var(--muted); text-align: center; }
+    .wl-modal-msg.wl-err { color: #e6a79c; }
+    .wl-modal-msg.wl-ok { color: var(--accent); font-family: var(--serif); font-size: 18px; }
+    /* ── Franja de integraciones (marquee) ── */
+    .marquee-strip { border-bottom: 1px solid var(--line-soft); background: var(--bg-2); padding: 20px 0; overflow: hidden; }
+    .marquee-inner { display: flex; align-items: center; gap: 26px; }
+    .marquee-label { flex: none; color: var(--muted); font-size: 13px; font-weight: 500; white-space: nowrap; padding-right: 26px; border-right: 1px solid var(--line); }
+    .marquee-viewport { position: relative; flex: 1; min-width: 0; overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent); }
+    .marquee-track { display: flex; align-items: center; gap: 46px; width: max-content; animation: mq-scroll 34s linear infinite; }
+    .marquee-viewport:hover .marquee-track { animation-play-state: paused; }
+    @keyframes mq-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .mq-item { display: inline-flex; align-items: center; gap: 10px; color: #b8b4ab; font-size: 15px; font-weight: 500; white-space: nowrap; letter-spacing: -0.01em; }
+    .mq-item svg { width: 21px; height: 21px; flex: none; opacity: .92; }
+    @media (max-width: 640px) { .marquee-label { font-size: 12px; padding-right: 16px; } .marquee-inner { gap: 16px; } .marquee-track { gap: 34px; } }
+    @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
 
     /* ── Hero en dos columnas: video a la IZQUIERDA, contenido a la DERECHA ── */
     .hero {
@@ -457,7 +488,7 @@
         <a class="link" href="/precios/">Precios</a>
       </div>
       <div class="nav-cta">
-        <a class="btn btn-primary btn-sm" href="#waitlist">Únete a la lista</a>
+        <a class="btn btn-primary btn-sm" href="#waitlist" data-open-waitlist>Únete a la lista</a>
       </div>
     </nav>
 
@@ -494,6 +525,36 @@
       </div>
     </div>
   </header>
+
+  <!-- ═══════════ FRANJA DE INTEGRACIONES (marquee) ═══════════ -->
+  <section class="marquee-strip" aria-label="Se conecta con tus herramientas">
+    <div class="wrap marquee-inner">
+      <span class="marquee-label">Se conecta con lo que ya usas</span>
+      <div class="marquee-viewport">
+        <div class="marquee-track" id="mqTrack"></div>
+      </div>
+    </div>
+  </section>
+  <script>
+    // Franja de logos: se construye 1 vez y se duplica para el loop infinito.
+    (function () {
+      var ICON = {
+        shopify: '<path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/>',
+        whatsapp: '<path d="M3 21l1.6-4A8 8 0 1112 20a8 8 0 01-4-1L3 21z"/>',
+        gmail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7.5l9 6 9-6"/>',
+        instagram: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/>',
+        meta: '<path d="M4 15c-1.1 0-2-1.3-2-3s.9-3 2-3c3.6 0 4.4 9 8 9M20 9c1.1 0 2 1.3 2 3s-.9 3-2 3c-3.6 0-4.4-9-8-9"/>',
+        drive: '<path d="M8.4 4l-6.2 10.6M8.4 4h7.2l6.2 10.6M12 11.3L8.4 21M12 11.3h9.8M2.2 21h9.8l-3.6-6.4"/>'
+      };
+      var LOGOS = [['shopify', 'Shopify'], ['whatsapp', 'WhatsApp'], ['gmail', 'Gmail'], ['instagram', 'Instagram'], ['meta', 'Meta'], ['drive', 'Google Drive']];
+      function itemHTML(key, name) {
+        return '<span class="mq-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[key] + '</svg>' + name + '</span>';
+      }
+      var one = LOGOS.map(function (l) { return itemHTML(l[0], l[1]); }).join('');
+      var track = document.getElementById('mqTrack');
+      if (track) track.innerHTML = one + one; // duplicado → loop continuo
+    })();
+  </script>
 
   <!-- ═══════════ CÓMO FUNCIONA ═══════════ -->
   <section id="como-funciona">
@@ -903,6 +964,23 @@
 
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
+  <div class="wl-modal" id="wlModal" hidden>
+    <div class="wl-backdrop" data-close-waitlist></div>
+    <div class="wl-card" role="dialog" aria-modal="true" aria-labelledby="wlModalTitle">
+      <button class="wl-close" type="button" aria-label="Cerrar" data-close-waitlist>&times;</button>
+      <span class="eyebrow">Pre-lanzamiento</span>
+      <h2 id="wlModalTitle">Únete a la lista</h2>
+      <p class="wl-modal-sub">Déjanos tu correo y sé de los primeros en probar AgentCEO. Gratis para empezar.</p>
+      <form class="wl-modal-form" id="wlModalForm" novalidate>
+        <label class="sr-only" for="wl-modal-email">Tu correo</label>
+        <input type="email" id="wl-modal-email" name="email" required placeholder="Tu correo" autocomplete="email" />
+        <input type="text" name="company" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <button class="btn btn-primary" type="submit">Únete a la lista <span aria-hidden="true">→</span></button>
+        <p class="wl-modal-msg" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
   <script>
     (function () {
       var t = document.querySelector('.nav-toggle'), n = document.getElementById('navlinks');
@@ -912,6 +990,30 @@
         t.setAttribute('aria-expanded', o ? 'true' : 'false');
         t.setAttribute('aria-label', o ? 'Cerrar menú' : 'Abrir menú');
       });
+      var modal = document.getElementById('wlModal');
+      if (modal) {
+        var form = document.getElementById('wlModalForm'), msg = form.querySelector('.wl-modal-msg'), last = null;
+        function open() { last = document.activeElement; modal.hidden = false; document.body.style.overflow = 'hidden'; var i = form.querySelector('input[type=email]'); if (i) i.focus(); }
+        function close() { modal.hidden = true; document.body.style.overflow = ''; if (last && last.focus) last.focus(); }
+        document.addEventListener('click', function (e) {
+          if (e.target.closest('[data-open-waitlist]')) { e.preventDefault(); open(); return; }
+          if (e.target.closest('[data-close-waitlist]')) close();
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) close(); });
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault(); msg.textContent = ''; msg.className = 'wl-modal-msg';
+          var email = form.email.value.trim();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.textContent = 'Escribe un correo válido.'; msg.classList.add('wl-err'); return; }
+          var btn = form.querySelector('button[type=submit]'), prev = btn.innerHTML; btn.disabled = true; btn.textContent = 'Enviando…';
+          try {
+            var res = await fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, company: form.company.value.trim(), source: 'modal', referrer: document.referrer }) });
+            var data = {}; try { data = await res.json(); } catch (e) {}
+            if (!res.ok) throw new Error((data && data.error) || 'fail');
+            form.email.value = ''; msg.textContent = '¡Listo! Te avisamos apenas abramos.'; msg.classList.add('wl-ok');
+            btn.innerHTML = prev; btn.disabled = false;
+          } catch (err) { msg.textContent = 'No pudimos guardarlo. Intenta de nuevo.'; msg.classList.add('wl-err'); btn.innerHTML = prev; btn.disabled = false; }
+        });
+      }
     })();
   </script>
 </body>
