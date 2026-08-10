@@ -5,6 +5,11 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // La landing no tiene login propio: /login lleva al login de la app CRM.
+    if (url.pathname === "/login" || url.pathname === "/login/") {
+      return Response.redirect("https://app.agentceo.io/login", 302);
+    }
+
     if (url.pathname === "/api/waitlist") {
       if (request.method === "POST") return handleWaitlist(request, env);
       return json({ ok: false, error: "Método no permitido" }, 405);
