@@ -96,6 +96,17 @@
     .btn-ghost:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.28); }
     .btn-sm { height: 44px; padding: 0 18px; font-size: 13px; }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+    /* Autocompletado de Chrome/Safari: quitar el fondo blanco y mantener el input oscuro. */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-text-fill-color: var(--ink) !important;
+      -webkit-box-shadow: 0 0 0 1000px #131318 inset !important;
+      box-shadow: 0 0 0 1000px #131318 inset !important;
+      caret-color: var(--ink);
+      transition: background-color 600000s 0s, color 600000s 0s;
+    }
 
     /* ── Nav ── */
     nav {
