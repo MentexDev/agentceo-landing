@@ -8,7 +8,7 @@
 // Uso:  node scripts/build-content.mjs      (o `npm run build`)
 // ─────────────────────────────────────────────────────────────────────────────
 import { writeFile, mkdir } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -695,7 +695,23 @@ async function buildSeccion({ dataFile, base, active, sectionName, schemaType, s
 
 // ── sitemap.xml + robots.txt ─────────────────────────────────────────────────
 async function writeSitemap(paths) {
-  const urls = ['/', '/precios/', ...paths]
+  // Las CINCO PÁGINAS LEGALES entran al sitemap (2026-08-11). No estaban, y son
+  // justo las que Google, Meta, Shopify y LinkedIn comprueban en sus revisiones:
+  // una página fuera del sitemap es una página que su rastreador puede tardar
+  // semanas en encontrar, y esa espera bloquea el registro de la app.
+  //
+  // Se LEEN del directorio en vez de escribirse a mano: así una legal nueva
+  // entra sola, y una retirada no deja una URL muerta apuntando a un 404.
+  // Sin extensión, que es como se sirven de verdad (`/legal/terminos` → 200).
+  const dirLegal = join(PUBLIC, 'legal')
+  const legales = existsSync(dirLegal)
+    ? readdirSync(dirLegal)
+        .filter((f) => f.endsWith('.html'))
+        .sort()
+        .map((f) => `/legal/${f.replace(/\.html$/, '')}`)
+    : []
+
+  const urls = ['/', '/precios/', ...legales, ...paths]
   const uniq = [...new Set(urls)]
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
