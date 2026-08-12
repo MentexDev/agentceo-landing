@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build-content.mjs",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "build:legal": "node scripts/build-legal.mjs",
+    "check:legal": "node scripts/build-legal.mjs --check"
   }
 }

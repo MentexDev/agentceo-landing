@@ -21,10 +21,22 @@ a{color:var(--accent);text-decoration:none;} a:hover{text-decoration:underline;}
 .brand .dot{font-family:var(--serif);color:var(--accent);font-size:18px;font-weight:600;}
 .wrap{max-width:820px;margin:0 auto;padding:56px 24px 90px;}
 h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,6vw,52px);letter-spacing:-.03em;margin:0 0 10px;}
-.upd{color:var(--muted);font-size:14px;margin-bottom:14px;}
-.note{background:rgba(227,197,146,.08);border:1px solid rgba(227,197,146,.28);border-radius:14px;padding:16px 18px;color:#d8d5cd;font-size:14.5px;margin:24px 0 40px;}
+.upd{color:var(--muted);font-size:14px;margin-bottom:34px;}
 h2{font-family:var(--serif);font-weight:600;font-size:24px;margin:44px 0 12px;letter-spacing:-.01em;}
-p,li{color:#cbc8c1;} ul{padding-left:20px;} li{margin:8px 0;}
+h3{font-family:var(--sans);font-weight:600;font-size:17px;margin:28px 0 8px;color:var(--ink);}
+h2.parte{font-size:29px;margin:64px 0 8px;padding-top:30px;border-top:1px solid var(--line);color:var(--accent);}
+p,li{color:#cbc8c1;} ul,ol{padding-left:20px;} li{margin:8px 0;}
+strong{color:var(--ink);font-weight:600;}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:5px;}
+/* Las tablas se desplazan DENTRO de su caja: en un móvil, una tabla ancha no
+   debe arrastrar la página entera en horizontal. */
+.tabla{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px;}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:14.5px;}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;}
+th{color:var(--ink);font-weight:600;background:rgba(255,255,255,.035);white-space:nowrap;}
+tbody tr:last-child td{border-bottom:none;}
+td{color:#cbc8c1;}
+hr{border:none;border-top:1px solid var(--line);margin:38px 0;}
 .back{display:inline-block;margin-top:48px;color:var(--muted);font-size:14px;}
 footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;}
 footer .in{max-width:820px;margin:0 auto;padding:26px 24px;}
@@ -35,25 +47,91 @@ footer .in{max-width:820px;margin:0 auto;padding:26px 24px;}
 <img class="a" src="/logo-agent.png" alt="Agent"/><span class="dot">·</span><img class="b" src="/logo-ceo.png" alt="CEO"/></a></div></div>
 <div class="wrap">
 <h1>Política de privacidad</h1>
-<div class="upd">Última actualización: 24 de julio de 2026</div>
-<div class="note">Esta es la versión inicial de nuestro marco legal. Estamos afinando el texto definitivo; para cualquier consulta escríbenos a <a href="mailto:legal@agentceo.io">legal@agentceo.io</a> y te respondemos.</div>
-<p>Esta política explica qué datos recogemos, para qué los usamos y qué derechos tienes.</p>
-<h2>1. Datos que recogemos</h2>
-<ul><li><b>De tu cuenta:</b> nombre, correo, empresa y datos de acceso.</li>
-<li><b>De tu operación:</b> la información que tú y tus agentes cargan (clientes, productos, mensajes, contenido).</li>
-<li><b>De las herramientas que conectas:</b> solo lo necesario para que los agentes operen, con los permisos que tú autorizas.</li>
-<li><b>Técnicos:</b> datos de uso y registro para seguridad y mejora del servicio.</li></ul>
-<h2>2. Para qué los usamos</h2>
-<p>Para prestar el servicio, ejecutar las tareas que configuras, mantener la seguridad, dar soporte y mejorar la plataforma. No vendemos tus datos.</p>
-<h2>3. Con quién se comparten</h2>
-<p>Con proveedores de infraestructura y de modelos de IA estrictamente necesarios para operar el servicio, bajo obligaciones de confidencialidad; y con las herramientas de terceros que tú conectas. Cada empresa está aislada de las demás.</p>
-<h2>4. Retención</h2>
-<p>Conservamos tus datos mientras tu cuenta esté activa y durante el tiempo necesario para cumplir obligaciones legales. Puedes solicitar su eliminación.</p>
-<h2>5. Tus derechos</h2>
-<p>Puedes acceder, corregir, exportar o eliminar tus datos escribiendo a <a href="mailto:privacidad@agentceo.io">privacidad@agentceo.io</a>.</p>
-<h2>6. Contacto</h2>
-<p>Responsable del tratamiento: AgentCEO. Consultas: <a href="mailto:privacidad@agentceo.io">privacidad@agentceo.io</a>.</p>
+<div class="upd">Última actualización: 2 de agosto de 2026</div>
+<p>Esta política explica qué datos personales trata <strong>Klinworks, LLC</strong> («Klinworks», «nosotros») al prestar el servicio <strong>AgentCEO</strong> (el «Servicio»), para qué, con quién los compartimos y qué derechos tienes.</p>
+<p>Klinworks es una sociedad de responsabilidad limitada de Delaware (Estados Unidos), expediente n.º 10704723, con oficina registrada en 131 Continental Drive, Suite 305, Newark, Delaware 19713.</p>
+<p><strong>Contacto de privacidad: privacidad@agentceo.io</strong></p>
+<hr/>
+<h2>1. Dos papeles distintos, y por qué importa</h2>
+<p>Tratamos datos personales en dos calidades diferentes:</p>
+<p><strong>1.1 Como responsables</strong>, respecto de los datos de las personas que usan el Servicio: tu cuenta, tu facturación, tu soporte, tu uso de la plataforma. Decidimos nosotros para qué se usan.</p>
+<p><strong>1.2 Como encargados</strong>, respecto de los datos que tú introduces sobre <strong>tus propios clientes, contactos y proveedores</strong>. Ahí decides tú: nosotros solo los tratamos siguiendo tus instrucciones para prestarte el Servicio. <strong>Eres el responsable de esos datos</strong> y de tener base legal para tratarlos.</p>
+<p>Esta distinción determina a quién debe dirigirse una persona que quiera ejercer sus derechos: si es tu cliente, a ti; si es usuario del Servicio, a nosotros.</p>
+<h2>2. Qué datos tratamos</h2>
+<p><strong>2.1 Datos de tu cuenta.</strong> Nombre completo, correo electrónico, teléfono (opcional), contraseña cifrada, y los factores de verificación en dos pasos si la activas.</p>
+<p><strong>2.2 Datos de tu organización.</strong> Nombre de la empresa, marcas, miembros del equipo y sus roles, y la configuración de tus agentes.</p>
+<p><strong>2.3 Contenido que introduces.</strong> Documentos, conversaciones con los agentes, tareas, entregables generados y todo lo que el Servicio produzca para ti.</p>
+<p><strong>2.4 Datos de tus clientes y contactos.</strong> Si usas los módulos de clientes, ventas o atención, tratarás datos de terceros: nombre, correo, teléfono, histórico de pedidos y conversaciones. Los tratamos como encargados (sección 1.2).</p>
+<p><strong>2.5 Credenciales de integraciones.</strong> Cuando conectas un sistema externo, guardamos sus claves o tokens <strong>siempre cifrados</strong>, junto con el identificador y el correo de la cuenta conectada.</p>
+<p><strong>2.6 Datos de facturación.</strong> Plan contratado, historial de créditos y transacciones. <strong>No almacenamos números completos de tarjeta</strong>: el pago lo procesa un proveedor especializado.</p>
+<p><strong>2.7 Datos técnicos.</strong> Dirección IP, tipo de navegador y dispositivo, marcas de tiempo, sesiones activas y registros de errores.</p>
+<p><strong>2.8 Registros de actividad.</strong> Guardamos una bitácora de cambios en tus datos para que puedas auditar y restaurar lo que hicieron tus agentes.</p>
+<p><strong>No tratamos categorías especiales de datos</strong> (salud, origen étnico, opiniones políticas, biometría) de forma deliberada. Si los introduces en tu contenido, lo haces bajo tu responsabilidad y debes tener base legal para ello.</p>
+<h2>3. Para qué los usamos, y con qué base legal</h2>
+<div class="tabla"><table><thead><tr><th>Finalidad</th><th>Base legal (RGPD)</th></tr></thead><tbody>
+<tr><td>Prestarte el Servicio y ejecutar el contrato</td><td>Ejecución del contrato (art. 6.1.b)</td></tr>
+<tr><td>Cobrar y facturar</td><td>Ejecución del contrato (art. 6.1.b)</td></tr>
+<tr><td>Atender tu soporte</td><td>Ejecución del contrato (art. 6.1.b)</td></tr>
+<tr><td>Seguridad, prevención de fraude y abuso</td><td>Interés legítimo (art. 6.1.f)</td></tr>
+<tr><td>Mejorar el Servicio con métricas agregadas</td><td>Interés legítimo (art. 6.1.f)</td></tr>
+<tr><td>Cumplir obligaciones legales y fiscales</td><td>Obligación legal (art. 6.1.c)</td></tr>
+<tr><td>Comunicaciones comerciales</td><td>Consentimiento (art. 6.1.a) — revocable</td></tr>
+</tbody></table></div>
+<p><strong>Nunca vendemos tus datos personales</strong>, ni los cedemos a terceros para su publicidad.</p>
+<h2>4. Lo que NO hacemos con tus datos</h2>
+<p><strong>4.1 No entrenamos modelos de IA con tu contenido.</strong> Ni propios ni de terceros. Nuestros contratos con los proveedores de modelos prohíben que usen para entrenamiento los datos que les enviamos por tu cuenta.</p>
+<p><strong>4.2 No leemos tu contenido para otros fines.</strong> Solo accedemos a él si nos lo pides para resolver una incidencia, si lo exige la ley, o si es imprescindible para investigar un abuso grave.</p>
+<p><strong>4.3 No registramos datos personales en nuestros registros técnicos.</strong> Los registros guardan identificadores, no identidades: nunca correos, teléfonos ni nombres completos.</p>
+<h2>5. Con quién compartimos datos (subencargados)</h2>
+<p>Para prestar el Servicio recurrimos a los siguientes proveedores. Todos actúan como encargados o subencargados, bajo contrato que les obliga a proteger los datos y a no usarlos para fines propios.</p>
+<div class="tabla"><table><thead><tr><th>Proveedor</th><th>Para qué</th><th>Dónde trata los datos</th></tr></thead><tbody>
+<tr><td><strong>Supabase, Inc.</strong></td><td>Base de datos, autenticación y almacenamiento</td><td>Estados Unidos</td></tr>
+<tr><td><strong>Cloudflare, Inc.</strong></td><td>Infraestructura, red de distribución y protección</td><td>Global (red distribuida)</td></tr>
+<tr><td><strong>OpenRouter, Inc.</strong></td><td>Enrutado a los modelos de lenguaje que ejecutan los agentes</td><td>Estados Unidos</td></tr>
+<tr><td>Proveedor de pagos</td><td>Procesamiento de cobros</td><td>Según el proveedor</td></tr>
+<tr><td>Proveedor de correo transaccional</td><td>Envío de correos del Servicio</td><td>Según el proveedor</td></tr>
+</tbody></table></div>
+<p><strong>Cambios en esta lista.</strong> Si incorporamos un subencargado nuevo que trate datos personales, actualizaremos esta tabla y la fecha de esta política. Si tienes un acuerdo de tratamiento de datos con nosotros, te avisaremos con la antelación que allí se establezca.</p>
+<p><strong>Otras cesiones.</strong> Podemos comunicar datos a autoridades cuando la ley lo exija, y a asesores o adquirentes en el marco de una operación societaria, en cuyo caso el adquirente queda sujeto a esta política.</p>
+<h2>6. Transferencias internacionales</h2>
+<p>Klinworks está en Estados Unidos, y nuestros proveedores tratan datos allí y en otros países. Si estás en el Espacio Económico Europeo, el Reino Unido o Suiza, esas transferencias se amparan en las <strong>Cláusulas Contractuales Tipo</strong> aprobadas por la Comisión Europea, junto con medidas técnicas adicionales: cifrado en tránsito y en reposo, y minimización de los datos enviados.</p>
+<p>Puedes solicitarnos información sobre estas garantías en privacidad@agentceo.io.</p>
+<h2>7. Cuánto tiempo conservamos los datos</h2>
+<div class="tabla"><table><thead><tr><th>Dato</th><th>Conservación</th></tr></thead><tbody>
+<tr><td>Cuenta y contenido activos</td><td>Mientras tu cuenta esté abierta</td></tr>
+<tr><td>Contenido tras cerrar la cuenta</td><td><strong>30 días</strong> para exportar, luego eliminación</td></tr>
+<tr><td>Elementos en la papelera</td><td><strong>30 días</strong>, luego purga definitiva</td></tr>
+<tr><td>Bitácora de cambios</td><td><strong>30 días</strong></td></tr>
+<tr><td>Registros de seguridad y acceso</td><td>Hasta 12 meses</td></tr>
+<tr><td>Datos de facturación</td><td>El plazo que exija la normativa fiscal aplicable</td></tr>
+<tr><td>Credenciales de integraciones</td><td>Hasta que desconectes la integración</td></tr>
+</tbody></table></div>
+<p>Las copias de seguridad siguen su propio ciclo de rotación y pueden retener datos algunas semanas más antes de sobrescribirse.</p>
+<h2>8. Tus derechos</h2>
+<p>Con independencia de dónde vivas, puedes ejercer estos derechos escribiendo a <strong>privacidad@agentceo.io</strong>:</p>
+<ul><li><strong>Acceso</strong>: saber qué datos tenemos sobre ti.</li><li><strong>Rectificación</strong>: corregir datos inexactos.</li><li><strong>Supresión</strong>: pedir que los eliminemos.</li><li><strong>Limitación</strong>: restringir su tratamiento en ciertos casos.</li><li><strong>Portabilidad</strong>: recibirlos en un formato estructurado y de uso común.</li><li><strong>Oposición</strong>: oponerte a tratamientos basados en interés legítimo.</li><li><strong>Revocar el consentimiento</strong>: en cualquier momento, sin efecto retroactivo.</li><li><strong>No discriminación</strong>: no te trataremos peor por ejercer tus derechos.</li></ul>
+<p><strong>Plazo de respuesta:</strong> hasta 30 días, prorrogables por otros 30 cuando la solicitud sea compleja, avisándote antes.</p>
+<p><strong>Verificación:</strong> para proteger tus datos, podemos pedirte que acredites tu identidad antes de atender la solicitud.</p>
+<p><strong>Reclamación:</strong> si crees que no hemos atendido tus derechos, puedes reclamar ante la autoridad de control de tu país. En España es la Agencia Española de Protección de Datos (aepd.es).</p>
+<p>Los derechos específicos del RGPD y de la CCPA/CPRA se detallan en el <a href="/legal/gdpr">Aviso RGPD y CCPA</a>.</p>
+<h2>9. Decisiones automatizadas</h2>
+<p>El Servicio ejecuta acciones automatizadas por medio de agentes de IA sobre tu negocio, según la configuración que tú establezcas. <strong>No tomamos decisiones automatizadas que produzcan efectos jurídicos o significativos sobre las personas usuarias del Servicio.</strong></p>
+<p>Si tú configuras agentes que tomen decisiones sobre personas —selección de personal, concesión de crédito, precios personalizados—, <strong>eres el responsable de ese tratamiento</strong> y debes cumplir el artículo 22 del RGPD y la normativa equivalente: informar, garantizar intervención humana y permitir impugnar la decisión. Los términos del servicio prohíben hacerlo sin supervisión humana efectiva.</p>
+<h2>10. Seguridad</h2>
+<p>Ciframos los datos en tránsito (TLS) y en reposo. Las credenciales de integraciones se cifran con claves que ni siquiera nuestro personal técnico puede leer desde la base de datos. El aislamiento entre organizaciones se verifica a nivel de base de datos y de aplicación.</p>
+<p>El detalle está en la <a href="/legal/seguridad">Política de seguridad</a>.</p>
+<p><strong>Notificación de brechas.</strong> Si ocurre una violación de seguridad que suponga un riesgo para tus derechos, te informaremos <strong>sin dilación indebida y en un plazo máximo de 72 horas</strong> desde que tengamos conocimiento, y notificaremos a la autoridad de control cuando proceda.</p>
+<h2>11. Menores</h2>
+<p>El Servicio no está dirigido a menores de 18 años y no recogemos sus datos a sabiendas. Si detectamos una cuenta de un menor, la eliminaremos. Si crees que un menor nos ha facilitado datos, escríbenos a privacidad@agentceo.io.</p>
+<h2>12. Cookies</h2>
+<p>Usamos cookies y tecnologías similares según se describe en la <a href="/legal/cookies">Política de cookies</a>.</p>
+<h2>13. Cambios en esta política</h2>
+<p>Podemos actualizarla. Si el cambio es sustancial —una finalidad nueva, un subencargado que trate datos personales, un plazo de conservación mayor— te avisaremos por correo o dentro del Servicio con al menos <strong>30 días</strong> de antelación. La fecha de la cabecera indica siempre la última versión.</p>
+<hr/>
+<h2>Contacto</h2>
+<p><strong>Klinworks, LLC</strong> 131 Continental Drive, Suite 305 Newark, Delaware 19713, Estados Unidos Expediente de Delaware n.º 10704723</p>
+<ul><li>Privacidad y datos: <strong>privacidad@agentceo.io</strong></li><li>Asuntos legales: <strong>legal@agentceo.io</strong></li><li>Seguridad: <strong>security@agentceo.io</strong></li></ul>
 <a class="back" href="/">← Volver a agentceo.io</a>
 </div>
-<footer><div class="in">© 2026 AgentCEO · agentceo.io</div></footer>
+<footer><div class="in">© 2026 Klinworks, LLC · Agent · CEO · agentceo.io</div></footer>
 </body></html>

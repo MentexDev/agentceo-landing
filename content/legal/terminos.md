@@ -1,0 +1,346 @@
+---
+titulo: Términos del servicio
+ruta: /legal/terminos
+actualizado: 2026-08-02
+version: 2.0
+---
+
+# Términos del servicio
+
+**Última actualización: 2 de agosto de 2026**
+
+Estos términos son un contrato entre tú y **Klinworks, LLC**, una sociedad de
+responsabilidad limitada constituida en el Estado de Delaware (Estados Unidos)
+el 20 de julio de 2026, con número de expediente 10704723 y oficina registrada
+en 131 Continental Drive, Suite 305, Newark, Delaware 19713 («Klinworks»,
+«nosotros»). Klinworks opera el servicio **AgentCEO** (el «Servicio»).
+
+Al crear una cuenta o usar el Servicio aceptas estos términos. Si no estás de
+acuerdo, no lo uses. Si aceptas en nombre de una empresa, declaras que tienes
+autoridad para obligarla, y «tú» se refiere a esa empresa.
+
+---
+
+## 1. Qué es el Servicio
+
+AgentCEO es una plataforma donde creas una organización y operas un equipo de
+agentes de inteligencia artificial que ejecutan trabajo real de tu negocio:
+crear contenido, gestionar inventario, atender clientes, analizar ventas,
+conectarse a sistemas de terceros y producir entregables.
+
+**Lo que esto significa en la práctica, y conviene que entiendas antes de
+seguir:** los agentes no son un chat que te sugiere qué hacer. Toman decisiones
+y ejecutan acciones con efectos reales en tus sistemas, tus datos y, cuando lo
+autorizas, en el dinero de tu empresa. La sección 5 desarrolla qué implica eso y
+qué controles tienes.
+
+## 2. Tu cuenta
+
+**2.1 Elegibilidad.** Debes tener al menos 18 años y capacidad legal para
+contratar. El Servicio no está dirigido a menores.
+
+**2.2 Veracidad.** La información de registro debe ser exacta y mantenerse
+actualizada.
+
+**2.3 Seguridad de las credenciales.** Eres responsable de tu contraseña y de
+toda la actividad que ocurra bajo tu cuenta. Ofrecemos verificación en dos pasos
+(2FA) y te recomendamos activarla. Avísanos de inmediato a
+security@agentceo.io si sospechas un acceso no autorizado.
+
+**2.4 Organizaciones y roles.** Una cuenta puede pertenecer a una organización
+con varios miembros. Quien tenga rol de **Junta Directiva** puede comprometer a
+la empresa: contratar planes, comprar créditos, conectar integraciones y
+autorizar acciones sensibles. Si inivitas a alguien a tu organización, respondes
+por lo que haga dentro de ella.
+
+## 3. Planes, créditos y pagos
+
+**3.1 Créditos.** El consumo del Servicio se mide en **créditos**. Cada plan
+incluye una asignación periódica; puedes comprar créditos adicionales. El
+consumo de cada operación se te muestra en créditos antes y después de
+ejecutarla.
+
+**3.2 Sin cobro automático por exceso.** Si agotas tus créditos, el Servicio se
+detiene hasta la siguiente reposición o hasta que compres más. **Nunca te
+cobraremos automáticamente por exceder tu plan.**
+
+**3.3 Precios y cambios.** Podemos modificar precios avisando con al menos 30
+días de antelación. Los cambios no afectan a un periodo ya pagado.
+
+**3.4 Impuestos.** Los precios no incluyen impuestos aplicables, que se añadirán
+cuando corresponda.
+
+**3.5 Reembolsos.** Los créditos consumidos no son reembolsables, porque
+corresponden a capacidad de cómputo ya utilizada frente a nuestros proveedores.
+Si cancelas un plan, conservas el acceso hasta el final del periodo pagado.
+
+**3.6 Impago.** Podemos suspender el Servicio si un pago falla, tras avisarte y
+darte un plazo razonable para resolverlo.
+
+## 4. Lo que puedes y no puedes hacer
+
+**4.1 Uso permitido.** Puedes usar el Servicio para operar tu negocio legítimo,
+dentro de la ley y de estos términos.
+
+**4.2 Uso prohibido.** No puedes, ni permitir que tus agentes o usuarios:
+
+- Infringir la ley, derechos de terceros o propiedad intelectual ajena.
+- Generar o distribuir material de abuso sexual infantil, contenido que incite a
+  la violencia, acoso, o desinformación destinada a causar daño.
+- Suplantar identidades o crear contenido engañoso presentado como real
+  (documentos falsos, reseñas fabricadas, comunicaciones que aparenten venir de
+  una persona u organización que no las emitió).
+- Enviar comunicaciones comerciales no solicitadas (spam) ni violar normas
+  antispam aplicables.
+- Extraer datos de terceros sin base legal, ni eludir medidas técnicas de
+  protección de otros sistemas.
+- Intentar acceder a datos de otras organizaciones, sondear vulnerabilidades sin
+  autorización, o interferir con la operación del Servicio.
+- Usar el Servicio para tomar decisiones automatizadas con efecto jurídico o
+  significativo sobre personas (contratación, crédito, seguros, sanidad) sin
+  supervisión humana efectiva y sin cumplir la normativa que le sea aplicable.
+- Revender el Servicio o usarlo para entrenar modelos competidores.
+
+**4.3 Consecuencias.** Podemos suspender o cerrar cuentas que incumplan esta
+sección. Cuando sea razonable te avisaremos antes; ante un riesgo grave o
+inminente podemos actuar de inmediato.
+
+---
+
+## 5. Agentes autónomos: lo que debes entender antes de usarlos
+
+Esta sección es la más importante de estos términos, porque describe lo que
+distingue a AgentCEO de una herramienta ordinaria.
+
+**5.1 Los agentes ejecutan acciones, no solo texto.** Cuando autorizas a un
+agente, este puede crear y modificar registros de tu negocio, generar y publicar
+contenido, enviar comunicaciones a tus clientes, ejecutar código, realizar
+llamadas a sistemas de terceros conectados y producir entregables que después
+usarás con efectos reales.
+
+**5.2 Niveles de autonomía y aprobaciones.** El Servicio ofrece controles para
+graduar cuánto puede hacer un agente sin ti, incluyendo acciones que requieren tu
+aprobación explícita antes de ejecutarse. **Configurar esos controles es tu
+responsabilidad.** Si autorizas a un agente a actuar sin aprobación, aceptas el
+resultado de sus acciones dentro de esa autorización.
+
+**5.3 La IA se equivoca.** Los modelos de lenguaje producen resultados
+incorrectos, incompletos o inventados, incluso cuando suenan seguros. El
+Servicio se presta **tal cual**: no garantizamos que un resultado sea exacto,
+adecuado a tu caso, ni apto para un fin concreto. **Revisa cualquier salida
+antes de usarla para decisiones que importen** — legales, financieras, médicas,
+fiscales o de seguridad. Nada de lo que produzca un agente constituye
+asesoramiento profesional.
+
+**5.4 Ejecución de código.** El Servicio puede ejecutar código generado por
+agentes en entornos aislados. Ese código puede tener defectos. Si lo despliegas,
+lo integras en tus sistemas o lo pones a disposición de terceros, **eres tú
+quien responde de él**, igual que si lo hubiera escrito un empleado tuyo.
+
+**5.5 Automatizaciones que mueven dinero.** Si configuras automatizaciones que
+generan cobros, emiten pagos, aplican descuentos, modifican precios, comprometen
+inventario o alteran pedidos, **esas operaciones producen efectos económicos
+reales y son tuyas**. Debes establecer límites, revisiones y controles
+proporcionales al riesgo. Klinworks no es parte de las transacciones entre tú y
+tus clientes o proveedores, y no responde de su resultado económico.
+
+**5.6 Apps y contenido desplegados a terceros.** Si publicas algo creado con el
+Servicio —una tienda, una app, un sitio, un contenido, una comunicación— frente a
+tus clientes o al público, **actúas como responsable de esa publicación**. Te
+corresponde cumplir la normativa aplicable, incluidos avisos legales,
+protección de datos, publicidad, consumo y propiedad intelectual, y responder
+ante quien la reciba. Nos mantendrás indemnes conforme a la sección 11.
+
+**5.7 Comunicaciones a tus clientes.** Si usas el Servicio para contactar
+personas por correo, WhatsApp u otros canales, **eres el remitente**. Debes tener
+base legal para hacerlo, honrar las bajas y cumplir la normativa antispam. Los
+canales de terceros aplican además sus propias reglas.
+
+**5.8 Sin garantía de continuidad de un modelo concreto.** Los proveedores de
+modelos cambian versiones, precios y disponibilidad. Podemos sustituir el modelo
+que respalda una función, procurando mantener una calidad equivalente.
+
+---
+
+## 6. Integraciones con terceros
+
+**6.1 Tus credenciales.** Cuando conectas un sistema externo, sus credenciales
+se guardan cifradas. La sección 7 de la [Política de privacidad](/legal/privacidad)
+y la [Política de seguridad](/legal/seguridad) explican cómo.
+
+**6.2 Alcance de los permisos.** Un agente actuará sobre el sistema conectado
+con los permisos que le hayas concedido. Concede el mínimo necesario.
+
+**6.3 Relación con el tercero.** El servicio de terceros se rige por sus propios
+términos. No respondemos de su disponibilidad, cambios ni de lo que haga con tus
+datos bajo su propia relación contigo.
+
+**6.4 Desconexión.** Puedes desconectar una integración en cualquier momento
+desde el Servicio.
+
+## 7. Contenido y propiedad intelectual
+
+**7.1 Tu contenido es tuyo.** Conservas todos los derechos sobre los datos que
+subes y sobre el contenido que el Servicio genera para ti.
+
+**7.2 Licencia que nos concedes.** Nos otorgas una licencia mundial, no
+exclusiva y limitada para alojar, procesar, transmitir y mostrar tu contenido con
+el único fin de prestarte el Servicio, incluyendo enviarlo a los subencargados
+listados en la Política de privacidad. Esta licencia termina cuando eliminas el
+contenido o cierras tu cuenta, salvo copias de seguridad pendientes de rotación.
+
+**7.3 No entrenamos con tus datos.** No usamos tu contenido para entrenar
+modelos de IA propios ni de terceros, y contratamos con nuestros proveedores que
+no lo hagan con los datos que les enviamos por tu cuenta.
+
+**7.4 Salidas de la IA.** En la medida en que tengamos derechos sobre lo que un
+agente genera para ti, te los cedemos. Ten en cuenta que en varias
+jurisdicciones el contenido generado íntegramente por IA puede no ser protegible
+por derechos de autor, y que un resultado similar podría entregarse a otro
+usuario a partir de instrucciones parecidas.
+
+**7.5 Nuestra propiedad.** El Servicio, su software, marcas y documentación son
+de Klinworks. Estos términos no te transfieren derechos sobre ellos.
+
+**7.6 Comentarios.** Si nos envías sugerencias, podemos usarlas sin obligación ni
+contraprestación.
+
+## 8. Disponibilidad, soporte y cambios
+
+**8.1 Disponibilidad.** Nos esforzamos por mantener el Servicio disponible, pero
+no garantizamos un porcentaje de tiempo activo salvo que lo hayamos acordado por
+escrito en un contrato específico.
+
+**8.2 Mantenimiento.** Podemos interrumpir el Servicio para mantenimiento,
+avisando con antelación razonable cuando sea planificado.
+
+**8.3 Cambios en el Servicio.** Podemos añadir, modificar o retirar funciones. Si
+retiramos una función sustancial de la que dependes, te avisaremos con al menos
+30 días de antelación.
+
+**8.4 Soporte.** El soporte se presta por los canales indicados en el Centro de
+ayuda del Servicio, en horario laboral y en español.
+
+## 9. Suspensión y terminación
+
+**9.1 Terminación por tu parte.** Puedes cancelar cuando quieras desde el
+Servicio. Conservas el acceso hasta el final del periodo pagado.
+
+**9.2 Terminación por nuestra parte.** Podemos suspender o terminar tu acceso si
+incumples estos términos, si tu uso pone en riesgo el Servicio o a terceros, o
+si la ley nos obliga. Salvo urgencia o prohibición legal, te avisaremos primero.
+
+**9.3 Qué pasa con tus datos.** Tras la terminación dispones de **30 días** para
+exportar tu contenido. Pasado ese plazo iniciamos su eliminación conforme a la
+Política de privacidad.
+
+## 10. Garantías y limitación de responsabilidad
+
+**10.1 Sin garantías.** EL SERVICIO SE PRESTA «TAL CUAL» Y «SEGÚN
+DISPONIBILIDAD». EN LA MÁXIMA MEDIDA PERMITIDA POR LA LEY, RECHAZAMOS TODA
+GARANTÍA EXPRESA O IMPLÍCITA, INCLUIDAS LAS DE COMERCIABILIDAD, IDONEIDAD PARA UN
+FIN CONCRETO, NO INFRACCIÓN, Y CUALQUIER GARANTÍA SOBRE LA EXACTITUD O UTILIDAD
+DE LO QUE PRODUZCAN LOS AGENTES.
+
+**10.2 Exclusión de daños indirectos.** EN LA MÁXIMA MEDIDA PERMITIDA POR LA
+LEY, NO RESPONDEMOS DE DAÑOS INDIRECTOS, INCIDENTALES, ESPECIALES, PUNITIVOS NI
+CONSECUENCIALES, NI DE LUCRO CESANTE, PÉRDIDA DE INGRESOS, DE DATOS, DE FONDO DE
+COMERCIO O DE OPORTUNIDAD DE NEGOCIO, AUNQUE SE NOS HUBIERA ADVERTIDO DE SU
+POSIBILIDAD.
+
+**10.3 Límite cuantitativo.** NUESTRA RESPONSABILIDAD TOTAL ACUMULADA DERIVADA
+DEL SERVICIO NO EXCEDERÁ LA MAYOR DE ESTAS DOS CANTIDADES: (a) LO QUE NOS HAYAS
+PAGADO EN LOS DOCE (12) MESES ANTERIORES AL HECHO QUE ORIGINA LA RECLAMACIÓN, O
+(b) CIEN DÓLARES ESTADOUNIDENSES (USD 100).
+
+**10.4 Lo que no se excluye.** Nada en estos términos limita la responsabilidad
+que la ley no permite limitar, incluidos el dolo, la culpa grave, el fraude, la
+muerte o las lesiones personales causadas por negligencia. Algunas
+jurisdicciones no admiten ciertas exclusiones, de modo que las anteriores pueden
+no aplicarte en su totalidad.
+
+**10.5 Asignación de riesgo.** Reconoces que los límites de esta sección son un
+elemento esencial del acuerdo y que sin ellos el precio del Servicio sería
+distinto.
+
+## 11. Indemnidad
+
+Nos mantendrás indemnes a Klinworks, sus socios, directivos y empleados frente a
+reclamaciones, daños y costes razonables (incluidos honorarios de abogados)
+derivados de: (a) tu uso del Servicio; (b) el contenido que subas o publiques;
+(c) las acciones que ejecuten tus agentes y automatizaciones; (d) lo que
+despliegues frente a terceros; y (e) tu incumplimiento de estos términos o de la
+ley. Te informaremos de la reclamación y podrás asumir su defensa con abogados
+razonablemente aceptables para nosotros.
+
+## 12. Ley aplicable y resolución de disputas
+
+**12.1 Ley aplicable.** Estos términos se rigen por las leyes del Estado de
+Delaware (Estados Unidos), sin aplicar sus normas de conflicto de leyes.
+
+**12.2 Resolución previa.** Antes de iniciar un procedimiento formal, acuerdas
+escribirnos a legal@agentceo.io describiendo la disputa. Ambas partes intentarán
+resolverla de buena fe durante **60 días**.
+
+**12.3 Arbitraje vinculante.** Si no se resuelve, la disputa se someterá a
+arbitraje vinculante y definitivo administrado por la **American Arbitration
+Association (AAA)** conforme a sus Reglas de Arbitraje Comercial. La sede será
+Delaware, el idioma inglés o español según acuerden las partes, y el laudo podrá
+ejecutarse ante cualquier tribunal competente.
+
+**12.4 Renuncia a acciones colectivas.** LAS RECLAMACIONES SE RESOLVERÁN
+INDIVIDUALMENTE. RENUNCIAS A PARTICIPAR EN ACCIONES COLECTIVAS, DE GRUPO O
+REPRESENTATIVAS. Si esta renuncia se declarara inejecutable, la sección 12.3
+completa no será aplicable a esa disputa.
+
+**12.5 Excepciones.** Cualquiera de las partes puede acudir a los tribunales
+para solicitar medidas cautelares que protejan propiedad intelectual o
+información confidencial, y para reclamaciones de cuantía menor ante tribunales
+de escasa cuantía.
+
+**12.6 Derechos de consumidores.** Si eres consumidor y resides en una
+jurisdicción cuya normativa imperativa te otorgue derechos que no pueden
+limitarse por contrato —incluida la Unión Europea, el Reino Unido o
+Latinoamérica—, esas normas prevalecen sobre esta sección en lo que te
+corresponda, incluida la posibilidad de acudir a los tribunales de tu domicilio.
+
+## 13. Disposiciones generales
+
+**13.1 Acuerdo completo.** Estos términos, junto con la Política de privacidad,
+la Política de cookies, el Aviso RGPD y la Política de seguridad, constituyen el
+acuerdo completo entre las partes sobre el Servicio.
+
+**13.2 Modificaciones.** Podemos actualizar estos términos. Si el cambio es
+sustancial te avisaremos por correo o dentro del Servicio con al menos **30 días**
+de antelación. Seguir usando el Servicio después de la fecha de entrada en vigor
+implica aceptación; si no estás de acuerdo, puedes cancelar.
+
+**13.3 Cesión.** No puedes ceder este acuerdo sin nuestro consentimiento. Nosotros
+podemos cederlo en el marco de una fusión, adquisición o venta de activos.
+
+**13.4 Divisibilidad.** Si una cláusula resulta inválida, el resto sigue vigente
+y esa cláusula se interpretará del modo más próximo a su intención original.
+
+**13.5 No renuncia.** No ejercer un derecho no supone renunciar a él.
+
+**13.6 Fuerza mayor.** No respondemos de incumplimientos causados por hechos
+fuera de nuestro control razonable, incluidos fallos de proveedores de
+infraestructura o de modelos de IA.
+
+**13.7 Idioma.** La versión en español de estos términos es la vinculante. Las
+traducciones se ofrecen por conveniencia.
+
+---
+
+## Contacto
+
+**Klinworks, LLC**
+131 Continental Drive, Suite 305
+Newark, Delaware 19713, Estados Unidos
+Expediente de Delaware n.º 10704723 · Constituida el 20 de julio de 2026
+Agente registrado: Legalinc Corporate Services Inc.
+
+- Asuntos legales: **legal@agentceo.io**
+- Privacidad y datos: **privacidad@agentceo.io**
+- Seguridad: **security@agentceo.io**
+- Soporte: **info@agentceo.io**
