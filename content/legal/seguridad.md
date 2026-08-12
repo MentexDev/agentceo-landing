@@ -16,7 +16,7 @@ Klinworks es una sociedad de responsabilidad limitada de Delaware (Estados
 Unidos), expediente n.º 10704723, con oficina registrada en 131 Continental
 Drive, Suite 305, Newark, Delaware 19713.
 
-**Contacto de seguridad: security@agentceo.io**
+**Contacto de seguridad: security@klinworks.com**
 
 > **Una nota sobre honestidad.** Este documento describe controles que están
 > implementados hoy, no aspiraciones. Cuando algo esté planificado pero no
@@ -113,7 +113,7 @@ un punto en el tiempo. Los datos se replican en la infraestructura del proveedor
 
 **Lo que esto no significa:** no ofrecemos hoy un compromiso contractual de
 tiempo de recuperación (RTO) ni de punto de recuperación (RPO). Si necesitas
-esas garantías para tu operación, escríbenos a legal@agentceo.io y lo tratamos
+esas garantías para tu operación, escríbenos a legal@klinworks.com y lo tratamos
 por contrato específico.
 
 ## 7. Seguridad de los agentes de IA
@@ -151,7 +151,7 @@ y te diremos con honestidad si podemos cubrirlo.
 
 ## 9. Reportar una vulnerabilidad
 
-Si encuentras un problema de seguridad, escríbenos a **security@agentceo.io** con
+Si encuentras un problema de seguridad, escríbenos a **security@klinworks.com** con
 la descripción y los pasos para reproducirlo.
 
 **Nuestro compromiso:**
@@ -194,6 +194,6 @@ La seguridad es compartida. Te recomendamos:
 Newark, Delaware 19713, Estados Unidos
 Expediente de Delaware n.º 10704723
 
-- Seguridad y vulnerabilidades: **security@agentceo.io**
-- Asuntos legales: **legal@agentceo.io**
-- Privacidad: **privacidad@agentceo.io**
+- Seguridad y vulnerabilidades: **security@klinworks.com**
+- Asuntos legales: **legal@klinworks.com**
+- Privacidad: **privacidad@klinworks.com**

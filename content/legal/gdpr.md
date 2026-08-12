@@ -18,7 +18,7 @@ Klinworks es una sociedad de responsabilidad limitada de Delaware (Estados
 Unidos), expediente n.º 10704723, con oficina registrada en 131 Continental
 Drive, Suite 305, Newark, Delaware 19713.
 
-**Contacto para ejercer derechos: privacidad@agentceo.io**
+**Contacto para ejercer derechos: privacidad@klinworks.com**
 
 ---
 
@@ -62,7 +62,7 @@ derechos y libertades. Puedes solicitarnos el resultado de esa ponderación.
 - **Retirar el consentimiento** (art. 7.3): en cualquier momento, sin que afecte
   a la licitud del tratamiento previo.
 
-**Cómo ejercerlos:** escribe a **privacidad@agentceo.io** indicando el derecho
+**Cómo ejercerlos:** escribe a **privacidad@klinworks.com** indicando el derecho
 que ejerces. Responderemos en **un mes**, prorrogable en dos meses más si la
 solicitud es compleja, avisándote dentro del primer mes. El ejercicio es
 gratuito, salvo solicitudes manifiestamente infundadas o excesivas.
@@ -78,7 +78,7 @@ Decisión de Ejecución (UE) 2021/914, complementadas con medidas técnicas y
 organizativas adicionales: cifrado en tránsito y en reposo, control de acceso
 por rol y minimización de los datos transferidos.
 
-Puedes solicitar información sobre estas garantías en privacidad@agentceo.io.
+Puedes solicitar información sobre estas garantías en privacidad@klinworks.com.
 
 ## 5. Subencargados (art. 28.2 y 28.4)
 
@@ -120,7 +120,7 @@ rotación y se sobrescriben en el plazo indicado en la Política de privacidad.
 
 Pondremos a tu disposición la información razonablemente necesaria para
 demostrar el cumplimiento de nuestras obligaciones como encargados. Si necesitas
-un acuerdo de tratamiento de datos firmado, escríbenos a legal@agentceo.io.
+un acuerdo de tratamiento de datos firmado, escríbenos a legal@klinworks.com.
 
 ---
 
@@ -170,7 +170,7 @@ términos. No lo hemos hecho en los últimos doce meses, tampoco con menores de
 - **No discriminación**: no te daremos un servicio peor ni un precio distinto por
   ejercer tus derechos.
 
-**Cómo ejercerlos:** escribe a **privacidad@agentceo.io**. Verificaremos tu
+**Cómo ejercerlos:** escribe a **privacidad@klinworks.com**. Verificaremos tu
 identidad mediante la cuenta asociada a la solicitud. Responderemos en **45
 días**, prorrogables por otros 45 avisándote.
 
@@ -194,5 +194,5 @@ Newark, Delaware 19713, Estados Unidos
 Expediente de Delaware n.º 10704723 · Constituida el 20 de julio de 2026
 Agente registrado: Legalinc Corporate Services Inc.
 
-- Ejercicio de derechos: **privacidad@agentceo.io**
-- Asuntos legales: **legal@agentceo.io**
+- Ejercicio de derechos: **privacidad@klinworks.com**
+- Asuntos legales: **legal@klinworks.com**

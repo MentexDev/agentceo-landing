@@ -45,7 +45,7 @@ actualizada.
 **2.3 Seguridad de las credenciales.** Eres responsable de tu contraseña y de
 toda la actividad que ocurra bajo tu cuenta. Ofrecemos verificación en dos pasos
 (2FA) y te recomendamos activarla. Avísanos de inmediato a
-security@agentceo.io si sospechas un acceso no autorizado.
+security@klinworks.com si sospechas un acceso no autorizado.
 
 **2.4 Organizaciones y roles.** Una cuenta puede pertenecer a una organización
 con varios miembros. Quien tenga rol de **Junta Directiva** puede comprometer a
@@ -279,7 +279,7 @@ razonablemente aceptables para nosotros.
 Delaware (Estados Unidos), sin aplicar sus normas de conflicto de leyes.
 
 **12.2 Resolución previa.** Antes de iniciar un procedimiento formal, acuerdas
-escribirnos a legal@agentceo.io describiendo la disputa. Ambas partes intentarán
+escribirnos a legal@klinworks.com describiendo la disputa. Ambas partes intentarán
 resolverla de buena fe durante **60 días**.
 
 **12.3 Arbitraje vinculante.** Si no se resuelve, la disputa se someterá a
@@ -340,7 +340,7 @@ Newark, Delaware 19713, Estados Unidos
 Expediente de Delaware n.º 10704723 · Constituida el 20 de julio de 2026
 Agente registrado: Legalinc Corporate Services Inc.
 
-- Asuntos legales: **legal@agentceo.io**
-- Privacidad y datos: **privacidad@agentceo.io**
-- Seguridad: **security@agentceo.io**
-- Soporte: **info@agentceo.io**
+- Asuntos legales: **legal@klinworks.com**
+- Privacidad y datos: **privacidad@klinworks.com**
+- Seguridad: **security@klinworks.com**
+- Soporte: **info@klinworks.com**

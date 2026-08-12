@@ -17,7 +17,7 @@ Klinworks es una sociedad de responsabilidad limitada de Delaware (Estados
 Unidos), expediente n.º 10704723, con oficina registrada en 131 Continental
 Drive, Suite 305, Newark, Delaware 19713.
 
-**Contacto de privacidad: privacidad@agentceo.io**
+**Contacto de privacidad: privacidad@klinworks.com**
 
 ---
 
@@ -133,7 +133,7 @@ por la Comisión Europea, junto con medidas técnicas adicionales: cifrado en
 tránsito y en reposo, y minimización de los datos enviados.
 
 Puedes solicitarnos información sobre estas garantías en
-privacidad@agentceo.io.
+privacidad@klinworks.com.
 
 ## 7. Cuánto tiempo conservamos los datos
 
@@ -153,7 +153,7 @@ datos algunas semanas más antes de sobrescribirse.
 ## 8. Tus derechos
 
 Con independencia de dónde vivas, puedes ejercer estos derechos escribiendo a
-**privacidad@agentceo.io**:
+**privacidad@klinworks.com**:
 
 - **Acceso**: saber qué datos tenemos sobre ti.
 - **Rectificación**: corregir datos inexactos.
@@ -209,7 +209,7 @@ autoridad de control cuando proceda.
 
 El Servicio no está dirigido a menores de 18 años y no recogemos sus datos a
 sabiendas. Si detectamos una cuenta de un menor, la eliminaremos. Si crees que un
-menor nos ha facilitado datos, escríbenos a privacidad@agentceo.io.
+menor nos ha facilitado datos, escríbenos a privacidad@klinworks.com.
 
 ## 12. Cookies
 
@@ -232,6 +232,6 @@ antelación. La fecha de la cabecera indica siempre la última versión.
 Newark, Delaware 19713, Estados Unidos
 Expediente de Delaware n.º 10704723
 
-- Privacidad y datos: **privacidad@agentceo.io**
-- Asuntos legales: **legal@agentceo.io**
-- Seguridad: **security@agentceo.io**
+- Privacidad y datos: **privacidad@klinworks.com**
+- Asuntos legales: **legal@klinworks.com**
+- Seguridad: **security@klinworks.com**

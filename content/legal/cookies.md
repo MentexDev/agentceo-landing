@@ -115,4 +115,4 @@ fecha de la cabecera indica siempre la última versión.
 Newark, Delaware 19713, Estados Unidos
 Expediente de Delaware n.º 10704723
 
-Preguntas sobre cookies: **privacidad@agentceo.io**
+Preguntas sobre cookies: **privacidad@klinworks.com**
