@@ -1,0 +1,84 @@
+---
+// /legal/ y /en/legal/ · ÍNDICE de los documentos legales (T35 · adenda, punto 4: el «Ver todo» del
+// footer). Todo sale de content/legal/{lang}/*.md vía rutas.js: título, descripción, versión,
+// fecha y estado (borrador) de cada documento. Un documento nuevo aparece aquí solo.
+// Agrupados por tema; un id que no esté en GROUPS cae en el último grupo (nunca se pierde).
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/page/PageHead.astro'
+import '../styles/pages.css'
+import { t, fmtDate } from '../i18n/config.js'
+import { href, hasRoute, alternatesFor, RUTAS } from '../i18n/rutas.js'
+import { legalDoc } from '../lib/legal.js'
+import { breadcrumbs, ORIGIN, ORG_ID } from '../lib/jsonld.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const tr = (k: string, v?: any) => t(lang, `legalIndex.${k}`, v)
+const path = href('legal', lang)
+const GROUPS: [string, string[]][] = [
+  ['gContrato', ['terminos', 'uso-aceptable', 'reembolsos', 'dmca']],
+  ['gPrivacidad', ['privacidad', 'cookies', 'gdpr', 'california', 'estados', 'dpa', 'subprocesadores']],
+  ['gConfianza', ['seguridad', 'ia', 'accesibilidad']],
+]
+const ids = Object.keys(RUTAS).filter((k) => k.startsWith('legal:') && hasRoute(k, lang)).map((k) => k.slice(6))
+const known = new Set(GROUPS.flatMap(([, g]) => g))
+const groups = GROUPS.map(([key, g], i) => ({
+  key,
+  docs: [...g.filter((id) => ids.includes(id)), ...(i === GROUPS.length - 1 ? ids.filter((id) => !known.has(id)) : [])]
+    .map((id) => ({ id, doc: legalDoc(id, lang), url: href(`legal:${id}`, lang) })),
+})).filter((g) => g.docs.length)
+const total = groups.reduce((n, g) => n + g.docs.length, 0)
+const anyDraft = groups.some((g) => g.docs.some((d) => d.doc.estado === 'borrador'))
+const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: tr('eyebrow'), url: path }]
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'CollectionPage', name: tr('title'), url: `${ORIGIN}${path}`, inLanguage: lang, publisher: { '@id': ORG_ID },
+      mainEntity: { '@type': 'ItemList', numberOfItems: total, itemListElement: groups.flatMap((g) => g.docs).map((d, i) => ({ '@type': 'ListItem', position: i + 1, name: d.doc.titulo, url: `${ORIGIN}${d.url}` })) },
+    },
+    breadcrumbs(crumbs),
+  ],
+}
+---
+<Base lang={lang} title={tr('title')} description={tr('description')} path={path} alternates={alternatesFor('legal')} page="legal-index" jsonLd={jsonLd}>
+  <div class="pg"><div class="pg-wrap">
+    <PageHead crumbs={crumbs} eyebrow={tr('eyebrow')} h1a={tr('h1a')} h1b={tr('h1b')} sub={tr('sub', { n: total })}>
+      {anyDraft && <p class="li-note" role="note">{tr('draftNote')}</p>}
+    </PageHead>
+    {groups.map((g) => (
+      <section class="li-group" aria-labelledby={`li-${g.key}`}>
+        <h2 class="pg-h2" id={`li-${g.key}`}>{tr(g.key)}</h2>
+        <ul class="cgrid li-grid" role="list">
+          {g.docs.map((d) => (
+            <li>
+              <a class="card li-card" href={d.url} data-legal-doc={d.id}>
+                <div class="card-top">
+                  <span>{tr('version')} {d.doc.version}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{t(lang, 'legal.updated')}: <time datetime={d.doc.actualizado}>{fmtDate(lang, d.doc.actualizado)}</time></span>
+                  {d.doc.estado === 'borrador' && <span class="card-cat li-draft">{tr('draft')}</span>}
+                </div>
+                <h3>{d.doc.titulo}</h3>
+                {d.doc.descripcion && <p>{d.doc.descripcion}</p>}
+                <div class="card-foot"><span class="card-read">{t(lang, 'pages.read')} <span aria-hidden="true">→</span></span></div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+    {hasRoute('no-vender', lang) && <p class="li-dns"><a href={href('no-vender', lang)}>{tr('doNotSell')}</a></p>}
+  </div></div>
+</Base>
+<style>
+  .li-note { margin: 18px 0 0; padding: 12px 16px; border: 1.5px dashed var(--danger); border-radius: 14px; color: var(--danger); background: #fff6f4; font-size: 14px; max-width: 70ch; }
+  .li-group { margin-top: clamp(36px, 5vw, 56px); }
+  .li-group .pg-h2 { margin-bottom: 20px; }
+  .li-grid { margin: 0; padding: 0; list-style: none; }
+  .li-grid > li { display: flex; }
+  .li-card { flex: 1; }
+  .li-card h3 { font-size: 24px; }
+  .li-draft { background: #fff6f4; color: var(--danger); border: 1px solid var(--danger); }
+  .li-dns { margin: clamp(40px, 5vw, 64px) 0 0; font-size: 15px; }
+  .li-dns a { color: var(--ink); text-underline-offset: 3px; }
+</style>

@@ -14,7 +14,7 @@ const lang = doc.lang
 const { html, toc } = renderLegal(doc.body, lang)
 const id = `legal:${doc.id}`
 const path = href(id, lang)
-const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: t(lang, 'footer.legal'), url: path }, { name: doc.titulo, url: path }]
+const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: t(lang, 'footer.legal'), url: href('legal', lang) }, { name: doc.titulo, url: path }]
 const others = Object.keys(RUTAS).filter((k) => k.startsWith('legal:') && k !== id && hasRoute(k, lang)).map((k) => ({ url: href(k, lang), label: RUTAS[k].label[lang] }))
 const draft = doc.estado === 'borrador'
 const desc = doc.descripcion || `${doc.titulo} · Agent CEO (Klinworks, LLC).`
@@ -22,13 +22,13 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
     { '@type': 'WebPage', name: doc.titulo, url: `${ORIGIN}${path}`, inLanguage: lang, dateModified: doc.actualizado, version: doc.version, publisher: { '@id': ORG_ID } },
-    breadcrumbs([crumbs[0], crumbs[2]]),
+    breadcrumbs(crumbs),
   ],
 }
 ---
 <Base lang={lang} title={`${doc.titulo} · Agent CEO`} description={desc} path={path} alternates={alternatesFor(id)} page="legal" jsonLd={jsonLd}>
   <div class="pg"><div class="pg-narrow legal">
-    <Breadcrumbs items={[crumbs[0], crumbs[2]]} />
+    <Breadcrumbs items={crumbs} />
     {draft && <p class="draft" role="note"><strong>{t(lang, 'draft.banner')}</strong></p>}
     <header class="pg-head">
       <span class="pg-eyebrow">{t(lang, 'footer.legal')} · v{doc.version}</span>

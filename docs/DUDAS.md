@@ -343,3 +343,18 @@ _(se van añadiendo por fase)_
     - saludos, intenciones y fichas curadas **no gastan cupo** por IP ni por sesión; la ráfaga de 10/min sí aplica.
   - **Guardianes:** e2e en 3 navegadores (saludo sin petición, 429, stream vacío, servidor colgado) y unitarios; 5 mutaciones, todas en rojo.
 - **Punto 5:** el chat cita `info@agentceo.io` (persona, prompt, base curada, textos del widget y la base generada de la web, reemplazado al construirla). Los documentos legales y la web conservan sus contactos.
+
+### T35 · adenda, puntos 1, 2 y 4 (20-oct)
+- **1 · Acta (S07):**
+  - en escritorio la sección pasa a rejilla de dos columnas: cabecera y oficina a la izquierda; a la derecha la tarjeta, con su borde superior alineado con el título (medido: diferencia 0 px a 1280×800 y 1440×900);
+  - el acta, algo compactada, cabe entera bajo el header (589 px de 724 útiles a 1280×800; 620 de 812 a 1440×900);
+  - la oficina sube y se centra bajo el texto;
+  - solo CSS (`overrides.css`): el HTML generado no cambia y el orden de lectura tampoco. Móvil, sin cambios.
+- **2 · S03 «vacía» en producción:**
+  - **Causa medida** (cargas de página en producción, sin tocar el chat, en Chromium, WebKit, móvil y escritorio): la isla hidrata bien y sin errores de JS, pero la escena del chat **empezaba sin ningún mensaje** (0 a los 0,8 s) y se rellenaba poco a poco; el HTML del servidor tampoco traía nada. Era la «ventana oscura sin nada dentro».
+  - **Arreglo:** la conversación tiene un mensaje anterior fijo, el resumen del CEO de ayer, presente desde el HTML del servidor; la escena animada se añade debajo. Con e2e en 3 navegadores y sin JS.
+- **2 · Web Analytics de Cloudflare (beacon bloqueado por la CSP):** se mantiene **bloqueado** por la CSP. La política de privacidad y la de cookies publicadas dicen que **no hay analítica**, y permitirla contradiría lo publicado (además de añadir un tercero). El beacon lo inyecta Cloudflare en el borde y el Worker no puede quitarlo. ⏳ **Acción para Luca:** desactivar Web Analytics en el panel de Cloudflare de agentceo.io (*Analytics & Logs → Web Analytics*). Mientras tanto, el bloqueo solo deja un aviso en la consola y no afecta a la página. Si Diego quiere analítica, antes hay que cambiar los textos legales y el panel de consentimiento.
+- **4 · Footer e índice legal:**
+  - 5 columnas: Producto, Recursos, Empresa, Legal (5 clave + «Ver todo») y Confianza;
+  - páginas nuevas `/legal/` y `/en/legal/` con los 14 documentos por grupos;
+  - las migas de cada documento pasan por el índice.

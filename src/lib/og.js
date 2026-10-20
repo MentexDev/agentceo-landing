@@ -96,7 +96,7 @@ export function ogPages() {
     if (id === 'home') return { title: t(lang, 'site.tagline'), eyebrow: 'Agent CEO' }
     if (id.startsWith('legal:')) return { title: RUTAS[id].label[lang], eyebrow: t(lang, 'footer.legal') }
     const map = { precios: 'nav.precios', noticias: 'nav.noticias', blog: 'nav.blog', recursos: 'nav.recursos', empresa: 'empresa.h1a', contacto: 'contacto.h1a', prensa: 'prensa.eyebrow' }
-    const titleKey = { empresa: 'empresa.title', contacto: 'contacto.title', prensa: 'prensa.title' }[id]
+    const titleKey = { empresa: 'empresa.title', contacto: 'contacto.title', prensa: 'prensa.title', legal: 'legalIndex.title' }[id]
     return { title: titleKey ? t(lang, titleKey).replace(/ · Agent CEO$/, '') : t(lang, map[id] || 'site.name'), eyebrow: 'Agent CEO' }
   }
   for (const r of allStaticRoutes()) {

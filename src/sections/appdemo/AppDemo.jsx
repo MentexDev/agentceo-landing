@@ -68,6 +68,12 @@ function Chat({ c }) {
   return (
     <div class="ad-chat">
       <div class="ad-log" role="log" aria-live="off">
+        {/* Conversación anterior: presente desde el primer fotograma (y en el HTML del servidor). */}
+        <div class="ad-day" aria-hidden="true"><span>{T.earlierDay}</span></div>
+        <div class="ad-turn">
+          <div class="ad-who"><span class="ad-av" aria-hidden="true"><Crown size={13} /></span><strong>{T.ceo}</strong><time>08:02</time></div>
+          <div class="ad-bubble ad-bubble-agent ad-earlier"><Md text={T.earlier} /></div>
+        </div>
         {s.sent && (
           <div class="ad-turn ad-user ad-in">
             <div class="ad-bubble ad-bubble-user">{T.userMsg}</div>

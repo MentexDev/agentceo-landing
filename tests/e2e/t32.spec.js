@@ -36,16 +36,27 @@ test('4 · tipografía: cuerpo a 450 en gris más oscuro (la serif la vigila t33
   expect(r.color).toBe('rgb(78, 76, 71)')
 })
 
-test('5 · footer: los enlaces legales van en varias columnas y la columna ya no es una torre', async ({ page }, info) => {
+test('5 · footer (T35 · adenda): 5 columnas equilibradas; Legal = 5 clave + «Ver todo» al índice; nada de torres', async ({ page }, info) => {
   await page.goto('/')
-  const r = await page.locator('.ft-col-legal').evaluate((col) => {
-    const xs = new Set([...col.querySelectorAll('a')].map((a) => Math.round(a.getBoundingClientRect().left)))
-    return { cols: xs.size, n: col.querySelectorAll('a').length, h: col.querySelector('ul').getBoundingClientRect().height }
+  const r = await page.locator('footer nav.ft-cols').evaluate((nav) => {
+    const cols = [...nav.querySelectorAll('[data-ft-col]')]
+    const legal = nav.querySelector('[data-ft-col="legal"]')
+    return {
+      keys: cols.map((c) => c.dataset.ftCol),
+      tops: new Set(cols.map((c) => Math.round(c.getBoundingClientRect().top))).size,
+      maxH: Math.max(...cols.map((c) => c.querySelector('ul').getBoundingClientRect().height)),
+      legalDocs: [...legal.querySelectorAll('a:not(.ft-more)')].map((a) => a.getAttribute('href')),
+      verTodo: legal.querySelector('a.ft-more')?.getAttribute('href'),
+    }
   })
-  expect(r.n).toBe(14)
-  expect(r.cols).toBeGreaterThanOrEqual(movil(info) ? 2 : 4)
-  // Antes: 14 filas de 34 px (~500 px). Ahora: 7 filas en móvil, 4 en escritorio.
-  expect(r.h).toBeLessThan(movil(info) ? 470 : 230)
+  expect(r.keys).toEqual(['producto', 'recursos', 'empresa', 'legal', 'confianza'])
+  expect(r.legalDocs).toHaveLength(5)
+  for (const h of r.legalDocs) expect(h).toMatch(/^\/legal\/[a-z-]+$/)
+  expect(r.verTodo).toBe('/legal/')
+  // Antes (T32): una columna de 14 enlaces (~500 px). Ahora ninguna pasa de 6 enlaces.
+  expect(r.maxH).toBeLessThan(movil(info) ? 300 : 260)
+  // Escritorio: las 5 columnas en UNA fila. Móvil: como mucho 3 filas (2 + 2 + Confianza a lo ancho).
+  expect(r.tops).toBeLessThanOrEqual(movil(info) ? 3 : 1)
 })
 
 test.describe('6 · expertos', () => {

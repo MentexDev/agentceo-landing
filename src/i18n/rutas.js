@@ -23,6 +23,8 @@ export const RUTAS = {
   contacto: { es: '/contacto/', en: '/en/contact/' },
   prensa: { es: '/prensa/', en: '/en/press/' },
   'no-vender': { es: '/no-vender-ni-compartir/', en: '/en/do-not-sell-or-share/' },
+  // Índice de los documentos legales (T35 · adenda, punto 4: «Ver todo» del footer).
+  legal: { es: '/legal/', en: '/en/legal/' },
 }
 
 // Documentos legales: rutas generadas desde el frontmatter de content/legal/{es,en}/*.md

@@ -1,60 +1,81 @@
 ---
-// Footer del sitio (estilo S20 del prototipo, ampliado con las columnas del brief §3).
-// Cada enlace sale de rutas.js: si la página aún no existe, el enlace NO se pinta.
-// Un test de enlaces exige que todo lo pintado responda 200.
+// Footer del sitio (estilo S20 del prototipo). T35 · adenda, punto 4 (Diego): más ancho y
+// equilibrado, con CINCO columnas: Producto, Recursos, Empresa, Legal (5 documentos clave +
+// «Ver todo» → índice /legal/) y Confianza.
+//  · Legal: los 5 que más busca un visitante antes de apuntarse: el contrato (Términos), qué
+//    hacemos con sus datos (Privacidad), qué guarda su navegador (Cookies), qué pasa con su
+//    dinero (Reembolsos) y qué puede hacer con los agentes (Uso aceptable). Los 14, en /legal/.
+//  · Confianza: documentos REALES que responden «¿me puedo fiar?»: Seguridad, Uso de la IA,
+//    Subprocesadores, Tus derechos (RGPD/CCPA) y Accesibilidad. Ningún sello ni certificación.
+// Cada enlace sale de rutas.js: si la página aún no existe, el enlace NO se pinta (y un test de
+// enlaces exige que todo lo pintado responda 200).
 import Logo from './Logo.astro'
 import LangSwitch from './LangSwitch.astro'
 import { t } from '../i18n/config.js'
-import { href, hasRoute } from '../i18n/rutas.js'
+import { href, hasRoute, RUTAS } from '../i18n/rutas.js'
 interface Props { lang: string; alternates: { lang: string; url: string }[] }
 const { lang, alternates } = Astro.props
 const year = new Date().getUTCFullYear()
+const f = (k: string, v?: any) => t(lang, `footer.${k}`, v)
+const nLegal = Object.keys(RUTAS).filter((k) => k.startsWith('legal:') && hasRoute(k, lang)).length
 
-type L = { id: string; hash?: string; label: string }
-const cols: { title: string; links: L[] }[] = [
+type L = { id: string; hash?: string; label: string; aria?: string; more?: boolean }
+const cols: { key: string; title: string; links: L[] }[] = [
   {
-    title: t(lang, 'footer.producto'),
+    key: 'producto',
+    title: f('producto'),
     links: [
-      { id: 'home', hash: 'empieza', label: t(lang, 'footer.comoFunciona') },
-      { id: 'home', hash: 'equipo', label: t(lang, 'footer.agentes') },
-      { id: 'precios', label: t(lang, 'footer.precios') },
+      { id: 'home', hash: 'empieza', label: f('comoFunciona') },
+      { id: 'home', hash: 'equipo', label: f('agentes') },
+      { id: 'precios', label: f('precios') },
+      { id: 'home', hash: 'acceso', label: f('unirse') },
     ],
   },
   {
-    title: t(lang, 'footer.contenido'),
+    key: 'recursos',
+    title: f('contenido'),
     links: [
-      { id: 'recursos', label: t(lang, 'footer.recursos') },
-      { id: 'blog', label: t(lang, 'footer.blog') },
-      { id: 'noticias', label: t(lang, 'footer.noticias') },
-      { id: 'home', hash: 'faq', label: t(lang, 'footer.preguntas') },
+      { id: 'recursos', label: f('recursos') },
+      { id: 'blog', label: f('blog') },
+      { id: 'noticias', label: f('noticias') },
+      { id: 'home', hash: 'faq', label: f('preguntas') },
     ],
   },
   {
-    title: t(lang, 'footer.empresa'),
+    key: 'empresa',
+    title: f('empresa'),
     links: [
-      { id: 'empresa', label: t(lang, 'footer.sobre') },
-      { id: 'contacto', label: t(lang, 'footer.contacto') },
-      { id: 'prensa', label: t(lang, 'footer.prensa') },
-      { id: 'home', hash: 'acceso', label: t(lang, 'footer.unirse') },
+      { id: 'empresa', label: f('sobre') },
+      { id: 'contacto', label: f('contacto') },
+      { id: 'prensa', label: f('prensa') },
     ],
   },
   {
-    title: t(lang, 'footer.legal'),
+    key: 'legal',
+    title: f('legal'),
     links: [
-      'terminos', 'privacidad', 'cookies', 'seguridad', 'gdpr', 'california', 'estados',
-      'uso-aceptable', 'ia', 'subprocesadores', 'dpa', 'reembolsos', 'accesibilidad', 'dmca',
-    ].map((d) => ({ id: `legal:${d}`, label: d })),
+      { id: 'legal:terminos', label: f('terminos') },
+      { id: 'legal:privacidad', label: f('privacidad') },
+      { id: 'legal:cookies', label: f('cookies') },
+      { id: 'legal:reembolsos', label: f('reembolsos') },
+      { id: 'legal:uso-aceptable', label: f('usoAceptable') },
+      { id: 'legal', label: f('verTodo'), aria: f('verTodoLabel', { n: nLegal }), more: true },
+    ],
+  },
+  {
+    key: 'confianza',
+    title: f('confianza'),
+    links: [
+      { id: 'legal:seguridad', label: f('seguridad') },
+      { id: 'legal:ia', label: f('ia') },
+      { id: 'legal:subprocesadores', label: f('subprocesadores') },
+      { id: 'legal:gdpr', label: f('derechos') },
+      { id: 'legal:accesibilidad', label: f('accesibilidad') },
+    ],
   },
 ]
-// Las etiquetas legales vienen del propio documento (rutas.js guarda su título).
-import { RUTAS } from '../i18n/rutas.js'
 const visible = cols
-  .map((c) => ({
-    ...c,
-    links: c.links
-      .filter((l) => hasRoute(l.id, lang))
-      .map((l) => ({ ...l, url: href(l.id, lang, l.hash), label: l.id.startsWith('legal:') ? RUTAS[l.id].label[lang] : l.label })),
-  }))
+  .map((c) => ({ ...c, links: c.links.filter((l) => hasRoute(l.id, lang)).map((l) => ({ ...l, url: href(l.id, lang, l.hash) })) }))
   .filter((c) => c.links.length > 0)
 ---
 <footer class="site-footer on-dark">
@@ -62,24 +83,30 @@ const visible = cols
     <div class="ft-brand">
       <a class="ft-home" href={href('home', lang)} aria-label={t(lang, 'a11y.home')}><Logo variant="light" size={28} text={17} /></a>
       <p class="ft-entity">{t(lang, 'site.entity')}</p>
-      <p class="ft-made">{t(lang, 'footer.made')}</p>
+      <p class="ft-made">{f('made')}</p>
     </div>
-    <nav class="ft-cols" aria-label={t(lang, 'a11y.footerNav')}>
+    <nav class="ft-cols" aria-label={t(lang, 'a11y.footerNav')} style={`--n:${visible.length}`}>
       {visible.map((c) => (
-        <div class:list={['ft-col', { 'ft-col-legal': c.links[0]?.id.startsWith('legal:') }]}>
+        <div class={`ft-col ft-col-${c.key}`} data-ft-col={c.key}>
           <h2 class="ft-h">{c.title}</h2>
-          <ul role="list" style={c.links[0]?.id.startsWith('legal:') ? `--rows:${Math.ceil(c.links.length / 2)};--rows-3:${Math.ceil(c.links.length / 3)};--rows-4:${Math.ceil(c.links.length / 4)}` : undefined}>
-            {c.links.map((l) => <li><a href={l.url}>{l.label}</a></li>)}
+          <ul role="list">
+            {c.links.map((l) => (
+              <li>
+                <a href={l.url} class:list={[{ 'ft-more': l.more }]} aria-label={l.aria}>
+                  {l.label}{l.more && <span class="ft-arrow" aria-hidden="true">→</span>}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       ))}
     </nav>
   </div>
   <div class="ft-bottom">
-    <span>{t(lang, 'footer.rights', { year })}</span>
+    <span>{f('rights', { year })}</span>
     <div class="ft-bottom-links">
-      {hasRoute('no-vender', lang) && <a href={href('no-vender', lang)}>{t(lang, 'footer.doNotSell')}</a>}
-      <button type="button" class="ft-linkbtn" data-cookie-prefs hidden>{t(lang, 'footer.cookiePrefs')}</button>
+      {hasRoute('no-vender', lang) && <a href={href('no-vender', lang)}>{f('doNotSell')}</a>}
+      <button type="button" class="ft-linkbtn" data-cookie-prefs hidden>{f('cookiePrefs')}</button>
       <LangSwitch lang={lang} alternates={alternates} tone="dark" />
     </div>
   </div>
@@ -88,32 +115,35 @@ const visible = cols
 <style>
   .site-footer {
     background: var(--ink); color: var(--mute-dark);
-    padding: 64px var(--gutter) 28px; font-size: 14px;
+    padding: 72px var(--gutter) 28px; font-size: 14px;
     border-top: 1px solid var(--line-dark);
   }
-  .ft-top { display: grid; grid-template-columns: minmax(240px, 1.1fr) 3fr; gap: 48px; max-width: 1280px; margin: 0 auto; }
+  /* Más ancho (T35): 1360 px de contenido; la marca a la izquierda y las 5 columnas a la derecha. */
+  .ft-top, .ft-bottom { width: min(100%, 1360px); margin-inline: auto; }
+  .ft-top { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 3.6fr); gap: 56px; }
   .ft-home { display: inline-flex; color: var(--cream); text-decoration: none; border-radius: 10px; }
   .ft-home:hover { color: var(--cream); }
-  .ft-entity { margin: 18px 0 8px; line-height: 1.6; max-width: 38ch; }
-  .ft-made { margin: 0; color: var(--gold-2); }
-  .ft-cols { display: grid; grid-template-columns: repeat(3, minmax(130px, 1fr)); gap: 32px; }
-  /* Legal (14 documentos, T32: la columna única era demasiado alta): fila propia a todo el ancho,
-     con los enlaces en columnas que se leen de arriba abajo (4 en escritorio, 3 en tableta, 2 en
-     móvil). El orden visual sigue al del DOM: teclado y lectores leen lo mismo que se ve. */
-  .ft-col-legal { grid-column: 1 / -1; padding-top: 24px; border-top: 1px solid var(--line-dark); }
-  .ft-col-legal ul { grid-template-rows: repeat(var(--rows-4, 4), auto); grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); column-gap: 28px; }
+  .ft-entity { margin: 18px 0 10px; line-height: 1.6; max-width: 36ch; }
+  .ft-made { margin: 0; color: var(--gold-2); max-width: 30ch; }
+  .ft-cols { display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); gap: 32px 28px; }
   .ft-h {
     margin: 0 0 14px; font-family: var(--mono); font-size: 12px; font-weight: 500;
     letter-spacing: .08em; text-transform: uppercase; color: var(--cream);
   }
   .ft-col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
   .ft-col a {
-    display: inline-flex; align-items: center; min-height: 32px;
+    display: inline-flex; align-items: center; gap: 6px; min-height: 32px; line-height: 1.3;
     color: var(--mute-dark); text-decoration: none; transition: color .2s;
   }
   .ft-col a:hover { color: var(--cream); text-decoration: underline; text-underline-offset: 3px; }
+  .ft-col a:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 2px; border-radius: 4px; }
+  /* «Ver todo»: el único enlace en color, para que se lea como la puerta a los 14 documentos. */
+  .ft-col a.ft-more { color: var(--gold-2); font-weight: 500; }
+  .ft-col a.ft-more:hover { color: var(--cream); }
+  .ft-arrow { transition: transform .2s; }
+  .ft-col a.ft-more:hover .ft-arrow { transform: translateX(3px); }
   .ft-bottom {
-    max-width: 1280px; margin: 48px auto 0; padding-top: 22px; border-top: 1px solid var(--line-dark);
+    margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--line-dark);
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;
   }
   .ft-bottom-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
@@ -124,12 +154,29 @@ const visible = cols
   }
   .ft-bottom-links a:hover, .ft-linkbtn:hover { color: var(--cream); }
   .ft-bottom :global(.lang summary) { color: var(--cream); }
-  @media (max-width: 860px) {
-    .ft-top { grid-template-columns: 1fr; gap: 36px; }
-    .ft-cols { grid-template-columns: repeat(2, 1fr); gap: 28px 20px; }
-    .ft-col-legal ul { grid-template-rows: repeat(var(--rows, 7), auto); column-gap: 20px; }
+
+  /* Tableta y portátil estrecho: la marca arriba, en una fila; las 5 columnas debajo, a todo el ancho. */
+  @media (max-width: 1180px) {
+    .ft-top { grid-template-columns: 1fr; gap: 40px; }
+    .ft-brand { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 8px 32px; }
+    .ft-entity { grid-column: 2; margin: 0; max-width: 62ch; }
+    .ft-made { grid-column: 2; max-width: none; }
   }
-  @media (min-width: 861px) and (max-width: 1100px) {
-    .ft-col-legal ul { grid-template-rows: repeat(var(--rows-3, 5), auto); }
+  /* 3 + 2: Producto, Recursos y Empresa arriba; Legal y Confianza abajo, cada una con más aire. */
+  @media (max-width: 900px) {
+    .ft-cols { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .ft-col { grid-column: span 2; }
+    .ft-col-legal, .ft-col-confianza { grid-column: span 3; }
+  }
+  /* Móvil: 2 columnas; Confianza (la 5.ª) a todo el ancho, con su lista a dos columnas: sin huecos. */
+  @media (max-width: 640px) {
+    .site-footer { padding-top: 56px; }
+    .ft-brand { display: block; }
+    .ft-entity { margin: 16px 0 8px; }
+    .ft-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; }
+    .ft-col, .ft-col-legal { grid-column: span 1; }
+    .ft-col-confianza { grid-column: 1 / -1; }
+    /* Se lee de arriba abajo (como el resto): el orden visual sigue al del DOM. */
+    .ft-col-confianza ul { grid-template-rows: repeat(3, auto); grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); column-gap: 20px; }
   }
 </style>

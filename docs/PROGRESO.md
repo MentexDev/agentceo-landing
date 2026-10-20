@@ -94,3 +94,24 @@ Una línea por fase cerrada: fecha · fase · qué quedó · commit.
     - e2e 232/232 en 2 pasadas seguidas, en los 3 navegadores;
     - Lighthouse móvil: LCP 1,8 s en es y en (1,67–1,83 s en 6 pasadas), a11y 100, CLS 0; escritorio 100;
     - capturas en `docs/capturas-t33/`.
+- 2026-10-20 · **T34 · evals contra producción**, interrumpidas en el caso 7/43:
+  - live 2/2 aprobadas; desde el caso 4, el proveedor del modelo devuelve error HTTP (⏳ crédito de OpenRouter, para Luca);
+  - en producción hay 10 respuestas live por IP y día sin Turnstile;
+  - no se relanzan sin permiso de Luca. `fd74836`.
+- 2026-10-20 · **T35 + adenda**:
+  - **0 · Chat nunca callado (urgente):**
+    - reproducido con el JS de producción: una respuesta colgada dejaba el widget mudo y bloqueaba los mensajes siguientes;
+    - timeout con AbortController y respuesta amable + curada calculada en el navegador;
+    - saludos al instante sin petición; saludos y fichas curadas sin gastar cupo. `5a3d3b2`.
+  - **5 · Contacto del chat:** info@agentceo.io (los legales no cambian). `5a3d3b2`.
+  - **A · Caché inteligente:** 16 fichas curadas es/en; 27/43 preguntas sin modelo a la primera, 43/43 con caché; caché versionada por el contenido. `5a3d3b2`.
+  - **B · Titulares:** vuelve Instrument Serif con trazo medido (0,035 em, `paint-order`, interletrado compensado, sin negrita sintética), revisado en Chromium, WebKit y Firefox; Fraunces retirada. `36bffcd`.
+  - **1 · Acta:** alineada con el título y entera en 1280×800 y 1440×900; la oficina sube y se centra.
+  - **2 · S03:** ya no empieza vacía (conversación anterior desde el HTML del servidor). La CSP sigue bloqueando el beacon de Cloudflare: la política publicada promete «sin analítica» (⏳ desactivar Web Analytics en el panel).
+  - **3 · La Forja:** 6 productos reales de la marca ficticia «Lúa» (+4,0 KB gz de JS, +2,8 KB gz de CSS no crítico).
+  - **4 · Footer:** 5 columnas (Producto, Recursos, Empresa, Legal con 5 + «Ver todo», Confianza) e índice `/legal/` y `/en/legal/` con los 14 documentos.
+  - **Resultados:**
+    - unitarios 583/583;
+    - e2e 280/280 en los 3 navegadores (dos tests endurecidos: desplazamiento instantáneo);
+    - Lighthouse móvil: LCP 1,67–1,83 s (es) y 1,5–1,8 s (en), a11y 100, CLS 0;
+    - capturas en `docs/capturas-t35/` (30, con comparativas Fraunces frente a Instrument).

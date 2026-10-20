@@ -4,7 +4,9 @@ import { test, expect } from './fixtures.js'
 
 const sec = (page, id) => page.locator(`section#${id}`)
 // Desplaza la página por tramos (WebKit móvil no tiene rueda): es preparación, no la interacción bajo prueba.
-const scrollAll = (page) => page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 700) { scrollTo(0, y); await new Promise((r) => setTimeout(r, 50)) } })
+// Desplazamiento INSTANTÁNEO: con scroll-behavior: smooth, un scrollTo cada 50 ms interrumpía al
+// anterior y el recorrido se saltaba secciones (islas sin hidratar en ~20 % de las pasadas en WebKit).
+const scrollAll = (page) => page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 700) { scrollTo({ top: y, behavior: 'instant' }); await new Promise((r) => setTimeout(r, 90)) } })
 // Centra el elemento antes de pulsarlo (que no quede bajo la barra fija de la lista ni el lanzador del chat).
 const tap = async (loc) => { await loc.evaluate((el) => el.scrollIntoView({ block: 'center' })); await loc.click() }
 

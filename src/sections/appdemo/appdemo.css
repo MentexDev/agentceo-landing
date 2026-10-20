@@ -244,3 +244,7 @@ tr.ad-pop { animation: adRow .6s var(--n-ease) both; }
 .ad-steps li { display: grid; grid-template-columns: 9px 13px minmax(0, 1fr) auto; }
 .ad-cost { margin-left: 0; }
 @media (max-width: 640px) { .ad-cost { font-size: 10px; } .ad-steps li { gap: 6px; } }
+/* Conversación anterior (T35 · adenda): separador de día y el resumen de ayer, siempre visibles. */
+.ad-day { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--n-mute); }
+.ad-day::before, .ad-day::after { content: ''; flex: 1; height: 1px; background: var(--n-line); }
+.ad-earlier { opacity: .92; }

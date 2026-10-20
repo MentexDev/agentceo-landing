@@ -55,10 +55,16 @@ describe('documentos legales', () => {
     expect(es.find((x) => x.id === 'dmca').body).toContain('[PENDIENTE registro dmca.copyright.gov]')
   })
 
-  it('el pie enlaza los 14 documentos y «No vender ni compartir»', () => {
+  // T35 · adenda: el pie lleva 5 documentos clave + «Ver todo» → índice /legal/, que enlaza los 14.
+  // Ningún documento queda a más de dos clics de cualquier página.
+  it('el pie enlaza el índice legal y «No vender ni compartir»', () => {
     const links = tags(html('/'), 'a').map((a) => a.href)
-    for (const id of REQUIRED) expect(links, id).toContain(RUTAS[`legal:${id}`].es)
+    expect(links).toContain(RUTAS.legal.es)
     expect(links).toContain('/no-vender-ni-compartir/')
+  })
+  it.each(['es', 'en'])('el índice legal (%s) enlaza los 14 documentos', (lang) => {
+    const links = tags(html(RUTAS.legal[lang]), 'a').map((a) => a.href)
+    for (const id of REQUIRED) expect(links, id).toContain(RUTAS[`legal:${id}`][lang])
   })
 })
 

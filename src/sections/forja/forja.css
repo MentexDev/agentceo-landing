@@ -1,0 +1,135 @@
+/* VISTAS PREVIAS de La Forja (S13 · T35 adenda, punto 3): ForjaPreview.jsx. Marca ficticia «Lúa»:
+   crema cálido, tinta marrón y terracota; titulares en la serif del sitio, interfaz en Geist.
+   Ocupan EXACTAMENTE el área de vista previa del prototipo (absolute + overflow hidden): nunca se
+   desbordan, ni en escritorio ni en móvil. La entrada escalonada es la de `.fb` del prototipo. */
+@layer sections {
+  #forja .fj-wrap { position: absolute; inset: 0; overflow: hidden; background: #FBF6EF; }
+  #forja .fj-wrap, #forja .fj-wrap * { box-sizing: border-box; }
+  #forja .fj-inner { height: 100%; }
+  #forja .fj { --fj-ink: #2E2420; --fj-mute: #6E625A; --fj-accent: #C2643A; --fj-line: rgba(46, 36, 32, .12);
+    height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 14px;
+    font-family: var(--sans); font-size: 11px; line-height: 1.35; color: var(--fj-ink); }
+  #forja .fj b { font-weight: 650; }
+  #forja .fj small { font-size: 9.5px; color: var(--fj-mute); }
+
+  /* Piezas comunes */
+  #forja .fj-nav { display: flex; align-items: center; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--fj-line); }
+  #forja .fj-nav-dark { margin: -12px -14px 0; padding: 10px 14px; background: var(--fj-ink); border: 0; color: #FBF6EF; }
+  #forja .fj-logo { font-family: var(--serif); font-style: italic; font-size: 19px; line-height: 1; letter-spacing: -.01em; color: var(--fj-ink); }
+  #forja .fj-logo i { color: var(--fj-accent); font-style: normal; }
+  #forja .fj-logo-light { color: #FBF6EF; }
+  #forja .fj-links { display: flex; gap: 10px; margin-left: auto; color: var(--fj-mute); white-space: nowrap; overflow: hidden; }
+  #forja .fj-nav-dark .fj-links { color: rgba(251, 246, 239, .7); }
+  #forja .fj-links .on { color: #FBF6EF; text-decoration: underline; text-underline-offset: 3px; }
+  #forja .fj-bag { margin-left: 4px; color: var(--fj-accent); }
+  #forja .fj-hero { display: flex; flex-direction: column; gap: 5px; }
+  #forja .fj-kicker { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--fj-accent); font-weight: 600; }
+  #forja .fj-title { font-family: var(--serif); font-size: 26px; line-height: 1.02; letter-spacing: -.01em; }
+  #forja .fj-title-sm { font-size: 21px; }
+  #forja .fj-sub { color: var(--fj-mute); }
+  #forja .fj-h { font-family: var(--serif); font-size: 15px; }
+  #forja .fj-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  #forja .fj-between { justify-content: space-between; }
+  #forja .fj-col { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  #forja .fj-btn { align-self: flex-start; display: inline-flex; padding: 7px 12px; border-radius: 999px; background: var(--fj-accent); color: #fff; font-weight: 600; white-space: nowrap; }
+  #forja .fj-btn-sm { padding: 6px 11px; }
+  #forja .fj-note { color: var(--fj-mute); font-size: 10px; }
+  #forja .fj-note-light { color: rgba(251, 246, 239, .75); margin-left: auto; }
+  #forja .fj-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  #forja .fj-card { position: relative; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  #forja .fj-garment { display: block; width: 100%; aspect-ratio: 1 / 1.05; border-radius: 10px; }
+  #forja .fj-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #forja .fj-price { color: var(--fj-accent); font-weight: 700; }
+  #forja .fj-avatar { display: inline-grid; place-items: center; width: 24px; height: 24px; margin-left: auto; border-radius: 50%; background: var(--fj-accent); color: #fff; font-size: 9px; font-weight: 700; }
+
+  /* 0 · Landing: franja de confianza al pie */
+  #forja .fj-trust { display: flex; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 9px; border-top: 1px solid var(--fj-line); color: var(--fj-mute); font-size: 10px; white-space: nowrap; }
+
+  /* 1 · Sitio web */
+  #forja .fj-hero-split { flex-direction: row; align-items: center; gap: 12px; }
+  #forja .fj-hero-split .fj-garment { width: 34%; flex: none; }
+  #forja .fj-service { display: flex; flex-direction: column; gap: 4px; padding: 8px; border-radius: 10px; background: #F3E9DC; font-weight: 600; }
+  #forja .fj-ic { font-size: 15px; color: var(--fj-accent); }
+  #forja .fj-about { display: flex; flex-direction: column; gap: 3px; }
+  #forja .fj-contact { display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--fj-line); }
+
+  /* 2 · Tienda */
+  #forja .fj-search { flex: 1; min-width: 0; padding: 5px 10px; border-radius: 999px; background: #F1E6D8; color: var(--fj-mute); white-space: nowrap; overflow: hidden; }
+  #forja .fj-cart { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+  #forja .fj-cart b { display: inline-grid; place-items: center; min-width: 16px; height: 16px; border-radius: 8px; background: var(--fj-accent); color: #fff; font-size: 9px; }
+  #forja .fj-chips { display: flex; gap: 6px; overflow: hidden; }
+  #forja .fj-chips span { padding: 3px 9px; border-radius: 999px; border: 1px solid var(--fj-line); white-space: nowrap; }
+  #forja .fj-chips .on { background: var(--fj-ink); border-color: var(--fj-ink); color: #FBF6EF; }
+  #forja .fj-tag { position: absolute; top: 6px; left: 6px; z-index: 1; padding: 2px 6px; border-radius: 6px; background: #fff; font-size: 9px; font-weight: 700; color: var(--fj-accent); }
+  #forja .fj-add { font-size: 9.5px; font-weight: 600; white-space: nowrap; }
+  #forja .fj-checkout { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding: 9px 10px; border-radius: 12px; background: var(--fj-ink); color: #FBF6EF; }
+
+  /* 3 · Aplicación web (reservas) */
+  #forja .fj-hero-tight { gap: 3px; }
+  #forja .fj-days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  #forja .fj-days span { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 0; border-radius: 10px; border: 1px solid var(--fj-line); }
+  #forja .fj-days b { font-size: 14px; }
+  #forja .fj-days .on { background: var(--fj-ink); border-color: var(--fj-ink); color: #FBF6EF; }
+  #forja .fj-days .on small { color: rgba(251, 246, 239, .7); }
+  #forja .fj-slots { display: flex; flex-wrap: wrap; gap: 6px; }
+  #forja .fj-slots span { padding: 5px 10px; border-radius: 999px; border: 1px solid var(--fj-line); font-weight: 600; }
+  #forja .fj-slots .on { border-color: var(--fj-accent); background: #F7E3D8; color: var(--fj-accent); }
+  #forja .fj-confirm { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  #forja .fj-includes { display: flex; flex-direction: column; gap: 4px; color: var(--fj-mute); }
+  #forja .fj-includes .fj-h { color: var(--fj-ink); }
+  #forja .fj-next { display: flex; align-items: center; gap: 9px; margin-top: auto; padding: 9px 10px; border-radius: 12px; background: #EEF1E8; }
+  #forja .fj-next span:last-child { display: flex; flex-direction: column; }
+  #forja .fj-dot { width: 8px; height: 8px; border-radius: 50%; background: #6F8A5E; flex: none; }
+
+  /* 4 · App móvil: marco de teléfono centrado */
+  #forja .fj-mobile { align-items: center; justify-content: center; padding: 10px; background: linear-gradient(160deg, #F6E7D6, #EBD4BE); }
+  #forja .fj-phone { position: relative; width: min(190px, 62%); height: 100%; max-height: 380px; display: flex; flex-direction: column;
+    padding: 8px; border-radius: 28px; background: var(--fj-ink); box-shadow: 0 16px 30px -14px rgba(46, 36, 32, .55); }
+  #forja .fj-status { display: flex; align-items: center; justify-content: space-between; padding: 2px 10px 6px; color: #FBF6EF; font-size: 9px; font-weight: 600; }
+  #forja .fj-island { width: 46px; height: 12px; border-radius: 8px; background: #000; }
+  #forja .fj-push { position: absolute; top: 30px; left: 12px; right: 12px; z-index: 2; display: flex; gap: 7px; padding: 7px 8px; border-radius: 12px;
+    background: rgba(251, 246, 239, .96); box-shadow: 0 8px 18px -8px rgba(0, 0, 0, .45); animation: fj-push .6s cubic-bezier(.3, 1.4, .5, 1) 4.6s both; }
+  #forja .fj-push > span:last-child { display: flex; flex-direction: column; min-width: 0; font-size: 9.5px; }
+  #forja .fj-push-ic { display: grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: 6px; background: var(--fj-accent); color: #fff; font-family: var(--serif); font-style: italic; font-size: 13px; }
+  #forja .fj-screen { flex: 1; display: flex; flex-direction: column; gap: 7px; padding: 66px 9px 7px; border-radius: 20px; background: #FBF6EF; overflow: hidden; }
+  #forja .fj-hello { font-family: var(--serif); font-size: 17px; }
+  #forja .fj-card-wide { flex-direction: row; align-items: center; gap: 8px; padding: 6px; border-radius: 12px; background: #fff; }
+  #forja .fj-card-wide .fj-garment { width: 42%; flex: none; }
+  #forja .fj-card-wide s { color: var(--fj-mute); font-size: 9.5px; }
+  #forja .fj-tabs { display: flex; justify-content: space-between; margin-top: auto; padding-top: 6px; border-top: 1px solid var(--fj-line); font-size: 8.5px; color: var(--fj-mute); }
+  #forja .fj-tabs .on { color: var(--fj-accent); font-weight: 700; }
+  @keyframes fj-push { from { opacity: 0; transform: translateY(-14px) scale(.96); } }
+
+  /* 5 · Herramienta interna */
+  #forja .fj-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+  #forja .fj-kpis span { display: flex; flex-direction: column; padding: 8px; border-radius: 10px; background: #fff; border: 1px solid var(--fj-line); }
+  #forja .fj-kpis b { font-size: 16px; }
+  #forja .fj-table { display: flex; flex-direction: column; border-radius: 10px; border: 1px solid var(--fj-line); background: #fff; overflow: hidden; }
+  #forja .fj-tr { display: grid; grid-template-columns: .8fr 1.2fr 1fr; gap: 6px; align-items: center; padding: 6px 9px; border-top: 1px solid var(--fj-line); }
+  #forja .fj-th { border-top: 0; background: #F3E9DC; color: var(--fj-mute); font-size: 9.5px; font-weight: 600; }
+  #forja .fj-st { font-style: normal; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 600; }
+  #forja .fj-st-ok { background: #E3EBDB; color: #4D6B3C; }
+  #forja .fj-st-wip { background: #F7E3D8; color: #9A4A26; }
+  #forja .fj-st-new { background: #E4E3F0; color: #4D4A7A; }
+  #forja .fj-week { display: flex; flex-direction: column; gap: 6px; }
+  #forja .fj-bars { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; align-items: end; height: 70px; }
+  #forja .fj-bars span { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; height: 100%; }
+  #forja .fj-bars i { display: block; width: 100%; border-radius: 4px 4px 2px 2px; background: #E2C9B3; }
+  #forja .fj-bars i.top { background: var(--fj-accent); }
+  #forja .fj-shifts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: auto; }
+  #forja .fj-person { display: inline-flex; align-items: center; gap: 6px; }
+  #forja .fj-person .fj-avatar { margin: 0; background: var(--fj-ink); }
+
+  /* Ancho estrecho (móvil): menos texto y escala algo menor, sin desbordar. */
+  @media (max-width: 640px) {
+    #forja .fj { gap: 8px; padding: 10px 11px 12px; font-size: 10.5px; }
+    #forja .fj-nav-dark { margin: -10px -11px 0; }
+    #forja .fj-title { font-size: 21px; }
+    #forja .fj-title-sm { font-size: 18px; }
+    #forja .fj-links span:nth-child(n + 3) { display: none; }
+    #forja .fj-garment { aspect-ratio: 1 / .9; }
+    #forja .fj-site .fj-about, #forja .fj-includes, #forja .fj-week { display: none; }
+    #forja .fj-trust span:nth-child(3) { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { #forja .fj-push { animation: none; } }
+}

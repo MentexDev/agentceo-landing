@@ -498,6 +498,18 @@ function minutesSlot(id, code) {
   return code.replace(re, '$1{children}$2')
 }
 
+// LA FORJA DE S13 (T35 adenda, punto 3, Diego: «un prototipo real, no un placeholder»): el área de
+// vista previa de cada tipo (.xOlqx14) traía bloques grises. El compilador sustituye ese esqueleto
+// por un hueco children(k) (k = 0…5, en el orden de los tipos) que pinta la isla I13 con
+// src/sections/forja/ForjaPreview.jsx. La capa .fbuild («construyéndose») se conserva.
+function forjaSlots(id, code) {
+  if (id !== 'S13') return code
+  let k = 0
+  code = code.replace(/(<div className="xOlqx14">)([\s\S]*?)(<div className="fbuild" aria-hidden="true"><\/div>)/g, (_, a, _skeleton, b) => `${a}{typeof children === 'function' ? children(${k++}) : null}${b}`)
+  if (k !== 6) throw new Error(`S13: se esperaban 6 áreas de vista previa de la Forja y hay ${k}`)
+  return code
+}
+
 const files = readdirSync(join(PROTO, 'desktop')).filter((f) => /^S\d\d/.test(f)).sort()
 const sectionsEs = {}
 const report = []
@@ -528,7 +540,7 @@ export default function ${name}({ v, t, children }) {
   )
 }
 `
-  const paused = injectPause(id, minutesSlot(id, wireAgentLines(id, code, dict.dict)), dict.dict)
+  const paused = injectPause(id, forjaSlots(id, minutesSlot(id, wireAgentLines(id, code, dict.dict))), dict.dict)
   writeFileSync(join(OUT, `${id}.jsx`), paused.code)
   sectionsEs[id] = dict.dict
   report.push(`${id} ${name.slice(3)} · textos: ${Object.keys(dict.dict).length} · bloques con estructura distinta: ${stats.splits} · reordenados: ${stats.permutations || 0}${paused.n ? ` · pausas: ${paused.n}` : ''}`)

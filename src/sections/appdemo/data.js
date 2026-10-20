@@ -38,6 +38,10 @@ const es = {
   // Chat
   ceo: 'CEO Global',
   you: 'Tú',
+  // Mensaje ANTERIOR, siempre visible (T35 · adenda: S03 «se veía vacía»: la escena arrancaba sin
+  // nada y se rellenaba poco a poco; tampoco el HTML del servidor traía contenido).
+  earlierDay: 'Ayer',
+  earlier: 'Buenos días, Valentina ☀️ Ayer cerramos **12 ventas** por WhatsApp y el post del martes llegó a **3.400 personas**. Hoy preparo lo del pijama nuevo; lo importante te lo pregunto.',
   userMsg: '¿Cómo vamos esta semana? Prepara el post del pijama nuevo.',
   thinking: ['Entendiendo lo que pediste…', 'Revisando el resultado…', 'Casi listo…'],
   steps: [
@@ -127,6 +131,8 @@ const en = {
   brand: { general: 'General', generalFoot: 'the company', items: ['Lúa', 'Lúa Casa'], nueva: '+ New brand', current: 'Lúa' },
   ceo: 'Global CEO',
   you: 'You',
+  earlierDay: 'Yesterday',
+  earlier: "Good morning, Valentina ☀️ Yesterday we closed **12 sales** on WhatsApp and Tuesday's post reached **3,400 people**. Today I'm on the new pajamas; anything important, I'll ask you first.",
   userMsg: 'How are we doing this week? Get the post for the new pajamas ready.',
   thinking: ['Understanding what you asked…', 'Reviewing the result…', 'Almost done…'],
   steps: [

@@ -18,7 +18,7 @@ test('chat: el CEO piensa, usa herramientas (con créditos) y responde en stream
   await expect(demo.locator('.ad-bubble-user')).toBeVisible({ timeout: 6000 })
   await expect(demo.locator('.ad-steps li')).toHaveCount(3, { timeout: 8000 })
   await expect(demo.locator('.ad-cost').first()).toContainText('créditos')
-  await expect(demo.locator('.ad-bubble-agent')).toContainText('Necesita tu firma', { timeout: 10000 })
+  await expect(demo.locator('.ad-bubble-agent:not(.ad-earlier)')).toContainText('Necesita tu firma', { timeout: 10000 })
   await expect(demo.locator('.ad-chips .ad-chip')).toHaveCount(2)
 })
 
@@ -82,7 +82,7 @@ test('motion reducido: estados finales al instante y sin recorrido automático',
   await page.goto('http://127.0.0.1:8787/')
   const demo = page.locator('[data-appdemo]')
   await demo.evaluate((el) => el.scrollIntoView({ block: 'center' }))
-  await expect(demo.locator('.ad-bubble-agent')).toContainText('Necesita tu firma')
+  await expect(demo.locator('.ad-bubble-agent:not(.ad-earlier)')).toContainText('Necesita tu firma')
   await expect(demo.locator('.ad-play')).toHaveCount(0)
   await demo.getByRole('tab', { name: 'Aprobaciones' }).click()
   await expect(demo.locator('.ad-signed')).toBeVisible()
