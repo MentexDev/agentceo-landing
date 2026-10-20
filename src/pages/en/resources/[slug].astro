@@ -1,0 +1,9 @@
+---
+import ArticleView from '../../../views/ArticleView.astro'
+import { section } from '../../../lib/content.js'
+export function getStaticPaths() {
+  return section('recursos', 'en').ITEMS.map((item) => ({ params: { slug: item.slug }, props: { item } }))
+}
+const { item } = Astro.props
+---
+<ArticleView kind="recursos" lang="en" item={item} />

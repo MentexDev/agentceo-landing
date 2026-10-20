@@ -291,6 +291,7 @@ export default {
     r2: 'No cambies los colores de la mascota ni le añadas efectos.',
     r3: 'Escribe el nombre como «Agent CEO» en texto corrido.',
     contact: 'Contacto de prensa',
+    c: { ink: 'Tinta', cream: 'Crema', gold: 'Dorado', gold2: 'Dorado claro', gold3: 'Champán', goldInk: 'Dorado para texto' },
     licenseFonts: 'Licencia SIL Open Font License',
   },
   legal: { updated: 'Última actualización', toc: 'En este documento', others: 'Otros documentos legales' },

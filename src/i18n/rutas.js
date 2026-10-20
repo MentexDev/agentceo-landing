@@ -14,15 +14,15 @@ export const RUTAS = {
   home: { es: '/', en: '/en/' },
   // noindex: páginas de servicio (no van al sitemap ni llevan canonical).
   gracias: { es: '/gracias/', en: '/en/thanks/', noindex: true },
-  // Contenido editorial: el inglés se añade en la FASE 6 (cuando exista la traducción).
-  noticias: { es: '/noticias/' },
-  blog: { es: '/blog/' },
-  recursos: { es: '/recursos/' },
-  precios: { es: '/precios/' },
-  empresa: { es: '/empresa/' },
-  contacto: { es: '/contacto/' },
-  prensa: { es: '/prensa/' },
-  'no-vender': { es: '/no-vender-ni-compartir/' },
+  // Contenido editorial e institucional en los dos idiomas (FASE 6).
+  noticias: { es: '/noticias/', en: '/en/news/' },
+  blog: { es: '/blog/', en: '/en/blog/' },
+  recursos: { es: '/recursos/', en: '/en/resources/' },
+  precios: { es: '/precios/', en: '/en/pricing/' },
+  empresa: { es: '/empresa/', en: '/en/company/' },
+  contacto: { es: '/contacto/', en: '/en/contact/' },
+  prensa: { es: '/prensa/', en: '/en/press/' },
+  'no-vender': { es: '/no-vender-ni-compartir/', en: '/en/do-not-sell-or-share/' },
 }
 
 // Documentos legales: rutas generadas desde el frontmatter de content/legal/{es,en}/*.md

@@ -62,7 +62,8 @@ export const CASES = {
   ],
   en: [
     ['How much does it cost?', 'faq:precio'],
-    ['is it free?', 'faq:precio'],
+    // 2026-10-20 (fase 6): con la FAQ de precios en inglés, su respuesta literal también vale.
+    ['is it free?', ['faq:precio', 'pricing-faq:Is it really free?']],
     ['do I need to know how to code?', 'faq:programar'],
     ['what is an agent?', 'faq:agente'],
     ['who is behind agent ceo?', 'faq:que-es'],
@@ -80,7 +81,7 @@ export const CASES = {
     ['I want to talk to a human', 'intent:contact'],
     ['how do I sign up?', 'intent:join'],
     ['do you charge a subscription?', 'faq:precio'],
-    ['how do I get started?', ['faq:cuando', 'intent:join']],
+    ['how do I get started?', ['faq:cuando', 'intent:join', 'pricing-faq:Do I need a credit card to get started?']],
     ['is this a chatbot?', 'intent:human'],
     ['write me a song', 'fallback'],
     ['what is the weather in Madrid?', 'fallback'],

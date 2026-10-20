@@ -10,6 +10,9 @@ import { FAQ } from '../../content/faq.js'
 import * as PRECIOS from '../../content/precios.js'
 import * as BLOG from '../../content/blog.js'
 import * as RECURSOS from '../../content/recursos.js'
+import * as PRECIOS_EN from '../../content/en/precios.js'
+import * as BLOG_EN from '../../content/en/blog.js'
+import * as RECURSOS_EN from '../../content/en/recursos.js'
 import { t } from '../i18n/config.js'
 import { RUTAS } from '../i18n/rutas.js'
 import { legalDocs } from './legal.js'
@@ -47,15 +50,23 @@ export function buildKnowledge(lang) {
       ...(f.cta ? { cta: f.cta } : {}),
     })
   }
-  // El contenido editorial existe hoy solo en español (la Fase 6 añade content/en).
-  if (lang === 'es') {
-    const fmt = (n) => n.toLocaleString('es-ES')
-    const plans = PRECIOS.PLANS.map((p) => `${p.name}: $${p.price} al mes, ${fmt(p.credits)} créditos por semana, ${p.seats === null ? 'personas sin límite' : `${p.seats} ${p.seats === 1 ? 'usuario' : 'personas'}`}.`).join(' ')
-    const packs = PRECIOS.PACKS.map((k) => `${k.name}: ${fmt(k.credits)} créditos por $${k.price}${k.noExpiry ? ' (no caduca)' : ''}`).join('; ')
-    out.push({ id: 'pricing', kind: 'pricing', title: PRECIOS.META.h1, text: clip(`${PRECIOS.META.sub} ${plans} Todos los planes: ${PRECIOS.ALL_PLANS.join(', ').toLowerCase()}. Paquetes de créditos (pago único): ${packs}. Precios en USD.`), url: routeUrl('precios', lang) || `${home}#faq` })
-    for (const f of PRECIOS.FAQ) out.push({ id: `pricing-faq:${f.q}`, kind: 'faq', title: f.q, text: f.a, url: routeUrl('precios', lang) || `${home}#faq` })
-    for (const it of BLOG.ITEMS) out.push({ id: `blog:${it.slug}`, kind: 'blog', title: it.title, text: clip(`${it.excerpt} ${bodyText(it.body)}`), url: `/blog/${it.slug}` })
-    for (const it of RECURSOS.ITEMS) out.push({ id: `recurso:${it.slug}`, kind: 'recurso', title: it.title, text: clip(`${it.excerpt} ${(it.whatYouGet || []).map(plain).join(' ')}`), url: `/recursos/${it.slug}` })
+  // Precios, blog y recursos en el idioma de la página (las noticias no entran: hablan de terceros).
+  {
+    const P = lang === 'en' ? PRECIOS_EN : PRECIOS
+    const B = lang === 'en' ? BLOG_EN : BLOG
+    const R = lang === 'en' ? RECURSOS_EN : RECURSOS
+    const base = { blog: lang === 'en' ? '/en/blog/' : '/blog/', rec: lang === 'en' ? '/en/resources/' : '/recursos/' }
+    const L = lang === 'en'
+      ? { mo: 'a month', cw: 'credits per week', un: 'unlimited people', u1: 'user', un2: 'people', all: 'All plans', packs: 'Credit packs (one-time)', ne: '(never expires)', cur: 'Prices in USD.', fl: 'en-US' }
+      : { mo: 'al mes', cw: 'créditos por semana', un: 'personas sin límite', u1: 'usuario', un2: 'personas', all: 'Todos los planes', packs: 'Paquetes de créditos (pago único)', ne: '(no caduca)', cur: 'Precios en USD.', fl: 'es-ES' }
+    const fmt = (n) => n.toLocaleString(L.fl)
+    const plans = P.PLANS.map((p) => `${p.name}: $${p.price} ${L.mo}, ${fmt(p.credits)} ${L.cw}, ${p.seats === null ? L.un : `${p.seats} ${p.seats === 1 ? L.u1 : L.un2}`}.`).join(' ')
+    const packs = P.PACKS.map((k) => `${k.name}: ${fmt(k.credits)} → $${k.price}${k.noExpiry ? ` ${L.ne}` : ''}`).join('; ')
+    const purl = routeUrl('precios', lang) || `${home}#faq`
+    out.push({ id: 'pricing', kind: 'pricing', title: P.META.h1, text: clip(`${P.META.sub} ${plans} ${L.all}: ${P.ALL_PLANS.join(', ')}. ${L.packs}: ${packs}. ${L.cur}`), url: purl })
+    for (const f of P.FAQ) out.push({ id: `pricing-faq:${f.q}`, kind: 'faq', title: f.q, text: f.a, url: purl })
+    for (const it of B.ITEMS) out.push({ id: `blog:${it.slug}`, kind: 'blog', title: it.title, text: clip(`${it.excerpt} ${bodyText(it.body)}`), url: `${base.blog}${it.slug}` })
+    for (const it of R.ITEMS) out.push({ id: `recurso:${it.slug}`, kind: 'recurso', title: it.title, text: clip(`${it.excerpt} ${(it.whatYouGet || []).map(plain).join(' ')}`), url: `${base.rec}${it.slug}` })
   }
   // Documentos legales: título + introducción + títulos de sección, con su URL.
   for (const d of legalDocs().filter((x) => x.lang === lang)) {

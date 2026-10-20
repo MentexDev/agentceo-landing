@@ -12,7 +12,7 @@ const { lang } = Astro.props
 const tr = (k: string, v?: any) => t(lang, `prensa.${k}`, v)
 const path = href('prensa', lang)
 const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: tr('eyebrow'), url: path }]
-const colors = [['Tinta', '#111113', 'ink'], ['Crema', '#F4F2ED', 'cream'], ['Dorado', '#B8923A', 'gold'], ['Dorado claro', '#D9B866', 'gold-2'], ['Champán', '#EFE4C8', 'gold-3'], ['Dorado texto', '#7A5C17', 'gold-ink']]
+const colors = [['ink', '#111113', 'ink'], ['cream', '#F4F2ED', 'cream'], ['gold', '#B8923A', 'gold'], ['gold2', '#D9B866', 'gold-2'], ['gold3', '#EFE4C8', 'gold-3'], ['goldInk', '#7A5C17', 'gold-ink']].map(([k, hex, tok]) => [tr(`c.${k}`), hex, tok])
 const jsonLd = { '@context': 'https://schema.org', '@graph': [{ '@type': 'WebPage', name: tr('title'), url: `${ORIGIN}${path}`, inLanguage: lang }, breadcrumbs(crumbs)] }
 ---
 <Base lang={lang} title={tr('title')} description={tr('sub')} path={path} alternates={alternatesFor('prensa')} page="prensa" jsonLd={jsonLd}>

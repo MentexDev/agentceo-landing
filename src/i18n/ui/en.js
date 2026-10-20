@@ -287,6 +287,7 @@ export default {
     r2: "Don't change the mascot's colors or add effects to it.",
     r3: 'Write the name as "Agent CEO" in running text.',
     contact: 'Press contact',
+    c: { ink: 'Ink', cream: 'Cream', gold: 'Gold', gold2: 'Light gold', gold3: 'Champagne', goldInk: 'Text gold' },
     licenseFonts: 'SIL Open Font License',
   },
   legal: { updated: 'Last updated', toc: 'In this document', others: 'Other legal documents' },

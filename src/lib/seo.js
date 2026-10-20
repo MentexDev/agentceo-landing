@@ -10,6 +10,7 @@ import { ORIGIN } from './jsonld.js'
 import homeEs from '../i18n/sections/es.json'
 import homeEn from '../i18n/sections/en.json'
 import * as PRECIOS from '../../content/precios.js'
+import * as PRECIOS_EN from '../../content/en/precios.js'
 
 const abs = (p) => new URL(p, ORIGIN).href
 const xml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -107,12 +108,14 @@ function homeText(lang) {
 /** Texto plano completo (entidad, FAQ, portada, precios, contenido). */
 export function llmsFullTxt(lang, extra = []) {
   const parts = [llmsTxt(lang), '---', '', `# ${lang === 'es' ? 'Portada' : 'Home page'} (${abs(href('home', lang))})`, '', ...homeText(lang).map((p) => `${p}\n`), '']
-  if (lang === 'es') {
-    parts.push(`# ${PRECIOS.META.title} (${abs('/precios/')})`, '', PRECIOS.META.sub, '')
-    for (const p of PRECIOS.PLANS) parts.push(`- ${p.name}: $${p.price}/mes · ${p.credits} créditos por semana · ${p.seats === null ? 'personas sin límite' : `${p.seats} persona(s)`}`)
-    parts.push(`- Todos los planes: ${PRECIOS.ALL_PLANS.join('; ')}`)
-    for (const k of PRECIOS.PACKS) parts.push(`- Paquete ${k.name}: ${k.credits} créditos por $${k.price}${k.noExpiry ? ' (no caduca)' : ''}`)
-    parts.push('', 'Precios en USD.', '')
+  {
+    const P = lang === 'en' ? PRECIOS_EN : PRECIOS
+    const W = lang === 'en' ? { mo: 'mo', cw: 'credits per week', un: 'unlimited people', pp: 'person(s)', all: 'All plans', pk: 'Pack', cr: 'credits for', ne: '(never expires)', cur: 'Prices in USD.' } : { mo: 'mes', cw: 'créditos por semana', un: 'personas sin límite', pp: 'persona(s)', all: 'Todos los planes', pk: 'Paquete', cr: 'créditos por', ne: '(no caduca)', cur: 'Precios en USD.' }
+    parts.push(`# ${P.META.title} (${abs(href('precios', lang))})`, '', P.META.sub, '')
+    for (const p of P.PLANS) parts.push(`- ${p.name}: $${p.price}/${W.mo} · ${p.credits} ${W.cw} · ${p.seats === null ? W.un : `${p.seats} ${W.pp}`}`)
+    parts.push(`- ${W.all}: ${P.ALL_PLANS.join('; ')}`)
+    for (const k of P.PACKS) parts.push(`- ${W.pk} ${k.name}: ${k.credits} ${W.cr} $${k.price}${k.noExpiry ? ` ${W.ne}` : ''}`)
+    parts.push('', W.cur, '')
   }
   for (const k of KINDS) {
     const s = section(k, lang)

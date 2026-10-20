@@ -188,3 +188,12 @@ _(se van añadiendo por fase)_
   - axe da 0 violaciones en 390, 900 y 1440 px.
 - **Bug encontrado en mi test:** el test de pausa **no probaba nada**. Pulsaba sobre el HTML del servidor antes de la hidratación y la mutación sobrevivía. Ahora espera la hidratación real (la isla pierde `ssr`) y verifica primero que el recorrido avanza. Mutado: rojo.
 - La S03 compilada del prototipo (el recorrido de 6 pantallas «pendiente de rediseño») sale del compilador: así no hay CSS muerto.
+
+### Fase 6 · inglés
+- **Traducido:** 8 noticias, 4 posts, 3 recursos, precios (con los nombres de planes y paquetes sin traducir) y los **14 legales**, que nacen ya con el fix de reembolsos y subprocesadores.
+  - Lo hicieron 4 agentes en paralelo, cada uno con su validación por script: mismo número de bloques y secciones, mismas cifras, marcadores `{{…}}` y `[PENDIENTE]` intactos, enlaces a las rutas en inglés.
+  - Cada pieza en inglés lleva `es: '<slug>'` para el hreflang recíproco.
+- **Rutas nuevas:** `/en/news/`, `/en/blog/`, `/en/resources/`, `/en/pricing/`, `/en/company/`, `/en/contact/`, `/en/press/`, `/en/do-not-sell-or-share/` y `/en/legal/*`. En total, el sitio tiene **80 páginas**.
+- **Legal:** los Términos en inglés mantienen que **la versión vinculante es la española** (§13.7) y que el soporte es en español (§8.4), como el original. ⏳ El abogado debe decidir si se mantiene para clientes de EE. UU.
+- **Widget en inglés:** su base pasa de 16 a 50 fragmentos. **Medido:** un motor léxico **empeora al crecer el corpus**. El reservado #1 en inglés baja de 9/9 a 7/9 («company» aparece en todos los legales; «monthly fee» cae en «Is it really free?»). Las expectativas se igualaron con las del español solo donde la respuesta es literalmente correcta. Los suelos se fijan en lo medido. Es un argumento más para el modo live del PLAN §6.3.
+- ⏳ **Pendiente de la auditoría:** los carruseles automáticos del prototipo (S05 en móvil y S11) se pausan al pasar el ratón, enfocar o tocar, pero **no tienen botón de pausa visible** (WCAG 2.2.2). La demo de S03 sí lo tiene.
