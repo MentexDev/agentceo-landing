@@ -123,3 +123,19 @@ test('exit-intent: al sacar el ratón por arriba se ofrece guardar el lugar (una
   await page.waitForTimeout(400)
   await expect(modal).toBeHidden()
 })
+
+test('si el servidor rechaza (429 real), la interfaz muestra el error y NUNCA un éxito falso', async ({ page }, info) => {
+  await page.goto('/')
+  await page.waitForTimeout(1300)
+  // Agota el límite real del Worker desde la MISMA IP del test (8/min).
+  const headers = { 'content-type': 'application/json', origin: new URL(page.url()).origin }
+  for (let i = 0; i < 8; i++) await page.request.post('/api/waitlist', { headers, data: { email: `relleno${i}-${Date.now()}@example.com` } })
+  const email = testEmail('rl', info)
+  const form = page.locator('form[data-source="hero"]')
+  await form.locator('input[type=email]').fill(email)
+  await form.locator('button[type=submit]').click()
+  await expect(form.locator('[data-wl-msg]')).toHaveText(/Demasiados intentos/)
+  await expect(form.locator('[data-wl-ok]')).toBeHidden()
+  await expect(page.locator('dialog[data-wl-modal]')).toBeHidden()
+  expect(queryLocal(`SELECT COUNT(*) AS n FROM signups WHERE email = '${email}'`)[0].n).toBe(0)
+})
