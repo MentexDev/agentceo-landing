@@ -87,6 +87,7 @@ function Chat({ c }) {
             )}
             {s.steps > 0 && (
               <div class="ad-steps">
+                <div class="ad-steps-label">{T.stepsHead}</div>
                 <div class="ad-steps-head">
                   {s.stepsDone < T.steps.length || s.writing ? <LoaderCircle size={14} class="ad-spin" aria-hidden="true" /> : <Check size={14} class="ad-okc" aria-hidden="true" />}
                   <span>{s.writing ? T.stepsWriting : s.stepsDone < T.steps.length ? T.stepsLive : fill(T.stepsDone, { n: T.steps.length, s: 9 })}</span>
@@ -135,13 +136,17 @@ function Aprobaciones({ c }) {
           return (
             <li class={`ad-aprow ${signed ? 'is-signed' : ''}`} key={i}>
               <span class="ad-glyph" aria-hidden="true"><G size={16} /></span>
-              <span class="ad-apmain"><strong>{r.title}</strong><small>{r.who}</small></span>
+              <span class="ad-apmain"><strong>{r.title}</strong><small>{r.who}{r.when && <> · <time>{r.when}</time></>}</small></span>
               <span class="ad-apside">
-                <span class={`ad-pill ${r.riskTone}`}>{r.risk}</span>
-                <span class="ad-kind">{r.kind}</span>
+                <span class="ad-apbadges">
+                  <span class={`ad-pill ${r.riskTone}`}>{r.risk}</span>
+                  {r.noUndo && <span class="ad-pill bad">{r.noUndo}</span>}
+                  <span class="ad-kind">{r.kind}</span>
+                </span>
+                {r.amount && <span class="ad-amt">{r.amount}</span>}
                 {signed
                   ? <span class="ad-signed"><Check size={13} aria-hidden="true" />{T.signed} · <span class="ad-undo"><Undo2 size={12} aria-hidden="true" />{T.undo}</span></span>
-                  : <span class={`ad-act ${i === 0 ? 'primary' : ''} ${i === 0 && s.press ? 'pressed' : ''}`}>{r.act}</span>}
+                  : <span class="ad-acts">{r.alt && <span class="ad-act">{r.alt}</span>}<span class={`ad-act ${i === 0 || r.alt ? 'primary' : ''} ${i === 0 && s.press ? 'pressed' : ''}`}>{r.act}</span></span>}
               </span>
             </li>
           )
@@ -271,6 +276,17 @@ function Clientes({ c }) {
   }
 }
 
+// ESTADO FINAL de cada vista (el mismo que con movimiento reducido). T40 · 2 (S03 «sale NEGRA» en
+// producción): el HTML del servidor traía el chat VACÍO (`.ad-log` sin nada) y cada cambio de vista
+// arrancaba desde `{}`; sin JS, o con JS lento o fallido, la ventana se quedaba negra. Ahora el
+// servidor pinta la vista inicial ya poblada, la hidratación NO la reinicia y las escenas animadas
+// solo AÑADEN sobre una base que siempre tiene contenido (conversación anterior, filas, cifras).
+function finalOf(v, T) {
+  if (v === 'chat') return { typed: '', sent: true, steps: T.steps.length, stepsDone: T.steps.length, reply: T.reply.length, done: true }
+  if (v === 'aprobaciones') return { signed: true }
+  return { go: true, fresh: true }
+}
+
 export default function AppDemo({ lang = 'es' }) {
   const T = DICT[lang]
   const locale = lang === 'es' ? 'es-CO' : 'en-US'
@@ -283,7 +299,10 @@ export default function AppDemo({ lang = 'es' }) {
   const [visible, setVisible] = useState(false)
   const [reduce, setReduce] = useState(false)
   const [brandOpen, setBrandOpen] = useState(false)
-  const [s, setS] = useState({}) // estado de la escena actual
+  const [s, setS] = useState(() => finalOf('chat', DICT[lang])) // estado de la escena actual: arranca POBLADO
+  // `settled`: la vista se muestra en su estado final sin animar (SSR, hidratación y primera vista).
+  const [settled, setSettled] = useState(true)
+  const mounted = useRef(false)
   const rootRef = useRef(null)
   const tabRefs = useRef({})
   const runId = useRef(0)
@@ -326,7 +345,13 @@ export default function AppDemo({ lang = 'es' }) {
     }
   }, [T])
 
-  useEffect(() => { run(view, reduce) }, [view, reduce, run])
+  // La primera vista NO se reinicia al hidratar (quedaría vacía un instante): se queda en su estado
+  // final y el recorrido avanza desde ahí. Las siguientes sí se animan, sobre contenido.
+  useEffect(() => {
+    if (!mounted.current) { mounted.current = true; return }
+    setSettled(false)
+    run(view, reduce)
+  }, [view, reduce, run])
 
   // Recorrido automático. `autoT` guarda el temporizador para que choose() lo cancele EN EL
   // MISMO CLIC: si se esperaba a la limpieza del efecto (tras el render), el temporizador podía
@@ -353,7 +378,8 @@ export default function AppDemo({ lang = 'es' }) {
   const go = Boolean(s.go)
 
   const V = { chat: Chat, aprobaciones: Aprobaciones, biblioteca: Biblioteca, panel: Panel, ventas: Ventas, clientes: Clientes }[view]
-  const ctx = { T, s, reduce, nf, cop, copM, M, go }
+  // Con `settled` (o movimiento reducido) las cifras salen ya en su valor final, sin contar.
+  const ctx = { T, s, reduce: reduce || settled, nf, cop, copM, M, go }
 
   const workNav = [
     ['nueva', SquarePen, null], ['agentes', Network, null], ['tareas', ListTodo, null],

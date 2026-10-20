@@ -249,3 +249,11 @@ tr.ad-pop { animation: adRow .6s var(--n-ease) both; }
 .ad-day { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--n-mute); }
 .ad-day::before, .ad-day::after { content: ''; flex: 1; height: 1px; background: var(--n-line); }
 .ad-earlier { opacity: .92; }
+/* Aprobaciones al estilo de la bandeja de la app (T40 · 2): importe, cuándo, «no tiene vuelta» y las
+   acciones en la propia fila. */
+.ad-apbadges { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
+.ad-amt { font-family: var(--n-mono); font-size: 12px; font-variant-numeric: tabular-nums; color: var(--n-silver, var(--n-chrome)); }
+.ad-acts { display: inline-flex; gap: 6px; }
+.ad-pill.bad { background: rgba(248, 113, 113, .14); color: #fca5a5; }
+.ad-apmain time { color: var(--n-mute); }
+.ad-steps-label { margin: 0 0 6px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--n-mute); }

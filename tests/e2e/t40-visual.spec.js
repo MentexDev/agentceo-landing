@@ -31,6 +31,11 @@ test('S03: la línea de tipeo («Entendiendo lo que pediste…») va en sans, no
   await page.goto('/')
   const demo = page.locator('[data-appdemo]')
   await demo.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+  await expect(page.locator('astro-island:has([data-appdemo])')).not.toHaveAttribute('ssr', '', { timeout: 10_000 })
+  // La primera vista ya sale completa (T40 · 2: nunca vacía); la línea de tipeo aparece cuando la
+  // escena del chat se REPRODUCE: se va a otra vista y se vuelve al chat.
+  await demo.getByRole('tab').nth(1).click()
+  await demo.getByRole('tab').first().click()
   const thinking = demo.locator('.ad-thinking')
   await expect(thinking).toBeVisible({ timeout: 8000 })
   expect(await thinking.evaluate((e) => getComputedStyle(e).fontFamily)).toMatch(/^"?Geist/)
