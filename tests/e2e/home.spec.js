@@ -1,6 +1,6 @@
 // FASE 3 · portada portada del prototipo: interacción real (clics, teclado), sin errores,
 // con las islas hidratadas y el contenido disponible sin JS.
-import { test, expect } from './fixtures.js'
+import { test, expect, restCss } from './fixtures.js'
 
 const sec = (page, id) => page.locator(`section#${id}`)
 // Desplaza la página por tramos (WebKit móvil no tiene rueda): es preparación, no la interacción bajo prueba.
@@ -21,6 +21,8 @@ test('todas las islas se hidratan sin errores al recorrer la página', async ({ 
 
 test('S04 · elegir «Ya tengo negocio» abre ese camino de la entrevista', async ({ page }) => {
   await page.goto('/#empieza')
+  await restCss(page) // al llegar el CSS no crítico la portada re-ancla en #empieza (T40): interactuar después
+  await page.waitForTimeout(2600)
   const s = sec(page, 'empieza')
   await s.scrollIntoViewIfNeeded()
   await tap(s.getByRole('button', { name: 'Ya tengo negocio' }).first())

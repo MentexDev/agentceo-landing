@@ -495,7 +495,9 @@ function minutesSlot(id, code) {
   const re = /(<span className="aline [^"]*"[^>]*>(?:(?!<\/span>).)*<\/span><\/div>)(<\/div>)/s
   const all = code.match(new RegExp(re.source, 'gs')) || []
   if (all.length !== 1) throw new Error(`S07: se esperaba 1 bloque de líneas del acta y hay ${all.length}`)
-  return code.replace(re, '$1{children}$2')
+  // Ancla de la sección (T40): se puede navegar a ella (/#reunion) y el scroll-padding-top global
+  // deja la etiqueta «REUNIÓN DIARIA» por debajo del header sticky.
+  return code.replace(re, '$1{children}$2').replace(/<section (aria-label=\{t\.k1\})/, '<section id="reunion" $1')
 }
 
 // LA FORJA DE S13 (T35 adenda, punto 3, Diego: «un prototipo real, no un placeholder»): el área de

@@ -48,7 +48,23 @@ const d = (id: string) => sectionDict(lang, id)
        rel=preload el LCP oscilaba entre 1,97 y 2,12 s según llegara antes o después del primer
        pintado; media=print, 1,83–2,16 s. Sin JS: el <noscript> lo carga normal. -->
   <script is:inline slot="head" define:vars={{ href: REST_CSS }}>
-    addEventListener('load', () => setTimeout(() => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.append(l) }, 300))
+    // Ancla en la URL (/#faq, /#reunion…): el navegador salta ANTES de que llegue este CSS, que
+    // cambia la altura de las secciones; al llegar, se vuelve al ancla si el usuario no se ha movido
+    // por su cuenta (T40: medido, se acababa miles de px por debajo del destino).
+    let moved = false
+    for (const ev of ['wheel', 'touchstart', 'keydown', 'pointerdown']) addEventListener(ev, () => { moved = true }, { once: true, passive: true })
+    addEventListener('load', () => setTimeout(() => {
+      const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href
+      l.onload = () => {
+        const t = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)))
+        if (!t || moved || !('ResizeObserver' in window)) return
+        // Tras el CSS aún hidratan islas que cambian de alto: 2,5 s re-anclando a cada cambio.
+        const go = () => { if (!moved) t.scrollIntoView({ behavior: 'instant', block: 'start' }) }
+        const ro = new ResizeObserver(go); ro.observe(document.body); go()
+        setTimeout(() => ro.disconnect(), 2500)
+      }
+      document.head.append(l)
+    }, 300))
   </script>
   <noscript slot="head"><link rel="stylesheet" href={REST_CSS} /></noscript>
   <S02 v={v} t={d('S02')}>

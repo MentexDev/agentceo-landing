@@ -4,7 +4,7 @@ import { s, css } from '../bind.js'
 
 export default function S07ReunionDiaria({ v, t, children }) {
   return (
-    <><section aria-label={t.k1} className="x4IScHT"><div className="x6p8O0U"><div data-rv=""><span className="xy2AdrR">{t.k1}</span></div><h2 data-rv="" style={{
+    <><section id="reunion" aria-label={t.k1} className="x4IScHT"><div className="x6p8O0U"><div data-rv=""><span className="xy2AdrR">{t.k1}</span></div><h2 data-rv="" style={{
         "--d": "80ms"
       }} className="xC40uwH">{t.k2}<span className="xvieRbT">{t.k3}</span></h2><p data-rv="" style={{
         "--d": "160ms"

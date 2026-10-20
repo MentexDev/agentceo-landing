@@ -78,7 +78,7 @@ const visible = cols
   .map((c) => ({ ...c, links: c.links.filter((l) => hasRoute(l.id, lang)).map((l) => ({ ...l, url: href(l.id, lang, l.hash) })) }))
   .filter((c) => c.links.length > 0)
 ---
-<footer class="site-footer on-dark">
+<footer class="site-footer on-dark" data-chat-avoid>
   <div class="ft-top">
     <div class="ft-brand">
       <a class="ft-home" href={href('home', lang)} aria-label={t(lang, 'a11y.home')}><Logo variant="light" size={28} text={17} /></a>
@@ -115,7 +115,10 @@ const visible = cols
 <style>
   .site-footer {
     background: var(--ink); color: var(--mute-dark);
-    padding: 72px var(--gutter) 28px; font-size: 14px;
+    /* Abajo deja sitio al lanzador del chat (56 px + 16 px de margen + aire): al final de la página
+       ningún enlace queda debajo (T40). Además el footer es [data-chat-avoid]: al entrar en la franja
+       del lanzador, este se compacta y la burbuja «¿Tienes una pregunta?» se esconde. */
+    padding: 72px var(--gutter) 104px; font-size: 14px;
     border-top: 1px solid var(--line-dark);
   }
   /* Más ancho (T35): 1360 px de contenido; la marca a la izquierda y las 5 columnas a la derecha. */

@@ -110,7 +110,8 @@ const strings = {
   .cw-root { --cw-z: 45; --cw-panel-z: 60; }
   /* ── Lanzador ─────────────────────────────────────────────────────────── */
   .cw-launch {
-    position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: var(--cw-z);
+    /* T40 (Diego): un poco más abajo (10 px del borde); el footer le reserva sitio y lo compacta. */
+    position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom)); z-index: var(--cw-z);
     display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; min-height: 56px;
     border: 0; border-radius: var(--radius-pill); cursor: pointer;
     background: var(--ink); color: var(--cream);
@@ -138,7 +139,7 @@ const strings = {
   .cw-ai-badge { position: absolute; top: -6px; left: 36px; box-shadow: 0 0 0 2px var(--ink); }
 
   .cw-tease {
-    position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(16px, env(safe-area-inset-bottom)) + 72px); z-index: var(--cw-z);
+    position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(10px, env(safe-area-inset-bottom)) + 72px); z-index: var(--cw-z);
     display: flex; align-items: center; gap: 2px; padding: 4px 4px 4px 14px; border-radius: 18px 18px 6px 18px;
     background: var(--paper); border: 1.5px solid var(--ink); box-shadow: 3px 3px 0 var(--gold-2);
     animation: cwTease .55s var(--ease-spring) both;
