@@ -2,7 +2,8 @@
 // - Sirve el sitio estático que genera Astro en ./dist (binding ASSETS).
 // - Captura la LISTA DE ESPERA (pre-lanzamiento) en D1 vía POST /api/waitlist.
 // - Captura los leads de los recursos vía POST /api/lead.
-// - Widget de soporte vía POST /api/chat (flag CHAT_MODE; hoy «stub», sin LLM).
+// - Widget de soporte vía POST /api/chat (flag CHAT_MODE; hoy «stub», sin LLM). Es el canal
+//   web del backend de chat agnóstico de canal (worker/chat/channels/).
 import { json, withSecurityHeaders, withCache } from './lib/http.js'
 import { handleWaitlist } from './waitlist.js'
 import { handleLead } from './lead.js'
@@ -51,6 +52,6 @@ export default {
     const res = await env.ASSETS.fetch(request)
     const ct = res.headers.get('content-type') || ''
     if (!ct.includes('text/html')) return withCache(res, url.pathname)
-    return withSecurityHeaders(res, url.protocol === 'https:')
+    return withSecurityHeaders(res, url.protocol === 'https:', { turnstile: Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY) })
   },
 }

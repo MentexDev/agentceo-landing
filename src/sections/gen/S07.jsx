@@ -87,6 +87,6 @@ export default function S07ReunionDiaria({ v, t, children }) {
             "--i": "1"
           }} data-i="1"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7A5C17" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="xOt6SIk"><path d="M20 6 9 17l-5-5"></path></svg>{t.k14}</span><span className="aline xJnDYMu" style={{
             "--i": "2"
-          }} data-i="2"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7A5C17" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="xOt6SIk"><path d="M20 6 9 17l-5-5"></path></svg>{t.k15}</span></div></div></div></section></>
+          }} data-i="2"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7A5C17" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="xOt6SIk"><path d="M20 6 9 17l-5-5"></path></svg>{t.k15}</span></div>{children}</div></div></section></>
   )
 }

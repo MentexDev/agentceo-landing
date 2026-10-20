@@ -15,12 +15,17 @@ test('el lanzador dice que es IA y abre el panel con el foco en la pregunta', as
   await page.goto('/')
   const launch = page.locator('[data-chat-launch]')
   await expect(launch.locator('.cw-ai-badge')).toHaveText('IA')
+  // T32: el subtítulo del lanzador es UNA línea (en móvil el texto va oculto para lectores).
+  const oneLine = (loc) => loc.evaluate((e) => { const cs = getComputedStyle(e); return e.getBoundingClientRect().height <= parseFloat(cs.lineHeight || '0') * 1.4 || e.getBoundingClientRect().height <= parseFloat(cs.fontSize) * 1.6 })
+  await expect(launch.locator('.cw-launch-s')).toHaveText('Asistente de IA')
+  if (await launch.locator('.cw-launch-s').isVisible()) expect(await oneLine(launch.locator('.cw-launch-s'))).toBe(true)
   const panel = await openChat(page)
   await expect(launch).toHaveAttribute('aria-expanded', 'true')
   await expect(page.locator('[data-chat-input]')).toBeFocused()
   // SB 1001: la cabecera y el primer mensaje dicen que es una IA.
   await expect(panel.locator('#cw-title')).toContainText('IA')
-  await expect(panel.locator('.cw-sub')).toContainText('inteligencia artificial')
+  await expect(panel.locator('.cw-sub')).toHaveText('Asistente de IA')
+  expect(await oneLine(panel.locator('.cw-sub'))).toBe(true)
   await expect(panel.locator('.cw-bot').first()).toContainText('no una persona')
 })
 
@@ -136,7 +141,9 @@ test('móvil: hoja inferior que se cierra arrastrando hacia abajo', async ({ pag
 test('en inglés todo el widget está en inglés y dice que es una IA', async ({ page }) => {
   await page.goto('/en/')
   await expect(page.locator('[data-chat-launch] .cw-ai-badge')).toHaveText('AI')
+  await expect(page.locator('[data-chat-launch] .cw-launch-s')).toHaveText('AI assistant')
   const panel = await openChat(page)
+  await expect(panel.locator('.cw-sub')).toHaveText('AI assistant')
   await panel.locator('[data-chat-suggest] .cw-chip').first().click()
   await expect(panel.locator('.cw-bot').last()).not.toBeEmpty()
   await expect(panel.locator('.cw-bot').first()).toContainText('not a person')

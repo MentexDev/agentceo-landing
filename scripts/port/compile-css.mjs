@@ -90,13 +90,16 @@ const kfName = (k) => /@keyframes\s+([\w-]+)/.exec(k)[1]
 const kfCrit = kfAll.filter((k) => usedAnim.has(kfName(k)))
 const kfRest = kfAll.filter((k) => !usedAnim.has(kfName(k)))
 
+// La órbita de mascotas gira en un escenario de 620×620: su caja rotada asomaba ~20 px sobre el
+// divisor de la sección siguiente (T32). overflow:clip la contiene sin crear contexto de scroll.
 // TITULAR Y ENTRADILLA DEL HERO (los dos candidatos a LCP): conservan la SUBIDA de entrada (mismo recorrido, curva y
 // escalonado) pero se ve desde el primer fotograma, sin fundido desde opacidad 0. Medido con
 // Lighthouse 13 móvil: con el fundido, Chrome no podía contar el titular hasta que aparecía y el
 // LCP caía en un elemento tardío (2,1 s); con el titular arreglado, la entradilla (más grande y
 // con el fundido) pasaba a ser el LCP a 1,96 s. Etiqueta y botones siguen con el fundido completo.
 // El texto se pinta de verdad al instante: no es un truco.
-const HERO_H1 = `section#top h1 .in,section#top p.in{animation-name:inrise-solid}
+const HERO_H1 = `section#top{overflow:clip}
+section#top h1 .in,section#top p.in{animation-name:inrise-solid}
 @keyframes inrise-solid{from{transform:translateY(26px)}to{transform:none}}`
 
 const wrap = (body) => `@layer reset, proto, sections;\n@layer proto {\n${body}\n}\n`

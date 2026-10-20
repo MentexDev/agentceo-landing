@@ -3,6 +3,7 @@
 @layer proto {
 /* El prototipo no tenía reset: su modelo de caja es content-box. Especificidad 0 (:where)
    para que cualquier regla suya (p. ej. .hs>*{box-sizing:border-box}) siga ganando. */
+section#top{overflow:clip}
 section#top h1 .in,section#top p.in{animation-name:inrise-solid}
 @keyframes inrise-solid{from{transform:translateY(26px)}to{transform:none}}
 :where(.home section, .home section *, .home section *::before, .home section *::after){box-sizing:content-box}

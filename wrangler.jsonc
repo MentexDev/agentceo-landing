@@ -23,10 +23,18 @@
     { "name": "RL_CHAT", "namespace_id": "7002", "simple": { "limit": 10, "period": 60 } }
   ],
   // Widget de soporte. DECISIÓN DE DIEGO (2026-10-20): se queda en «stub» (sin LLM, sin keys).
-  // Para «live» harían falta CHAT_MODE=live + el secreto OPENROUTER_API_KEY (wrangler secret put).
+  // Para «live» (Gemini directo, T32): CHAT_MODE=live + el secreto GEMINI_API_KEY
+  // (`wrangler secret put GEMINI_API_KEY`; nunca aquí ni en el repo). Sin clave, o si se pasa
+  // el tope de CHAT_DAILY_BUDGET_USD (USD/día, ver worker/chat/guard.js), responde el stub.
+  // Adenda T32 · live exige ADEMÁS Cloudflare Turnstile (gratis, sin recurso de pago):
+  //   1. Dashboard de Cloudflare → Turnstile → Add widget (modo «Invisible» o «Managed»,
+  //      dominio agentceo.io) → da una SITE KEY (pública) y una SECRET KEY.
+  //   2. Añadir aquí en "vars": "TURNSTILE_SITE_KEY": "<site key>" (es pública: va al navegador).
+  //   3. `wrangler secret put TURNSTILE_SECRET_KEY` (secreta: nunca aquí ni en el repo).
+  // Sin las dos, live no arranca y la CSP no abre challenges.cloudflare.com (hay tests).
   "vars": {
     "CHAT_MODE": "stub",
-    "CHAT_MODEL": "google/gemini-3.1-flash-lite",
+    "CHAT_MODEL": "gemini-3.1-flash-lite",
     "CHAT_DAILY_BUDGET_USD": "5"
   },
   // Topes diarios del widget (por IP con hash, y gasto global del modo live).

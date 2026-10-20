@@ -28,6 +28,18 @@ export default {
     precios: 'Pricing',
     join: 'Join the waitlist',
   },
+  // Daily meeting minutes (S07, T32): when the meeting ends, each agent takes on a task.
+  minutes: {
+    title: 'Minutes · who does what',
+    who: 'Owner',
+    task: 'Task',
+    items: [
+      { agent: 'Inventory manager', say: "I'll take care of ordering 40 black T-shirts.", task: 'Supplier order', when: 'Waiting for your yes' },
+      { agent: 'Content creator', say: "I'll take care of publishing Friday's campaign.", task: "Friday's campaign · 3 posts", when: 'Friday, 10:00' },
+      { agent: 'Customer service', say: "I'll take care of answering everyone asking for size M.", task: 'Reply to 3 customers', when: 'Today' },
+      { agent: 'Advertising expert', say: "I'll take care of giving the new ad more budget.", task: 'Raise the ad budget', when: 'Waiting for your yes' },
+    ],
+  },
   footer: {
     producto: 'Product',
     comoFunciona: 'How it works',
@@ -130,8 +142,8 @@ export default {
     launchSub: 'AI assistant',
     ai: 'AI',
     title: 'Your CEO',
-    subtitle: 'Artificial intelligence assistant · answers with what is published on this website',
-    hello: "Hi! I'm your CEO, Agent CEO's **artificial intelligence** assistant, not a person. I answer with what's published on this website. What would you like to know?",
+    subtitle: 'AI assistant',
+    hello: "Hi! 👋 I'm your CEO, Agent CEO's **artificial intelligence**, not a person. Ask me anything about the website and I'll keep it short. What would you like to know?",
     suggestTitle: 'Frequently asked',
     placeholder: 'Type your question…',
     inputLabel: 'Your question for the AI assistant',
@@ -148,10 +160,10 @@ export default {
     source: 'See on the website',
     foot: "I'm an AI and I can make mistakes. Don't share sensitive data.",
     footLink: 'Privacy',
-    errNet: "I couldn't connect. Check your connection and try again.",
-    errRate: "You're going fast 😅. Wait a moment and ask me again.",
-    errDaily: "We've talked a lot today. Come back tomorrow, or join the waitlist and we'll write to you.",
-    errOff: 'The assistant is not available right now. You can join the waitlist or email info@klinworks.com.',
+    errNet: "Oops, I couldn't connect. Check your connection and try again.",
+    errRate: "You're on fire 😅. Give me a second and ask me again.",
+    errDaily: "We've talked a ton today. Come back tomorrow, or join the waitlist and we'll write to you.",
+    errOff: "I'm not available right now. You can join the waitlist or email info@klinworks.com.",
     joinedMsg: "Done! I saved your spot. We'll write as soon as your wave opens. 🎉",
     tease: 'Got a question? Ask me 👋',
     retry: 'Try again',
@@ -162,6 +174,16 @@ export default {
     faq: { eyebrow: 'Questions', h2a: 'Ask ', h2b: 'your CEO.', more: 'More details →' },
   },
   logic: {
+    // S05 expert lines (T32): one list per card, in section order
+    // (inventory, content, WhatsApp, ads, customer care, production).
+    agentLines: [
+      ["Hi, boss! I've counted the whole stockroom.", 'Only 4 black T-shirts left in size M. Shall I order 40 more?', 'Mugs sell twice as much on Fridays. Already factored in.', 'Nothing sells out without me warning you first.'],
+      ["Hi, boss! Friday's post is ready.", 'I have three reel ideas for this week. Want to see them?', 'Caption written, photo and time picked. It just needs your yes.', 'Your account now posts every day without you thinking about it.'],
+      ['Hi, boss! Laura is asking if we have size S.', "It's 2 a.m. and I just closed a sale.", 'I reply in seconds, with your catalog and your prices.', 'If a customer gets upset, I hand them to you right away.'],
+      ['Hi, boss! I compared two ads this morning.', 'Ad B brings more customers for the same money.', 'Raise the budget? I never spend a cent without your sign-off.', "I paused the ad that wasn't working. It's in your summary."],
+      ["Hi, boss! I closed Andrew's complaint.", 'I swapped a size and the customer left happy.', 'Infinite patience, even at 11 p.m.', 'Questions that keep coming up, I now answer on my own.'],
+      ['Hi, boss! Three orders came in today.', 'Order 1042 just shipped. I am letting the customer know.', 'If an order runs late, you know before the customer does.', 'Every order, from checkout to doorstep, under control.'],
+    ],
     ceo: ["Hi! I'm your CEO. Tap me.", 'I organize the team for you.', 'Anything important, I always ask you.', 'My teammates are down below. Scroll!', 'Again? That tickles.'],
     req: ['Order 40 black T-shirts', 'Raise the ad budget', "Publish this week's posts"],
     approved: 'Approved',

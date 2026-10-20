@@ -40,16 +40,48 @@ export function initPanel(root) {
   // de la recarga llega antes que pagehide).
   let cardN = 0
 
+  // Id de SESIÓN (adenda T32): aleatorio, sin datos de nadie; el servidor lo usa para los límites
+  // por sesión, el dedupe y recordar que esta conversación pasó Turnstile. Vive dentro de ac_chat
+  // (misma clave, mismo consentimiento funcional); sin consentimiento, solo en memoria.
+  const newSid = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}${Math.random()}`).replace(/[^a-zA-Z0-9]/g, '').slice(0, 40).padEnd(16, '0')
+  let sid = newSid()
+  let tsToken = null // token de Turnstile de un solo uso (solo si el servidor lo pidió)
+
   // ── Persistencia ────────────────────────────────────────────────────────
   const save = () => {
-    ls.set(KEY, JSON.stringify({ v: 1, t: Date.now(), lang, msgs: msgs.slice(-MAX_STORED) }))
+    ls.set(KEY, JSON.stringify({ v: 1, t: Date.now(), lang, sid, msgs: msgs.slice(-MAX_STORED) }))
   }
   const load = () => {
     try {
       const d = JSON.parse(ls.get(KEY) || 'null')
-      if (d?.v === 1 && d.lang === lang && Date.now() - d.t < TTL && Array.isArray(d.msgs)) return d.msgs
+      if (d?.v === 1 && d.lang === lang && Date.now() - d.t < TTL && Array.isArray(d.msgs)) {
+        if (typeof d.sid === 'string' && /^[A-Za-z0-9]{16,64}$/.test(d.sid)) sid = d.sid
+        return d.msgs
+      }
     } catch {}
     return []
+  }
+
+  // ── Turnstile BAJO DEMANDA (adenda T32) ─────────────────────────────────
+  // Solo si el servidor lo pide (meta.challenge.turnstile = site key, que solo existe si Diego
+  // configuró Turnstile y el modo live). Sin eso, el widget NO carga nada de terceros.
+  let tsLoading = null
+  function turnstile(siteKey) {
+    if (tsToken || !/^[\w-]{10,80}$/.test(siteKey || '')) return
+    tsLoading ||= new Promise((resolve, reject) => {
+      const sc = document.createElement('script')
+      sc.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
+      sc.async = true
+      sc.onload = resolve
+      sc.onerror = reject
+      document.head.append(sc)
+    })
+    tsLoading.then(() => {
+      let box = root.querySelector('[data-chat-ts]')
+      if (!box) { box = document.createElement('div'); box.dataset.chatTs = ''; panel.append(box) }
+      box.innerHTML = ''
+      window.turnstile?.render(box, { sitekey: siteKey, size: 'invisible', appearance: 'interaction-only', callback: (t) => { tsToken = t } })
+    }).catch(() => { tsLoading = null })
   }
 
   // ── Pintado ─────────────────────────────────────────────────────────────
@@ -138,7 +170,7 @@ export function initPanel(root) {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ locale: lang, page: location.pathname, messages: msgs.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({ locale: lang, page: location.pathname, session: sid, ...(tsToken ? { turnstile: tsToken } : {}), messages: msgs.map(({ role, content }) => ({ role, content })) }),
       })
       if (!res.ok || !res.body) {
         let code = ''
@@ -159,7 +191,7 @@ export function initPanel(root) {
           const ev = /event: (\w+)/.exec(block)?.[1]
           let data = {}
           try { data = JSON.parse(/data: (.*)/.exec(block)?.[1] || '{}') } catch {}
-          if (ev === 'meta') meta = data
+          if (ev === 'meta') { meta = data; tsToken = null; if (data.challenge?.turnstile) turnstile(data.challenge.turnstile) }
           else if (ev === 'delta') {
             content += data.t || ''
             if (!el) { typing.remove(); el = bubble('assistant', '') }

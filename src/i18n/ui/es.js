@@ -31,6 +31,18 @@ export default {
     precios: 'Precios',
     join: 'Unirme a la lista',
   },
+  // Acta de la reunión diaria (S07, T32): al final de la reunión, cada agente se queda con una tarea.
+  minutes: {
+    title: 'Acta · quién hace qué',
+    who: 'Responsable',
+    task: 'Tarea',
+    items: [
+      { agent: 'Encargado de inventario', say: 'Yo me encargo de pedir 40 camisetas negras.', task: 'Pedido al proveedor', when: 'Espera tu sí' },
+      { agent: 'Creador de contenido', say: 'Yo me encargo de publicar la campaña del viernes.', task: 'Campaña del viernes · 3 posts', when: 'Viernes, 10:00' },
+      { agent: 'Atención al cliente', say: 'Yo me encargo de responder a quienes piden talla M.', task: 'Responder a 3 clientes', when: 'Hoy' },
+      { agent: 'Experto en publicidad', say: 'Yo me encargo de darle más presupuesto al anuncio nuevo.', task: 'Subir el presupuesto del anuncio', when: 'Espera tu sí' },
+    ],
+  },
   footer: {
     producto: 'Producto',
     comoFunciona: 'Cómo funciona',
@@ -134,8 +146,8 @@ export default {
     launchSub: 'Asistente de IA',
     ai: 'IA',
     title: 'Tu CEO',
-    subtitle: 'Asistente de inteligencia artificial · responde con lo publicado en esta web',
-    hello: '¡Hola! Soy tu CEO, el asistente de **inteligencia artificial** de Agent CEO, no una persona. Te respondo con lo que hay publicado en esta web. ¿Qué quieres saber?',
+    subtitle: 'Asistente de IA',
+    hello: '¡Hola! 👋 Soy tu CEO, la **inteligencia artificial** de Agent CEO, no una persona. Te cuento lo que quieras de la web, en corto. ¿Qué te gustaría saber?',
     suggestTitle: 'Preguntas frecuentes',
     placeholder: 'Escribe tu pregunta…',
     inputLabel: 'Tu pregunta para el asistente de IA',
@@ -152,10 +164,10 @@ export default {
     source: 'Ver en la web',
     foot: 'Soy una IA y puedo equivocarme. No compartas datos sensibles.',
     footLink: 'Privacidad',
-    errNet: 'No pude conectarme. Revisa tu conexión e inténtalo otra vez.',
-    errRate: 'Vas muy rápido 😅. Espera un momento y vuelve a preguntarme.',
-    errDaily: 'Por hoy hemos hablado bastante. Vuelve mañana o apúntate a la lista y te escribimos.',
-    errOff: 'El asistente no está disponible ahora mismo. Puedes apuntarte a la lista o escribirnos a info@klinworks.com.',
+    errNet: 'Uy, no me pude conectar. Revisa tu conexión y vuelve a intentarlo.',
+    errRate: 'Vas rapidísimo 😅. Dame un momento y vuelve a preguntarme.',
+    errDaily: 'Hoy ya hablamos un montón. Vuelve mañana, o apúntate a la lista y te escribimos.',
+    errOff: 'Ahora mismo no estoy disponible. Puedes apuntarte a la lista o escribirnos a info@klinworks.com.',
     joinedMsg: '¡Listo! Te guardé el lugar. Te escribimos apenas abra tu grupo. 🎉',
     tease: '¿Tienes una pregunta? Pregúntame 👋',
     retry: 'Reintentar',
@@ -166,6 +178,16 @@ export default {
     faq: { eyebrow: 'Preguntas', h2a: 'Pregúntale ', h2b: 'a tu CEO.', more: 'Más detalles →' },
   },
   logic: {
+    // Frases de los expertos de S05 (T32): una lista por tarjeta, en el orden de la sección
+    // (inventario, contenido, WhatsApp, publicidad, atención al cliente, producción).
+    agentLines: [
+      ['¡Hola, jefe! Ya conté todo el almacén.', 'Quedan 4 camisetas negras talla M. ¿Pido 40 más?', 'Las tazas se venden el doble los viernes. Ya lo tengo en cuenta.', 'Nada se agota sin que te avise antes.'],
+      ['¡Hola, jefe! El post del viernes está listo.', 'Tengo tres ideas de reels para esta semana. ¿Las vemos?', 'Escribí el texto, elegí la foto y la hora. Solo falta tu sí.', 'Tu cuenta ya publica todos los días sin que lo pienses.'],
+      ['¡Hola, jefe! Laura pregunta si hay talla S.', 'Son las 2 de la mañana y acabo de cerrar una venta.', 'Respondo en segundos, con tu catálogo y tus precios.', 'Si un cliente se enfada, te lo paso a ti al instante.'],
+      ['¡Hola, jefe! Comparé dos anuncios esta mañana.', 'El anuncio B trae más clientes por el mismo dinero.', '¿Subo el presupuesto? Sin tu firma no gasto nada.', 'Apagué el anuncio que no funcionaba. Te lo cuento en el resumen.'],
+      ['¡Hola, jefe! Cerré el reclamo de Andrés.', 'Cambié una talla y el cliente quedó feliz.', 'Tengo paciencia infinita, incluso a las 11 de la noche.', 'Las dudas que se repiten ya las respondo solo.'],
+      ['¡Hola, jefe! Hoy entraron tres pedidos.', 'El pedido 1042 ya salió. Le aviso al cliente.', 'Si un pedido se atrasa, lo sabes tú antes que el cliente.', 'Cada pedido, de la entrada a la puerta, bajo control.'],
+    ],
     ceo: ['¡Hola! Soy tu CEO. Tócame.', 'Yo organizo al equipo por ti.', 'Lo importante siempre te lo pregunto.', 'Mis compañeros están abajo. ¡Baja!', '¿Otra vez? Me haces cosquillas.'],
     req: ['Pedir 40 camisetas negras', 'Subir el presupuesto del anuncio', 'Publicar los posts de la semana'],
     approved: 'Aprobado',

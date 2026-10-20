@@ -6,7 +6,7 @@
      --gold  #B8923A sobre --cream  = 2,6:1   → NUNCA como texto sobre crema.
      --gold-2 #D9B866 sobre --cream = 1,71:1  → solo decoración o sobre --ink.
      --gold-ink #7A5C17 sobre crema = 5,57:1  → el dorado PARA TEXTO en fondo claro.
-     --muted  #5E5C56 sobre crema   = 5,98:1  → texto secundario en fondo claro.
+     --muted  #4E4C47 sobre crema   = 7,6:1   → texto secundario en fondo claro (T32: antes #5E5C56, 5,98:1).
      --mute-dark #a9a7a0            → texto secundario SOLO sobre --ink (2,15:1 en crema).
    ───────────────────────────────────────────────────────────────────────────── */
 :root {
@@ -17,7 +17,11 @@
   --gold-2: #D9B866;
   --gold-3: #EFE4C8;
   --gold-ink: #7A5C17;
-  --muted: #5E5C56;
+  --muted: #4E4C47;
+  /* Peso de los titulares serif (T32): Instrument Serif solo tiene 400; el trazo lo engorda un paso. */
+  --serif-stroke: .014em currentColor;
+  /* Peso del cuerpo (Geist variable): 450 en vez de 400, más legible sin cargar nada. */
+  --body-weight: 450;
   --mute-dark: #a9a7a0;
   --line: rgba(17, 17, 19, 0.12);
   --line-dark: rgba(244, 242, 237, 0.14);

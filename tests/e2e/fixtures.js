@@ -16,3 +16,8 @@ export const test = base.extend({
   },
 })
 export { expect }
+
+/** Espera al CSS no crítico de la portada (/_s/rest.*.css, se pide 300 ms tras `load`). Antes de
+ *  que llegue, las secciones bajo el pliegue miden distinto: un scrollIntoView temprano acaba en la
+ *  posición vieja (medido el 20-oct: la isla de #equipo no se hidrataba en ~6 % de las pasadas). */
+export const restCss = (page) => page.waitForFunction(() => [...document.styleSheets].some((s) => /\/_s\/rest\./.test(s.href || '')))

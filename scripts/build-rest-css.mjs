@@ -2,7 +2,7 @@
 // Ensambla el CSS NO CRÍTICO de la portada en un único fichero con hash (caché inmutable):
 //   gen/sections-rest.css (secciones fuera del hero) + gen/prototype-rest.css (reglas del
 //   prototipo que el hero no usa) + sections/appdemo/appdemo.css (demo de S03, bajo el pliegue) +
-//   sections/carousel.css (botón de pausa de los carruseles).
+//   sections/carousel.css (botón de pausa de los carruseles) + sections/overrides.css (ajustes T32).
 // La portada lo carga sin bloquear el primer pintado (medido con Lighthouse 13 móvil).
 // Lo corre `npm run build` (prebuild) y `npm test` (pretest).
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs'
@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const parts = ['src/sections/gen/sections-rest.css', 'src/sections/gen/prototype-rest.css', 'src/sections/appdemo/appdemo.css', 'src/sections/carousel.css']
+const parts = ['src/sections/gen/sections-rest.css', 'src/sections/gen/prototype-rest.css', 'src/sections/appdemo/appdemo.css', 'src/sections/carousel.css', 'src/sections/overrides.css']
 const css = parts.map((p) => `/* ${p} */\n${readFileSync(join(ROOT, p), 'utf8')}`).join('\n')
 const hash = createHash('sha1').update(css).digest('hex').slice(0, 10)
 const dir = join(ROOT, 'public', '_s')

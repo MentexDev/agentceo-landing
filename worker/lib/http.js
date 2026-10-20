@@ -31,9 +31,18 @@ export const CSP = [
  * Safari subía a https cada recurso y la página se quedaba sin CSS ni navegación
  * (medido con WebKit el 2026-10-20; Chrome lo tapaba al eximir a localhost).
  */
-export function withSecurityHeaders(res, secure = true) {
+// Turnstile (adenda T32): SOLO si Diego configura TURNSTILE_SITE_KEY se permite su origen
+// (script + iframe del reto). Sin clave, la CSP sigue siendo todo 'self'.
+export const TURNSTILE_ORIGIN = 'https://challenges.cloudflare.com'
+export function cspFor({ turnstile = false } = {}) {
+  if (!turnstile) return CSP
+  return CSP.replace("script-src 'self' 'unsafe-inline'", `script-src 'self' 'unsafe-inline' ${TURNSTILE_ORIGIN}`) + `; frame-src ${TURNSTILE_ORIGIN}`
+}
+
+export function withSecurityHeaders(res, secure = true, { turnstile = false } = {}) {
   const h = new Headers(res.headers)
-  h.set('Content-Security-Policy', secure ? `${CSP}; upgrade-insecure-requests` : CSP)
+  const csp = cspFor({ turnstile })
+  h.set('Content-Security-Policy', secure ? `${csp}; upgrade-insecure-requests` : csp)
   if (secure) h.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
   h.set('X-Content-Type-Options', 'nosniff')
   h.set('Referrer-Policy', 'strict-origin-when-cross-origin')

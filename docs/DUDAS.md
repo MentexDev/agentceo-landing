@@ -204,3 +204,47 @@ _(se van añadiendo por fase)_
 - **Legal:** los Términos en inglés mantienen que **la versión vinculante es la española** (§13.7) y que el soporte es en español (§8.4), como el original. ⏳ El abogado debe decidir si se mantiene para clientes de EE. UU.
 - **Widget en inglés:** su base pasa de 16 a 50 fragmentos. **Medido:** un motor léxico **empeora al crecer el corpus**. El reservado #1 en inglés baja de 9/9 a 7/9 («company» aparece en todos los legales; «monthly fee» cae en «Is it really free?»). Las expectativas se igualaron con las del español solo donde la respuesta es literalmente correcta. Los suelos se fijan en lo medido. Es un argumento más para el modo live del PLAN §6.3.
 - ⏳ **Pendiente de la auditoría:** los carruseles automáticos del prototipo (S05 en móvil y S11) se pausan al pasar el ratón, enfocar o tocar, pero **no tienen botón de pausa visible** (WCAG 2.2.2). La demo de S03 sí lo tiene.
+
+### T32 · Widget en modo live con Gemini (2026-10-20)
+- **Proveedor:** Gemini directo (`generativelanguage.googleapis.com`, `streamGenerateContent?alt=sse`), modelo `CHAT_MODEL=gemini-3.1-flash-lite`. **OpenRouter se retira**: un solo proveedor, un solo precio que vigilar. Esto deja obsoleto lo que dice arriba, en la Fase W, sobre `OPENROUTER_API_KEY`.
+- **Clave:** el secreto `GEMINI_API_KEY`. **Hoy no existe** (no hay secreto ni `.dev.vars`); no se creó ni se pidió. Sin clave → stub, sin llamar a nadie (hay test).
+- ⏳ **Pregunta para Diego:** `wrangler.jsonc` sigue con `CHAT_MODE=stub`, su decisión de la Fase W. Para encender live hacen falta dos cosas: `wrangler secret put GEMINI_API_KEY` **y** cambiar `CHAT_MODE` a `live`. ¿Se deja `live` ya puesto, para que baste con la clave (sin clave sigue respondiendo el stub), o se mantiene el doble interruptor?
+- ⏳ **[PENDIENTE verificar]** antes de encender live (aquí no se consulta la web):
+  - el identificador exacto del modelo en la API de Google (si no existe, la API devuelve 404 y el widget cae a stub sin que se note);
+  - los precios: 0,25 / 1,50 / 0,025 USD por millón (entrada / salida / caché), medidos en OpenRouter el 20-oct, frente a la tabla oficial de Google.
+- **Tope duro de $5/día:** reserva atómica del coste máximo en el Durable Object `ChatGuard` antes de llamar, y ajuste al coste real después. Detalle y por qué un DO (y no D1 o KV) en `worker/chat/guard.js`. Por IP: 60 mensajes/día, de los que 25 pueden ir al modelo (el resto, stub). Por conversación: 12 turnos (contados por el cliente). 500 caracteres por mensaje y 400 tokens de salida.
+- **Evals:** `npm run evals:chat` → `docs/EVALS-CHAT-T32.md`. Stub 35/36. El fallo que queda es «Is there a plan for a big team?», que cae en «no lo encuentro»: no inventa, pero no acierta. Live: **no ejecutado, sin clave**.
+
+### T32 · Adenda: anti-abuso, tono y canal (2026-10-20)
+- **Objetivo (Diego):** nadie, usuario o competidor, puede quemar tokens. Capas, de la más barata a la que gasta. Cada una tiene su test en `tests/worker/chat-abuse.test.js` o `chat.test.js`, y cada guardián nuevo se mutó a mano hasta verlo en rojo.
+
+  | Capa | Límite | Dónde vive | Si se pasa |
+  |---|---|---|---|
+  | Ráfaga por IP | 10/min | binding nativo `RL_CHAT` (antes de parsear) | 429 |
+  | Hora y día por IP | 30/h · 60/día | `ChatGuard.hitAll` (atómico, todo o nada) | 429 |
+  | Minuto, hora y día por sesión | 6/min · 20/h · 40/día | `ChatGuard.hitAll` (instancia por hash de la sesión) | 429 |
+  | Mensaje | 500 caracteres | canal web | 400 |
+  | Conversación | 12 turnos | `respond.js` | cierre amable con la lista |
+  | Salida | 400 tokens, **techo duro** (`CHAT_MAX_TOKENS` solo puede bajarlo) | `respond.js` | — |
+  | Gasto global | $5/día, reserva atómica antes de llamar | `ChatGuard` «budget» | stub |
+  | Live por IP | 25/día | `ChatGuard` por IP | stub |
+  | Bot / UA | UA vacío, curl/python/headless…, sin Accept-Language | `abuse.js` → `respond.js` | stub, **nunca live** |
+  | Pregunta repetida | misma sesión, 10 min | `ChatGuard.seen` | caché o stub, no gasta |
+  | Preguntas idénticas | 6 h, solo primer turno y sin datos personales | `ChatGuard.tget/tput` (instancia «cache») | respuesta cacheada, no gasta |
+  | Turnstile | persona verificada antes de gastar (30 min por sesión) | `channels/index.js` + `abuse.js` | stub + reto al cliente |
+  | Logs | solo contadores (`{t, ev, channel, path, reason, limit, mode, lang}`) | `abuse.js` `counter()` | — |
+
+- **Sesión:** id aleatorio del cliente, guardado dentro de `ac_chat` (misma clave y mismo consentimiento funcional; sin consentimiento, solo en memoria). **No es fiable por sí solo**: cualquiera puede inventarse sesiones nuevas, así que **el límite por IP manda**. La sesión sirve para que una pestaña no se coma el cupo de toda una oficina detrás de la misma IP, para el dedupe y para recordar que la conversación ya pasó Turnstile.
+- **Turnstile (código listo, apagado):** sin `TURNSTILE_SITE_KEY` (var pública) **y** `TURNSTILE_SECRET_KEY` (secreto), live no arranca. El cliente no carga nada de terceros y la CSP no abre `challenges.cloudflare.com`. Con las dos:
+  - el primer mensaje que iría al modelo responde con el stub y un reto (`meta.challenge`);
+  - el cliente carga Turnstile **en ese momento**, en modo invisible, y manda el token en el mensaje siguiente;
+  - el servidor lo verifica con `siteverify` y marca la sesión como verificada durante 30 min.
+
+  Cómo crearlo: comentario en `wrangler.jsonc`. Es gratis; no se creó nada.
+- ⏳ **Para Diego:** el tráfico sospechoso nunca va a live, pero sí recibe el stub (es gratis): no se le bloquea, para no castigar a una persona con un navegador raro. ¿Bloquear del todo? No lo recomiendo.
+- ⏳ **Caché:** guarda respuestas del modelo **a preguntas sobre la web pública** durante 6 h, sin texto de la pregunta (solo su hash) y nunca si la pregunta o la respuesta llevan un correo, un teléfono o una URL. Si un día cambian los precios, la caché puede servir la respuesta vieja hasta 6 h: al cambiar precios, **purgar** (cambiar la clave de la instancia «cache» o esperar 6 h).
+- **Tono:**
+  - persona, saludo, errores y regla 8 del prompt reescritos: fundador amable, de tú, corto, nada corporativo;
+  - evals de tono: lista de muletillas prohibidas en TODAS las respuestas, ≤ 45 palabras en los textos propios y ≤ 90 en las respuestas del modelo;
+  - se mantienen literalmente «inteligencia artificial» / «no una persona» (SB 1001).
+- **Canal:** `worker/chat/channels/index.js` define el contrato (`who`, `parse` → mensaje normalizado, `open` → `send`/`close`, `reject`) y el núcleo común (límites, decisión y contadores). `respond.js` ya no sabe de HTTP ni de SSE. Web: `channels/web.js`. **WhatsApp no se construye**: un test enchufa un canal falso, sin streaming, sin tocar `respond.js`.

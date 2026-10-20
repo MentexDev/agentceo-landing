@@ -13,13 +13,5 @@ export const sseHeaders = {
   'x-content-type-options': 'nosniff',
 }
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-
-/** Emite un texto «escribiendo» por trozos de palabras (efecto streaming del stub). */
-export async function streamText(send, text, delayMs = 18) {
-  const parts = text.match(/\S+\s*/g) || [text]
-  for (let i = 0; i < parts.length; i += 2) {
-    await send('delta', { t: parts.slice(i, i + 2).join('') })
-    if (delayMs > 0) await sleep(delayMs)
-  }
-}
+// El troceo del texto es neutro de canal (text.js); se reexporta por compatibilidad.
+export { streamText } from './text.js'

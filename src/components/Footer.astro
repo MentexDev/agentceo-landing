@@ -66,9 +66,9 @@ const visible = cols
     </div>
     <nav class="ft-cols" aria-label={t(lang, 'a11y.footerNav')}>
       {visible.map((c) => (
-        <div class="ft-col">
+        <div class:list={['ft-col', { 'ft-col-legal': c.links[0]?.id.startsWith('legal:') }]}>
           <h2 class="ft-h">{c.title}</h2>
-          <ul role="list">
+          <ul role="list" style={c.links[0]?.id.startsWith('legal:') ? `--rows:${Math.ceil(c.links.length / 2)};--rows-3:${Math.ceil(c.links.length / 3)};--rows-4:${Math.ceil(c.links.length / 4)}` : undefined}>
             {c.links.map((l) => <li><a href={l.url}>{l.label}</a></li>)}
           </ul>
         </div>
@@ -96,7 +96,12 @@ const visible = cols
   .ft-home:hover { color: var(--cream); }
   .ft-entity { margin: 18px 0 8px; line-height: 1.6; max-width: 38ch; }
   .ft-made { margin: 0; color: var(--gold-2); }
-  .ft-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 32px; }
+  .ft-cols { display: grid; grid-template-columns: repeat(3, minmax(130px, 1fr)); gap: 32px; }
+  /* Legal (14 documentos, T32: la columna única era demasiado alta): fila propia a todo el ancho,
+     con los enlaces en columnas que se leen de arriba abajo (4 en escritorio, 3 en tableta, 2 en
+     móvil). El orden visual sigue al del DOM: teclado y lectores leen lo mismo que se ve. */
+  .ft-col-legal { grid-column: 1 / -1; padding-top: 24px; border-top: 1px solid var(--line-dark); }
+  .ft-col-legal ul { grid-template-rows: repeat(var(--rows-4, 4), auto); grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); column-gap: 28px; }
   .ft-h {
     margin: 0 0 14px; font-family: var(--mono); font-size: 12px; font-weight: 500;
     letter-spacing: .08em; text-transform: uppercase; color: var(--cream);
@@ -122,5 +127,9 @@ const visible = cols
   @media (max-width: 860px) {
     .ft-top { grid-template-columns: 1fr; gap: 36px; }
     .ft-cols { grid-template-columns: repeat(2, 1fr); gap: 28px 20px; }
+    .ft-col-legal ul { grid-template-rows: repeat(var(--rows, 7), auto); column-gap: 20px; }
+  }
+  @media (min-width: 861px) and (max-width: 1100px) {
+    .ft-col-legal ul { grid-template-rows: repeat(var(--rows-3, 5), auto); }
   }
 </style>

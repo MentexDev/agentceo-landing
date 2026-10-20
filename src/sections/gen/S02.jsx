@@ -14,7 +14,7 @@ export default function S02Inicio({ v, t, children }) {
           "--i": "3"
         }} data-i="3">{t.k8}<span className="x2B1qgq">{t.k9}</span></p><div className="in xdxQ0TL" style={{
           "--i": "4"
-        }} data-i="4">{children}<span className="x3iZghj">{t.k14}</span></div></div><div className="xNSQ0JA x6u0Hmx"><div className="orbit xLgBL7W" aria-hidden="true"><div className="xGmfNcY"></div><div className="spinner xLgBL7W"><div className="orb-item xfwhwRK"><div className="counter-spin xxX1TmP"><div className="bobble" style={{
+        }} data-i="4">{children}</div></div><div className="xNSQ0JA x6u0Hmx"><div className="orbit xLgBL7W" aria-hidden="true"><div className="xGmfNcY"></div><div className="spinner xLgBL7W"><div className="orb-item xfwhwRK"><div className="counter-spin xxX1TmP"><div className="bobble" style={{
                   "--i": "0"
                 }} data-i="0"><svg className="mascot xfWPJp3" aria-hidden="true" width="64" height="64" viewBox="0 0 100 100"><g className="body"><g data-tilt=""><rect x="14" y="18" width="72" height="70" rx="9" fill="#111113"></rect><path d="M14 32h72" stroke="#F4F2ED" strokeWidth="2" opacity="0.18"></path><g className="eyes" style={{
                           "--bl": "3.5s",

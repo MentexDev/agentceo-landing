@@ -42,3 +42,35 @@ Una línea por fase cerrada: fecha · fase · qué quedó · commit.
   - **Dos intermitencias medidas y corregidas:**
     - el fixture usaba 254 IPv4 al azar: el test del 429 agotaba su IP y otro test que coincidía en ella recibía `#error`. Ahora cada test sale de una IPv6 de documentación propia (2001:db8::/32);
     - en la demo de S03, `choose()` cancela el temporizador del recorrido en el mismo clic: antes podía saltar entre el render y la limpieza del efecto, y pisar la vista elegida.
+- 2026-10-20 · **T32 · Ajustes de Diego + adenda** (`docs/BRIEF-AJUSTES-T32.md`):
+  - **1 · Hero:**
+    - la flecha roja era una anotación de Diego sobre el divisor bajo el hero. Ahora es una línea de 1 px alineada al contenedor, difuminada, con un punto dorado;
+    - la órbita queda recortada dentro del hero (`overflow: clip`);
+    - «Abrimos por grupos» sale una sola vez: el compilador retira la nota duplicada del prototipo.
+  - **2 · Widget:** «Asistente de IA» / «AI assistant» en una línea, en el lanzador y en la cabecera del panel. La IA se sigue declarando en la insignia y el saludo (SB 1001).
+  - **3 · Modo live con Gemini:**
+    - `gemini-3.1-flash-lite`, que lee `GEMINI_API_KEY` y cae al stub si no la hay;
+    - tope de $5/día con reserva atómica en `ChatGuard`;
+    - base curada en `content/chat-knowledge.js`;
+    - prompt reforzado;
+    - evals: stub 42/43, live no ejecutado (sin clave). Detalle en `docs/EVALS-CHAT-T32.md`.
+  - **4 · Tipografía:**
+    - titulares serif un paso más gruesos con un trazo proporcional (Instrument Serif solo tiene 400: sin cargar fuentes nuevas);
+    - cuerpo a 450 y gris secundario de #5E5C56 a #4E4C47 (contraste de 5,98 a 7,6:1).
+  - **5 · Footer:** Legal en fila propia, a 4, 3 o 2 columnas según el ancho; la lista mide 157 px en escritorio, antes 14 filas.
+  - **6 · Expertos:** 4 frases propias por experto (es/en) que rotan con cada clic, anunciadas por `aria-live`. La pastilla de estado cede el sitio a la burbuja.
+  - **7 · Acta:**
+    - al final de la reunión, la tarjeta crece un poco y cada agente se queda una tarea («Yo me encargo de…», responsable, tarea y cuándo);
+    - con movimiento reducido o sin JS se ve llena desde el principio;
+    - medido: crecer en altura empujaba la página ~300 px y dejaba el carrusel de S11 fuera de la vista (11 de 16 pasadas). Ahora ocupa su sitio desde el inicio y no mueve nada (guardián e2e).
+  - **8 · La Forja:** la pantalla del computador pasa de 388 a 548 px en escritorio y de 615 a 735 px en móvil.
+  - **Adenda:**
+    - **anti-abuso por capas:** ráfaga, hora y día por IP y por sesión; Turnstile listo pero apagado sin claves; heurísticas de bot; dedupe; caché de 6 h; logs solo de contadores. Un test por límite;
+    - **tono:** cálido y corto;
+    - **backend agnóstico de canal:** la web hoy; WhatsApp, solo el contrato.
+  - **Resultados:**
+    - **Unitarios:** 484/484.
+    - **e2e en los 3 navegadores:** 220/220 en 2 pasadas seguidas (17 omitidos por dispositivo).
+    - **Lighthouse de la portada en móvil:** LCP 1,7 s (es) y 1,8 s (en), a11y 100 y CLS 0; escritorio 100.
+    - **Mutaciones a mano:** 5 de los guardianes e2e nuevos, 8 del modo live y 14 de la adenda; todas en rojo.
+    - **Capturas:** `docs/capturas-t32/`.

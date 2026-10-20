@@ -69,6 +69,7 @@ export function makeIndex(chunks) {
 }
 
 const K1 = 1.2, B = 0.75
+const BRAND = new Set(['agent', 'ceo'])
 
 /** Devuelve [{ chunk, score, coverage }] ordenado. coverage = fracción de términos de la pregunta encontrados. */
 export function search(index, query, k = 5) {
@@ -83,14 +84,17 @@ export function search(index, query, k = 5) {
       if (!f) continue
       hit++
       const n = index.df.get(tk)
-      const idf = Math.log(1 + (index.N - n + 0.5) / (n + 0.5))
+      // La marca aparece en casi cualquier pregunta («¿cuánto cuesta Agent CEO?»): pesa poco,
+      // para que no arrastre la respuesta a «¿qué es Agent CEO?» (fallo medido en las evals T32).
+      const idf = Math.log(1 + (index.N - n + 0.5) / (n + 0.5)) * (BRAND.has(tk) ? 0.35 : 1)
       score += idf * ((f * (K1 + 1)) / (f + K1 * (1 - B + (B * d.len) / index.avg)))
     }
     // Que la pregunta esté contenida en el título es la señal más fuerte (p. ej. «¿qué es un agente?»).
     if (score > 0) score += 2 * (inTitle / q.length)
     // Las FAQ son respuestas directas: a igualdad, ganan a un artículo largo. La letra legal
     // pesa menos: solo gana cuando la pregunta es claramente legal (reembolsos, datos, DMCA…).
-    const w = d.c.kind === 'faq' ? 1.25 : d.c.kind === 'legal' ? 0.7 : 1
+    // Las guías curadas (content/chat-knowledge.js) resumen secciones enteras: ceden ante una FAQ.
+    const w = d.c.kind === 'faq' ? 1.25 : d.c.kind === 'legal' ? 0.7 : d.c.kind === 'guia' ? 0.9 : 1
     if (score > 0) res.push({ chunk: d.c, score: score * w, coverage: hit / q.length, titleHit: inTitle / q.length })
   }
   return res.sort((a, b) => b.score - a.score).slice(0, k)

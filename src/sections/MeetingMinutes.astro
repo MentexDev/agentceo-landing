@@ -1,0 +1,27 @@
+---
+// ACTA DE LA REUNIÓN DIARIA (S07 · T32, Diego): al terminar la reunión la tarjeta crece un poco y
+// se rellena el acta con la tarea que se queda cada agente («Yo me encargo de…», responsable, tarea).
+// Ocupa su sitio desde el principio (filas-esqueleto): crecer en altura empujaba la página entera.
+// Va dentro de la tarjeta «Acta de hoy» por el hueco {children} que abre el compilador. Es contenido
+// real (no aria-hidden): un lector de pantalla lo lee como lista. La animación es CSS pura y arranca
+// cuando la tarjeta entra en pantalla ([data-in], vida.js); con movimiento reducido o sin JS se ve
+// entera desde el principio (overrides.css).
+import { dict } from '../i18n/config.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const M = dict(lang).minutes
+---
+<div class="minutes">
+  <div class="minutes-in">
+    <p class="minutes-h">{M.title}</p>
+    <ol class="minutes-list" role="list">
+      {M.items.map((it, i) => (
+        <li class="minutes-row" style={`--k:${i}`}>
+          <span class="minutes-who"><span class="minutes-dot" aria-hidden="true"></span><span class="sr-only">{M.who}: </span>{it.agent}</span>
+          <q class="minutes-say">{it.say}</q>
+          <span class="minutes-task"><span class="sr-only">{M.task}: </span>{it.task} <span class="minutes-when">· {it.when}</span></span>
+        </li>
+      ))}
+    </ol>
+  </div>
+</div>

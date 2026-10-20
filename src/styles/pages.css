@@ -6,10 +6,10 @@
 .pg-narrow { width: min(100% - 2 * var(--gutter), 760px); margin-inline: auto; }
 .pg-head { max-width: 860px; margin-bottom: clamp(32px, 5vw, 56px); }
 .pg-eyebrow { display: inline-block; font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
-.pg-h1 { margin: 14px 0 18px; font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 6vw, 76px); line-height: 1.02; letter-spacing: -.02em; }
+.pg-h1 { margin: 14px 0 18px; font-family: var(--serif); -webkit-text-stroke: var(--serif-stroke); font-weight: 400; font-size: clamp(40px, 6vw, 76px); line-height: 1.02; letter-spacing: -.02em; }
 .pg-h1 em { font-style: italic; }
 .pg-sub { margin: 0; font-size: clamp(17px, 1.6vw, 20px); line-height: 1.6; color: var(--muted); max-width: 62ch; }
-.pg-h2 { margin: 0 0 18px; font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 3.6vw, 44px); line-height: 1.05; letter-spacing: -.01em; }
+.pg-h2 { margin: 0 0 18px; font-family: var(--serif); -webkit-text-stroke: var(--serif-stroke); font-weight: 400; font-size: clamp(30px, 3.6vw, 44px); line-height: 1.05; letter-spacing: -.01em; }
 
 .crumbs { margin: 0 0 22px; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px; color: var(--muted); }
 .crumbs li:not(:last-child)::after { content: '/'; margin-left: 6px; color: var(--line); }
@@ -34,7 +34,7 @@
 }
 .card:hover { color: var(--ink); transform: translateY(-4px) rotate(-.4deg); box-shadow: 6px 6px 0 var(--gold); }
 .card:focus-visible { box-shadow: 6px 6px 0 var(--gold); }
-.card h2, .card h3 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 26px; line-height: 1.1; }
+.card h2, .card h3 { margin: 0; font-family: var(--serif); -webkit-text-stroke: var(--serif-stroke); font-weight: 400; font-size: 26px; line-height: 1.1; }
 .card p { margin: 0; color: var(--muted); line-height: 1.55; }
 .card-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
 .card-cat { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; padding: 3px 9px; border-radius: var(--radius-pill); background: var(--gold-3); color: var(--ink); }
@@ -54,7 +54,7 @@
 .art-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
 .art-lead { font-size: clamp(19px, 1.9vw, 22px); line-height: 1.55; color: var(--muted); margin: 0; }
 .prose { font-size: 18px; line-height: 1.75; }
-.prose h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 3vw, 36px); line-height: 1.1; margin: 1.6em 0 .5em; }
+.prose h2 { font-family: var(--serif); -webkit-text-stroke: var(--serif-stroke); font-weight: 400; font-size: clamp(28px, 3vw, 36px); line-height: 1.1; margin: 1.6em 0 .5em; }
 .prose p { margin: 0 0 1.1em; }
 .prose ul { margin: 0 0 1.2em; padding-left: 1.2em; }
 .prose li { margin: .3em 0; }
@@ -82,7 +82,7 @@
 
 /* Gate de recursos */
 .gate { margin-top: 32px; display: grid; gap: 18px; padding: clamp(22px, 3vw, 34px); border: 1.5px solid var(--ink); border-radius: 26px; background: var(--paper); box-shadow: 8px 8px 0 var(--gold); }
-.gate h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 3vw, 34px); line-height: 1.1; }
+.gate h2 { margin: 0; font-family: var(--serif); -webkit-text-stroke: var(--serif-stroke); font-weight: 400; font-size: clamp(26px, 3vw, 34px); line-height: 1.1; }
 .gate ul { margin: 0; padding-left: 1.1em; }
 .gate-what h3, .gate .gate-what-h { margin: 0 0 8px; font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .gate-row { display: flex; gap: 8px; padding: 6px; border: 1.5px solid var(--ink); border-radius: var(--radius-pill); background: #fff; }

@@ -3,11 +3,11 @@
 // pregunta → mejor fragmento del sitio (BM25) con su procedencia visible;
 // sin confianza → lo dice y ofrece la lista. Nunca genera texto nuevo: solo cita la web.
 // ─────────────────────────────────────────────────────────────────────────────
-import KB from '../generated/knowledge.json'
+import KB from '../generated/knowledge.json' with { type: 'json' }
 import { makeIndex, search, confident } from './search.js'
 import { intentOf, say } from './persona.js'
 
-const INDEX = { es: makeIndex(KB.es), en: makeIndex(KB.en) }
+export const INDEX = { es: makeIndex(KB.es), en: makeIndex(KB.en) }
 // Sugerencias por defecto (las preguntas más útiles para decidir apuntarse).
 const DEFAULT_CHIPS = ['faq:precio', 'faq:cuando', 'faq:whatsapp', 'faq:solos']
 

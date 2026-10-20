@@ -20,6 +20,7 @@ import S16 from '../sections/gen/S16.jsx'
 import S17 from '../sections/gen/S17.jsx'
 import S19 from '../sections/gen/S19.jsx'
 import AppDemoSection from '../sections/AppDemoSection.astro'
+import MeetingMinutes from '../sections/MeetingMinutes.astro'
 import I04 from '../sections/islands/I04.jsx'
 import I05 from '../sections/islands/I05.jsx'
 import I08 from '../sections/islands/I08.jsx'
@@ -57,7 +58,9 @@ const d = (id: string) => sectionDict(lang, id)
   <I04 client:visible lang={lang} />
   <I05 client:visible lang={lang} />
   <S06 v={v} t={d('S06')} />
-  <S07 v={v} t={d('S07')} />
+  <S07 v={v} t={d('S07')}>
+    <MeetingMinutes lang={lang} />
+  </S07>
   <I08 client:visible lang={lang} />
   <I09 client:visible lang={lang} />
   <I10 client:visible lang={lang} />

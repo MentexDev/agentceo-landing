@@ -15,7 +15,7 @@ import { useSyncExternalStore } from 'react'
 export const initialState = () => ({
   more: false, cb: -1, wa: 0, fk: 0, tour: -1, path: '', area: 0,
   autos: [true, false, false, false, false, false, false, false, false],
-  tab: 0, clon: true, msg: 0, happy: false, poke: -1, idx: 0, anim: '', ok: 0, no: 0,
+  tab: 0, clon: true, msg: 0, happy: false, poke: -1, pk: [0, 0, 0, 0, 0, 0], said: '', idx: 0, anim: '', ok: 0, no: 0,
   log: [], tr: [0, 1, 2], lock: 0, shake: false, open: 0,
 })
 
@@ -99,10 +99,19 @@ export function renderVals(s, L) {
     lockTxt: s.lock > 0 ? L.lockTried : L.lockIdle,
     lockTry: () => { set({ shake: true, lock: s.lock + 1 }); later('ts', 520, () => set({ shake: false })) },
   }
+  // Expertos de S05 (T32): cada clic rota por SUS frases (L.agentLines[i]); la burbuja es
+  // decorativa (aria-hidden) y la frase se anuncia por la región viva v.hiSay.
+  const line = (i, n) => { const ls = L.agentLines?.[i] || []; return ls.length ? ls[(Math.max(n, 1) - 1) % ls.length] : '' }
   for (let i = 0; i < 6; i++) {
     out[`a${i}`] = `agent${s.poke === i ? ' poked' : ''}`
-    out[`poke${i}`] = () => { set({ poke: i }); later('tp', 1100, () => set({ poke: -1 })) }
+    out[`hi${i}`] = line(i, s.pk[i])
+    out[`poke${i}`] = () => {
+      const n = s.pk[i] + 1
+      set({ poke: i, pk: s.pk.map((x, j) => (j === i ? n : x)), said: line(i, n) })
+      later('tp', 2600, () => set({ poke: -1 }))
+    }
   }
+  out.hiSay = s.said
   for (let i = 0; i < 3; i++) {
     const c = s.tr[i]
     for (let j = 0; j < 3; j++) out[`t${i}p${j}`] = `pip${j < c ? ' on' : ''}`

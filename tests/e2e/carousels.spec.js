@@ -3,12 +3,13 @@
 //  · Escritorio: S11 «Automatizaciones» (autoplay de store.js, cada 2,6 s).
 // Cada test comprueba primero que el carrusel AVANZA SOLO (si no, la pausa no probaría nada),
 // luego que con la pausa se queda quieto más de dos ciclos, y que «reproducir» lo reanuda.
-import { test, expect } from './fixtures.js'
+import { test, expect, restCss } from './fixtures.js'
 
 const movil = (info) => info.project.name.startsWith('movil')
 
 async function open(page, url, sectionId, track) {
   await page.goto(url)
+  await restCss(page)
   const sec = page.locator(`#${sectionId}`)
   // Hidratada de verdad (Astro quita `ssr` de la isla al hidratar): S11 escritorio monta su
   // autoplay en el ref de la isla.

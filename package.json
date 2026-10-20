@@ -8,6 +8,7 @@
     "preview": "WRANGLER_SEND_METRICS=false wrangler dev --port 8787 --local",
     "db:local": "WRANGLER_SEND_METRICS=false wrangler d1 migrations apply agentceo-waitlist --local",
     "test": "vitest run",
+    "evals:chat": "node scripts/chat-evals.mjs",
     "test:e2e": "playwright test",
     "check": "npm run build && npm test",
     "prebuild": "node scripts/build-knowledge.mjs && node scripts/build-rest-css.mjs",

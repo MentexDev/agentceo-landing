@@ -8,27 +8,35 @@ import { norm } from './search.js'
 
 export const CONTACT = 'info@klinworks.com'
 
+// TONO (adenda T32, Diego): súper natural, cálido, cercano y fluido; corto; como un fundador
+// amable que conoce su producto, nunca corporativo. Las evals de tono (scripts/chat-evals.mjs)
+// vigilan longitud y muletillas. ⛔ No quitar «inteligencia artificial» / «no una persona»
+// (SB 1001; los e2e los buscan).
 const T = {
   es: {
-    greet: '¡Hola! Soy tu CEO, el asistente de **inteligencia artificial** de Agent CEO (no soy una persona). Te respondo con lo que hay publicado en esta web. ¿Qué quieres saber?',
-    thanks: '¡A ti! Si te quedó alguna duda, aquí sigo. Y si quieres entrar de los primeros, la lista está abierta.',
-    human: 'Soy una **inteligencia artificial**, no una persona: el asistente automático de Agent CEO. Respondo solo con lo que hay en esta web. Si prefieres hablar con alguien del equipo, escríbenos a [info@klinworks.com](mailto:info@klinworks.com).',
-    contact: 'Para hablar con una persona del equipo, escríbenos a [info@klinworks.com](mailto:info@klinworks.com). Yo soy una IA y respondo con lo que hay en esta web.',
-    join: '¡Me encanta! Déjame tu correo aquí abajo y te guardo el lugar. Abrimos por grupos y los primeros de la lista entran primero.',
-    fallback: 'Eso no lo encuentro en lo que hay publicado en esta web, y prefiero no inventarme nada. Puedes preguntarme otra cosa, escribir a [info@klinworks.com](mailto:info@klinworks.com) o apuntarte a la lista y te contamos todo cuando abra tu grupo.',
-    cap: 'Hemos hablado un buen rato, ¡gracias! Para seguir, apúntate a la lista y te escribimos cuando abra tu grupo, o escríbenos a [info@klinworks.com](mailto:info@klinworks.com).',
+    greet: '¡Hola! 👋 Soy tu CEO, la **inteligencia artificial** de Agent CEO, no una persona. Te cuento lo que quieras de la web, en corto. ¿Por dónde empezamos?',
+    thanks: '¡A ti! Aquí sigo si te surge algo. Y si te animas, la lista está abierta.',
+    human: 'Soy una **inteligencia artificial**, no una persona. Respondo con lo que está en esta web. Si prefieres a alguien del equipo, escríbenos a [info@klinworks.com](mailto:info@klinworks.com) y te contestamos nosotros.',
+    contact: 'Claro: escríbenos a [info@klinworks.com](mailto:info@klinworks.com) y te responde alguien del equipo. Yo soy la IA de la web.',
+    join: '¡Qué bien! Deja tu correo aquí abajo y te guardo el sitio. Abrimos por grupos, y quien llega antes, entra antes.',
+    fallback: 'Eso no lo tengo en la web y prefiero no inventarme nada. ¿Te ayudo con otra cosa? También puedes escribirnos a [info@klinworks.com](mailto:info@klinworks.com) o apuntarte a la lista y te contamos más.',
+    cap: 'Llevamos un buen rato, ¡gracias por la charla! Para seguir, apúntate a la lista y te escribimos cuando abra tu grupo, o escríbenos a [info@klinworks.com](mailto:info@klinworks.com).',
+    guard: 'Eso no lo puedo compartir 🙂. Lo que sí te cuento encantado: qué hace Agent CEO, cuánto cuesta o cómo entrar en la lista.',
+    cut: 'Se me cortó la respuesta, perdona. ¿Me lo repites?',
     more: 'Más aquí',
     chipJoin: 'Unirme a la lista',
     chipHuman: '¿Eres una persona?',
   },
   en: {
-    greet: "Hi! I'm your CEO, Agent CEO's **artificial intelligence** assistant (I'm not a person). I answer with what's published on this website. What would you like to know?",
-    thanks: "You're welcome! If anything's still unclear, I'm here. And if you want to get in early, the waitlist is open.",
-    human: "I'm an **artificial intelligence**, not a person: Agent CEO's automated assistant. I only answer with what's on this website. If you'd rather talk to someone on the team, email [info@klinworks.com](mailto:info@klinworks.com).",
-    contact: "To talk to a person on the team, email [info@klinworks.com](mailto:info@klinworks.com). I'm an AI and I answer with what's on this website.",
-    join: "Love it! Leave your email below and I'll save your spot. We open in waves and the first on the list get in first.",
-    fallback: "I can't find that in what's published on this website, and I'd rather not make anything up. You can ask me something else, email [info@klinworks.com](mailto:info@klinworks.com), or join the waitlist and we'll tell you everything when your wave opens.",
-    cap: "We've chatted for a while, thanks! To keep going, join the waitlist and we'll write when your wave opens, or email [info@klinworks.com](mailto:info@klinworks.com).",
+    greet: "Hi! 👋 I'm your CEO, Agent CEO's **artificial intelligence**, not a person. Ask me anything about the website and I'll keep it short. Where do we start?",
+    thanks: "Anytime! I'm here if anything comes up. And if you're in, the waitlist is open.",
+    human: "I'm an **artificial intelligence**, not a person. I answer with what's on this website. If you'd rather talk to someone on the team, email [info@klinworks.com](mailto:info@klinworks.com) and one of us will reply.",
+    contact: "Sure: email [info@klinworks.com](mailto:info@klinworks.com) and someone on the team will get back to you. I'm the site's AI.",
+    join: "Great! Drop your email below and I'll save your spot. We open in waves, and early birds get in first.",
+    fallback: "That's not on the website, and I'd rather not make anything up. Can I help with something else? You can also email [info@klinworks.com](mailto:info@klinworks.com) or join the waitlist and we'll tell you more.",
+    cap: "We've been at it a while, thanks for the chat! To keep going, join the waitlist and we'll write when your wave opens, or email [info@klinworks.com](mailto:info@klinworks.com).",
+    guard: "I can't share that 🙂. Happy to tell you what Agent CEO does, what it costs or how to get on the waitlist.",
+    cut: 'My answer got cut off, sorry. Could you ask again?',
     more: 'More here',
     chipJoin: 'Join the waitlist',
     chipHuman: 'Are you a person?',

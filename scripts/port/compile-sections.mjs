@@ -416,18 +416,26 @@ function rootOf(ast) {
   return fn.body.body.find((n) => n.type === 'ReturnStatement').argument
 }
 
-function replaceFormSlot(root) {
+function replaceFormSlot(root, dict) {
   // {(v.notSent) ? … : null}{(v.sent) ? … : null} → {children}
+  // La nota que el prototipo pone DETRÁS del formulario («Abrimos por grupos…», S02) se retira:
+  // WaitlistForm ya la pinta en su sitio (bajo el campo, antes del aviso CCPA). Con las dos, la
+  // frase salía duplicada (T32, Diego). Su clave sale del diccionario para no dejar texto muerto.
   let done = false
+  const isNote = (c) => c.type === 'JSXElement' && c.openingElement.name.name === 'span' && c.children.length === 1 &&
+    c.children[0].type === 'JSXExpressionContainer' && /^t\.k\d+$/.test(gen(c.children[0].expression))
   const walk = (node) => {
     if (!node || typeof node !== 'object') return
     if (Array.isArray(node.children)) {
+      let afterSlot = false
       node.children = node.children.flatMap((c) => {
         if (c.type === 'JSXExpressionContainer' && c.expression.type === 'ConditionalExpression') {
           const test = gen(c.expression.test)
-          if (test === 'v.notSent') { done = true; return [exprContainer(ex('children'))] }
+          if (test === 'v.notSent') { done = true; afterSlot = true; return [exprContainer(ex('children'))] }
           if (test === 'v.sent') return []
         }
+        if (afterSlot && isNote(c)) { afterSlot = false; delete dict[gen(c.children[0].expression).slice(2)]; return [] }
+        if (c.type !== 'JSXText' || c.value.trim()) afterSlot = false
         return [c]
       })
       node.children.forEach(walk)
@@ -461,6 +469,35 @@ function injectPause(id, code, dict) {
   return { code, n }
 }
 
+// EXPERTOS DE S05 (T32, Diego): la burbuja de cada tarjeta decía siempre «¡Hola, jefe!». Ahora
+// muestra la frase que toca de ese experto (v.hiN, rota con cada clic; textos en ui/*.js →
+// logic.agentLines) y una región viva oculta la anuncia (la burbuja es aria-hidden).
+function wireAgentLines(id, code, dict) {
+  if (id !== 'S05') return code
+  // Escritorio y móvil son árboles distintos (12 burbujas): cada una toma el índice del
+  // onClick={v.pokeN} de SU tarjeta (el último antes de ella).
+  let n = 0, key = null
+  code = code.replace(/(<span className="hi [^"]*" aria-hidden="true">)\{t\.(k\d+)\}(<\/span>)/g, (m, a, k, b, at, all) => {
+    const pokes = [...all.slice(0, at).matchAll(/onClick=\{v\.poke(\d)\}/g)]
+    if (!pokes.length) throw new Error('S05: burbuja de experto sin su tarjeta')
+    key = k; n++
+    return `${a}{v.hi${pokes.at(-1)[1]}}${b}`
+  })
+  if (n !== 12) throw new Error(`S05: se esperaban 12 burbujas de experto (6 escritorio + 6 móvil) y hay ${n}`)
+  delete dict[key]
+  return code.replace(/(<section id="equipo"[^>]*>)/, '$1<p className="sr-only" aria-live="polite" aria-atomic="true">{v.hiSay}</p>')
+}
+
+// ACTA DE S07 (T32): abre un hueco {children} al final de la tarjeta «Acta de hoy» (la que lleva
+// las líneas .aline) para el acta con tareas por agente (src/sections/MeetingMinutes.astro).
+function minutesSlot(id, code) {
+  if (id !== 'S07') return code
+  const re = /(<span className="aline [^"]*"[^>]*>(?:(?!<\/span>).)*<\/span><\/div>)(<\/div>)/s
+  const all = code.match(new RegExp(re.source, 'gs')) || []
+  if (all.length !== 1) throw new Error(`S07: se esperaba 1 bloque de líneas del acta y hay ${all.length}`)
+  return code.replace(re, '$1{children}$2')
+}
+
 const files = readdirSync(join(PROTO, 'desktop')).filter((f) => /^S\d\d/.test(f)).sort()
 const sectionsEs = {}
 const report = []
@@ -477,7 +514,7 @@ for (const f of files) {
   const stats = { splits: 0 }
   currentSection = id
   mergeChildren(id, dRoot, mRoot, { dark: false, dict, stats })
-  if (FORM_SLOT.has(id) && !replaceFormSlot(dRoot)) warn(id, 'no se encontró el formulario a sustituir')
+  if (FORM_SLOT.has(id) && !replaceFormSlot(dRoot, dict.dict)) warn(id, 'no se encontró el formulario a sustituir')
 
   const name = f.replace('.jsx', '')
   const usesMap = /React\.Fragment/.test(gen(dRoot))
@@ -491,7 +528,7 @@ export default function ${name}({ v, t, children }) {
   )
 }
 `
-  const paused = injectPause(id, code, dict.dict)
+  const paused = injectPause(id, minutesSlot(id, wireAgentLines(id, code, dict.dict)), dict.dict)
   writeFileSync(join(OUT, `${id}.jsx`), paused.code)
   sectionsEs[id] = dict.dict
   report.push(`${id} ${name.slice(3)} · textos: ${Object.keys(dict.dict).length} · bloques con estructura distinta: ${stats.splits} · reordenados: ${stats.permutations || 0}${paused.n ? ` · pausas: ${paused.n}` : ''}`)
@@ -514,7 +551,12 @@ function cssFor(names) {
   out += `@media (max-width:${BREAK}px){\n${mob.join('\n')}\n}\n}\n`
   // Respaldo con las métricas de la fuente real (src/styles/fonts-fallback.css): sin él, el
   // titular del hero saltaba al llegar Instrument Serif (CLS 0,18 medido con Lighthouse 13).
-  return out.replaceAll("'Instrument Serif',Georgia", "'Instrument Serif','Instrument Serif Fallback',Georgia")
+  // TIPOGRAFÍA (T32, Diego): Instrument Serif solo existe en 400, así que «un paso más grueso» se
+  // da con un trazo del mismo color (proporcional al tamaño, sin cargar otra fuente ni tocar el LCP).
+  // El gris secundario del prototipo (#5E5C56, 5,98:1) baja a #4E4C47 (7,6:1): cuerpo más legible.
+  return out
+    .replaceAll("'Instrument Serif',Georgia,serif", "'Instrument Serif','Instrument Serif Fallback',Georgia,serif;-webkit-text-stroke:var(--serif-stroke)")
+    .replaceAll('#5E5C56', 'var(--muted)')
 }
 const all = [...rules.keys()]
 const crit = all.filter((n) => [...usedBy.get(n)].some((x) => CRITICAL.has(x)))
