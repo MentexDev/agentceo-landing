@@ -169,6 +169,122 @@ const fmt = (res) => {
   return { md, ok }
 }
 
+// ── T34 · MODO PRODUCCIÓN: node scripts/chat-evals.mjs --target=https://agentceo.io ──────────
+// Manda los 43 casos a POST /api/chat COMO EL WIDGET (JSON + SSE, Origin del sitio, UA de navegador
+// y Accept-Language), con una sesión nueva por caso, y los juzga con los MISMOS criterios. Respeta
+// los topes de producción por IP (10/min, 30/h, 60/día; live 10/día sin Turnstile, 25 con él):
+// una petición cada 125 s (≤ 30/h). Lo que pase del cupo live cae al stub y se registra aparte
+// (confirma el fallback). Coste: estimado por respuesta con PRICES (típico ~4 bytes/token y cota
+// superior = la reserva del servidor); se detiene antes de pasar de $0,50 de cota. Sin claves:
+// el endpoint es público. Escribe docs/EVALS-CHAT-T34-PROD.md.
+const target = process.argv.find((a) => a.startsWith('--target='))?.slice(9)
+if (target) {
+  const { pickContext } = await import('../worker/chat/live.js')
+  const { INDEX } = await import('../worker/chat/stub.js')
+  const MODEL = process.env.CHAT_MODEL || DEFAULT_MODEL
+  const P = PRICES[MODEL]
+  const GAP = Number(process.env.EVAL_GAP_MS || 125_000)
+  const MAX_USD = 0.5
+  const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
+  const sid = () => [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('')
+  const headers = (lang) => ({ 'content-type': 'application/json', accept: 'text/event-stream', origin: target, referer: `${target}/`, 'user-agent': UA, 'accept-language': lang === 'en' ? 'en-US,en;q=0.9' : 'es-ES,es;q=0.9,en;q=0.6' })
+  const ask = async (lang, text, session = sid()) => {
+    const res = await fetch(`${target}/api/chat`, { method: 'POST', headers: headers(lang), body: JSON.stringify({ locale: lang, page: lang === 'en' ? '/en/' : '/', session, messages: [{ role: 'user', content: text }] }) })
+    const raw = await res.text()
+    if (!res.ok) { let error = ''; try { error = JSON.parse(raw).error } catch {} return { status: res.status, error, meta: null, text: '' } }
+    let meta = null, text2 = '', err = null
+    for (const block of raw.split('\n\n')) {
+      const ev = /event: (\w+)/.exec(block)?.[1]
+      let data = {}
+      try { data = JSON.parse(/data: (.*)/.exec(block)?.[1] || '{}') } catch {}
+      if (ev === 'meta') meta = data
+      else if (ev === 'delta') text2 += data.t || ''
+      else if (ev === 'error') err = data
+    }
+    return { status: res.status, meta, text: text2, err }
+  }
+  const bytes = (s) => new TextEncoder().encode(s).length
+  const cost = (lang, q, answer) => {
+    const sys = systemPrompt(lang, pickContext(INDEX[lang], KB[lang], q))
+    const typ = ((bytes(sys) + bytes(q)) / 4 * P.in + bytes(answer) / 4 * P.out) / 1e6
+    return { typ, max: estimateUSD(sys, [{ role: 'user', content: q }], LIVE.maxTokens, MODEL) }
+  }
+  // Orden: primero UNA pregunta de cada categoría (el cupo live cubre todas), luego el resto.
+  const seen = new Set(), first = [], rest = []
+  for (const c of CASES) (seen.has(c[0]) ? rest : (seen.add(c[0]), first)).push(c)
+  const plan = [...first, ...rest]
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+  const out = []
+  let typUSD = 0, maxUSD = 0
+  console.log(`T34 · ${plan.length} casos contra ${target} · modelo ${MODEL} · 1 petición cada ${GAP / 1000} s`)
+  for (const [i, raw] of plan.entries()) {
+    if (i) await sleep(GAP)
+    const [cat, lang, q] = raw
+    if (maxUSD > MAX_USD - 0.01) { out.push({ cat, lang, q, raw, skipped: 'tope de gasto de la prueba' }); continue }
+    const r = await ask(lang, q)
+    const mode = r.meta ? `${r.meta.mode}/${r.meta.kind}${r.meta.fallback ? `·${r.meta.fallback}` : ''}` : `HTTP ${r.status}${r.error ? ` ${r.error}` : ''}`
+    let c2 = { typ: 0, max: 0 }
+    if (r.meta?.mode === 'live' && r.meta.kind === 'live') { c2 = cost(lang, q, r.text); typUSD += c2.typ; maxUSD += c2.max }
+    const errs = r.meta ? judge({ cat, lang, q, raw }, r) : [`sin respuesta (${mode})`]
+    out.push({ cat, lang, q, raw, mode, live: r.meta?.mode === 'live', kind: r.meta?.kind, fallback: r.meta?.fallback, text: r.text, errs, usd: c2 })
+    console.log(`${String(i + 1).padStart(2)} ${errs.length ? '✗' : '✓'} [${cat}·${lang}] ${mode} · ${q.slice(0, 50)}`)
+  }
+  // Comprobaciones de abuso (al final: el cupo live ya está gastado, no cuestan nada).
+  await sleep(GAP)
+  const long = await ask('es', 'hola '.repeat(120))
+  console.log(`>500 caracteres → HTTP ${long.status} ${long.error || ''}`)
+  await sleep(GAP)
+  const burst = await Promise.all(Array.from({ length: 12 }, (_, k) => ask('es', `ráfaga ${k}`)))
+  const codes = burst.map((b) => b.status)
+  console.log(`ráfaga de 12 → ${codes.join(' ')}`)
+
+  // ── Informe ─────────────────────────────────────────────────────────────────
+  const live = out.filter((r) => r.live && r.kind === 'live'), cache = out.filter((r) => r.kind === 'cache')
+  const stubbed = out.filter((r) => r.mode?.startsWith('stub')), httpErr = out.filter((r) => r.mode?.startsWith('HTTP'))
+  const okOf = (rs) => rs.filter((r) => !r.errs?.length).length
+  const usd = (n) => `$${n.toFixed(5)}`
+  const row = (r) => `| ${r.cat} | ${r.lang} | ${r.q.replace(/\|/g, '/')} | ${r.mode || r.skipped} | ${r.errs?.length ? '✗ ' + r.errs.join('; ') : '✓'} |`
+  const quote = (r) => `- [${r.cat} · ${r.lang}] «${r.q}» (${r.mode}) → ${r.errs.join('; ')}.\n  > ${r.text.replace(/\s+/g, ' ').slice(0, 400)}`
+  const md = `# Evals del widget CONTRA PRODUCCIÓN (T34)
+
+> ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC · \`node scripts/chat-evals.mjs --target=${target}\` · modelo \`${MODEL}\`.
+> Cada caso como el widget real (JSON + SSE, Origin del sitio, UA de navegador, Accept-Language), con una sesión nueva por caso y una petición cada ${GAP / 1000} s. Mismos criterios que las evals locales.
+
+## Resumen
+
+| | Respuestas | Aprobadas |
+|---|---|---|
+| **Live (modelo)** | ${live.length} | **${okOf(live)}/${live.length}** |
+| Caché (respuesta live guardada) | ${cache.length} | ${okOf(cache)}/${cache.length} |
+| Stub (cupo live agotado u otro motivo) | ${stubbed.length} | ${okOf(stubbed)}/${stubbed.length} |
+| Error HTTP | ${httpErr.length} | — |
+| **Total** | ${out.length} | **${okOf(out)}/${out.length}** |
+
+- **Cupo live por IP:** el código desplegado da **${LIMITS.livePerDayOpen} respuestas live por IP y día sin Turnstile** (${LIMITS.livePerDay} con Turnstile, que no está configurado). Por eso, desde una sola IP, solo los primeros casos llegan al modelo; el resto confirma el fallback al stub (${out.filter((r) => r.fallback === 'ip_cap').length} casos con \`fallback: ip_cap\`).
+- **Coste estimado de la prueba:** típico ${usd(typUSD)} · cota superior (reserva del servidor) ${usd(maxUSD)} · límite fijado $${MAX_USD.toFixed(2)}.
+- **Mensaje de más de 500 caracteres:** HTTP ${long.status}${long.error ? ` (${long.error})` : ''} ${long.status === 400 ? '✓' : '✗ (se esperaba 400)'}.
+- **Ráfaga de 12 mensajes en <60 s:** ${codes.join(' · ')} → ${codes.includes(429) ? `✓ ${codes.filter((c) => c === 429).length} respuestas 429` : '✗ ningún 429'}.
+- **Fallback al stub:** ${out.some((r) => r.fallback === 'ip_cap') ? '✓ confirmado (cupo live por IP agotado → stub, sin error para el usuario)' : '✗ no observado'}.
+
+## Fallos notables
+
+${out.filter((r) => r.errs?.length).map(quote).join('\n') || '_Ninguno._'}
+
+## Respuestas live (texto completo)
+
+${live.map((r) => `- [${r.cat} · ${r.lang}] «${r.q}» ${r.errs.length ? '✗' : '✓'} (${usd(r.usd.typ)})\n  > ${r.text.replace(/\s+/g, ' ')}`).join('\n')}
+
+## Todos los casos
+
+| Categoría | Idioma | Pregunta | Camino | Resultado |
+|---|---|---|---|---|
+${out.map(row).join('\n')}
+`
+  writeFileSync('docs/EVALS-CHAT-T34-PROD.md', md)
+  console.log(`LIVE ${okOf(live)}/${live.length} · total ${okOf(out)}/${out.length} · coste típico ${usd(typUSD)} (cota ${usd(maxUSD)}) → docs/EVALS-CHAT-T34-PROD.md`)
+  process.exit(0)
+}
+
 const date = new Date().toISOString().slice(0, 16).replace('T', ' ')
 const stub = await run('stub', { CHAT_MODE: 'stub' })
 const S = fmt(stub)
