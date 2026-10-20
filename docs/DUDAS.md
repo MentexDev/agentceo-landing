@@ -358,3 +358,14 @@ _(se van añadiendo por fase)_
   - 5 columnas: Producto, Recursos, Empresa, Legal (5 clave + «Ver todo») y Confianza;
   - páginas nuevas `/legal/` y `/en/legal/` con los 14 documentos por grupos;
   - las migas de cada documento pasan por el índice.
+
+### T40 · chat: fuga de datos societarios (20-oct)
+- **Causa (confirmada):** `src/lib/knowledge.js` metía en el conocimiento del chat la INTRODUCCIÓN de cada documento legal, que lleva constitución, n.º de expediente y oficina registrada de Klinworks, LLC; y el fragmento `entity` usaba el texto de la web («una sociedad de Delaware»). Medido: 15 documentos legales × 2 idiomas + `entity` + `faq:que-es` contenían esos datos en `knowledge.json`.
+- **Diseño, dos capas:**
+  - **Lista blanca en el origen:** de cada documento legal solo entran su `descripcion` pública (frontmatter) y los títulos de sección, nunca su prosa. `entity` usa un texto propio del chat (`content/chat-knowledge.js` → `ENTITY`): solo «producto de Klinworks, LLC».
+  - **Red de seguridad:** `worker/chat/private.js` (patrones de expediente, EIN, agente u oficina registrada, Delaware, constitución, fechas, direcciones postales). `scripts/build-knowledge.mjs` **falla el build** si aparecen en el conocimiento, en las respuestas curadas o en el prompt de sistema; `tests/worker/chat-private.test.js` lo vigila con la lista literal del brief.
+- **Negativa amable:** intención `private` (`persona.js`) para datos societarios o registrales e información interna (modelo, stack, claves, costes, inversores, métricas, datos personales del fundador). Responde sin modelo y sin cupo, con enlace a `/legal/` e info@agentceo.io. Prompt de sistema: regla 4 ampliada (a)(b), regla 2 con «no prometas descuentos, ofertas ni fechas»; la anti-inyección (regla 5) se mantiene.
+- **FAQ pública y curada «qué es»:** «La desarrolla Klinworks, LLC.» / «It's built by Klinworks, LLC.».
+- **Curada nueva «¿Qué tan protegidos están mis datos?»** (`proteccion`): solo con lo publicado (Seguridad §1–2; Privacidad §4.1 y §10), con enlace a la Política de seguridad.
+- **Caché:** `CACHE_SCHEMA = 2`, y la versión de contenido incluye ahora el prompt de sistema, así que lo cacheado antes de T40 deja de servirse.
+- ⏳ **Fuera del chat (para Diego y Luca):** la WEB sigue mostrando «una sociedad de Delaware» en `site.entity` (pie y JSON-LD) y el expediente en la página Empresa (`legalTypeVal`, `fileNo` en `src/i18n/ui`). Es transparencia corporativa deliberada en la web, no está en el alcance de este punto y no se tocó.

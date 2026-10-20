@@ -22,6 +22,9 @@ const T = {
     fallback: 'Eso no lo tengo en la web y prefiero no inventarme nada. ¿Te ayudo con otra cosa? También puedes escribirnos a [info@agentceo.io](mailto:info@agentceo.io) o apuntarte a la lista y te contamos más.',
     cap: 'Llevamos un buen rato, ¡gracias por la charla! Para seguir, apúntate a la lista y te escribimos cuando abra tu grupo, o escríbenos a [info@agentceo.io](mailto:info@agentceo.io).',
     guard: 'Eso no lo puedo compartir 🙂. Lo que sí te cuento encantado: qué hace Agent CEO, cuánto cuesta o cómo entrar en la lista.',
+    // T40: datos societarios/registrales o internos (constitución, expediente, direcciones, modelo,
+    // costes, inversores, métricas, datos personales…): negativa amable, sin datos.
+    private: 'Eso prefiero no compartirlo por aquí 🙂. Lo legal de la empresa está en las [páginas legales](/legal/), y para cualquier otra cosa escríbenos a [info@agentceo.io](mailto:info@agentceo.io). ¿Te cuento cómo funciona Agent CEO?',
     cut: 'Se me cortó la respuesta, perdona. ¿Me lo repites?',
     more: 'Más aquí',
     chipJoin: 'Unirme a la lista',
@@ -36,6 +39,7 @@ const T = {
     fallback: "That's not on the website, and I'd rather not make anything up. Can I help with something else? You can also email [info@agentceo.io](mailto:info@agentceo.io) or join the waitlist and we'll tell you more.",
     cap: "We've been at it a while, thanks for the chat! To keep going, join the waitlist and we'll write when your wave opens, or email [info@agentceo.io](mailto:info@agentceo.io).",
     guard: "I can't share that 🙂. Happy to tell you what Agent CEO does, what it costs or how to get on the waitlist.",
+    private: "That's not something I share here 🙂. The company's legal details are in our [legal pages](/en/legal/), and for anything else, email [info@agentceo.io](mailto:info@agentceo.io). Want me to tell you how Agent CEO works?",
     cut: 'My answer got cut off, sorry. Could you ask again?',
     more: 'More here',
     chipJoin: 'Join the waitlist',
@@ -47,6 +51,23 @@ export const say = (lang, key) => (T[lang] || T.es)[key]
 
 // Intenciones que no se resuelven buscando en el contenido.
 const INTENTS = [
+  // T40 (Luca: el bot dio la fecha de constitución y el expediente): datos societarios/registrales
+  // de la empresa e información interna → negativa amable (say('private')), antes que nada más.
+  { id: 'private', re: new RegExp([
+    // (a) societario / registral
+    'constitu(id[ao]|cion|yo|yeron|ir)', 'se fundo', 'fecha de (fundacion|creacion) de la (empresa|sociedad|compania)', 'expediente', 'numero de registro', 'registro mercantil',
+    '\\bein\\b', 'tax id', '(numero|identificacion) fiscal', '\\b(nif|cif|rfc)\\b', 'agente registrad', 'registered (agent|office)', 'oficina registrada',
+    'domicilio (social|fiscal)', 'direccion (de la empresa|de la oficina|fisica|postal|de klinworks|de agent ceo)', 'donde (esta|estan) (la empresa|ubicad|la oficina|sus oficinas|klinworks)',
+    'where (are you|is the company|is klinworks|is agent ceo) (located|based|registered)', '(company|office|mailing|business) address', 'delaware', 'incorporat', 'file number', 'state of (formation|incorporation)',
+    // (b) información interna
+    '(que|cual|which|what) (modelo|model)\\b(?! de (negocio|precios|suscripcion|cobro))', '(que|cual|which|what) (llm|ia usan|ai do you use|ai model)', 'modelo de (ia|lenguaje)', '\\bstack\\b', 'tecnologia (usan|utilizan)', 'tech(nology)? stack', 'built with', 'hech[oa] con que',
+    'proveedor(es)? (de ia|que usan|del modelo)', '\\b(openrouter|openai|gemini|chatgpt|gpt|anthropic|claude)\\b', 'system prompt', 'prompt (de sistema|interno)', 'tus instrucciones', 'your (instructions|prompt)',
+    'api ?key', 'clave(s)? (de api|secreta)', 'cuanto (les |te )?cuesta (operar|mantener|el servidor|la ia|cada (mensaje|respuesta))', 'costos? internos?', 'internal costs?', 'how much does (it|each message) cost you',
+    'inversor', 'inversionista', 'investor', 'funding', 'ronda de', 'valuacion', 'valuation', 'facturacion', 'revenue', '\\bingresos\\b',
+    'cuantos (usuarios|clientes|empleados) (tienen|hay|usan)', 'how many (users|customers|clients|employees) (do you have|have you got|are there|use (it|agent ceo|you))', '\\bmetricas\\b', '\\bmetrics\\b',
+    'quien(es)? (trabaja|trabajan) (en|ahi)', 'who works (there|on|at)', 'equipo interno', 'internal team',
+    'fundador.*(vive|edad|telefono|direccion|correo personal|casa|familia)', 'founder.*(lives?|address|age|phone|personal|home|family)', 'donde vive', 'where does .* live',
+  ].join('|')) },
   { id: 'human', re: /\b(eres|sos|es|hablo con|estoy hablando con|esto es)\b.*\b(humano|humana|persona|real|bot|robot|ia|maquina|chatbot)\b|\b(are you|am i (talking|chatting|speaking) (to|with)|is this|is it)\b.*\b(human|person|real|bot|robot|ai|machine|chatbot)\b|^(bot|humano|human|robot|chatbot)\??$/ },
   { id: 'contact', re: /\b(hablar|hablo|comunicarme) con (una |un |alguien|persona|humano|el equipo)|\b(contacto|contactar|soporte)\b|\b(talk|speak|chat) (to|with) (a |an |someone|somebody|person|human|real|the team)|\bcontact (you|us|support|the team)\b|^contact\??$|\bcustomer (support|service)\b|^support\??$/ },
   { id: 'join', re: /\b(apuntarme|apuntar|unirme|inscribirme|registrarme|lista de espera|waitlist|sign ?up|join|register|quiero entrar|quiero acceso|get access|early access)\b/ },

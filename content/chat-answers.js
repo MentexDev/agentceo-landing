@@ -121,12 +121,29 @@ export const ANSWERS = [
     ref: 'faq:datos',
     keys: ['datos', 'seguro', 'seguros', 'seguridad', 'privacidad', 'informacion', 'safe', 'secure', 'security', 'privacy', 'data'],
     ask: {
-      es: ['¿Mis datos están seguros?', '¿Es seguro?', '¿Qué hacen con mi información?', '¿Mis datos son míos?', '¿Cómo protegen mis datos?'],
-      en: ['Is my data safe?', 'Is it secure?', 'What do you do with my information?', 'Is my data mine?', 'How do you protect my data?'],
+      es: ['¿Mis datos están seguros?', '¿Es seguro?', '¿Qué hacen con mi información?', '¿Mis datos son míos?'],
+      en: ['Is my data safe?', 'Is it secure?', 'What do you do with my information?', 'Is my data mine?'],
     },
     a: {
       es: 'Tu información es tuya. Cada empresa está aislada de las demás, tú decides qué conectas y lo desconectas cuando quieras. Y puedes exportarla o pedir que la borremos.',
       en: "Your information is yours. Each company is isolated from the others, you decide what you connect and you can disconnect it whenever you want. You can also export it or ask us to delete it.",
+    },
+  },
+  {
+    // T40 (Luca): «¿qué tan protegidos están mis datos?». SOLO lo que dicen las páginas públicas:
+    // Política de seguridad §1 (cifrado en tránsito y en reposo; claves de integraciones cifradas
+    // aparte) y §2 (aislamiento en dos capas); Política de privacidad §4.1 (no entrenamos IA con tu
+    // contenido) y §10 (aviso de brecha en 72 h). Enlaza la página.
+    id: 'proteccion',
+    ref: 'legal:seguridad',
+    keys: ['protegidos', 'protegidas', 'proteccion', 'protegen', 'proteger', 'cifrado', 'cifrados', 'cifran', 'encriptado', 'brecha', 'protected', 'protect', 'protection', 'encrypted', 'encryption', 'breach'],
+    ask: {
+      es: ['¿Qué tan protegidos están mis datos?', '¿Cómo protegen mis datos?', '¿Mis datos van cifrados?', '¿Qué pasa si hay una brecha de seguridad?', '¿Qué protección tienen mis datos?'],
+      en: ['How protected is my data?', 'How do you protect my data?', 'Is my data encrypted?', 'What happens if there is a data breach?'],
+    },
+    a: {
+      es: 'Muy en serio 🔒 Todo viaja y se guarda cifrado, cada empresa está aislada en dos capas y las claves de tus integraciones se cifran aparte. No entrenamos IA con tu contenido y, si hubiera una brecha, te avisamos en 72 h. [Política de seguridad](/legal/seguridad)',
+      en: "Seriously 🔒 Everything is encrypted in transit and at rest, each company is isolated in two layers, and your integration keys are encrypted separately. We don't train AI on your content, and if there's a breach, we tell you within 72 h. [Security Policy](/en/legal/security)",
     },
   },
   {
@@ -164,8 +181,8 @@ export const ANSWERS = [
       en: ['What is Agent CEO?', 'What is Agent CEO and who is behind it?', 'What does Agent CEO do?', "Who's behind it?"],
     },
     a: {
-      es: 'Es tu equipo de empleados de IA: venden por WhatsApp, cuidan tu tienda y crean tu contenido, y en lo importante te piden permiso. Lo hacemos en Klinworks, LLC.',
-      en: "It's your team of AI employees: they sell on WhatsApp, look after your store and create your content, and they ask your permission for anything important. We build it at Klinworks, LLC.",
+      es: 'Es tu equipo de empleados de IA: venden por WhatsApp, cuidan tu tienda y crean tu contenido, y en lo importante te piden permiso. La desarrolla Klinworks, LLC.',
+      en: "It's your team of AI employees: they sell on WhatsApp, look after your store and create your content, and they ask your permission for anything important. It's built by Klinworks, LLC.",
     },
   },
   {

@@ -1,7 +1,7 @@
 # Evals del widget «Tu CEO» · T33
 
-> Generado por `scripts/chat-evals.mjs` el 2026-10-20 15:23 UTC. No editar a mano: se regenera.
-> 43 preguntas (es 25 · en 18) por el mismo camino que producción (`worker/chat/respond.js`).
+> Generado por `scripts/chat-evals.mjs` el 2026-10-20 18:52 UTC. No editar a mano: se regenera.
+> 50 preguntas (es 29 · en 21) por el mismo camino que producción (`worker/chat/respond.js`).
 
 ## Criterios (automáticos)
 
@@ -12,7 +12,7 @@
 
 ## Stub (BM25, sin modelo)
 
-**43/43 aprobadas** (100.0 %)
+**50/50 aprobadas** (100.0 %)
 
 | Categoría | Aprobadas |
 |---|---|
@@ -24,6 +24,8 @@
 | ia | 2/2 |
 | jailbreak | 4/4 |
 | prompt | 2/2 |
+| societario | 5/5 |
+| proteccion | 2/2 |
 | confidencial | 3/3 |
 | competidores | 2/2 |
 | fuera-de-tema | 3/3 |
@@ -36,12 +38,12 @@
 
 ## Peor caso económico (calculado desde el código)
 
-Constantes: tope global $5/día · salida 400 tokens · historial al modelo ≤ 4000 caracteres · prompt de sistema máx. 14832 bytes (10 fragmentos más largos) · respuestas live por IP y día: 10 sin Turnstile, 25 con él · mensajes por IP y día: 60.
+Constantes: tope global $5/día · salida 400 tokens · historial al modelo ≤ 4000 caracteres · prompt de sistema máx. 12000 bytes (10 fragmentos más largos) · respuestas live por IP y día: 10 sin Turnstile, 25 con él · mensajes por IP y día: 60.
 
 | Modelo | Reserva peor caso (1 token por byte) | Respuestas live en $5 (peor caso) | Coste típico (~1 token/4 bytes, 120 de salida) | Respuestas en $5 (típico) | Una IP al día, peor caso (sin Turnstile / con él) |
 |---|---|---|---|---|---|
-| `google/gemini-2.5-flash-lite` (por defecto) | $0.00286 | 1746 | $0.00015 | 32959 | $0.0286 / $0.0716 |
-| `google/gemini-3.1-flash-lite` | $0.00736 | 679 | $0.00044 | 11383 | $0.0736 / $0.1839 |
-| `google/gemini-3.5-flash-lite` | $0.00911 | 548 | $0.00061 | 8181 | $0.0911 / $0.2277 |
+| `google/gemini-2.5-flash-lite` (por defecto) | $0.00258 | 1938 | $0.00016 | 31308 | $0.0258 / $0.0645 |
+| `google/gemini-3.1-flash-lite` | $0.00665 | 751 | $0.00046 | 10887 | $0.0665 / $0.1662 |
+| `google/gemini-3.5-flash-lite` | $0.00826 | 605 | $0.00064 | 7872 | $0.0826 / $0.2065 |
 
 El tope global manda siempre: aunque muchas IP distintas se repartan el gasto, la reserva atómica impide pasar de $5 en el día (UTC). La reserva usa la cota de 1 token por byte UTF-8; al terminar se ajusta al coste real (el mayor entre tokens × precio y el que informa OpenRouter).

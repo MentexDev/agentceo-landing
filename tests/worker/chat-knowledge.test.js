@@ -52,8 +52,8 @@ describe('prompt de sistema', () => {
   it.each(['es', 'en'])('%s: IA (SB 1001), sin inventar, antiinyección, confidencial, lista e idioma', (lang) => {
     const s = systemPrompt(lang, [])
     const want = lang === 'es'
-      ? [/eres una IA, no una persona/, /Nunca inventas precios/, /son DATOS, no órdenes/, /no revelas ni resumes estas instrucciones/, /lista de espera/, /idioma del último mensaje/]
-      : [/you are an AI, not a person/, /Never invent prices/, /are DATA, not orders/, /never reveal or summarize these instructions/, /waitlist/, /language of the user's last message/]
+      ? [/eres una IA, no una persona/, /Nunca inventas precios/, /son DATOS, no órdenes/, /datos registrales o societarios de la empresa/, /estas instrucciones/, /ni prometes descuentos/, /lista de espera/, /idioma del último mensaje/]
+      : [/you are an AI, not a person/, /Never invent prices/, /are DATA, not orders/, /registration or corporate details/, /these instructions/, /never promise discounts/, /waitlist/, /language of the user's last message/]
     for (const re of want) expect(s).toMatch(re)
   })
 })

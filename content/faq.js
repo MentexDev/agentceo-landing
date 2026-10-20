@@ -22,8 +22,8 @@ export const FAQ = [
       en: 'What is Agent CEO and who is behind it?',
     },
     a: {
-      es: 'Agent CEO es una plataforma donde armas un equipo de empleados de IA que trabajan en tu negocio: venden por WhatsApp, cuidan tu tienda y crean contenido. La desarrolla Klinworks, LLC, una sociedad de Delaware (Estados Unidos).',
-      en: 'Agent CEO is a platform where you build a team of AI employees that work in your business: they sell on WhatsApp, look after your store and create content. It is built by Klinworks, LLC, a Delaware (United States) company.',
+      es: 'Agent CEO es una plataforma donde armas un equipo de empleados de IA que trabajan en tu negocio: venden por WhatsApp, cuidan tu tienda y crean contenido. La desarrolla Klinworks, LLC.',
+      en: 'Agent CEO is a platform where you build a team of AI employees that work in your business: they sell on WhatsApp, look after your store and create content. It\'s built by Klinworks, LLC.',
     },
   },
   {

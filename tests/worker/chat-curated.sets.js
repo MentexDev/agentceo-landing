@@ -52,7 +52,7 @@ export const HELD_POS = [
   ['¿hasta cuántas personas entran en Impulso?', 'planes'], ['¿qué plan me conviene para 20 personas?', 'planes'],
   ['¿hay paquetes extra?', 'paquetes'], ['¿cuándo puedo entrar?', 'cuando'], ['is it available now?', 'cuando'],
   ['¿es complicado de usar?', 'programar'], ['¿puede contestar en WhatsApp?', 'whatsapp'], ['¿me pide permiso antes de gastar?', 'solos'],
-  ['¿protegen mi información?', 'datos'], ['¿mis datos sirven para entrenar IA?', 'datos-ia'], ['¿se puede usar con varias empresas?', 'varios-negocios'],
+  ['¿protegen mi información?', 'proteccion'] /* T40: ficha de protección, más precisa */, ['¿mis datos sirven para entrenar IA?', 'datos-ia'], ['¿se puede usar con varias empresas?', 'varios-negocios'],
   ['¿se conecta con Google Drive?', 'herramientas'], ['¿se integra con Shopify?', 'shopify'], ['¿me construyen una app?', 'web'], ['¿cómo funciona el reembolso?', 'reembolso'],
 ]
 export const HELD_NEG = [

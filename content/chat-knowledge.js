@@ -13,6 +13,12 @@
 // Los ejemplos de la portada (Laura, la camiseta negra…) son INVENTADOS y así se dicen.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Quién es Agent CEO, para el CHAT (T40, Luca): sin datos registrales. Solo quién lo desarrolla.
+export const ENTITY = {
+  es: 'Agent CEO es un producto de Klinworks, LLC. Es una plataforma donde un dueño de negocio arma un equipo de agentes de IA que venden por WhatsApp, cuidan su tienda y crean contenido, y que le piden permiso antes de cualquier acción importante.',
+  en: 'Agent CEO is a product of Klinworks, LLC. It is a platform where a business owner builds a team of AI agents that sell on WhatsApp, look after their store and create content, and that ask for permission before any important action.',
+}
+
 export const CURATED = [
   {
     id: 'guia:equipo',

@@ -16,6 +16,7 @@ import * as RECURSOS_EN from '../../content/en/recursos.js'
 import { t } from '../i18n/config.js'
 import { RUTAS } from '../i18n/rutas.js'
 import { legalDocs } from './legal.js'
+import { ENTITY } from '../../content/chat-knowledge.js'
 
 const MAX = 1400
 const plain = (s = '') => String(s).replace(/\*\*(.+?)\*\*/g, '$1').replace(/\s+/g, ' ').trim()
@@ -37,7 +38,9 @@ export function registerChunks(lang, chunks) {
 export function buildKnowledge(lang) {
   const home = routeUrl('home', lang) || '/'
   const out = [
-    { id: 'entity', kind: 'entity', title: 'Agent CEO', text: t(lang, 'site.entity'), url: home },
+    // Entidad para el CHAT (T40): sin datos registrales (estado de constitución, expediente…). La de
+    // la web (site.entity) no se usa aquí: el chat solo dice quién lo desarrolla.
+    { id: 'entity', kind: 'entity', title: 'Agent CEO', text: ENTITY[lang] || ENTITY.es, url: home },
   ]
   for (const f of FAQ) {
     if (!f.q[lang] || !f.a[lang]) continue
@@ -68,11 +71,14 @@ export function buildKnowledge(lang) {
     for (const it of B.ITEMS) out.push({ id: `blog:${it.slug}`, kind: 'blog', title: it.title, text: clip(`${it.excerpt} ${bodyText(it.body)}`), url: `${base.blog}${it.slug}` })
     for (const it of R.ITEMS) out.push({ id: `recurso:${it.slug}`, kind: 'recurso', title: it.title, text: clip(`${it.excerpt} ${(it.whatYouGet || []).map(plain).join(' ')}`), url: `${base.rec}${it.slug}` })
   }
-  // Documentos legales: título + introducción + títulos de sección, con su URL.
+  // Documentos legales — LISTA BLANCA (T40, Luca: el bot dio la fecha de constitución y el n.º de
+  // expediente, que vivían en la INTRODUCCIÓN de cada .md legal). Del documento solo entran su
+  // descripción pública (frontmatter `descripcion`) y los títulos de sección, nunca su prosa: lo
+  // societario y registral (constitución, expediente, oficina registrada…) no llega al chat.
+  // Red de seguridad: worker/chat/private.js (build-knowledge falla si algo se cuela).
   for (const d of legalDocs().filter((x) => x.lang === lang)) {
-    const intro = d.body.split(/\n---\n/)[0].replace(/^#.*$/m, '').replace(/\*\*Última actualización:[^*]*\*\*|\*\*Last updated:[^*]*\*\*/, '')
-    const heads = [...d.body.matchAll(/^## (.+)$/gm)].map((m) => m[1].replace(/^\d+(\s?bis)?\.\s*/, '')).join(' · ')
-    out.push({ id: `legal:${d.id}`, kind: 'legal', title: d.titulo, text: clip(plain(`${intro} ${heads}`).replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')), url: RUTAS[`legal:${d.id}`]?.[lang] || `/legal/${d.slug}` })
+    const heads = [...d.body.matchAll(/^## (.+)$/gm)].map((m) => m[1].replace(/^\d+(\s?bis)?\.\s*/, '')).filter((h) => !/^(contacto|contact)$/i.test(h)).join(' · ')
+    out.push({ id: `legal:${d.id}`, kind: 'legal', title: d.titulo, text: clip(plain(`${d.descripcion || ''} ${heads}`)), url: RUTAS[`legal:${d.id}`]?.[lang] || `/legal/${d.slug}` })
   }
   out.push(...extra[lang])
   return out
