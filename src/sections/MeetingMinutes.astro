@@ -11,7 +11,7 @@ interface Props { lang: string }
 const { lang } = Astro.props
 const M = dict(lang).minutes
 ---
-<div class="minutes">
+<div class="minutes" data-chat-avoid>
   <div class="minutes-in">
     <p class="minutes-h">{M.title}</p>
     <ol class="minutes-list" role="list">

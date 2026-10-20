@@ -74,3 +74,23 @@ Una línea por fase cerrada: fecha · fase · qué quedó · commit.
     - **Lighthouse de la portada en móvil:** LCP 1,7 s (es) y 1,8 s (en), a11y 100 y CLS 0; escritorio 100.
     - **Mutaciones a mano:** 5 de los guardianes e2e nuevos, 8 del modo live y 14 de la adenda; todas en rojo.
     - **Capturas:** `docs/capturas-t32/`.
+- 2026-10-20 · **T33 · Ajustes de Diego** (`docs/BRIEF-AJUSTES-T33.md`):
+  - **1 · Divisores:** fuera el filete negro de 1,5 px a todo el ancho en las 8 transiciones entre secciones (hero → S03 incluida). Ahora es una línea de 1 px alineada al contenedor y difuminada, con tokens comunes. Guardián e2e.
+  - **2 · Titulares:**
+    - **Fraunces** con eje óptico de titular, a 560 en normal e itálica; adiós al trazo falso;
+    - comparada con Playfair Display y Newsreader: es la que conserva el ritmo de Instrument Serif;
+    - **trade-off medido:** 17,0 + 21,5 KB (−3,6 KB frente a Instrument) y LCP móvil de 1,66–1,81 s a 1,67–1,83 s; la versión variable 400–700 (+26 KB) lo dejaba al límite (1,82–1,97 s) y se descartó;
+    - las OG usan la misma fuente;
+    - arreglado de paso un fallo previo: las fuentes de las OG se corrompían al descomprimirse en paralelo. Test con caché regenerada.
+  - **3 · Chat con OpenRouter:**
+    - `CHAT_MODE=live` y `google/gemini-2.5-flash-lite` por defecto; precios por modelo verificados por Luca; un modelo sin precio o `:batch` cae al stub; Gemini directo retirado;
+    - topes auditados, con tres huecos cerrados: tope de $5 con un valor roto, historial inflado por el cliente, reserva corta con emoji;
+    - peor caso: $0,00286 por respuesta y ≥ 1.746 respuestas en $5; una IP gasta ≤ $0,029 al día sin Turnstile;
+    - evals del stub 42/43; live se ejecuta tras el deploy. Detalle en `docs/EVALS-CHAT-T33.md`.
+  - **4 · Widget sobre el acta:** el lanzador se compacta y la burbuja se esconde mientras un bloque `data-chat-avoid` cruza su franja. Sin solape a 1024, 1280, 1440 y 1920 px.
+  - **5 · Panel expandido bajo el header:** el panel abierto pasa a z 60, por encima del header (50). Botón de cerrar libre en escritorio a pantalla completa y en móvil, también en horizontal; Esc lo cierra. e2e en los 3 navegadores; mutado a mano, se pone en rojo.
+  - **Resultados:**
+    - unitarios 507/507;
+    - e2e 232/232 en 2 pasadas seguidas, en los 3 navegadores;
+    - Lighthouse móvil: LCP 1,8 s en es y en (1,67–1,83 s en 6 pasadas), a11y 100, CLS 0; escritorio 100;
+    - capturas en `docs/capturas-t33/`.

@@ -43,12 +43,14 @@ const items = FAQ.filter((f) => f.q[lang] && f.a[lang]).map((f, i) => ({
 </section>
 
 <style>
-  .faq { padding: calc(140 * var(--u)) calc(96 * var(--u)); border-top: 1.5px solid var(--ink); }
+  .faq { position: relative; padding: calc(140 * var(--u)) calc(96 * var(--u)); }
+  /* Divisor común (T33): línea sutil y contenida, no un filete negro a todo el ancho. */
+  .faq::before { content: ''; position: absolute; top: 0; left: var(--divider-inset); right: var(--divider-inset); height: 1px; background: var(--divider); }
   .faq-eyebrow { margin-bottom: calc(26 * var(--u)); }
   .faq-eyebrow span { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
   .faq-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: calc(72 * var(--u)); align-items: start; }
   .faq-left { display: flex; flex-direction: column; gap: calc(34 * var(--u)); }
-  .faq-h2 { margin: 0; font-family: var(--serif); -webkit-text-stroke: var(--serif-stroke); font-weight: 400; font-size: max(calc(62 * var(--u)), 38px); line-height: 1.04; letter-spacing: -.02em; }
+  .faq-h2 { margin: 0; font-family: var(--serif); font-weight: var(--serif-weight); font-size: max(calc(62 * var(--u)), 38px); line-height: 1.04; letter-spacing: -.02em; }
   .faq-h2 em { font-style: italic; }
   .faq-answers { display: flex; flex-direction: column; gap: 18px; }
   .ansb { position: relative; padding: 24px 26px; border-radius: 22px; background: var(--paper); border: 1.5px solid var(--ink); box-shadow: 6px 6px 0 var(--gold); }

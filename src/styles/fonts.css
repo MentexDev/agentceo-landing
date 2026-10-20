@@ -1,8 +1,8 @@
 /* Fuentes AUTOALOJADAS (OFL, licencias en /fonts). Sin Google Fonts: un origen menos,
    CSP más cerrada y sin bloqueo de render. Solo subset latino; latin-ext de Geist
    se descarga únicamente si una página usa esos glifos (unicode-range).
-   Los nombres de familia coinciden con los del prototipo ('Geist', 'Instrument Serif',
-   'Geist Mono') para que sus estilos funcionen sin traducción. */
+   Geist y Geist Mono coinciden con el prototipo. Su serif (Instrument Serif, solo 400) se
+   sustituyó en T33 por Fraunces: el compilador traduce la familia (compile-sections.mjs). */
 @font-face {
   font-family: 'Geist';
   font-style: normal;
@@ -26,17 +26,19 @@
   font-display: swap;
   src: url('/fonts/geist-mono-latin-wght-normal.woff2') format('woff2-variations');
 }
+/* Titulares: FRAUNCES (T33, Diego: «títulos claramente más gruesos», con pesos reales). Instancias
+   estáticas a 560 con eje óptico de titular: scripts/font-fraunces.sh (ahí, el porqué medido). */
 @font-face {
-  font-family: 'Instrument Serif';
+  font-family: 'Fraunces';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 560;
   font-display: swap;
-  src: url('/fonts/instrument-serif-latin-400-normal.woff2') format('woff2');
+  src: url('/fonts/fraunces-latin-560-normal.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Instrument Serif';
+  font-family: 'Fraunces';
   font-style: italic;
-  font-weight: 400;
+  font-weight: 560;
   font-display: swap;
-  src: url('/fonts/instrument-serif-latin-400-italic.woff2') format('woff2');
+  src: url('/fonts/fraunces-latin-560-italic.woff2') format('woff2');
 }

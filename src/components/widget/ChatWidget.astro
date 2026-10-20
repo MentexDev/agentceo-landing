@@ -100,7 +100,10 @@ const strings = {
 </div>
 
 <style>
-  .cw-root { --cw-z: 45; }
+  /* Capas (T33, Diego: con el panel EXPANDIDO, el header sticky (z 50) tapaba sus botones de cerrar y
+     contraer). Lanzador y burbuja por DEBAJO del header (45: el menú del header los cubre); el
+     panel abierto, en cualquier tamaño, por ENCIMA (60), y bajo el «saltar al contenido» (1000). */
+  .cw-root { --cw-z: 45; --cw-panel-z: 60; }
   /* ── Lanzador ─────────────────────────────────────────────────────────── */
   .cw-launch {
     position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: var(--cw-z);
@@ -137,6 +140,11 @@ const strings = {
     animation: cwTease .55s var(--ease-spring) both;
   }
   .cw-tease[hidden] { display: none; }
+  /* Compacto mientras un bloque [data-chat-avoid] pasa por la franja inferior (chatloader.js, T33):
+     solo el círculo con la mascota y la insignia IA; el texto sigue siendo el nombre accesible. */
+  :global([data-chat-root][data-compact]) .cw-launch { padding: 6px; right: max(8px, env(safe-area-inset-right)); }
+  :global([data-chat-root][data-compact]) .cw-launch-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  :global([data-chat-root][data-compact]) .cw-tease { display: none; }
   @keyframes cwTease { from { opacity: 0; transform: translateY(10px) scale(.9); transform-origin: bottom right; } }
   .cw-tease-txt { border: 0; background: none; padding: 8px 4px; font-size: 14px; cursor: pointer; color: var(--ink); }
   .cw-tease-x { width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 50%; background: none; color: var(--muted); cursor: pointer; }
@@ -144,7 +152,7 @@ const strings = {
 
   /* ── Panel ────────────────────────────────────────────────────────────── */
   .cw {
-    position: fixed; right: 16px; bottom: 16px; z-index: calc(var(--cw-z) + 1);
+    position: fixed; right: 16px; bottom: 16px; z-index: var(--cw-panel-z);
     width: min(400px, calc(100vw - 32px)); height: min(620px, calc(100dvh - 32px));
     display: grid; grid-template-rows: auto auto 1fr auto auto auto; overflow: hidden;
     background: var(--cream); color: var(--ink);

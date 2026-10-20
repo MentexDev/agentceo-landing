@@ -12,20 +12,26 @@ import { allStaticRoutes, RUTAS } from '../i18n/rutas.js'
 import { section, itemUrl, KINDS } from './content.js'
 import { t } from '../i18n/config.js'
 
-const FONTS = ['geist-latin-wght-normal', 'geist-mono-latin-wght-normal', 'instrument-serif-latin-400-normal', 'instrument-serif-latin-400-italic']
+// Titular en Fraunces (T33): la misma instancia estática a 560 que sirve la web.
+const FONTS = ['public/fonts/geist-latin-wght-normal', 'public/fonts/geist-mono-latin-wght-normal', 'public/fonts/fraunces-latin-560-normal']
 // resvg-js 2.6 IGNORA `fontBuffers` (medido: misma imagen con cualquier familia) y solo
 // acepta rutas (`fontFiles`): los TTF descomprimidos se dejan en una caché local.
 let fontFiles = null
-async function fonts() {
+/** TTF de las fuentes de la OG (exportado para su test: tests/site/og-fonts.test.js). */
+export async function fonts() {
   if (fontFiles) return fontFiles
   const dir = join(process.cwd(), 'node_modules', '.cache', 'og-fonts')
   mkdirSync(dir, { recursive: true })
-  fontFiles = await Promise.all(FONTS.map(async (f) => {
-    const out = join(dir, `${f}.ttf`)
-    if (!existsSync(out)) writeFileSync(out, Buffer.from(await decompress(readFileSync(join(process.cwd(), 'public', 'fonts', `${f}.woff2`)))))
-    return out
-  }))
-  return fontFiles
+  // UNA A UNA: wawoff2 (emscripten) no admite descompresiones simultáneas. Medido el 20-oct: con
+  // Promise.all, Geist y Geist Mono salían corruptos (cabecera inválida) y resvg pintaba todo con la
+  // única fuente válida. No se veía porque la caché se creó una vez y no se regeneraba.
+  const out = []
+  for (const f of FONTS) {
+    const ttf = join(dir, `${f.split('/').pop()}.ttf`)
+    if (!existsSync(ttf)) writeFileSync(ttf, Buffer.from(await decompress(readFileSync(join(process.cwd(), `${f}.woff2`)))))
+    out.push(ttf)
+  }
+  return (fontFiles = out)
 }
 
 /** Ruta de la imagen OG de una URL: '/' → '/og/home.png', '/noticias/x' → '/og/noticias/x.png'. */
@@ -38,9 +44,10 @@ export function ogPathFor(url) {
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-/** Parte un título en líneas por ancho aproximado (Instrument Serif ≈ 0,41 em por carácter, medido en las OG). */
+/** Parte un título en líneas por ancho aproximado (Fraunces 560 ≈ 0,47 em por carácter: el 0,41 medido
+ *  con Instrument Serif × 1,14, la razón de sus anchos medios, 0,389 / 0,341). */
 function wrap(text, size, maxW, maxLines) {
-  const per = Math.floor(maxW / (size * 0.41))
+  const per = Math.floor(maxW / (size * 0.47))
   const words = String(text).split(/\s+/)
   const lines = []
   let cur = ''
@@ -63,7 +70,7 @@ export function ogSvg({ title, eyebrow }) {
   <rect width="1200" height="630" fill="#F4F2ED"/>
   <rect x="24" y="24" width="1152" height="582" rx="34" fill="none" stroke="#111113" stroke-width="3"/>
   <text x="80" y="118" font-family="Geist Mono" font-size="22" letter-spacing="4" fill="#5E5C56">${esc(String(eyebrow).toUpperCase())}</text>
-  <text font-family="Instrument Serif" font-size="${size}" fill="#111113">${tspans}</text>
+  <text font-family="Fraunces" font-weight="560" letter-spacing="-1" font-size="${size}" fill="#111113">${tspans}</text>
   <g transform="translate(80 520)"><text font-family="Geist" font-weight="600" font-size="34" fill="#111113">agent<tspan fill="#B8923A">.</tspan>ceo</text></g>
   <g transform="translate(905 175) scale(2.6)">
     <line x1="50" y1="19" x2="50" y2="7" stroke="#111113" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="6" r="4.5" fill="#B8923A"/>

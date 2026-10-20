@@ -18,8 +18,12 @@
   --gold-3: #EFE4C8;
   --gold-ink: #7A5C17;
   --muted: #4E4C47;
-  /* Peso de los titulares serif (T32): Instrument Serif solo tiene 400; el trazo lo engorda un paso. */
-  --serif-stroke: .014em currentColor;
+  /* Peso de los titulares serif (T33): Fraunces 560, peso real (sin trazo falso). */
+  --serif-weight: 560;
+  /* Divisor entre secciones (T33, Diego: nada de filete negro a todo el ancho): 1 px, alineado al
+     contenedor y difuminado en los extremos. Lo usan las secciones compiladas y las hechas a mano. */
+  --divider: linear-gradient(90deg, transparent, rgba(17, 17, 19, .16) 18%, rgba(17, 17, 19, .16) 82%, transparent);
+  --divider-inset: calc(96 * var(--u, 1px));
   /* Peso del cuerpo (Geist variable): 450 en vez de 400, más legible sin cargar nada. */
   --body-weight: 450;
   --mute-dark: #a9a7a0;
@@ -29,7 +33,7 @@
   --danger-dark: #F2B8A8;
 
   --sans: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --serif: 'Instrument Serif', 'Instrument Serif Fallback', Georgia, 'Times New Roman', serif;
+  --serif: 'Fraunces', 'Fraunces Fallback', Georgia, 'Times New Roman', serif;
   --mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   --ease-out: cubic-bezier(.2, .7, .2, 1);
@@ -51,5 +55,5 @@
 }
 
 @media (max-width: 1023px) {
-  :root { --header-h: 64px; }
+  :root { --header-h: 64px; --divider-inset: 16px; }
 }

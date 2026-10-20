@@ -11,7 +11,7 @@
 //      (`bump('usd:<día>', estimado, tope)`). Un Durable Object ejecuta sus métodos de uno
 //      en uno y `bump` no espera a nada: comprobar y sumar es atómico, así que N peticiones
 //      simultáneas nunca pueden pasar juntas el tope (lo prueba un test con 20 a la vez).
-//   2. Al terminar se AJUSTA al coste real (`adjust`, usageMetadata de Gemini); si el
+//   2. Al terminar se AJUSTA al coste real (`adjust`, `usage` de OpenRouter); si el
 //      proveedor respondió con error HTTP (no factura) se devuelve la reserva entera; si se
 //      cortó por red o tiempo sin saber el consumo, la reserva se queda (pesimista).
 //   3. Reinicio: la clave es el día UTC (`usd:2026-10-20`); el primer `bump` de un día nuevo

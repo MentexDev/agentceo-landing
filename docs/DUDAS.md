@@ -205,7 +205,7 @@ _(se van añadiendo por fase)_
 - **Widget en inglés:** su base pasa de 16 a 50 fragmentos. **Medido:** un motor léxico **empeora al crecer el corpus**. El reservado #1 en inglés baja de 9/9 a 7/9 («company» aparece en todos los legales; «monthly fee» cae en «Is it really free?»). Las expectativas se igualaron con las del español solo donde la respuesta es literalmente correcta. Los suelos se fijan en lo medido. Es un argumento más para el modo live del PLAN §6.3.
 - ⏳ **Pendiente de la auditoría:** los carruseles automáticos del prototipo (S05 en móvil y S11) se pausan al pasar el ratón, enfocar o tocar, pero **no tienen botón de pausa visible** (WCAG 2.2.2). La demo de S03 sí lo tiene.
 
-### T32 · Widget en modo live con Gemini (2026-10-20)
+### T32 · Widget en modo live con Gemini (2026-10-20) · ⚠️ SUSTITUIDO por «T33 · chat» (OpenRouter)
 - **Proveedor:** Gemini directo (`generativelanguage.googleapis.com`, `streamGenerateContent?alt=sse`), modelo `CHAT_MODEL=gemini-3.1-flash-lite`. **OpenRouter se retira**: un solo proveedor, un solo precio que vigilar. Esto deja obsoleto lo que dice arriba, en la Fase W, sobre `OPENROUTER_API_KEY`.
 - **Clave:** el secreto `GEMINI_API_KEY`. **Hoy no existe** (no hay secreto ni `.dev.vars`); no se creó ni se pidió. Sin clave → stub, sin llamar a nadie (hay test).
 - ⏳ **Pregunta para Diego:** `wrangler.jsonc` sigue con `CHAT_MODE=stub`, su decisión de la Fase W. Para encender live hacen falta dos cosas: `wrangler secret put GEMINI_API_KEY` **y** cambiar `CHAT_MODE` a `live`. ¿Se deja `live` ya puesto, para que baste con la clave (sin clave sigue respondiendo el stub), o se mantiene el doble interruptor?
@@ -235,7 +235,7 @@ _(se van añadiendo por fase)_
   | Logs | solo contadores (`{t, ev, channel, path, reason, limit, mode, lang}`) | `abuse.js` `counter()` | — |
 
 - **Sesión:** id aleatorio del cliente, guardado dentro de `ac_chat` (misma clave y mismo consentimiento funcional; sin consentimiento, solo en memoria). **No es fiable por sí solo**: cualquiera puede inventarse sesiones nuevas, así que **el límite por IP manda**. La sesión sirve para que una pestaña no se coma el cupo de toda una oficina detrás de la misma IP, para el dedupe y para recordar que la conversación ya pasó Turnstile.
-- **Turnstile (código listo, apagado):** sin `TURNSTILE_SITE_KEY` (var pública) **y** `TURNSTILE_SECRET_KEY` (secreto), live no arranca. El cliente no carga nada de terceros y la CSP no abre `challenges.cloudflare.com`. Con las dos:
+- **Turnstile (código listo, apagado):** ~~sin `TURNSTILE_SITE_KEY` (var pública) **y** `TURNSTILE_SECRET_KEY` (secreto), live no arranca~~ (T33: ahora sí arranca, con cupo por IP estricto; ver abajo). El cliente no carga nada de terceros y la CSP no abre `challenges.cloudflare.com`. Con las dos:
   - el primer mensaje que iría al modelo responde con el stub y un reto (`meta.challenge`);
   - el cliente carga Turnstile **en ese momento**, en modo invisible, y manda el token en el mensaje siguiente;
   - el servidor lo verifica con `siteverify` y marca la sesión como verificada durante 30 min.
@@ -248,3 +248,52 @@ _(se van añadiendo por fase)_
   - evals de tono: lista de muletillas prohibidas en TODAS las respuestas, ≤ 45 palabras en los textos propios y ≤ 90 en las respuestas del modelo;
   - se mantienen literalmente «inteligencia artificial» / «no una persona» (SB 1001).
 - **Canal:** `worker/chat/channels/index.js` define el contrato (`who`, `parse` → mensaje normalizado, `open` → `send`/`close`, `reject`) y el núcleo común (límites, decisión y contadores). `respond.js` ya no sabe de HTTP ni de SSE. Web: `channels/web.js`. **WhatsApp no se construye**: un test enchufa un canal falso, sin streaming, sin tocar `respond.js`.
+
+### T33 · chat: vuelve OpenRouter, live por defecto y auditoría de topes (2026-10-20)
+- **Proveedor:** OpenRouter (`https://openrouter.ai/api/v1/chat/completions`, streaming SSE compatible con OpenAI). Cabecera `Authorization: Bearer` con el secreto `OPENROUTER_API_KEY`, más `HTTP-Referer: https://agentceo.io` y `X-Title: Agent CEO`. Pide `usage: { include: true }` para conocer el consumo real. **Se retira el camino directo a Gemini**: `GEMINI_API_KEY` ya no existe en el código. Lo de «T32 · live con Gemini» queda sustituido.
+- **Clave (Luca, 20-oct):** `OPENROUTER_API_KEY` **ya existe en producción**. En local **no hay clave**: no se crea `.dev.vars` ni se pide. Sin clave → stub, sin llamar a nadie (hay test).
+- **Encendido:** `wrangler.jsonc` pasa a `CHAT_MODE=live` y `CHAT_MODEL=google/gemini-2.5-flash-lite`. **Al desplegar, el modelo queda encendido** con el secreto de producción.
+- **Precios por modelo** (`worker/chat/live.js` → `PRICES`, USD por millón). Verificados por Luca el 20-oct en `openrouter.ai/api/v1/models`:
+
+  | Modelo | Entrada | Salida | Caché |
+  |---|---|---|---|
+  | `google/gemini-2.5-flash-lite` (por defecto) | 0,10 | 0,40 | 0,01 |
+  | `google/gemini-3.1-flash-lite` | 0,25 | 1,50 | 0,025 |
+  | `google/gemini-3.5-flash-lite` | 0,30 | 2,50 | no publicada: se cobra como entrada |
+
+  Un `CHAT_MODEL` **sin precio en la tabla, o una variante `:batch`**, nunca va live: responde el stub y no se reserva nada. No se puede gastar sin poder contar.
+- **Decisión sobre Turnstile** (Luca: «con solo añadir el secreto queda encendido»):
+  - **Sin las claves de Turnstile, live se permite**, con un cupo por IP más estricto: **10 respuestas live por IP y día**, frente a 25 con Turnstile. El tráfico sospechoso (UA de herramienta, sin idioma…) **nunca** va live.
+  - **Con Turnstile configurado, se exige persona verificada** como en T32, y el cupo sube a 25.
+  - Hay tests de ambos caminos.
+- **Auditoría de topes, con el código delante:**
+  - **Hueco 1 (arreglado), tope sin validar:** `Number(CHAT_DAILY_BUDGET_USD || 5)` con un valor mal escrito («5$») daba `NaN`, y `gastado + reserva > NaN` es siempre falso: **la reserva no frenaba nada**. Ahora `budgetCap()` solo admite números finitos ≥ 0 y **nunca más de $5** (techo duro: la variable solo puede bajarlo). Tests de 9 valores y de la reserva con un valor roto.
+  - **Hueco 2 (arreglado), entrada inflada por el cliente:** el historial lo envía el cliente. Admitía 6 «respuestas del asistente» inventables de 2.000 caracteres, más 6 de usuario de 500: hasta ~60 KB de entrada pagada por mensaje.
+    - Ahora al modelo van **≤ 4.000 caracteres** de historial (los más recientes; cada respuesta previa ≤ 1.200; el último mensaje, entero).
+    - La reserva se calcula con eso mismo.
+  - **Hueco 3 (arreglado), reserva optimista:** la reserva estimaba 1 token cada 3 caracteres; con emoji o escrituras no latinas se quedaba corta. Ahora es una **cota que no se puede superar: 1 token por byte UTF-8** de lo enviado, más la salida completa (`max_tokens`, que en Gemini incluye el razonamiento).
+  - **Coste asentado:** el mayor entre tokens × precio del modelo y `usage.cost` de OpenRouter. Si OpenRouter cobrara más que nuestra tabla, el día se pasaría como mucho el exceso de una petición; la siguiente reserva ya no cabe.
+  - **Verificado sin cambios** (con test):
+    - la reserva atómica previa (20 simultáneas → 16 pasan) y que **ningún camino llama al modelo sin reservar** (un solo punto de llamada, después de `reserve`);
+    - devolución en errores HTTP (401/402/500) y reserva retenida en cortes sin consumo conocido;
+    - timeout de 15 s; salida de 400 tokens como techo duro;
+    - 500 caracteres y 12 turnos;
+    - límites por IP y por sesión (ráfaga, hora y día);
+    - dedupe y caché;
+    - errores del proveedor a mitad del stream → stub o corte avisado.
+- **Peor caso económico:** calculado por `scripts/chat-evals.mjs` con las mismas funciones que producción (tabla en `docs/EVALS-CHAT-T33.md`). Con `google/gemini-2.5-flash-lite`:
+  - **reserva máxima por respuesta: $0,00286**, con prompt de sistema de 14,8 KB, historial de 12 KB y 400 tokens de salida, todo a 1 token por byte;
+  - **en $5 caben como mínimo ~1.746 respuestas live**; las típicas cuestan ~$0,00015, unas ~33.000 en $5;
+  - **una sola IP puede gastar como mucho ~$0,029/día** sin Turnstile (10 respuestas), o ~$0,072 con él (25);
+  - **aunque muchas IP se repartan el gasto, el día nunca pasa de $5.**
+- **Evals:** `npm run evals:chat` → `docs/EVALS-CHAT-T33.md`. Stub 42/43; el único fallo es el de siempre, «Is there a plan for a big team?», que no inventa pero no acierta. **Live: pendiente, se ejecuta tras el deploy** (en local no hay clave).
+- ⏳ **Para Diego:**
+  - **Privacidad del proveedor:** OpenRouter puede enrutar a proveedores que guardan datos. Se podría forzar `provider: { data_collection: 'deny' }`, pero si ningún proveedor del modelo lo cumple, la llamada falla y el chat cae al stub. No se activó sin medirlo en producción.
+  - **Caché de 6 h y precios:** sigue la nota de T32. Al cambiar precios, purgar la caché.
+
+### T33 · interfaz (20-oct)
+- **Serif de titulares: Fraunces** (en vez de Instrument Serif, que solo tiene peso 400). Comparadas Fraunces, Playfair Display y Newsreader con el titular real: Fraunces, con eje óptico de titular (144), es la más estrecha y contrastada y la única que mantiene el titular en una línea como Instrument. Se sirve como **instancia estática a 560** (normal + itálica, 17,0 + 21,5 KB: menos que Instrument, 20,5 + 21,6 KB). La versión variable 400–700 (30,4 + 38,1 KB) dejaba el LCP móvil en 1,82–1,97 s, al límite: descartada. ⏳ **Efecto a revisar con Diego:** los usos menores de la serif (preguntas del FAQ, citas del blog) también se ven a 560; si se quieren más ligeros, hace falta una segunda instancia (~17 KB, que solo se descarga donde se use).
+- **Divisores:** los 8 filetes negros de 1,5 px a todo el ancho entre secciones (S03, S08, S11–S15, S17 y el FAQ) son ahora una línea de 1 px alineada al contenedor y difuminada (tokens `--divider`, `--divider-inset`). Bordes internos de tarjetas, sin cambios.
+- **Widget sobre el contenido:** el lanzador se compacta a su círculo (con la insignia IA) y la burbuja se esconde mientras un bloque marcado `data-chat-avoid` (hoy, el acta) pasa por la franja inferior. Medido sin solape a 1024, 1280, 1440 y 1920 px.
+- **Panel del widget por encima del header:** con el panel expandido el header tapaba el botón de cerrar (z-index 46 frente a 50). El panel abierto va ahora a 60 en cualquier tamaño; lanzador y burbuja siguen por debajo del header.
+- **Bug de las imágenes OG (anterior a T33, salió al regenerar la caché):** las fuentes se descomprimían en paralelo y Geist salía corrupto, así que la OG se pintaba entera con la serif. Ahora se descomprimen una a una, con test.

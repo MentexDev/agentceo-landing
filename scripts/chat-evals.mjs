@@ -1,12 +1,16 @@
 #!/usr/bin/env node
-// EVALS del widget «Tu CEO» (T32): 43 preguntas es+en con criterios AUTOMÁTICOS (incluido el tono).
-//   node scripts/chat-evals.mjs            → siempre contra el STUB (sin red, coste 0)
-//   GEMINI_API_KEY=… node scripts/chat-evals.mjs → además contra LIVE (Gemini real, tope $0,50)
+// EVALS del widget «Tu CEO» (T32 → T33): 43 preguntas es+en con criterios AUTOMÁTICOS (incluido el tono).
+//   node scripts/chat-evals.mjs                      → siempre contra el STUB (sin red, coste 0)
+//   OPENROUTER_API_KEY=… node scripts/chat-evals.mjs → además contra LIVE (OpenRouter real, tope $0,50)
+// T33 (Luca): en local NO hay clave; los evals live se corren tras el deploy.
 // Pasa por worker/chat/respond.js: el MISMO camino que producción (topes en memoria).
-// Escribe docs/EVALS-CHAT-T32.md. Nunca imprime la clave.
+// Escribe docs/EVALS-CHAT-T33.md (con el peor caso económico calculado desde el código). Nunca imprime la clave.
 import { writeFileSync } from 'node:fs'
 import { respond } from '../worker/chat/respond.js'
-import { CANARY } from '../worker/chat/live.js'
+import { CANARY, PRICES, DEFAULT_MODEL, HISTORY_CHARS, systemPrompt, estimateUSD } from '../worker/chat/live.js'
+import { KB } from '../worker/chat/stub.js'
+import { LIMITS } from '../worker/chat/limits.js'
+import { LIVE } from '../worker/chat/respond.js'
 import { PLANS, PACKS } from '../content/precios.js'
 
 const REAL_PRICES = new Set([...PLANS, ...PACKS].map((p) => String(p.price)))
@@ -170,24 +174,46 @@ const stub = await run('stub', { CHAT_MODE: 'stub' })
 const S = fmt(stub)
 console.log(`STUB: ${S.ok}/${stub.out.length}`)
 
+const MODEL = process.env.CHAT_MODEL || DEFAULT_MODEL
 let liveMd
-if (process.env.GEMINI_API_KEY) {
+if (process.env.OPENROUTER_API_KEY) {
   const live = await run('live', {
     CHAT_MODE: 'live',
-    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-    CHAT_MODEL: process.env.CHAT_MODEL || 'gemini-3.1-flash-lite',
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+    CHAT_MODEL: MODEL,
     CHAT_DAILY_BUDGET_USD: '0.5',
   })
   const L = fmt(live)
   const viaLive = live.out.filter((r) => r.path === 'live').length
   console.log(`LIVE: ${L.ok}/${live.out.length} (${viaLive} respondidas por el modelo · gasto $${live.spent.toFixed(4)})`)
-  liveMd = `Modelo \`${process.env.CHAT_MODEL || 'gemini-3.1-flash-lite'}\`. ${viaLive}/${live.out.length} respondidas por el modelo (el resto, stub exacto o caída). Gasto reservado/ajustado: $${live.spent.toFixed(4)}.\n\n${L.md}`
+  liveMd = `Modelo \`${MODEL}\` vía OpenRouter. ${viaLive}/${live.out.length} respondidas por el modelo (el resto, stub exacto o caída). Gasto reservado/ajustado: $${live.spent.toFixed(4)}.\n\n${L.md}`
 } else {
-  console.log('LIVE: no ejecutado: sin clave (GEMINI_API_KEY no está en el entorno)')
-  liveMd = '**No ejecutado: sin clave.** `GEMINI_API_KEY` no existe hoy (ni en el entorno ni como secreto). Para correrlo: `GEMINI_API_KEY=… npm run evals:chat` (tope de la corrida: $0,50).'
+  console.log('LIVE: pendiente: se ejecuta tras el deploy (OPENROUTER_API_KEY no está en el entorno local)')
+  liveMd = '**Pendiente: se ejecuta tras el deploy.** En local no hay clave (decisión de Luca, 20-oct: no se crea `.dev.vars`). El secreto `OPENROUTER_API_KEY` existe en producción. Para correrlo con la clave en el entorno: `OPENROUTER_API_KEY=… npm run evals:chat` (tope de la corrida: $0,50).'
 }
 
-writeFileSync('docs/EVALS-CHAT-T32.md', `# Evals del widget «Tu CEO» · T32
+// PEOR CASO ECONÓMICO, calculado con las MISMAS funciones y constantes que producción.
+const big = (lang) => systemPrompt(lang, [...KB[lang]].sort((a, b) => (b.title + b.text + b.url).length - (a.title + a.text + a.url).length).slice(0, 10))
+const sysMax = Math.max(...['es', 'en'].map((l) => new TextEncoder().encode(big(l)).length))
+const sysTyp = new TextEncoder().encode(systemPrompt('es', KB.es.slice(0, 10))).length
+// Peor historial: HISTORY_CHARS unidades UTF-16 de 3 bytes cada una (p. ej. CJK; un emoji son
+// 4 bytes pero 2 unidades), en 12 mensajes: el máximo de bytes que puede llegar al modelo.
+const worstHist = Array.from({ length: 12 }, () => ({ role: 'user', content: '中'.repeat(Math.floor(HISTORY_CHARS / 12)) }))
+const econ = Object.keys(PRICES).map((m) => {
+  const worst = estimateUSD('x'.repeat(sysMax), worstHist, LIVE.maxTokens, m)
+  const P = PRICES[m]
+  const typical = (Math.ceil(sysTyp / 4) * P.in + 120 * P.out) / 1e6 // ~1 token cada 4 bytes y 120 de salida
+  return { m, worst, typical }
+})
+const usd = (n) => `$${n < 0.01 ? n.toFixed(5) : n.toFixed(4)}`
+let econMd = `Constantes: tope global $5/día · salida ${LIVE.maxTokens} tokens · historial al modelo ≤ ${HISTORY_CHARS} caracteres · prompt de sistema máx. ${sysMax} bytes (10 fragmentos más largos) · respuestas live por IP y día: ${LIMITS.livePerDayOpen} sin Turnstile, ${LIMITS.livePerDay} con él · mensajes por IP y día: ${LIMITS.ipDay}.\n\n`
+econMd += '| Modelo | Reserva peor caso (1 token por byte) | Respuestas live en $5 (peor caso) | Coste típico (~1 token/4 bytes, 120 de salida) | Respuestas en $5 (típico) | Una IP al día, peor caso (sin Turnstile / con él) |\n|---|---|---|---|---|---|\n'
+for (const e of econ) econMd += `| \`${e.m}\`${e.m === DEFAULT_MODEL ? ' (por defecto)' : ''} | ${usd(e.worst)} | ${Math.floor(5 / e.worst)} | ${usd(e.typical)} | ${Math.floor(5 / e.typical)} | ${usd(e.worst * LIMITS.livePerDayOpen)} / ${usd(e.worst * LIMITS.livePerDay)} |\n`
+econMd += '\nEl tope global manda siempre: aunque muchas IP distintas se repartan el gasto, la reserva atómica impide pasar de $5 en el día (UTC). La reserva usa la cota de 1 token por byte UTF-8; al terminar se ajusta al coste real (el mayor entre tokens × precio y el que informa OpenRouter).\n'
+const D = econ.find((e) => e.m === DEFAULT_MODEL)
+console.log(`PEOR CASO (${DEFAULT_MODEL}): ${usd(D.worst)}/respuesta · ${Math.floor(5 / D.worst)} en $5 · una IP ${usd(D.worst * LIMITS.livePerDayOpen)}/día sin Turnstile`)
+
+writeFileSync('docs/EVALS-CHAT-T33.md', `# Evals del widget «Tu CEO» · T33
 
 > Generado por \`scripts/chat-evals.mjs\` el ${date} UTC. No editar a mano: se regenera.
 > ${CASES.length} preguntas (es ${CASES.filter((c) => c[1] === 'es').length} · en ${CASES.filter((c) => c[1] === 'en').length}) por el mismo camino que producción (\`worker/chat/respond.js\`).
@@ -202,8 +228,11 @@ writeFileSync('docs/EVALS-CHAT-T32.md', `# Evals del widget «Tu CEO» · T32
 ## Stub (BM25, sin modelo)
 
 ${S.md}
-## Live (Gemini)
+## Live (OpenRouter)
 
 ${liveMd}
-`)
-console.log('→ docs/EVALS-CHAT-T32.md')
+
+## Peor caso económico (calculado desde el código)
+
+${econMd}`)
+console.log('→ docs/EVALS-CHAT-T33.md')

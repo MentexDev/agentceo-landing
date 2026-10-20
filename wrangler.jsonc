@@ -22,19 +22,23 @@
     { "name": "RL_FORMS", "namespace_id": "7001", "simple": { "limit": 8, "period": 60 } },
     { "name": "RL_CHAT", "namespace_id": "7002", "simple": { "limit": 10, "period": 60 } }
   ],
-  // Widget de soporte. DECISIÓN DE DIEGO (2026-10-20): se queda en «stub» (sin LLM, sin keys).
-  // Para «live» (Gemini directo, T32): CHAT_MODE=live + el secreto GEMINI_API_KEY
-  // (`wrangler secret put GEMINI_API_KEY`; nunca aquí ni en el repo). Sin clave, o si se pasa
-  // el tope de CHAT_DAILY_BUDGET_USD (USD/día, ver worker/chat/guard.js), responde el stub.
-  // Adenda T32 · live exige ADEMÁS Cloudflare Turnstile (gratis, sin recurso de pago):
+  // Widget de soporte · T33 (Luca, 20-oct): LIVE POR DEFECTO vía OpenRouter. El secreto
+  // OPENROUTER_API_KEY ya existe en producción (`wrangler secret put OPENROUTER_API_KEY`; nunca
+  // aquí ni en el repo): al desplegar, el modelo queda encendido. En local no hay clave → stub.
+  // Topes (worker/chat/channels/index.js y docs/DUDAS.md, «T33 · chat»): $5/día global con
+  // reserva atómica previa, respuestas live por IP (10/día sin Turnstile, 25 con él), mensajes
+  // por IP y por sesión (ráfaga/hora/día), 500 caracteres, 12 turnos, 400 tokens de salida,
+  // historial al modelo ≤ 4.000 caracteres, timeout 15 s. Cualquier fallo → stub.
+  // CHAT_MODEL solo admite modelos con precio en worker/chat/live.js (PRICES); otro → stub.
+  // Turnstile (OPCIONAL, gratis; con él el cupo por IP sube a 25 y se exige persona verificada):
   //   1. Dashboard de Cloudflare → Turnstile → Add widget (modo «Invisible» o «Managed»,
   //      dominio agentceo.io) → da una SITE KEY (pública) y una SECRET KEY.
   //   2. Añadir aquí en "vars": "TURNSTILE_SITE_KEY": "<site key>" (es pública: va al navegador).
   //   3. `wrangler secret put TURNSTILE_SECRET_KEY` (secreta: nunca aquí ni en el repo).
-  // Sin las dos, live no arranca y la CSP no abre challenges.cloudflare.com (hay tests).
+  // Sin las dos, la CSP no abre challenges.cloudflare.com y el widget no carga nada de terceros.
   "vars": {
-    "CHAT_MODE": "stub",
-    "CHAT_MODEL": "gemini-3.1-flash-lite",
+    "CHAT_MODE": "live",
+    "CHAT_MODEL": "google/gemini-2.5-flash-lite",
     "CHAT_DAILY_BUDGET_USD": "5"
   },
   // Topes diarios del widget (por IP con hash, y gasto global del modo live).

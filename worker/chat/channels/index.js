@@ -24,17 +24,10 @@ import { respond } from '../respond.js'
 import { today, hourOf, minuteOf, sessionKey } from '../guard.js'
 import { verifyTurnstile, counter } from '../abuse.js'
 
-export const LIMITS = {
-  maxChars: 500, maxTurns: 12, maxHistory: 6,
-  // Por usuario (IP con hash). La ráfaga de 10/min la pone el binding nativo RL_CHAT.
-  ipHour: 30, ipDay: 60, livePerDay: 25,
-  // Por sesión (id aleatorio del cliente: NO es fiable por sí solo, el límite por IP manda;
-  // sirve para que una pestaña no se coma el cupo de toda una oficina detrás de la misma IP).
-  sessionMinute: 6, sessionHour: 20, sessionDay: 40,
-  dedupeMs: 10 * 60 * 1000, // misma pregunta de la misma sesión en 10 min → no gasta
-  cacheMs: 6 * 3600 * 1000, // respuesta live a una pregunta idéntica: 6 h
-  humanMs: 30 * 60 * 1000, // sesión verificada por Turnstile: 30 min
-}
+// Los límites viven en un módulo puro (sin runtime de Workers) para que también los lean las
+// evals en Node (scripts/chat-evals.mjs).
+import { LIMITS } from '../limits.js'
+export { LIMITS }
 
 const guardOf = (env, name) => env.CHAT_GUARD.get(env.CHAT_GUARD.idFromName(name))
 
@@ -70,15 +63,17 @@ export function guardsFor(msg, env, { verifyFetch } = {}) {
   const cache = () => guardOf(env, 'cache')
   // La memoria de la sesión (dedupe, verificación) vive en su instancia; sin sesión, en la del usuario.
   const mem = async () => (msg.sessionId ? guardOf(env, await sessionKey(msg.sessionId)) : user())
+  const turnstileOn = Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY)
   return {
-    liveIp: async () => (await user().bump(`live:${day}`, 1, LIMITS.livePerDay)).allowed,
+    liveIp: async () => (await user().bump(`live:${day}`, 1, turnstileOn ? LIMITS.livePerDay : LIMITS.livePerDayOpen)).allowed,
     reserve: (usd, cap) => budget().bump(`usd:${day}`, usd, cap),
     settle: async (delta) => { if (delta) await budget().adjust(`usd:${day}`, delta) },
     dedupe: async (qk) => (await mem()).seen(`d:${qk}`, LIMITS.dedupeMs),
     cacheGet: (qk) => cache().tget(`c:${qk}`),
     cachePut: (qk, text) => cache().tput(`c:${qk}`, text, LIMITS.cacheMs),
     human: async () => {
-      if (!env.TURNSTILE_SITE_KEY || !env.TURNSTILE_SECRET_KEY) return { ok: false, reason: 'no_turnstile' }
+      // Sin Turnstile configurado: live permitido (T33), con el cupo estricto de liveIp.
+      if (!turnstileOn) return { ok: true, open: true }
       const m = await mem()
       if (await m.tget('human')) return { ok: true }
       const token = msg.signals?.turnstileToken
@@ -93,7 +88,7 @@ export function guardsFor(msg, env, { verifyFetch } = {}) {
 
 /**
  * Atiende un mensaje de CUALQUIER canal: modo → identidad y límites → parseo → respuesta.
- * `fetchImpl` (Gemini) y `verifyFetch` (Turnstile) se inyectan en tests: nunca red real.
+ * `fetchImpl` (OpenRouter) y `verifyFetch` (Turnstile) se inyectan en tests: nunca red real.
  */
 export async function runChannel(channel, input, env, ctx, { fetchImpl, verifyFetch, log } = {}) {
   const mode = env.CHAT_MODE || 'off'

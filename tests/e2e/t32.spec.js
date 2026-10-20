@@ -26,14 +26,12 @@ test.describe('1 · hero', () => {
   })
 })
 
-test('4 · tipografía: titular serif con trazo y cuerpo a 450 en gris más oscuro', async ({ page }) => {
+test('4 · tipografía: cuerpo a 450 en gris más oscuro (la serif la vigila t33.spec.js)', async ({ page }) => {
   await page.goto('/')
   const r = await page.evaluate(() => {
-    const h1 = getComputedStyle(document.querySelector('section#top h1'))
     const p = getComputedStyle(document.querySelector('section#top p.in'))
-    return { stroke: parseFloat(h1.webkitTextStrokeWidth), weight: p.fontWeight, color: p.color }
+    return { weight: p.fontWeight, color: p.color }
   })
-  expect(r.stroke).toBeGreaterThan(0)
   expect(r.weight).toBe('450')
   expect(r.color).toBe('rgb(78, 76, 71)')
 })

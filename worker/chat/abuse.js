@@ -10,11 +10,12 @@
 //   longitud (500) y turnos (12) channels/web.js · respond.js          400 · cierre amable
 //   salida máxima (400 tokens)   respond.js (techo duro: env solo baja) —
 //   tope global $5/día           ChatGuard «budget» (reserva atómica)  stub
-//   tope live por IP (25/día)    ChatGuard por IP                      stub
+//   tope live por IP (25/día; 10 sin Turnstile) ChatGuard por IP          stub
 //   bot / UA sospechoso          suspicion() → respond.js              stub, nunca live
 //   pregunta repetida            ChatGuard.seen (dedupe 10 min)        caché o stub, no gasta
 //   preguntas idénticas          ChatGuard.tget/tput (caché 6 h)       respuesta cacheada, no gasta
-//   Turnstile                    verifyTurnstile() → respond.js        sin verificar: stub + reto
+//   Turnstile (si configurado)   verifyTurnstile() → respond.js        sin verificar: stub + reto
+//   historial al modelo (4.000)  live.js historyForModel               recorta lo que se paga
 //   logs                         counter(): solo contadores, sin PII   —
 // ─────────────────────────────────────────────────────────────────────────────
 

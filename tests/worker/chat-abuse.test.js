@@ -1,5 +1,5 @@
 // ANTI-ABUSO del widget (adenda T32): UN test por cada límite o capa, en el runtime real de
-// Workers con el Durable Object real. Nunca hay red: Gemini y siteverify son fetch FALSOS.
+// Workers con el Durable Object real. Nunca hay red: OpenRouter y siteverify son fetch FALSOS.
 // (Ráfaga por IP, longitud, turnos y tope global $5 + concurrencia: en chat.test.js.)
 import { env } from 'cloudflare:test'
 import { describe, it, expect } from 'vitest'
@@ -7,7 +7,7 @@ import { handleChat, LIMITS } from '../../worker/chat/handler.js'
 import { runChannel } from '../../worker/chat/channels/index.js'
 import { ipKey, sessionKey, today, hourOf, minuteOf } from '../../worker/chat/guard.js'
 import { suspicion, verifyTurnstile, counter, normQ, hasPII } from '../../worker/chat/abuse.js'
-import { maxTokensFor } from '../../worker/chat/respond.js'
+import { maxTokensFor, budgetCap, respond } from '../../worker/chat/respond.js'
 
 const BROWSER = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', 'accept-language': 'es-ES,es;q=0.9' }
 let n = 0
@@ -28,15 +28,16 @@ async function readSSE(res) {
 const guard = (name) => env.CHAT_GUARD.get(env.CHAT_GUARD.idFromName(name))
 const fast = { ...env, CHAT_STUB_DELAY_MS: '0' }
 const TS = { TURNSTILE_SITE_KEY: '1x00000000000000000000AA', TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA' }
-const live = { ...fast, CHAT_MODE: 'live', GEMINI_API_KEY: 'clave-FALSA-de-test', ...TS }
+const live = { ...fast, CHAT_MODE: 'live', OPENROUTER_API_KEY: 'clave-FALSA-de-test', ...TS }
 const okTs = async () => Response.json({ success: true })
 const badTs = async () => Response.json({ success: false, 'error-codes': ['invalid-input-response'] })
-const part = (t) => ({ candidates: [{ content: { role: 'model', parts: [{ text: t }] } }] })
-const gemini = (text, usage = { promptTokenCount: 2000, candidatesTokenCount: 50 }) => new Response(new ReadableStream({
-  start(c) { const e = new TextEncoder(); c.enqueue(e.encode(`data: ${JSON.stringify(part(text))}\r\n\r\n`)); c.enqueue(e.encode(`data: ${JSON.stringify({ ...part(''), usageMetadata: usage })}\r\n\r\n`)); c.close() },
+const part = (t) => ({ choices: [{ index: 0, delta: { content: t } }] })
+// Streaming FALSO con el formato de OpenRouter (chat/completions, stream: true).
+const openrouter = (text, usage = { prompt_tokens: 2000, completion_tokens: 50 }) => new Response(new ReadableStream({
+  start(c) { const e = new TextEncoder(); c.enqueue(e.encode(`data: ${JSON.stringify(part(text))}\n\n`)); c.enqueue(e.encode(`data: ${JSON.stringify({ choices: [{ delta: {}, finish_reason: 'stop' }], usage })}\n\ndata: [DONE]\n\n`)); c.close() },
 }), { headers: { 'content-type': 'text/event-stream' } })
-/** fetch falso de Gemini que cuenta las llamadas. */
-const counting = (text = 'Respuesta del modelo.') => { const f = async () => { f.calls++; return gemini(text) }; f.calls = 0; return f }
+/** fetch falso de OpenRouter que cuenta las llamadas. */
+const counting = (text = 'Respuesta del modelo.') => { const f = async () => { f.calls++; return openrouter(text) }; f.calls = 0; return f }
 const Qn = () => `explícame cómo ayudaría a mi tienda de bicicletas, caso ${uniq()}`
 
 describe('límites por IP (hora y día, en el Durable Object)', () => {
@@ -86,20 +87,45 @@ describe('salida máxima de tokens', () => {
   })
   it('lo que se envía al modelo respeta el techo aunque el entorno pida más', async () => {
     let sent
-    const f = async (_, init) => { sent = JSON.parse(init.body); return gemini('ok') }
+    const f = async (_, init) => { sent = JSON.parse(init.body); return openrouter('ok') }
     await readSSE(await handleChat(req(ask(Qn(), { turnstile: 't' })), { ...live, CHAT_MAX_TOKENS: '9999' }, null, { fetchImpl: f, verifyFetch: okTs }))
-    expect(sent.generationConfig.maxOutputTokens).toBe(400)
+    expect(sent.max_tokens).toBe(400)
+  })
+})
+
+describe('tope de gasto diario (techo duro $5)', () => {
+  it.each([
+    ['ausente', undefined, 5], ['vacío', '', 5], ['mal escrito «5$»', '5$', 5], ['texto', 'mucho', 5],
+    ['negativo', '-1', 5], ['infinito', 'Infinity', 5], ['más alto que 5', '50', 5], ['más bajo', '0.5', 0.5], ['cero (apagado)', '0', 0],
+  ])('CHAT_DAILY_BUDGET_USD %s → %s', (_, v, cap) => {
+    expect(budgetCap({ CHAT_DAILY_BUDGET_USD: v })).toBe(cap)
+  })
+  it('con un valor roto, la reserva sigue frenando (no se llama al modelo pasado el tope)', async () => {
+    let calls = 0, spent = 4.9999
+    const r = await respond({
+      p: { lang: 'es', userText: Qn(), turns: 1, history: [{ role: 'user', content: 'x' }], signals: { suspicious: [] } },
+      mode: 'live', env: { OPENROUTER_API_KEY: 'clave-FALSA-de-test', CHAT_DAILY_BUDGET_USD: '5$' }, send: async () => {}, delay: 0, capTurns: 12,
+      fetchImpl: async () => { calls++; return openrouter('no') },
+      guards: { liveIp: async () => true, human: async () => ({ ok: true }), reserve: async (usd, cap) => (spent + usd > cap ? { allowed: false } : { allowed: true }) },
+    })
+    expect(r).toEqual({ path: 'stub', reason: 'budget' })
+    expect(calls).toBe(0)
   })
 })
 
 describe('Turnstile antes de gastar', () => {
-  it('sin claves de Turnstile configuradas → live no arranca, ni se pide reto', async () => {
+  it('sin claves de Turnstile configuradas → live SÍ arranca (T33: basta el secreto), sin reto ni scripts', async () => {
     const f = counting()
     const { meta } = await readSSE(await handleChat(req(ask(Qn(), { turnstile: 't' })), { ...live, TURNSTILE_SITE_KEY: undefined, TURNSTILE_SECRET_KEY: undefined }, null, { fetchImpl: f, verifyFetch: okTs }))
-    expect(f.calls).toBe(0)
-    expect(meta.mode).toBe('stub')
-    expect(meta.fallback).toBe('no_turnstile')
+    expect(f.calls).toBe(1)
+    expect(meta.mode).toBe('live')
     expect(meta.challenge).toBeUndefined()
+  })
+  it('sin Turnstile, el tráfico sospechoso sigue sin ir NUNCA a live', async () => {
+    const f = counting()
+    const { meta } = await readSSE(await handleChat(req(ask(Qn()), { headers: { 'user-agent': 'python-requests/2.32' } }), { ...live, TURNSTILE_SITE_KEY: undefined, TURNSTILE_SECRET_KEY: undefined }, null, { fetchImpl: f }))
+    expect(f.calls).toBe(0)
+    expect(meta.fallback).toBe('suspicious')
   })
   it('sin token → stub y el reto (site key) para el cliente; no llama al modelo', async () => {
     const f = counting()
