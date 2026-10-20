@@ -25,9 +25,9 @@ Leyenda: ✅ hecho · 🟡 borrador con pendientes · ⏳ falta un dato de Diego
 | 6 | Términos | `/legal/terminos` | 2.1 | 🟡 borrador | Enlazan Uso aceptable, IA y Reembolsos |
 | 7 | Uso aceptable | `/legal/uso-aceptable` | 1.0 | 🟡 borrador | Plazo de respuesta a los reportes de abuso |
 | 8 | Divulgación de IA | `/legal/ia` | 1.0 | 🟡 borrador | — (incluye SB 1001 y el art. 50 del Reglamento de IA de la UE) |
-| 9 | Lista de subprocesadores | `/legal/subprocesadores` | 1.0 | 🟡 borrador | Días de preaviso a clientes con DPA |
+| 9 | Lista de subprocesadores | `/legal/subprocesadores` | 1.1 | 🟡 borrador | 12 proveedores: **PostHog, Sentry y Plausible retirados** (Diego, «Datos reales»). Días de preaviso a clientes con DPA |
 | 10 | DPA | `/legal/dpa` | 1.0 | 🟡 borrador | Preaviso de subencargados; plazo de aviso de brecha (≤ 72 h, ya prometido en Seguridad §10); mecanismo de transferencia (DPF o CCT); auditorías |
-| 11 | Reembolsos y cancelación | `/legal/reembolsos` | 1.0 | ⏳ | **Primera cláusula llegó cortada** (reconstruida con Términos §3.5); si los créditos semanales se acumulan; caducidad de Chispa, Envión y Turbina; plazos de respuesta y de reembolso |
+| 11 | Reembolsos y cancelación | `/legal/reembolsos` | 1.1 | 🟡 borrador | Con «Datos reales» completos: los créditos semanales **expiran el lunes** y no se reembolsan; **7 días** en la primera suscripción si se usó menos del 10 %; paquetes Chispa/Envión/Turbina reembolsables en **14 días** si no se usaron; **renovación automática** explícita; créditos por plan y por paquete. Pendiente: caducidad de los paquetes, si Reserva entra en la regla de 14 días, que el pago de la app muestre la renovación, plazos de respuesta y de reembolso |
 | 12 | Declaración de accesibilidad | `/legal/accesibilidad` | 1.0 | 🟡 borrador | Control de pausa visible (WCAG 2.2.2); plazo de respuesta |
 | 13 | DMCA | `/legal/dmca` | 1.0 | ⏳ | **`[PENDIENTE registro dmca.copyright.gov]`**: no hay agente registrado (Diego) |
 | 14 | COPPA (sin menores de 13) | Privacidad §11 + California §11 | — | ✅ | El Servicio exige 18+ (más estricto) y menciona COPPA expresamente |
@@ -50,9 +50,9 @@ Leyenda: ✅ hecho · 🟡 borrador con pendientes · ⏳ falta un dato de Diego
   - frecuencia y costes de las auditorías.
 - **estados:** datos sensibles y consentimiento · plazo de respuesta a las apelaciones.
 - **reembolsos:**
-  - confirmar la primera cláusula;
-  - acumulación de los créditos semanales;
   - caducidad de los paquetes salvo Reserva;
+  - si Reserva entra en la regla de 14 días;
+  - que el pago de la app muestre la renovación automática;
   - plazo de respuesta;
   - plazo del reembolso.
 - **subprocesadores:** días de preaviso.
@@ -63,7 +63,7 @@ Leyenda: ✅ hecho · 🟡 borrador con pendientes · ⏳ falta un dato de Diego
 - `content/subprocesadores.js`:
   - **la razón social exacta y la región de tratamiento de cada proveedor** se deben confirmar con sus contratos o DPA (ElevenLabs y Meta llevan `[PENDIENTE verificar]` en la región);
   - **qué proveedores están contratados hoy**: el brief los da como «reales», pero Diego no lo confirmó uno a uno.
-  - PostHog y Plausible figuran como «No activo», porque no hay analítica.
+  - PostHog, Sentry y Plausible **se retiraron** por indicación de Diego. Revisado en solo lectura: en `CRM-AI-evolution`, Sentry solo es un conector del cliente; no hay ningún SDK inicializado.
 - **Información sensible:** ¿guarda la app datos que la CPRA o las leyes estatales consideran sensibles? Eso decide si se ofrece el derecho a «limitar».
 - **`ac_attr`** (campaña de origen en `sessionStorage`) está clasificada como **funcional**. El abogado debe decidir si para visitantes de la UE requiere consentimiento previo.
 

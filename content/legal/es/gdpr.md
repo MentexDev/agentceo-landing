@@ -4,7 +4,7 @@ id: gdpr
 slug: gdpr
 estado: borrador
 actualizado: 2026-10-20
-version: 2.1
+version: 2.2
 descripcion: Tus derechos bajo el RGPD y las leyes de privacidad de EE. UU. frente a Klinworks, LLC, y cómo ejercerlos.
 ---
 

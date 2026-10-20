@@ -95,7 +95,8 @@ export const GUARANTEES = [
 export const FAQ = [
   { q: '¿Es gratis de verdad?', a: 'Sí. El plan Arranque cuesta $0: trae 300 créditos por semana para 1 usuario y no pide tarjeta.' },
   { q: '¿Qué pasa si me quedo sin créditos?', a: 'Tus agentes se detienen hasta que se renueven (cada lunes) o hasta que compres un paquete de créditos: Chispa, Envión, Turbina o Reserva. No hay cobros automáticos por exceso.' },
-  { q: '¿Cuándo se renuevan los créditos?', a: 'Cada lunes, en todos los planes.' },
+  { q: '¿Cuándo se renuevan los créditos?', a: 'Cada lunes, en todos los planes. Los créditos semanales que no usaste expiran ese lunes: no se acumulan.' },
+  { q: '¿Puedo pedir un reembolso?', a: 'Sí, en estos casos: en tu primera suscripción, dentro de 7 días si usaste menos del 10 % de los créditos; los paquetes Chispa, Envión y Turbina, dentro de 14 días si no los usaste; y siempre los errores de facturación. Los planes de pago se renuevan automáticamente cada mes hasta que canceles. Detalles en Reembolsos y cancelación.' },
   { q: '¿Hay límite de agentes?', a: 'No. Todos los planes, incluido Arranque, tienen agentes sin límite. Lo que cambia entre planes son los créditos por semana y cuántas personas de tu equipo pueden entrar.' },
   { q: '¿Necesito tarjeta de crédito para empezar?', a: 'No. Arranque no pide tarjeta. Solo la necesitas si pasas a un plan de pago o compras un paquete de créditos.' },
   { q: '¿Mis datos son míos?', a: 'Sí. La información de tu negocio y la de tus agentes es tuya. Puedes exportarla o pedir que la borremos.' },

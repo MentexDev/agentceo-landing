@@ -4,7 +4,7 @@ id: privacidad
 slug: privacidad
 estado: borrador
 actualizado: 2026-10-20
-version: 2.1
+version: 2.2
 descripcion: Qué datos trata Klinworks, LLC en Agent CEO y en agentceo.io, para qué, con quién los comparte y qué derechos tienes.
 ---
 
@@ -123,8 +123,7 @@ datos y a no usarlos para fines propios.
 {{subprocesadores}}
 
 La lista viva, con su historial de cambios, está en
-[Subprocesadores](/legal/subprocesadores). Los marcados «No activo» no reciben
-datos personales hoy.
+[Subprocesadores](/legal/subprocesadores).
 
 **Cambios en esta lista.** Si incorporamos un subencargado nuevo que trate datos
 personales, actualizaremos esta tabla y la fecha de esta política. Si tienes un

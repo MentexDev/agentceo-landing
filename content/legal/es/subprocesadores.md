@@ -4,7 +4,7 @@ id: subprocesadores
 slug: subprocesadores
 estado: borrador
 actualizado: 2026-10-20
-version: 1.0
+version: 1.1
 descripcion: Lista de los proveedores que tratan datos personales para prestar Agent CEO, para qué los usamos y cómo avisamos de cambios.
 ---
 
@@ -51,10 +51,9 @@ privacidad §4.1).
 
 {{subprocesadores}}
 
-**Sobre la columna de estado.** Los proveedores marcados **«No activo»**
-—los de analítica— **no reciben datos hoy**: figuran en la lista para que sepas
-de antemano que podríamos incorporarlos. Antes de activarlos, seguiremos el
-procedimiento de aviso de la sección 4.
+**Sin analítica ni monitorización de terceros.** No usamos proveedores de
+analítica ni de seguimiento de errores externos. Si algún día incorporamos uno,
+seguiremos el procedimiento de aviso de la sección 4.
 
 ## 4. Cómo avisamos de los cambios
 

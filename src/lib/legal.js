@@ -56,8 +56,8 @@ function table(head, rows) {
 /** Bloques de datos compartidos (marcadores en el markdown). */
 function dataBlock(name, lang) {
   if (name === 'subprocesadores') {
-    const H = lang === 'en' ? ['Provider', 'Purpose', 'Data location', 'Status'] : ['Proveedor', 'Para qué', 'Dónde trata los datos', 'Estado']
-    return table(H, SUBPROCESSORS.map((s) => [`**${s.name}**`, s.purpose[lang], s.location[lang], s.status[lang]]))
+    const H = lang === 'en' ? ['Provider', 'Purpose', 'Data location'] : ['Proveedor', 'Para qué', 'Dónde trata los datos']
+    return table(H, SUBPROCESSORS.map((s) => [`**${s.name}**`, s.purpose[lang], s.location[lang]]))
   }
   if (name === 'almacenamiento') {
     const H = lang === 'en' ? ['Name', 'Type', 'Purpose', 'Duration', 'Category'] : ['Nombre', 'Tipo', 'Para qué', 'Duración', 'Categoría']

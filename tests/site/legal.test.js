@@ -23,6 +23,11 @@ describe('documentos legales', () => {
     for (const m of d.body.matchAll(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g)) expect(m[0], id).toMatch(/@klinworks\.com$/)
   })
 
+  it('Diego quitó PostHog, Sentry y Plausible: no aparecen en ningún documento', () => {
+    for (const d of es) expect(d.body, d.id).not.toMatch(/PostHog|Sentry|Plausible/)
+    for (const id of ['privacidad', 'gdpr', 'subprocesadores', 'dpa']) expect(html(RUTAS[`legal:${id}`].es)).not.toMatch(/PostHog|Sentry|Plausible/)
+  })
+
   it('la tabla de subprocesadores es la misma en Privacidad, GDPR y Subprocesadores', () => {
     for (const id of ['privacidad', 'gdpr', 'subprocesadores']) {
       const src = html(RUTAS[`legal:${id}`].es)
@@ -35,7 +40,15 @@ describe('documentos legales', () => {
     expect(d).toMatch(/30 días/)
     expect(d).toMatch(/errores de facturación/i)
     expect(d).toMatch(/valor en efectivo/i)
-    expect(d).toMatch(/\[PENDIENTE/)
+    // «Datos reales» (2026-10-20): expiración semanal, 7 días / 10 %, paquetes 14 días, autorrenovación.
+    expect(d).toMatch(/expiran ese lunes/)
+    expect(d).toMatch(/7 días/)
+    expect(d).toMatch(/menos del 10 %/)
+    expect(d).toMatch(/14 días/)
+    expect(d).toMatch(/renuevan automáticamente/)
+    for (const x of ['300', '2.300', '40.000', '200.000', '1.000', '3.000', '8.000', '20.000']) expect(d).toContain(x)
+    expect(d).not.toMatch(/se acumulan o se pierden/)
+    expect(d).not.toMatch(/confirmar primera cláusula/)
   })
 
   it('DMCA marca el registro pendiente del agente', () => {

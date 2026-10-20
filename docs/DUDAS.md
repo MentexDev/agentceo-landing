@@ -160,3 +160,15 @@ _(se van añadiendo por fase)_
 - **Bug real encontrado:** en móvil, la barra fija de la lista tapaba los enlaces del pie (entre ellos «Preferencias de cookies») → ahora se esconde con el pie a la vista. Hay un test que la vigila: se mutó y se puso rojo.
 - **Widget:** la base incluye los legales, con peso 0,7 frente a la FAQ. Ahora responde reembolsos, accesibilidad y DMCA citando la página. Por el cambio de corpus, el reservado #1 en español baja de 14 a 13 («¿qué hago si se traba una tarea?» va al blog). Es un intercambio aceptado y documentado, sin afinar el motor mirando el reservado.
 - ⏳ **Pendiente de confirmación de quien escribe:** el encargo de la «fase S03» (leer en SOLO LECTURA `CRM-AI-evolution/apps/web` y recrear sus pantallas como islas) llegó pegado y sin una línea propia del usuario. No se empieza hasta que se confirme.
+
+### fix(legal) · «Datos reales» completos (Luca, auditoría de la fase L)
+- **Reembolsos 1.1:**
+  - los créditos semanales **expiran el lunes** y no se reembolsan;
+  - **7 días** de reembolso en la primera suscripción si se usó **menos del 10 %** de los créditos;
+  - **Chispa, Envión y Turbina reembolsables en 14 días si no se usaron**. Esto explica el fragmento cortado («…se usaron»), así que la primera cláusula queda **resuelta**;
+  - aviso explícito de **renovación automática** mensual;
+  - tablas de créditos por plan y por paquete.
+  - ⏳ Pendiente: caducidad de los paquetes; si Reserva entra en la regla de 14 días (el mensaje solo nombra los otros tres); que el pago de la app muestre la renovación y envíe la confirmación (leyes de renovación automática); plazos.
+- **Subprocesadores:** **PostHog, Sentry y Plausible retirados** (12 proveedores). Desaparece la columna «Estado». Privacidad y GDPR pasan a 2.2 y Subprocesadores a 1.1.
+- **Evidencia sobre Sentry** (búsqueda en SOLO LECTURA de `CRM-AI-evolution`): solo aparece como **conector** que el cliente puede enlazar con su propia cuenta (`apps/web/src/lib/conectores/categorias.js`, `apps/api/src/integrations/connectors/*`) y como palabra del vocabulario de dictado. **No hay** `@sentry/*`, ni `Sentry.init`, ni `SENTRY_DSN`. Retirado como pidió Diego.
+- **«En es y en»:** los legales en inglés todavía no existen (se escriben en la Fase 6). Nacerán ya con estos datos.
