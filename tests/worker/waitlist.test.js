@@ -4,6 +4,13 @@ import { exports } from 'cloudflare:workers'
 import { describe, it, expect } from 'vitest'
 import { saveSignup, toRow } from '../../worker/waitlist.js'
 
+// El rate limit nativo cuenta por ventanas de 60 s: si el test cae en el cambio de minuto el
+// contador se reinicia a mitad (fallo intermitente medido). Se espera a una ventana limpia.
+const freshWindow = async () => {
+  const s = new Date().getSeconds()
+  if (s > 48) await new Promise((r) => setTimeout(r, (61 - s) * 1000))
+}
+
 let ipN = 0
 // Cada petición sale de una IP distinta salvo que el test fije una (el rate limit es por IP).
 const post = (path, body, headers = {}) =>
@@ -98,7 +105,8 @@ describe('POST /api/waitlist · JSON', () => {
     expect(r.status).toBe(200)
   })
 
-  it('rate limit: la 9.ª petición en un minuto desde la misma IP → 429', async () => {
+  it('rate limit: la 9.ª petición en un minuto desde la misma IP → 429', { timeout: 20_000 }, async () => {
+    await freshWindow()
     const ip = { 'cf-connecting-ip': '192.0.2.77' }
     const codes = []
     for (let i = 0; i < 9; i++) codes.push((await post('/api/waitlist', { email: `rl${i}@example.com` }, ip)).status)

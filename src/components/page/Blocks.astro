@@ -1,0 +1,13 @@
+---
+// Cuerpo tipado del contenido (como la v1): h · p · ul · quote, con **negrita** segura.
+import { inlineBold, esc } from '../../lib/escape.js'
+interface Props { blocks: { type: string; text?: string; items?: string[]; cite?: string }[] }
+const { blocks = [] } = Astro.props
+---
+{blocks.map((b) => {
+  if (b.type === 'h') return <h2>{b.text}</h2>
+  if (b.type === 'p') return <p set:html={inlineBold(b.text)} />
+  if (b.type === 'ul') return <ul>{b.items!.map((i) => <li set:html={inlineBold(i)} />)}</ul>
+  if (b.type === 'quote') return <blockquote set:html={`${inlineBold(b.text)}${b.cite ? `<cite>— ${esc(b.cite)}</cite>` : ''}`} />
+  return null
+})}

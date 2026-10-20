@@ -1,0 +1,12 @@
+---
+// Migas de pan visibles. El JSON-LD BreadcrumbList lo emite la página con los MISMOS datos.
+interface Props { items: { name: string; url?: string }[]; label?: string }
+const { items, label = 'Breadcrumb' } = Astro.props
+---
+<nav aria-label={label}>
+  <ol class="crumbs">
+    {items.map((it, i) => (
+      <li>{i < items.length - 1 && it.url ? <a href={it.url}>{it.name}</a> : <span aria-current="page">{it.name}</span>}</li>
+    ))}
+  </ol>
+</nav>

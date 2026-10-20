@@ -1,0 +1,41 @@
+---
+// /contacto/ · un buzón por tema (sin formulario: no hay envío de correo en esta rama).
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/page/PageHead.astro'
+import '../styles/pages.css'
+import { t } from '../i18n/config.js'
+import { href, alternatesFor } from '../i18n/rutas.js'
+import { breadcrumbs, ORIGIN } from '../lib/jsonld.js'
+import { CONTACTS } from '../data/contacts.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const tr = (k: string) => t(lang, `contacto.${k}`)
+const path = href('contacto', lang)
+const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: tr('eyebrow'), url: path }]
+const jsonLd = { '@context': 'https://schema.org', '@graph': [{ '@type': 'ContactPage', name: tr('title'), url: `${ORIGIN}${path}`, inLanguage: lang, about: { '@id': `${ORIGIN}/#organization` } }, breadcrumbs(crumbs)] }
+---
+<Base lang={lang} title={tr('title')} description={tr('sub')} path={path} alternates={alternatesFor('contacto')} page="contacto" jsonLd={jsonLd}>
+  <div class="pg"><div class="pg-wrap">
+    <PageHead crumbs={crumbs} eyebrow={tr('eyebrow')} h1a={tr('h1a')} h1b={tr('h1b')} sub={tr('sub')} />
+    <ul class="ct-grid" role="list">
+      {CONTACTS.map((c) => (
+        <li class="card ct-card"><h2>{tr(c.id)}</h2><a class="ct-mail" href={`mailto:${c.email}`}>{c.email}</a></li>
+      ))}
+      <li class="card ct-card ct-chat">
+        <h2>{tr('chatTitle')}</h2><p>{tr('chatText')}</p>
+        <button type="button" class="ac-btn ac-btn-dark" data-open-chat>{tr('chatCta')}</button>
+      </li>
+    </ul>
+  </div></div>
+</Base>
+<style>
+  .ct-grid { margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 20px; }
+  .ct-card:hover { transform: none; box-shadow: none; }
+  .ct-card h2 { font-size: 24px; }
+  .ct-mail { font-size: 17px; color: var(--gold-ink); text-underline-offset: 3px; overflow-wrap: anywhere; }
+  .ct-chat { background: var(--gold-3); }
+  .ct-chat .ac-btn { align-self: flex-start; margin-top: 6px; }
+</style>
+<script>
+  document.querySelector('[data-open-chat]')?.addEventListener('click', () => (document.querySelector('[data-chat-launch]') as HTMLElement)?.click())
+</script>

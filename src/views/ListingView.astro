@@ -1,0 +1,59 @@
+---
+// Listado de una sección de contenido (noticias / blog / recursos): destacada, filtros por
+// categoría (botones con aria-pressed; sin JS se ven todas) y rejilla de tarjetas.
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/page/PageHead.astro'
+import Card from '../components/page/Card.astro'
+import '../styles/pages.css'
+import { t } from '../i18n/config.js'
+import { href, alternatesFor } from '../i18n/rutas.js'
+import { section, itemUrl } from '../lib/content.js'
+import { breadcrumbs, ORIGIN } from '../lib/jsonld.js'
+interface Props { kind: 'noticias' | 'blog' | 'recursos'; lang: string }
+const { kind, lang } = Astro.props
+const s = section(kind, lang)!
+const featured = s.ITEMS.find((i) => i.featured) || s.ITEMS[0]
+const rest = s.ITEMS.filter((i) => i !== featured)
+const path = href(kind, lang)
+const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: s.META.eyebrow, url: path }]
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'CollectionPage', name: s.META.title, description: s.META.sub, url: `${ORIGIN}${path}`, inLanguage: lang,
+      mainEntity: { '@type': 'ItemList', itemListElement: s.ITEMS.map((it, i) => ({ '@type': 'ListItem', position: i + 1, url: `${ORIGIN}${itemUrl(kind, lang, it.slug)}`, name: it.title })) } },
+    breadcrumbs(crumbs),
+  ],
+}
+---
+<Base lang={lang} title={s.META.title} description={s.META.sub} path={path} alternates={alternatesFor(kind)} active={kind} page={kind} jsonLd={jsonLd}>
+  <div class="pg"><div class="pg-wrap">
+    <PageHead crumbs={crumbs} eyebrow={s.META.eyebrow} h1a={s.META.h1} sub={s.META.sub} />
+    <div class="chips" role="group" aria-label={t(lang, 'pages.filterBy')} data-filters hidden>
+      <button class="chip" type="button" aria-pressed="true" data-filter="all">{t(lang, 'pages.all')}</button>
+      {s.CATEGORIES.map((c) => <button class="chip" type="button" aria-pressed="false" data-filter={c}>{c}</button>)}
+    </div>
+    {featured && <Card item={featured} url={itemUrl(kind, lang, featured.slug)} lang={lang} featured />}
+    <div class="cgrid">
+      {rest.map((it) => <Card item={it} url={itemUrl(kind, lang, it.slug)} lang={lang} headingLevel={2} />)}
+    </div>
+    <p class="empty" data-empty hidden>{t(lang, 'pages.empty')}</p>
+  </div></div>
+</Base>
+<script>
+  // Los filtros solo aparecen con JS (sin JS, todo el listado está visible).
+  const box = document.querySelector<HTMLElement>('[data-filters]')
+  if (box) {
+    box.hidden = false
+    const cards = [...document.querySelectorAll<HTMLElement>('[data-cat]')]
+    const empty = document.querySelector<HTMLElement>('[data-empty]')!
+    box.addEventListener('click', (e) => {
+      const chip = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]')
+      if (!chip) return
+      box.querySelectorAll('[data-filter]').forEach((c) => c.setAttribute('aria-pressed', String(c === chip)))
+      const f = chip.dataset.filter
+      let shown = 0
+      for (const c of cards) { const ok = f === 'all' || c.dataset.cat === f; c.hidden = !ok; if (ok) shown++ }
+      empty.hidden = shown > 0
+    })
+  }
+</script>

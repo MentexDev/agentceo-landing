@@ -125,6 +125,10 @@ test('exit-intent: al sacar el ratón por arriba se ofrece guardar el lugar (una
 })
 
 test('si el servidor rechaza (429 real), la interfaz muestra el error y NUNCA un éxito falso', async ({ page }, info) => {
+  test.setTimeout(45_000)
+  // Ventana de 60 s limpia (el contador se reinicia al cambiar de minuto).
+  const sec = new Date().getSeconds()
+  if (sec > 45) await page.waitForTimeout((61 - sec) * 1000)
   await page.goto('/')
   await page.waitForTimeout(1300)
   // Agota el límite real del Worker desde la MISMA IP del test (8/min).

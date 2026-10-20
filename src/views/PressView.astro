@@ -1,0 +1,88 @@
+---
+// /prensa/ · kit de marca: descripción para copiar, mascota en SVG, colores, tipografías y reglas.
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/page/PageHead.astro'
+import Mascot from '../components/Mascot.astro'
+import '../styles/pages.css'
+import { t } from '../i18n/config.js'
+import { href, alternatesFor } from '../i18n/rutas.js'
+import { breadcrumbs, ORIGIN } from '../lib/jsonld.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const tr = (k: string, v?: any) => t(lang, `prensa.${k}`, v)
+const path = href('prensa', lang)
+const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: tr('eyebrow'), url: path }]
+const colors = [['Tinta', '#111113', 'ink'], ['Crema', '#F4F2ED', 'cream'], ['Dorado', '#B8923A', 'gold'], ['Dorado claro', '#D9B866', 'gold-2'], ['Champán', '#EFE4C8', 'gold-3'], ['Dorado texto', '#7A5C17', 'gold-ink']]
+const jsonLd = { '@context': 'https://schema.org', '@graph': [{ '@type': 'WebPage', name: tr('title'), url: `${ORIGIN}${path}`, inLanguage: lang }, breadcrumbs(crumbs)] }
+---
+<Base lang={lang} title={tr('title')} description={tr('sub')} path={path} alternates={alternatesFor('prensa')} page="prensa" jsonLd={jsonLd}>
+  <div class="pg"><div class="pg-wrap">
+    <PageHead crumbs={crumbs} eyebrow={tr('eyebrow')} h1a={tr('h1a')} h1b={tr('h1b')} sub={tr('sub')} />
+
+    <section class="box pr-sec" aria-labelledby="pr-bp">
+      <h2 id="pr-bp">{tr('boilerplate')}</h2>
+      <p class="pr-bp" id="pr-bp-text">{t(lang, 'site.entity')}</p>
+      <button type="button" class="ac-btn ac-btn-ghost" data-copy="pr-bp-text" data-done={t(lang, 'pages.copied')}>{tr('copy')}</button>
+      <span class="pr-msg" role="status" aria-live="polite"></span>
+    </section>
+
+    <section class="pr-sec" aria-labelledby="pr-logos">
+      <h2 class="pg-h2" id="pr-logos">{tr('logos')}</h2>
+      <div class="pr-logos">
+        <figure class="pr-logo"><div class="pr-art"><Mascot size={120} tie eye={0} blink="999s" /></div><figcaption><a href="/brand/agentceo-mascota.svg" download>{tr('download', { fmt: 'SVG' })}</a></figcaption></figure>
+        <figure class="pr-logo pr-dark"><div class="pr-art"><Mascot size={120} tie variant="light" eye={0} blink="999s" /></div><figcaption><a href="/brand/agentceo-mascota-clara.svg" download>{tr('download', { fmt: 'SVG' })}</a></figcaption></figure>
+        <figure class="pr-logo"><div class="pr-art pr-word"><span>agent<span class="dot">.</span>ceo</span></div><figcaption>Geist SemiBold · −2 %</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="pr-sec" aria-labelledby="pr-colors">
+      <h2 class="pg-h2" id="pr-colors">{tr('colors')}</h2>
+      <ul class="pr-colors" role="list">
+        {colors.map(([name, hex, tok]) => <li><span class="pr-sw" style={`background:${hex}`}></span><strong>{name}</strong><code>{hex}</code><code>--{tok}</code></li>)}
+      </ul>
+    </section>
+
+    <section class="pr-sec" aria-labelledby="pr-type">
+      <h2 class="pg-h2" id="pr-type">{tr('type')}</h2>
+      <ul class="pr-type" role="list">
+        <li><span style="font-family:var(--serif);font-size:44px">Instrument Serif</span><small>{tr('licenseFonts')}</small></li>
+        <li><span style="font-family:var(--sans);font-size:34px;font-weight:600">Geist</span><small>{tr('licenseFonts')}</small></li>
+        <li><span style="font-family:var(--mono);font-size:26px">Geist Mono</span><small>{tr('licenseFonts')}</small></li>
+      </ul>
+    </section>
+
+    <section class="box pr-sec" aria-labelledby="pr-rules">
+      <h2 id="pr-rules">{tr('rules')}</h2>
+      <ul><li>{tr('r1')}</li><li>{tr('r2')}</li><li>{tr('r3')}</li></ul>
+      <p class="note">{tr('contact')}: <a href="mailto:info@klinworks.com">info@klinworks.com</a></p>
+    </section>
+  </div></div>
+</Base>
+<style>
+  .pr-sec { margin-top: 40px; }
+  .pr-bp { font-size: 18px; line-height: 1.6; margin: 0 0 14px; max-width: 70ch; }
+  .pr-msg { margin-left: 10px; color: var(--muted); font-size: 14px; }
+  .pr-logos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+  .pr-logo { margin: 0; border: 1.5px solid var(--ink); border-radius: 22px; overflow: hidden; background: var(--paper); }
+  .pr-art { height: 200px; display: grid; place-items: center; }
+  .pr-dark .pr-art { background: var(--ink); }
+  .pr-word span { font-size: 40px; font-weight: 600; letter-spacing: -.02em; }
+  .pr-word .dot { color: var(--gold); }
+  .pr-logo figcaption { padding: 12px 16px; border-top: 1.5px solid var(--ink); font-size: 14px; }
+  .pr-colors { margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+  .pr-colors li { display: grid; gap: 4px; }
+  .pr-sw { height: 84px; border-radius: 16px; border: 1.5px solid var(--ink); }
+  .pr-colors code { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+  .pr-type { margin: 0; padding: 0; display: grid; gap: 14px; }
+  .pr-type li { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; padding: 18px 20px; border: 1.5px solid var(--ink); border-radius: 18px; background: var(--paper); }
+  .pr-type small { color: var(--muted); }
+</style>
+<script>
+  for (const b of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+    b.addEventListener('click', async () => {
+      const txt = document.getElementById(b.dataset.copy!)!.textContent!.trim()
+      const msg = b.parentElement!.querySelector('.pr-msg')!
+      try { await navigator.clipboard.writeText(txt); msg.textContent = b.dataset.done! } catch { msg.textContent = txt }
+    })
+  }
+</script>

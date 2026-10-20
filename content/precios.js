@@ -1,9 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Página de PRECIOS de AgentCEO (dedicada, estilo NeuralOS).
 //
-// Contenido REAL de pre-lanzamiento: 2 planes (Gratis + A tu medida). NO se
-// inventan tarifas — AgentCEO aún no tiene precios públicos, por eso no hay
-// toggle mensual/anual ni cifras en dólares.
+// Contenido REAL de pre-lanzamiento. NO se inventan tarifas.
+// ⚠️ 2026-10-20 · DECISIÓN DE DIEGO: los precios serán LOS DE LA APP y los pasará él.
+// Hasta entonces: el plan gratis (confirmado por la v1 y por el prototipo) se muestra;
+// los planes de pago llevan `pendiente: 'precios'` y la página pinta la marca visible
+// «PENDIENTE · precios de la app». La tabla COMPARE describe un plan de pago que puede no
+// coincidir con la app: NO se pinta mientras PRICES_PENDING sea true.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const META = {
@@ -12,6 +15,8 @@ export const META = {
   h1: 'Empieza gratis. Crece cuando quieras.',
   sub: 'Estamos en pre-lanzamiento. Crea tu empresa y arma tu equipo de agentes sin costo; cuando tu operación crezca, pasamos a un plan a la medida de tu negocio.',
 }
+
+export const PRICES_PENDING = true
 
 export const PLANS = [
   {
@@ -32,6 +37,7 @@ export const PLANS = [
     name: 'Para tu equipo',
     price: 'A tu medida',
     priceNote: 'Cuando tu operación crece',
+    pendiente: 'precios',
     desc: 'Más agentes, más marcas y más automatización, con acompañamiento para montarlo todo.',
     features: [
       'Agentes ilimitados y varias marcas',

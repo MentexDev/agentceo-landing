@@ -1,0 +1,149 @@
+---
+// Página de una pieza de contenido. Noticias y blog: cuerpo + fuentes + compartir + relacionados.
+// Recursos: además, GATE de correo (POST /api/lead) antes del cuerpo, como en la v1.
+// ⚠️ El gate es client-side (deuda consciente de la v1, auditoría 2026-08-10): el contenido viaja
+// en el HTML. Capta el correo, no protege el contenido.
+import Base from '../layouts/Base.astro'
+import Breadcrumbs from '../components/page/Breadcrumbs.astro'
+import Blocks from '../components/page/Blocks.astro'
+import Card from '../components/page/Card.astro'
+import Share from '../components/page/Share.astro'
+import '../styles/pages.css'
+import { t, fmtDate } from '../i18n/config.js'
+import { href } from '../i18n/rutas.js'
+import { section, itemUrl, itemAlternates, esSlugOf, SCHEMA } from '../lib/content.js'
+import { safeUrl, inlineBold } from '../lib/escape.js'
+import { breadcrumbs, ORIGIN, ORG_ID } from '../lib/jsonld.js'
+interface Props { kind: 'noticias' | 'blog' | 'recursos'; lang: string; item: any }
+const { kind, lang, item } = Astro.props
+const s = section(kind, lang)!
+const url = itemUrl(kind, lang, item.slug)
+const sectionUrl = href(kind, lang)
+const sectionName = s.META.eyebrow
+const related = s.ITEMS.filter((i) => i.slug !== item.slug).slice(0, 3)
+const gated = kind === 'recursos'
+const sources = (item.sources?.length ? item.sources : item.source ? [item.source] : []).map((x: any) => ({ name: x.name, url: safeUrl(x.url) }))
+const sourcesLabel = kind === 'noticias' ? t(lang, 'pages.sourcesVerified') : t(lang, 'pages.references')
+const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: sectionName, url: sectionUrl }, { name: item.title, url }]
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': SCHEMA[kind],
+      headline: item.title,
+      description: item.excerpt,
+      datePublished: item.dateISO,
+      dateModified: item.updatedISO || item.dateISO,
+      inLanguage: lang,
+      mainEntityOfPage: `${ORIGIN}${url}`,
+      url: `${ORIGIN}${url}`,
+      image: `${ORIGIN}/og${url.replace(/\/$/, '')}.png`,
+      author: { '@id': ORG_ID },
+      publisher: { '@id': ORG_ID },
+      ...(sources.length ? { citation: sources.map((x: any) => ({ '@type': 'CreativeWork', name: x.name, url: x.url })) } : {}),
+      ...(gated ? { isAccessibleForFree: true } : {}),
+    },
+    breadcrumbs(crumbs),
+  ],
+}
+---
+<Base lang={lang} title={`${item.title} · Agent CEO`} description={item.excerpt} path={url} alternates={itemAlternates(kind, esSlugOf(item, lang))} active={kind} page={kind} ogType="article" ogImage={`/og${url.replace(/\/$/, '')}.png`} jsonLd={jsonLd}>
+  <article class="pg">
+    <div class="pg-narrow">
+      <Breadcrumbs items={crumbs} />
+      <header class="pg-head">
+        <div class="art-meta">
+          <span class="card-cat">{item.category}</span>
+          {!gated && <time datetime={item.dateISO}>{fmtDate(lang, item.dateISO)}</time>}
+          {item.readMinutes && <><span aria-hidden="true">·</span><span>{gated ? t(lang, 'pages.guideMin', { n: item.readMinutes }) : t(lang, 'pages.minRead', { n: item.readMinutes })}</span></>}
+        </div>
+        <h1 class="pg-h1">{item.title}</h1>
+        <p class="art-lead">{item.excerpt}</p>
+      </header>
+
+      {gated && (
+        <section class="gate" id="gate" data-gate aria-labelledby="gate-title">
+          {item.whatYouGet?.length > 0 && (
+            <div class="gate-what"><h3>{t(lang, 'pages.gateWhat')}</h3><ul>{item.whatYouGet.map((w: string) => <li set:html={inlineBold(w)} />)}</ul></div>
+          )}
+          <form class="gate-form" data-resource={item.slug} data-lead data-err={t(lang, 'pages.gateErr')} data-invalid={t(lang, 'wl.errInvalid')} data-rate={t(lang, 'wl.errRate')} novalidate>
+            <h2 id="gate-title">{t(lang, 'pages.gateTitle')}</h2>
+            <div class="gate-row">
+              <label class="sr-only" for="lead-email">{t(lang, 'wl.label')}</label>
+              <input type="email" id="lead-email" name="email" required autocomplete="email" placeholder={t(lang, 'wl.placeholder')} />
+              <div class="hp" aria-hidden="true"><input type="text" name="company" tabindex="-1" autocomplete="off" /></div>
+              <button type="submit">{t(lang, 'pages.gateCta')} <span aria-hidden="true">→</span></button>
+            </div>
+            <p class="gate-msg" role="alert" data-lead-msg></p>
+            <p class="gate-note">{t(lang, 'pages.gateNote')} {t(lang, 'wl.notice')}</p>
+          </form>
+          <noscript><p class="gate-note">{t(lang, 'pages.gateNoJs')} <a href="mailto:info@klinworks.com">info@klinworks.com</a>.</p></noscript>
+        </section>
+      )}
+
+      <div class="prose" data-gated={gated ? '' : undefined} hidden={gated ? true : undefined}>
+        <Blocks blocks={item.body} />
+        {gated && <p><button type="button" class="ac-btn ac-btn-ghost" data-print>{t(lang, 'pages.savePdf')} <span aria-hidden="true">↓</span></button></p>}
+      </div>
+
+      {sources.length > 0 && (
+        <aside class="box" aria-labelledby="src-h">
+          <h2 id="src-h">{sourcesLabel}</h2>
+          <ul>{sources.map((x: any) => <li><a href={x.url} target="_blank" rel="noopener noreferrer nofollow">{x.name} <span aria-hidden="true">↗</span><span class="sr-only"> {t(lang, 'pages.newTab')}</span></a></li>)}</ul>
+          {kind === 'noticias' && <p class="note">{t(lang, 'pages.sourcesNote')} <a href="mailto:info@klinworks.com">info@klinworks.com</a>.</p>}
+        </aside>
+      )}
+
+      <Share lang={lang} />
+      <a class="back" href={sectionUrl}><span aria-hidden="true">←</span> {t(lang, 'pages.back', { section: sectionName })}</a>
+    </div>
+
+    {related.length > 0 && (
+      <aside class="pg-wrap related" aria-labelledby="rel-h">
+        <h2 class="pg-h2" id="rel-h">{t(lang, 'pages.moreOf', { section: sectionName })}</h2>
+        <div class="cgrid">{related.map((it) => <Card item={it} url={itemUrl(kind, lang, it.slug)} lang={lang} />)}</div>
+      </aside>
+    )}
+  </article>
+</Base>
+
+<script>
+  // Gate del recurso: guarda el lead (POST /api/lead) y revela el contenido. El acceso queda
+  // recordado POR RECURSO en localStorage (sin el correo).
+  import { getAttribution } from '../scripts/attribution.js'
+  import { track } from '../scripts/track.js'
+  const form = document.querySelector<HTMLFormElement>('[data-lead]')
+  if (form) {
+    const gate = document.querySelector<HTMLElement>('[data-gate]')!
+    const content = document.querySelector<HTMLElement>('[data-gated]')!
+    const msg = form.querySelector<HTMLElement>('[data-lead-msg]')!
+    const KEY = `agentceo_lead_${form.dataset.resource}`
+    const reveal = () => { gate.hidden = true; content.hidden = false }
+    try { if (localStorage.getItem(KEY)) reveal() } catch {}
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      msg.textContent = ''
+      const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim()
+      const btn = form.querySelector('button[type=submit]') as HTMLButtonElement
+      btn.disabled = true
+      try {
+        const res = await fetch('/api/lead', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ ...getAttribution(), email, company: (form.elements.namedItem('company') as HTMLInputElement).value, resource: form.dataset.resource, source: 'recursos' }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok || !data.ok) throw new Error(data.error || 'fail')
+        try { localStorage.setItem(KEY, '1') } catch {}
+        track('lead_success', { resource: form.dataset.resource })
+        reveal()
+        content.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
+      } catch (err) {
+        const code = (err as Error).message
+        msg.textContent = code === 'invalid_email' ? form.dataset.invalid! : code === 'rate_limited' ? form.dataset.rate! : form.dataset.err!
+        btn.disabled = false
+      }
+    })
+    document.querySelector('[data-print]')?.addEventListener('click', () => window.print())
+  }
+</script>

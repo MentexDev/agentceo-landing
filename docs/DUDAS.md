@@ -78,3 +78,19 @@ _(se van añadiendo por fase)_
 - ⏳ **S03 «Así se ve por dentro»:** el README del prototipo dice que está pendiente de rediseño. Se porta tal cual. Sus URLs simuladas (`app.agentceo.io/admin/agentes`…) se quedan en español también en `/en/`, porque son las rutas reales de la app.
 - **Carruseles automáticos:** se pausan con puntero, foco y toque, y no corren con motion reducido. ⏳ WCAG 2.2.2 pide además un control de pausa visible para lo que se mueve más de 5 s; queda para la auditoría (Fase 7).
 - **Inglés de la portada:** 722 textos traducidos por 3 agentes en paralelo con un glosario común. Lo validé yo: las mismas claves, los espacios de los bordes y que quedan sin traducir solo marcas, URLs y nombres propios (59). Hay un test de paridad.
+
+### Fase 4 · páginas internas
+- **Precios = los de la app (Diego los pasará).** El plan gratis se mantiene, porque lo confirman la v1 y el prototipo. El plan de pago muestra la marca visible `PENDIENTE · precios de la app` (`content/precios.js` → `pendiente: 'precios'`, `PRICES_PENDING = true`).
+  - La **tabla comparativa no se pinta**, porque describe un plan de pago que puede no coincidir con la app.
+  - El widget no cita «A tu medida» como precio.
+  - ⏳ Para activar los precios reales: rellenar `PLANS`, quitar `pendiente` y poner `PRICES_PENDING = false`.
+- **Empresa:** solo datos verificables (razón social, LLC de Delaware, expediente 10704723 y oficina registrada, todo sacado de `privacidad.md`). Sin equipo, historia ni redes sociales: no hay fuente para ellos.
+- **Contacto:** un buzón por tema, todos `@klinworks.com` (hay un test que lo exige). Sin formulario, porque no hay envío de correo en esta rama. ⏳ Prensa usa `info@` hasta que se confirme un buzón propio.
+- **Prensa:**
+  - mascota en SVG, en versión oscura y clara;
+  - colores con sus tokens, tipografías con su licencia OFL, reglas de uso y descripción para copiar.
+  - Los PNG `logo-agent`/`logo-ceo` son la marca de la v1, así que no entran en el kit.
+- **Recursos:** el gate client-side de la v1 se conserva. Sigue siendo deuda consciente: el contenido viaja en el HTML.
+- **Bugs reales encontrados:** `display: grid` anulaba `hidden` (el gate no desaparecía tras dejar el correo; los filtros se veían sin JS) → corregido, con un test e2e que lo vigila.
+- **Test intermitente investigado:** el rate limit nativo cuenta por ventanas de 60 s y el test fallaba si caía en el cambio de minuto → los tests esperan ahora a una ventana limpia.
+- **Skill `crear-recurso-agentceo` actualizada** al flujo de la v2 (Astro, `dist/`, `scripts/preview-restart.sh`). Se recupera `npm run deploy` (build + `wrangler deploy`) **solo para Diego**: ninguna rama de agente lo ejecuta.

@@ -1,0 +1,13 @@
+---
+// Cabecera de página interna: migas (con su BreadcrumbList en la página), eyebrow, h1 y entradilla.
+import Breadcrumbs from './Breadcrumbs.astro'
+interface Props { eyebrow?: string; h1a: string; h1b?: string; sub?: string; crumbs?: { name: string; url?: string }[] }
+const { eyebrow, h1a, h1b, sub, crumbs } = Astro.props
+---
+<header class="pg-head">
+  {crumbs && <Breadcrumbs items={crumbs} />}
+  {eyebrow && <span class="pg-eyebrow">{eyebrow}</span>}
+  <h1 class="pg-h1">{h1a}{h1b && <em>{h1b}</em>}</h1>
+  {sub && <p class="pg-sub">{sub}</p>}
+  <slot />
+</header>

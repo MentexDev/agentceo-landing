@@ -1,0 +1,25 @@
+---
+import Mascot from '../Mascot.astro'
+import { fmtDate, t } from '../../i18n/config.js'
+interface Props { item: any; url: string; lang: string; featured?: boolean; headingLevel?: 2 | 3 }
+const { item, url, lang, featured = false, headingLevel = 3 } = Astro.props
+const H = featured ? 'h2' : `h${headingLevel}`
+---
+{featured ? (
+  <a class="card card-feat" href={url} data-cat={item.category}>
+    <div class="card-body">
+      <div class="card-top"><span class="card-cat">{item.category}</span><time datetime={item.dateISO}>{fmtDate(lang, item.dateISO)}</time></div>
+      <H>{item.title}</H>
+      <p>{item.excerpt}</p>
+      <div class="card-foot"><span class="card-read">{t(lang, 'pages.readNote')} <span aria-hidden="true">→</span></span>{item.source?.name && <span class="card-src">{t(lang, 'pages.source')}: {item.source.name}</span>}</div>
+    </div>
+    <div class="card-art" aria-hidden="true"><span class="ghost">{item.category.charAt(0)}</span><Mascot size={96} variant="light" eye={3} blink="4.4s" /></div>
+  </a>
+) : (
+  <a class="card" href={url} data-cat={item.category}>
+    <div class="card-top"><span class="card-cat">{item.category}</span><time datetime={item.dateISO}>{fmtDate(lang, item.dateISO)}</time></div>
+    <H>{item.title}</H>
+    <p>{item.excerpt}</p>
+    <div class="card-foot"><span class="card-read">{t(lang, 'pages.read')} <span aria-hidden="true">→</span></span>{item.source?.name && <span class="card-src">{item.source.name}</span>}</div>
+  </a>
+)}

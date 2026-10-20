@@ -48,7 +48,8 @@ export function buildKnowledge(lang) {
   }
   // El contenido editorial existe hoy solo en español (la Fase 6 añade content/en).
   if (lang === 'es') {
-    const plans = PRECIOS.PLANS.map((p) => `${p.name}: ${p.price} (${p.priceNote}). ${p.desc} Incluye: ${p.features.join(', ')}.`).join(' ')
+    // Un plan con precio pendiente (precios de la app, los pasa Diego) NO se cita con precio.
+    const plans = PRECIOS.PLANS.map((p) => `${p.name}: ${p.pendiente ? 'precio pendiente de publicar' : `${p.price} (${p.priceNote})`}. ${p.desc} Incluye: ${p.features.join(', ')}.`).join(' ')
     out.push({ id: 'pricing', kind: 'pricing', title: PRECIOS.META.h1, text: clip(`${PRECIOS.META.sub} ${plans}`), url: routeUrl('precios', lang) || `${home}#faq` })
     for (const f of PRECIOS.FAQ) out.push({ id: `pricing-faq:${f.q}`, kind: 'faq', title: f.q, text: f.a, url: routeUrl('precios', lang) || `${home}#faq` })
     for (const it of BLOG.ITEMS) out.push({ id: `blog:${it.slug}`, kind: 'blog', title: it.title, text: clip(`${it.excerpt} ${bodyText(it.body)}`), url: `/blog/${it.slug}` })

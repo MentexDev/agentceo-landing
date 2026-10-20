@@ -15,8 +15,8 @@ NO es programadores: son **dueños de negocio** que quieren operar con IA.
 > nuestra honestidad de pre-lanzamiento.
 
 **Antes de empezar, lee:** `content/recursos.js` (los recursos ya hechos, como
-referencia de tono), `scripts/build-content.mjs` (cómo se genera y se aplica el
-gate) y la memoria `landing-agentceo-contenido.md` del proyecto.
+referencia de tono), `src/views/ArticleView.astro` (cómo se pinta y se aplica el
+gate, desde la v2 en Astro) y la memoria `landing-agentceo-contenido.md` del proyecto.
 
 ---
 
@@ -59,9 +59,10 @@ Lo que hace que un recurso CAMBIE el comportamiento del lector, no solo lo infor
 
 ## 2 · Estructura técnica (`content/recursos.js`)
 
-Cada recurso es un objeto del array `ITEMS`. El generador (`build-content.mjs`,
-`renderRecurso`) lo convierte en HTML con el **gate de correo** y el botón
-"Guardar como PDF". Shape:
+Cada recurso es un objeto del array `ITEMS`. La página `src/pages/recursos/[slug].astro`
+(vista `ArticleView`, desde la v2) lo convierte en HTML con el **gate de correo** y el botón
+"Guardar como PDF". El widget de soporte lo indexa solo en su base de conocimiento al hacer
+build. Shape:
 
 ```js
 {
@@ -110,12 +111,12 @@ Si el recurso se va a promocionar en Reel/TikTok, deja el guion en
 
 1. **Validar** los datos con agent-browser/WebSearch (si el recurso cita cifras).
 2. **Escribir** el recurso en `content/recursos.js` (anatomía completa: `whatYouGet` + `body`).
-3. **Build:** `npm run build` → genera `public/recursos/<slug>.html` (+ sitemap).
-4. **Verificar EN VIVO (local)** con agent-browser: levanta `python3 -m http.server`
-   en `public/`, abre `/recursos/<slug>`, confirma que el gate muestra "Qué incluye",
+3. **Build:** `npm run build` → genera `dist/recursos/<slug>.html` (+ sitemap y base del widget).
+4. **Verificar EN VIVO (local)** en un navegador real: `scripts/preview-restart.sh` (wrangler dev
+   en :8787 con D1 LOCAL), abre `/recursos/<slug>`, confirma que el gate muestra "Qué incluye",
    que al dejar un correo `@example.com` se revela el `body`, y que "Guardar como PDF"
    funciona. Limpia el lead de prueba de D1 (`DELETE FROM leads WHERE email LIKE '%@example.com'`).
-5. **Desplegar:** `npm run deploy` (= build + `wrangler@4.86.0 deploy`, Node 20).
+5. **Desplegar** (solo Diego, nunca desde una rama de agente): `npm run deploy` (= build + `wrangler deploy`).
    Verifica en `https://agentceo.io/recursos/<slug>`.
 6. **Guion viral** (opcional) en `docs/recursos/guion-<slug>.md`.
 7. **Commit + push** a `main` (`MentexDev/agentceo-landing`). Si fue una tanda grande

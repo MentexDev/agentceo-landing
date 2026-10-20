@@ -1,0 +1,58 @@
+---
+// /empresa/ · Sobre Klinworks, LLC. SOLO datos verificables (fuente: content/legal/privacidad.md):
+// razón social, tipo de sociedad, expediente de Delaware, oficina registrada y buzones.
+// Nada de equipo, historia, inversores ni perfiles sociales que no existan.
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/page/PageHead.astro'
+import '../styles/pages.css'
+import { t } from '../i18n/config.js'
+import { href, hasRoute, alternatesFor, RUTAS } from '../i18n/rutas.js'
+import { breadcrumbs, organization, ORIGIN } from '../lib/jsonld.js'
+import { CONTACTS } from '../data/contacts.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const tr = (k: string) => t(lang, `empresa.${k}`)
+const path = href('empresa', lang)
+const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: tr('eyebrow'), url: path }]
+const docs = Object.keys(RUTAS).filter((id) => id.startsWith('legal:') && hasRoute(id, lang)).map((id) => ({ url: href(id, lang), label: RUTAS[id].label[lang] }))
+const jsonLd = { '@context': 'https://schema.org', '@graph': [{ '@type': 'AboutPage', name: tr('title'), url: `${ORIGIN}${path}`, inLanguage: lang, about: { '@id': `${ORIGIN}/#organization` } }, organization(lang), breadcrumbs(crumbs)] }
+---
+<Base lang={lang} title={tr('title')} description={tr('sub')} path={path} alternates={alternatesFor('empresa')} page="empresa" jsonLd={jsonLd}>
+  <div class="pg"><div class="pg-wrap">
+    <PageHead crumbs={crumbs} eyebrow={tr('eyebrow')} h1a={tr('h1a')} h1b={tr('h1b')} sub={tr('sub')} />
+    <div class="co-grid">
+      <section class="box co-box" aria-labelledby="co-who"><h2 id="co-who">{tr('who')}</h2><p>{tr('whoText')}</p><p class="note">{t(lang, 'site.entity')}</p></section>
+      <section class="box co-box" aria-labelledby="co-legal">
+        <h2 id="co-legal">{tr('legal')}</h2>
+        <dl class="co-dl">
+          <dt>{tr('legalName')}</dt><dd>Klinworks, LLC</dd>
+          <dt>{tr('legalType')}</dt><dd>{tr('legalTypeVal')}</dd>
+          <dt>{tr('fileNo')}</dt><dd>10704723</dd>
+          <dt>{tr('office')}</dt><dd>131 Continental Drive, Suite 305<br />Newark, Delaware 19713, USA</dd>
+        </dl>
+      </section>
+      <section class="box co-box" aria-labelledby="co-pr">
+        <h2 id="co-pr">{tr('principles')}</h2>
+        <ul><li>{tr('p1')}</li><li>{tr('p2')}</li><li>{tr('p3')}</li></ul>
+      </section>
+      <section class="box co-box" aria-labelledby="co-ct">
+        <h2 id="co-ct">{tr('contactTitle')}</h2>
+        <ul>{CONTACTS.map((c) => <li>{t(lang, `contacto.${c.id}`)}: <a href={`mailto:${c.email}`}>{c.email}</a></li>)}</ul>
+      </section>
+      {docs.length > 0 && (
+        <section class="box co-box co-wide" aria-labelledby="co-docs"><h2 id="co-docs">{tr('docs')}</h2><ul class="co-docs">{docs.map((d) => <li><a href={d.url}>{d.label}</a></li>)}</ul></section>
+      )}
+    </div>
+  </div></div>
+</Base>
+<style>
+  .co-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 22px; }
+  .co-box { margin-top: 0; }
+  .co-box p { margin: 0 0 8px; line-height: 1.65; }
+  .co-wide { grid-column: 1 / -1; }
+  .co-dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 10px 18px; }
+  .co-dl dt { color: var(--muted); font-size: 14px; }
+  .co-dl dd { margin: 0; }
+  .co-docs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 18px; list-style: none; padding: 0; }
+  @media (max-width: 520px) { .co-dl { grid-template-columns: 1fr; gap: 2px; } .co-dl dd { margin-bottom: 10px; } }
+</style>

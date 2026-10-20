@@ -14,6 +14,14 @@ export const RUTAS = {
   home: { es: '/', en: '/en/' },
   // noindex: páginas de servicio (no van al sitemap ni llevan canonical).
   gracias: { es: '/gracias/', en: '/en/thanks/', noindex: true },
+  // Contenido editorial: el inglés se añade en la FASE 6 (cuando exista la traducción).
+  noticias: { es: '/noticias/' },
+  blog: { es: '/blog/' },
+  recursos: { es: '/recursos/' },
+  precios: { es: '/precios/' },
+  empresa: { es: '/empresa/' },
+  contacto: { es: '/contacto/' },
+  prensa: { es: '/prensa/' },
 }
 
 /** ¿Existe esta ruta (en este idioma)? */

@@ -6,6 +6,13 @@ import { handleChat, parseChat, LIMITS } from '../../worker/chat/handler.js'
 import { costUSD, systemPrompt, PRICE } from '../../worker/chat/live.js'
 import { KB } from '../../worker/chat/stub.js'
 
+// El rate limit nativo cuenta por ventanas de 60 s: si el test cae en el cambio de minuto el
+// contador se reinicia a mitad (fallo intermitente medido). Se espera a una ventana limpia.
+const freshWindow = async () => {
+  const s = new Date().getSeconds()
+  if (s > 48) await new Promise((r) => setTimeout(r, (61 - s) * 1000))
+}
+
 let ipN = 0
 const ip = () => `198.18.${Math.floor(++ipN / 250)}.${ipN % 250}`
 const req = (body, headers = {}) =>
@@ -104,7 +111,8 @@ describe('validación y anti-abuso', () => {
     expect(meta.cta).toBe('waitlist')
   })
 
-  it('rate limit: el 11.º mensaje en un minuto desde la misma IP → 429', async () => {
+  it('rate limit: el 11.º mensaje en un minuto desde la misma IP → 429', { timeout: 20_000 }, async () => {
+    await freshWindow()
     const h = { 'cf-connecting-ip': '192.0.2.200' }
     const codes = []
     for (let i = 0; i < 11; i++) {

@@ -11,7 +11,8 @@
     "test:e2e": "playwright test",
     "check": "npm run build && npm test",
     "prebuild": "node scripts/build-knowledge.mjs",
-    "pretest": "node scripts/build-knowledge.mjs"
+    "pretest": "node scripts/build-knowledge.mjs",
+    "deploy": "npm run build && WRANGLER_SEND_METRICS=false wrangler deploy"
   },
   "dependencies": {
     "@astrojs/preact": "^6.1.0",

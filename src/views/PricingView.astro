@@ -1,0 +1,117 @@
+---
+// /precios/ · planes reales de pre-lanzamiento (content/precios.js) + FAQ de precios (FAQPage).
+// Placeholder HONESTO: los planes de pago llevan la marca visible de pendiente hasta que
+// Diego pase los precios de la app (PRICES_PENDING).
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/page/PageHead.astro'
+import WaitlistForm from '../components/waitlist/WaitlistForm.astro'
+import '../styles/pages.css'
+import * as P from '../../content/precios.js'
+import { t } from '../i18n/config.js'
+import { href, alternatesFor } from '../i18n/rutas.js'
+import { breadcrumbs, ORIGIN } from '../lib/jsonld.js'
+import { inlineBold } from '../lib/escape.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const path = href('precios', lang)
+const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: P.META.eyebrow, url: path }]
+const icons: Record<string, string> = {
+  gift: '<path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/>',
+  card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
+}
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'FAQPage', mainEntity: P.FAQ.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+    { '@type': 'WebPage', name: P.META.title, url: `${ORIGIN}${path}`, inLanguage: lang, description: P.META.sub },
+    breadcrumbs(crumbs),
+  ],
+}
+---
+<Base lang={lang} title={P.META.title} description={P.META.sub} path={path} alternates={alternatesFor('precios')} active="precios" page="precios" jsonLd={jsonLd}>
+  <div class="pg"><div class="pg-wrap">
+    <PageHead crumbs={crumbs} eyebrow={P.META.eyebrow} h1a={P.META.h1} sub={P.META.sub} />
+
+    <div class="plans">
+      {P.PLANS.map((p) => (
+        <section class:list={['plan', { 'plan-feat': p.featured }]} aria-labelledby={`plan-${p.name}`}>
+          {p.badge && !p.pendiente && <span class="plan-badge">{p.badge}</span>}
+          <h2 class="plan-name" id={`plan-${p.name}`}>{p.name}</h2>
+          {p.pendiente ? (
+            <div class="plan-price"><span class="pending" data-pendiente="precios">{t(lang, 'precios.pending')}</span></div>
+          ) : (
+            <div class="plan-price"><span class="plan-amount">{p.price}</span><span class="plan-note">{p.priceNote}</span></div>
+          )}
+          {p.pendiente && <p class="plan-pnote">{t(lang, 'precios.pendingNote')}</p>}
+          <p class="plan-desc">{p.desc}</p>
+          <ul class="plan-feats">{p.features.map((f) => <li set:html={inlineBold(f)} />)}</ul>
+          <a class:list={['ac-btn', p.featured ? 'ac-btn-dark' : 'ac-btn-ghost']} href={href('home', lang, 'acceso')} data-open-waitlist data-wl-source={`precios-${p.name}`}>{p.cta.label}</a>
+        </section>
+      ))}
+    </div>
+
+    <ul class="guar" role="list">
+      {P.GUARANTEES.map((g) => (
+        <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons[g.icon] || ''} />{g.text}</li>
+      ))}
+    </ul>
+
+    {!P.PRICES_PENDING && (
+      <section class="compare" aria-labelledby="cmp-h">
+        <h2 class="pg-h2" id="cmp-h">{t(lang, 'precios.compare')}</h2>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th scope="col">{t(lang, 'precios.feature')}</th>{P.COMPARE.cols.map((c) => <th scope="col">{c}</th>)}</tr></thead>
+          <tbody>{P.COMPARE.rows.map((r) => (
+            <tr><th scope="row">{r.label}</th>{[r.free, r.team].map((v) => <td>{v === true ? <span aria-label={t(lang, 'precios.included')}>✓</span> : v === false ? <span aria-label={t(lang, 'precios.notIncluded')}>—</span> : v}</td>)}</tr>
+          ))}</tbody>
+        </table></div>
+      </section>
+    )}
+
+    <section class="pfaq" aria-labelledby="pfaq-h">
+      <h2 class="pg-h2" id="pfaq-h">{t(lang, 'precios.faq')}</h2>
+      {P.FAQ.map((f) => (
+        <details class="pfaq-i"><summary>{f.q}<span class="pfaq-ic" aria-hidden="true">+</span></summary><p>{f.a}</p></details>
+      ))}
+    </section>
+
+    <section class="pcta" id="acceso">
+      <h2 class="pg-h2">{t(lang, 'wl.modal.h2a')}<em>{t(lang, 'wl.modal.h2b')}</em></h2>
+      <WaitlistForm lang={lang} source="precios" id="wl-precios" note={t(lang, 'wl.note')} />
+    </section>
+  </div></div>
+</Base>
+<style>
+  .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 24px; align-items: stretch; }
+  .plan { position: relative; display: flex; flex-direction: column; gap: 14px; padding: clamp(24px, 3vw, 36px); border: 1.5px solid var(--ink); border-radius: 26px; background: var(--paper); }
+  .plan-feat { background: var(--ink); color: var(--cream); box-shadow: 10px 10px 0 var(--gold); }
+  .plan-feat .plan-desc, .plan-feat .plan-note, .plan-feat .plan-pnote { color: var(--mute-dark); }
+  .plan-feat .pending { color: var(--danger-dark); border-color: var(--danger-dark); }
+  .plan-feat .ac-btn-dark { background: var(--cream); color: var(--ink); }
+  .plan-badge { position: absolute; top: -13px; left: 26px; padding: 4px 12px; border-radius: var(--radius-pill); background: var(--gold-2); color: var(--ink); font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+  .plan-name { margin: 0; font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; }
+  .plan-price { display: flex; flex-direction: column; gap: 4px; min-height: 72px; justify-content: center; }
+  .plan-amount { font-family: var(--serif); font-size: clamp(44px, 5vw, 60px); line-height: 1; }
+  .plan-note, .plan-pnote { font-size: 14px; color: var(--muted); margin: 0; }
+  .plan-desc { margin: 0; color: var(--muted); line-height: 1.55; }
+  .plan-feats { margin: 4px 0 8px; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .plan-feats li { display: flex; gap: 10px; line-height: 1.45; }
+  .plan-feats li::before { content: ''; flex: none; width: 18px; height: 18px; margin-top: 2px; border-radius: 50%; background: var(--gold-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111113' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 11px no-repeat; }
+  .plan .ac-btn { margin-top: auto; }
+  .guar { margin: 40px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: center; }
+  .guar li { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; }
+  .guar svg { color: var(--gold-ink); }
+  .compare, .pfaq, .pcta { margin-top: clamp(56px, 7vw, 96px); }
+  .pfaq { max-width: 820px; }
+  .pfaq-i { border-bottom: 1.5px solid var(--ink); }
+  .pfaq-i:first-of-type { border-top: 1.5px solid var(--ink); }
+  .pfaq-i summary { list-style: none; display: flex; justify-content: space-between; gap: 16px; padding: 20px 4px; cursor: pointer; font-family: var(--serif); font-size: 22px; line-height: 1.2; }
+  .pfaq-i summary::-webkit-details-marker { display: none; }
+  .pfaq-ic { font-family: var(--sans); color: var(--gold-ink); transition: transform .25s var(--ease-spring); }
+  .pfaq-i[open] .pfaq-ic { transform: rotate(45deg); }
+  .pfaq-i p { margin: 0 4px 22px; color: var(--muted); line-height: 1.65; max-width: 70ch; }
+  .pcta { display: grid; justify-items: center; text-align: center; gap: 14px; padding: clamp(32px, 5vw, 56px); border: 1.5px solid var(--ink); border-radius: 30px; background: var(--paper); }
+  .pcta h2 em { font-style: italic; }
+</style>
