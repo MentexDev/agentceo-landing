@@ -75,18 +75,26 @@ const BRAND = new Set(['agent', 'ceo'])
 export function search(index, query, k = 5) {
   const q = [...new Set(tokens(query))]
   if (!q.length) return []
+  // La MARCA («agente» + «ceo» en español) cuenta para la confianza general (las preguntas SOBRE
+  // Agent CEO dependen de ella), pero no para la de un documento LEGAL (T40c, medido: «¿Agent CEO
+  // puede hacer mi declaración de renta…?» casaba con «Declaración de accesibilidad» por una sola
+  // palabra real; quitarla de todas las coberturas rompía «Hola amigo, ¿qué es Agent CEO?»).
+  const pair = q.includes('ceo') && (q.includes('agente') || q.includes('agent'))
+  const isBrand = (tk) => BRAND.has(tk) || (pair && tk === 'agente')
+  const core = q.filter((tk) => !isBrand(tk))
   const res = []
   for (const d of index.docs) {
-    let score = 0, hit = 0, inTitle = 0
+    let score = 0, hit = 0, inTitle = 0, coreHit = 0
     for (const tk of q) {
       if (d.title.has(tk)) inTitle++
       const f = d.tf.get(tk)
       if (!f) continue
       hit++
+      if (!isBrand(tk)) coreHit++
       const n = index.df.get(tk)
       // La marca aparece en casi cualquier pregunta («¿cuánto cuesta Agent CEO?»): pesa poco,
       // para que no arrastre la respuesta a «¿qué es Agent CEO?» (fallo medido en las evals T32).
-      const idf = Math.log(1 + (index.N - n + 0.5) / (n + 0.5)) * (BRAND.has(tk) ? 0.35 : 1)
+      const idf = Math.log(1 + (index.N - n + 0.5) / (n + 0.5)) * (isBrand(tk) ? 0.35 : 1)
       score += idf * ((f * (K1 + 1)) / (f + K1 * (1 - B + (B * d.len) / index.avg)))
     }
     // Que la pregunta esté contenida en el título es la señal más fuerte (p. ej. «¿qué es un agente?»).
@@ -95,7 +103,7 @@ export function search(index, query, k = 5) {
     // pesa menos: solo gana cuando la pregunta es claramente legal (reembolsos, datos, DMCA…).
     // Las guías curadas (content/chat-knowledge.js) resumen secciones enteras: ceden ante una FAQ.
     const w = d.c.kind === 'faq' ? 1.25 : d.c.kind === 'legal' ? 0.7 : d.c.kind === 'guia' ? 0.9 : 1
-    if (score > 0) res.push({ chunk: d.c, score: score * w, coverage: hit / q.length, titleHit: inTitle / q.length })
+    if (score > 0) res.push({ chunk: d.c, score: score * w, coverage: hit / q.length, titleHit: inTitle / q.length, core: core.length ? coreHit / core.length : 1 })
   }
   return res.sort((a, b) => b.score - a.score).slice(0, k)
 }
@@ -107,4 +115,6 @@ export function search(index, query, k = 5) {
  * contiene «escribe» de pasada.
  */
 export const confident = (r) =>
-  Boolean(r) && r.score >= 2.2 && ((r.titleHit > 0 && r.coverage >= 0.5) || r.coverage >= 0.75)
+  Boolean(r) && r.score >= 2.2 && ((r.titleHit > 0 && r.coverage >= 0.5) || r.coverage >= 0.75) &&
+  // Un documento LEGAL solo si la pregunta lo toca sin contar la marca (T40c).
+  (r.chunk.kind !== 'legal' || (r.core ?? 1) >= 0.5)

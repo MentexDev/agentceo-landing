@@ -10,7 +10,8 @@ export const POS = [
   ['¿hay que saber programar?', 'programar'], ['¿necesito saber código?', 'programar'], ['do I need coding skills?', 'programar'],
   ['¿me sirve para WhatsApp?', 'whatsapp'], ['¿atiende clientes por WhatsApp?', 'whatsapp'], ['does it work on whatsapp', 'whatsapp'],
   ['¿pueden gastar dinero solos?', 'solos'], ['¿actúan sin mi permiso?', 'solos'], ['can it spend money on its own?', 'solos'],
-  ['¿es seguro usarlo?', 'datos'], ['¿mi información está segura?', 'datos'], ['is my information secure?', 'datos'],
+  // T40c (Luca): las preguntas de SEGURIDAD van a la ficha «proteccion»; «datos» queda para propiedad y uso.
+  ['¿es seguro usarlo?', 'proteccion'], ['¿mi información está segura?', 'proteccion'], ['is my information secure?', 'proteccion'],
   ['¿entrenan modelos con mi información?', 'datos-ia'], ['do you train on my data?', 'datos-ia'],
   ['¿sirve para varios negocios?', 'varios-negocios'], ['¿puedo llevar varias marcas?', 'varios-negocios'],
   ['¿qué es Agent CEO exactamente?', 'que-es'], ['what is agent ceo?', 'que-es'],

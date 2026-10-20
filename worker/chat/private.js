@@ -66,6 +66,8 @@ const KIND_RE = {
     // marcadores de inyección
     '\\[\\s*(sistema|system|systeme|admin|developer|dev|root|instrucciones|instructions)\\b', '<\\s*/?\\s*(system|sistema|instructions?|review|prompt|admin)\\b',
     '(nuevas|new|nouvelles|neue|nuove|novas) (instrucciones|instructions|anweisungen|istruzioni|instrucoes)', 'ignor(a|e|ez|iere|are)[^.?!]{0,30}(anteriores|previous|prior|above|precedentes|vorherigen|precedenti|anteriores|todas|all)',
+    // T40c: «Ignora tus reglas…», «Ignore your rules», «salta tus reglas»: no casaban (solo «… anteriores»).
+    '(ignora|ignore|ignorez|ignoriere|ignorar|salta|saltate|omite|skip|bypass|desactiva|disable|rompe|break|evita|evade|umgehe|aggira|pula)[^.?!]{0,20}(tus|tu|your|tes|deine|le tue|suas|las|los|the|tes) (reglas|instrucciones|normas|restricciones|limites|filtros|rules|instructions|restrictions|guidelines|limits|filters|regles|regeln|regole|regras)',
     'olvida (tus|las) (reglas|instrucciones)', 'forget (your|all|the) (rules|instructions)', 'developer mode', 'modo (desarrollador|dios|sin restricciones)', '\\bdan\\b', 'jailbreak',
     '(eres|soy|el usuario es|the user is|you are now|ahora eres|i am) (un )?(admin|administrador|desarrollador|developer|root)( verificado| verified)?',
   ]),

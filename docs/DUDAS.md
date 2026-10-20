@@ -386,3 +386,13 @@ _(se van añadiendo por fase)_
   - Así nunca llega un trozo al cliente, aunque el dato venga partido entre dos deltas (probado). **Coste:** el primer texto visible espera a que el modelo termine (~0,5–2 s con flash-lite; antes el texto empezaba a salir antes), y luego se emite con el mismo efecto de escritura.
 - **Bug encontrado por los tests:** al construir la lista legal del filtro de salida, excluir por un trozo del nombre dejó fuera el patrón de Delaware. Corregido.
 - **Pendiente fuera del Worker:** `src/scripts/chat/offline.js` (respuesta sin red del widget) usa `say(L, 'private')`, el texto genérico de tipo legal. Para que sin red también salga la negativa por tipo y en el idioma del usuario, conviene usar `privateReply(text, lang)`.
+
+### T40c · chat (20-oct)
+- Arnés de red-team de Luca versionado en `scripts/redteam-chat.mjs` y `scripts/redteam-cases.json`, documentado en `docs/REDTEAM-CHAT.md`.
+- **D01 · datos protegidos:** las preguntas de seguridad o protección van a la ficha `proteccion`; `datos` queda para propiedad y uso; los intensificadores («tanto», «tanta»…) cuentan como relleno.
+- **X01 · marca:** un documento legal solo responde si la pregunta lo toca sin contar la marca («agente» + «ceo»). La primera versión, que quitaba la marca de toda la confianza, rompía preguntas sobre Agent CEO; la cazó el arnés de Luca y quedó con test.
+- **C01 · comparación:** la intención `compare` da una respuesta neutral. Exige señal de comparación + herramienta ajena; la inyección y los datos legales o personales siguen ganando.
+- **FAQ exacta:** una pregunta del FAQ escrita tal cual la responde la ficha curada cuya fuente es ese FAQ.
+- **Inyección:** «ignora / salta / bypass + tus reglas» ya es inyección.
+- **Decisión anotada:** «¿Mis datos están seguros?», tal cual, sigue respondiéndose con la ficha `datos` (su FAQ). Sus paráfrasis van a `proteccion`.
+

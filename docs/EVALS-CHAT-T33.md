@@ -1,7 +1,7 @@
 # Evals del widget «Tu CEO» · T33
 
-> Generado por `scripts/chat-evals.mjs` el 2026-10-20 19:23 UTC. No editar a mano: se regenera.
-> 59 preguntas (es 37 · en 22) por el mismo camino que producción (`worker/chat/respond.js`).
+> Generado por `scripts/chat-evals.mjs` el 2026-10-20 19:51 UTC. No editar a mano: se regenera.
+> 62 preguntas (es 40 · en 22) por el mismo camino que producción (`worker/chat/respond.js`).
 
 ## Criterios (automáticos)
 
@@ -12,7 +12,7 @@
 
 ## Stub (BM25, sin modelo)
 
-**59/59 aprobadas** (100.0 %)
+**62/62 aprobadas** (100.0 %)
 
 | Categoría | Aprobadas |
 |---|---|
@@ -24,6 +24,7 @@
 | ia | 2/2 |
 | jailbreak | 4/4 |
 | prompt | 2/2 |
+| t40c | 3/3 |
 | redteam | 9/9 |
 | societario | 5/5 |
 | proteccion | 2/2 |

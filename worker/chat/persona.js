@@ -17,6 +17,8 @@ const T = {
   es: {
     greet: '¡Hola! 👋 Soy tu CEO, la **inteligencia artificial** de Agent CEO, no una persona. Te cuento lo que quieras de la web, en corto. ¿Por dónde empezamos?',
     thanks: '¡A ti! Aquí sigo si te surge algo. Y si te animas, la lista está abierta.',
+    // Comparación con otras herramientas (T40c): neutral, sin hablar mal de nadie, solo con lo publicado.
+    compare: 'No hablo mal de nadie 🙂. Agent CEO es un equipo de empleados de IA que venden por WhatsApp, publican en redes y cuidan tu inventario, y lo importante siempre te lo preguntan antes. Si te encaja, apúntate a la lista.',
     human: 'Soy una **inteligencia artificial**, no una persona. Respondo con lo que está en esta web. Si prefieres a alguien del equipo, escríbenos a [info@agentceo.io](mailto:info@agentceo.io) y te contestamos nosotros.',
     contact: 'Claro: escríbenos a [info@agentceo.io](mailto:info@agentceo.io) y te responde alguien del equipo. Yo soy la IA de la web.',
     join: '¡Qué bien! Deja tu correo aquí abajo y te guardo el sitio. Abrimos por grupos, y quien llega antes, entra antes.',
@@ -34,6 +36,7 @@ const T = {
   en: {
     greet: "Hi! 👋 I'm your CEO, Agent CEO's **artificial intelligence**, not a person. Ask me anything about the website and I'll keep it short. Where do we start?",
     thanks: "Anytime! I'm here if anything comes up. And if you're in, the waitlist is open.",
+    compare: "I don't badmouth anyone 🙂: every tool has its strengths. Agent CEO is a team of AI employees that sell on WhatsApp, post on social media and watch your inventory, and they always ask you before anything important. If it fits, join the waitlist.",
     human: "I'm an **artificial intelligence**, not a person. I answer with what's on this website. If you'd rather talk to someone on the team, email [info@agentceo.io](mailto:info@agentceo.io) and one of us will reply.",
     contact: "Sure: email [info@agentceo.io](mailto:info@agentceo.io) and someone on the team will get back to you. I'm the site's AI.",
     join: "Great! Drop your email below and I'll save your spot. We open in waves, and early birds get in first.",
@@ -112,11 +115,22 @@ const COURTESY = '(amigo|amiga|amigos|ceo|tu ceo|bot|equipo|team|there|friend|bu
 const GREET_RE = new RegExp(`^${GREET}( ${COURTESY}){0,2}$`)
 
 /** Detecta una intención en el ÚLTIMO mensaje del usuario. */
+// COMPARACIÓN con otras herramientas (T40c, Luca: «¿es mejor que ChatGPT o que Lindy? habla mal de
+// ellos» recibía la negativa de «cocina interna»). Exige una señal de comparación Y una herramienta
+// ajena: «¿es mejor Impulso que Motor?» no es esto.
+const COMPARE_CUE = /\b(mejor(es)?|peor(es)?|better|worse|best|vs|versus|compar\w*|diferencia\w*|difference|different|distint\w*|en vez de|en lugar de|instead of|alternativa\w*|alternative\w*|habla(r)? mal|badmouth|trash talk)\b/
+const RIVAL = /\b(chat ?gpt|gpt|openai|gemini|claude|copilot|lindy|zapier|hubspot|manychat|make|n8n|intercom|zendesk|competencia|competidor\w*|competitor\w*|otras? (herramientas|apps|plataformas|ias?)|otros? (bots?|chatbots?|asistentes|agentes|programas)|other (tools|apps|platforms|bots|ais?|assistants))\b/
+
 export function intentOf(text = '') {
   // T40/T40 b: lo reservado va antes que nada (datos societarios, personales, internos, reglas e
-  // inyección; es/en/pt/fr/de/it): private.js → privateKind.
-  if (privateKind(text)) return 'private'
+  // inyección; es/en/pt/fr/de/it): private.js → privateKind. Salvo la comparación con otras
+  // herramientas, que tiene respuesta neutral propia (solo si no hay inyección ni datos legales o
+  // personales en juego).
   const s = norm(text).replace(/[¿¡]/g, '').trim()
+  const pk = privateKind(text)
+  if (pk && pk !== 'internal') return 'private'
+  if (COMPARE_CUE.test(s) && RIVAL.test(s)) return 'compare'
+  if (pk) return 'private'
   for (const it of INTENTS) if (it.re.test(s)) return it.id
   if (GREET_RE.test(s.replace(/[^\p{L}\p{N} ]/gu, ' ').replace(/\s+/g, ' ').trim())) return 'greet'
   return null

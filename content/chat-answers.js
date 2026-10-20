@@ -119,10 +119,15 @@ export const ANSWERS = [
   {
     id: 'datos',
     ref: 'faq:datos',
-    keys: ['datos', 'seguro', 'seguros', 'seguridad', 'privacidad', 'informacion', 'safe', 'secure', 'security', 'privacy', 'data'],
+    // T40c: las preguntas de SEGURIDAD o PROTECCIÓN («¿están seguros?», «is it safe?») pasan a la
+    // ficha «proteccion»; esta se queda con la PROPIEDAD y el USO de la información.
+    // Anclas de PROPIEDAD solamente: «privacidad», «información», «safe», «data»… se pliegan en el
+    // término «datos» (search.js), que es ancla de «proteccion»; con las dos, «Is my data secure?»
+    // empataba y no respondía ninguna (medido en T40c).
+    keys: ['mios', 'mias', 'mio', 'mine', 'dueno', 'dueña', 'owns', 'owner'],
     ask: {
-      es: ['¿Mis datos están seguros?', '¿Es seguro?', '¿Qué hacen con mi información?', '¿Mis datos son míos?'],
-      en: ['Is my data safe?', 'Is it secure?', 'What do you do with my information?', 'Is my data mine?'],
+      es: ['¿Qué hacen con mi información?', '¿Mis datos son míos?', '¿De quién son mis datos?', '¿Qué hacen con mis datos?'],
+      en: ['What do you do with my information?', 'Is my data mine?', 'Who owns my data?', 'What do you do with my data?'],
     },
     a: {
       es: 'Tu información es tuya. Cada empresa está aislada de las demás, tú decides qué conectas y lo desconectas cuando quieras. Y puedes exportarla o pedir que la borremos.',
@@ -136,10 +141,10 @@ export const ANSWERS = [
     // contenido) y §10 (aviso de brecha en 72 h). Enlaza la página.
     id: 'proteccion',
     ref: 'legal:seguridad',
-    keys: ['protegidos', 'protegidas', 'proteccion', 'protegen', 'proteger', 'cifrado', 'cifrados', 'cifran', 'encriptado', 'brecha', 'protected', 'protect', 'protection', 'encrypted', 'encryption', 'breach'],
+    keys: ['protegidos', 'protegidas', 'proteccion', 'protegen', 'protege', 'proteger', 'cifrado', 'cifrados', 'cifran', 'encriptado', 'brecha', 'seguro', 'seguros', 'segura', 'seguras', 'seguridad', 'protected', 'protect', 'protection', 'encrypted', 'encryption', 'breach', 'safe', 'secure', 'security'],
     ask: {
-      es: ['¿Qué tan protegidos están mis datos?', '¿Cómo protegen mis datos?', '¿Mis datos van cifrados?', '¿Qué pasa si hay una brecha de seguridad?', '¿Qué protección tienen mis datos?'],
-      en: ['How protected is my data?', 'How do you protect my data?', 'Is my data encrypted?', 'What happens if there is a data breach?'],
+      es: ['¿Qué tan protegidos están mis datos?', '¿Cómo protegen mis datos?', '¿Mis datos van cifrados?', '¿Qué pasa si hay una brecha de seguridad?', '¿Qué protección tienen mis datos?', '¿Mis datos están seguros?', '¿Están seguros mis datos?', '¿Es seguro?', '¿Protegen mi información?', 'Mis datos que tanto se protegen?'],
+      en: ['How protected is my data?', 'How do you protect my data?', 'Is my data encrypted?', 'What happens if there is a data breach?', 'Is my data safe?', 'How safe is my data?', 'Is it secure?', 'Is my information secure?', 'How do you protect my information?'],
     },
     a: {
       es: 'Muy en serio 🔒 Todo viaja y se guarda cifrado, cada empresa está aislada en dos capas y las claves de tus integraciones se cifran aparte. No entrenamos IA con tu contenido y, si hubiera una brecha, te avisamos en 72 h. [Política de seguridad](/legal/seguridad)',

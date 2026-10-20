@@ -16,7 +16,7 @@ const chipsFrom = (lang, ids, exclude = []) =>
   ids.filter((id) => !exclude.includes(id)).map((id) => byId(lang, id)?.title).filter(Boolean)
 
 /** Preguntas exactas del FAQ (clics en chips): respuesta directa garantizada. */
-function exactFaq(lang, text) {
+export function exactFaq(lang, text) {
   const n = text.trim().toLowerCase()
   return KB[lang].find((c) => c.kind === 'faq' && c.title.toLowerCase() === n)
 }

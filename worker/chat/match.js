@@ -18,7 +18,9 @@ export const MAX_TERMS = 6
 // calibración: sin esta lista, «¿es seguro usarlo?» no casaba y «¿mis datos de Facebook están
 // seguros?» sí (los verbos de relleno diluían la cobertura y escondían el término que importa).
 const FILLER = new Set(('esta estan estara estaria sirve sirven servir usarlo usarla usar uso sale salir llevar venden vender exactamente realmente bien mucho ' +
-  'much many per own its get back really exactly actually just still yet please porfa favor').split(' '))
+  'much many per own its get back really exactly actually just still yet please porfa favor ' +
+  // T40c: «Mis datos que tanto se protegen?» (la pregunta exacta de Diego) no casaba por «tanto».
+  'tanto tan tanta muy bastante so much how well').split(' '))
 // Frases que equivalen a un término (antes de tokenizar).
 const PHRASES = [
   [/\bagent ?ceo\b/g, ' agentceo '], [/\bhow much\b/g, ' precio '], [/\b(al|por|a|per|each|a) (mes|month)\b/g, ' precio '],

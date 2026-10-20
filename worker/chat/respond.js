@@ -23,7 +23,8 @@
 //   → caché → Turnstile → tope live por IP → reserva del tope global → modelo.
 // ─────────────────────────────────────────────────────────────────────────────
 import { streamText } from './text.js'
-import { stubReply, KB, INDEX } from './stub.js'
+import { stubReply, exactFaq, KB, INDEX } from './stub.js'
+import { ANSWERS } from '../../content/chat-answers.js'
 import { liveReply, pickContext, systemPrompt, estimateUSD, historyForModel, priceFor, DEFAULT_MODEL, RULES, CANARY } from './live.js'
 import { say, intentOf, privateReply } from './persona.js'
 import { stripInjection, findOutputLeak, promptEchoes } from './private.js'
@@ -66,6 +67,14 @@ const none = async () => null
 export function curatedFor(p) {
   if (p.chip && answerById(p.chip)) return { id: p.chip, how: 'chip', lang: p.lang }
   if (intentOf(p.userText)) return null
+  // Una pregunta del FAQ escrita TAL CUAL (clic en una sugerida) la responde la ficha curada cuya
+  // FUENTE es ese FAQ (T40c: «¿Mis datos están seguros?» acababa en «proteccion»); si ninguna lo es,
+  // el FAQ del stub. Las paráfrasis siguen yendo por el emparejado normal.
+  const faq = exactFaq(p.lang, p.userText)
+  if (faq) {
+    const owner = ANSWERS.find((a) => a.ref === faq.id)
+    return owner ? { id: owner.id, how: 'faq', lang: p.lang } : null
+  }
   const m = matchCurated(p.userText)
   return m ? { id: m.id, how: m.how, lang: langOf(p.userText, p.lang) } : null
 }
