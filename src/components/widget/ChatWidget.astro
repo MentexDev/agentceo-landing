@@ -245,6 +245,7 @@ const strings = {
 </style>
 
 <script>
+  import { ss } from '../../scripts/storage.js'
   // Cargador mínimo: el panel (y su código) se descargan en el primer uso.
   const root = document.querySelector<HTMLElement>('[data-chat-root]')
   if (root) {
@@ -261,12 +262,12 @@ const strings = {
     // Burbuja de invitación: una vez por sesión, a los 8 s, si nadie abrió el chat.
     const tease = root.querySelector<HTMLElement>('[data-chat-tease]')!
     let seen = false
-    try { seen = Boolean(sessionStorage.getItem('ac_tease')) } catch {}
+    seen = Boolean(ss.get('ac_tease'))
     if (!seen) {
       setTimeout(() => {
         if (root.querySelector('[data-chat-launch]')?.getAttribute('aria-expanded') === 'true') return
         tease.hidden = false
-        try { sessionStorage.setItem('ac_tease', '1') } catch {}
+        ss.set('ac_tease', '1')
       }, 8000)
     }
     root.querySelector('[data-chat-tease-close]')?.addEventListener('click', () => { tease.hidden = true })

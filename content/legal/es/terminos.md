@@ -1,13 +1,16 @@
 ---
 titulo: Términos del servicio
-ruta: /legal/terminos
-actualizado: 2026-08-02
-version: 2.0
+id: terminos
+slug: terminos
+estado: borrador
+actualizado: 2026-10-20
+version: 2.1
+descripcion: El contrato entre tú y Klinworks, LLC para usar Agent CEO: cuenta, créditos y pagos, uso de los agentes, responsabilidad y terminación.
 ---
 
 # Términos del servicio
 
-**Última actualización: 2 de agosto de 2026**
+**Última actualización: 20 de octubre de 2026**
 
 Estos términos son un contrato entre tú y **Klinworks, LLC**, una sociedad de
 responsabilidad limitada constituida en el Estado de Delaware (Estados Unidos)
@@ -72,12 +75,16 @@ cuando corresponda.
 
 **3.5 Reembolsos.** Los créditos consumidos no son reembolsables, porque
 corresponden a capacidad de cómputo ya utilizada frente a nuestros proveedores.
-Si cancelas un plan, conservas el acceso hasta el final del periodo pagado.
+Si cancelas un plan, conservas el acceso hasta el final del periodo pagado. Las
+reglas completas están en [Reembolsos y cancelación](/legal/reembolsos).
 
 **3.6 Impago.** Podemos suspender el Servicio si un pago falla, tras avisarte y
 darte un plazo razonable para resolverlo.
 
 ## 4. Lo que puedes y no puedes hacer
+
+El detalle está en la [Política de uso aceptable](/legal/uso-aceptable), que
+forma parte de estos términos.
 
 **4.1 Uso permitido.** Puedes usar el Servicio para operar tu negocio legítimo,
 dentro de la ley y de estos términos.
@@ -108,6 +115,9 @@ inminente podemos actuar de inmediato.
 ---
 
 ## 5. Agentes autónomos: lo que debes entender antes de usarlos
+
+Cómo usamos la inteligencia artificial, y sus límites, se explica en
+[Uso de inteligencia artificial](/legal/ia).
 
 Esta sección es la más importante de estos términos, porque describe lo que
 distingue a AgentCEO de una herramienta ordinaria.

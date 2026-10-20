@@ -9,6 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { captureAttribution, getAttribution } from './attribution.js'
 import { track } from './track.js'
+import { ls, ss } from './storage.js'
 
 const JOINED = 'ac_wl'          // localStorage: '1' si ya se apuntó (sin el correo)
 const STICKY_OFF = 'ac_sticky'  // sessionStorage: CTA fijo cerrado en esta sesión
@@ -20,11 +21,7 @@ let msgs = {}
 let lastEmail = '' // en memoria: solo para el paso 2 del modal de ESTA página
 let modal = null
 
-const store = {
-  get: (s, k) => { try { return s.getItem(k) } catch { return null } },
-  set: (s, k, v) => { try { s.setItem(k, v) } catch {} },
-}
-const joined = () => store.get(localStorage, JOINED) === '1'
+const joined = () => ls.get(JOINED) === '1'
 
 async function send(payload) {
   const res = await fetch('/api/waitlist', {
@@ -60,7 +57,7 @@ function markDone(form, text) {
 }
 
 function onJoined(email, source) {
-  store.set(localStorage, JOINED, '1')
+  ls.set(JOINED, '1')
   lastEmail = email
   hideSticky()
   // Los demás formularios de la página pasan a «ya estás en la lista».
@@ -206,17 +203,19 @@ let sticky = null
 function hideSticky() { if (sticky) sticky.hidden = true }
 function bindSticky() {
   sticky = document.querySelector('[data-wl-sticky]')
-  if (!sticky || joined() || store.get(sessionStorage, STICKY_OFF)) return
+  if (!sticky || joined() || ss.get(STICKY_OFF)) return
   sticky.querySelector('[data-wl-sticky-close]').addEventListener('click', () => {
-    store.set(sessionStorage, STICKY_OFF, '1')
+    ss.set(STICKY_OFF, '1')
     hideSticky()
     track('wl_sticky_dismiss', {})
   })
   // Visible solo cuando NO hay ningún formulario de la lista a la vista y ya se pasó el inicio.
-  const forms = [...document.querySelectorAll('form[data-waitlist]')].filter((f) => !f.closest('[data-wl-modal]'))
+  // También se esconde con el pie a la vista: si no, tapaba sus enlaces legales en móvil
+  // (medido: el botón «Preferencias de cookies» quedaba bajo la barra al final de la página).
+  const forms = [...document.querySelectorAll('form[data-waitlist]'), ...document.querySelectorAll('footer.site-footer')].filter((f) => !f.closest('[data-wl-modal]'))
   const visible = new Set()
   const update = () => {
-    if (joined() || store.get(sessionStorage, STICKY_OFF)) return hideSticky()
+    if (joined() || ss.get(STICKY_OFF)) return hideSticky()
     sticky.hidden = !(window.scrollY > window.innerHeight * 0.6 && visible.size === 0)
   }
   const io = new IntersectionObserver((entries) => {
@@ -234,8 +233,8 @@ function bindExitIntent() {
   let armed = false
   setTimeout(() => { armed = true }, 6000)
   document.documentElement.addEventListener('mouseleave', (e) => {
-    if (!armed || e.clientY > 0 || joined() || store.get(sessionStorage, EXIT_SHOWN) || modal?.open) return
-    store.set(sessionStorage, EXIT_SHOWN, '1')
+    if (!armed || e.clientY > 0 || joined() || ss.get(EXIT_SHOWN) || modal?.open) return
+    ss.set(EXIT_SHOWN, '1')
     openModal({ source: 'exit', exit: true })
   })
 }

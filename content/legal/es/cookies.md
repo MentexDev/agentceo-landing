@@ -1,13 +1,16 @@
 ---
 titulo: Política de cookies
-ruta: /legal/cookies
-actualizado: 2026-08-02
-version: 2.0
+id: cookies
+slug: cookies
+estado: borrador
+actualizado: 2026-10-20
+version: 2.1
+descripcion: Qué cookies y almacenamiento local usan Agent CEO y agentceo.io, para qué y cómo controlarlos. Sin analítica ni publicidad.
 ---
 
 # Política de cookies
 
-**Última actualización: 2 de agosto de 2026**
+**Última actualización: 20 de octubre de 2026**
 
 Esta política explica qué cookies y tecnologías similares usa **Klinworks, LLC**
 («Klinworks») en el servicio **AgentCEO** y en agentceo.io, y cómo puedes
@@ -62,6 +65,19 @@ consentimiento previo y actualizaremos esta tabla antes de activarla.
 
 **No usamos cookies publicitarias.** No hacemos perfilado con fines de
 publicidad, ni compartimos identificadores con redes de anuncios.
+
+## 2 bis. En esta web (agentceo.io), una por una
+
+La web pública guarda en tu navegador **solo** lo de esta tabla. Ninguna entrada es
+de analítica ni de publicidad, y ninguna guarda tu correo.
+
+{{almacenamiento}}
+
+**Preferencias de cookies.** Desde el enlace «Preferencias de cookies» del pie de
+cada página puedes ver estas categorías y decidir sobre las que no son
+necesarias. Hoy **no hay ninguna cookie de analítica ni de publicidad que
+activar**: si algún día la hubiera, se bloquearía hasta que des tu
+consentimiento (y en ningún caso si tu navegador envía la señal GPC).
 
 ## 3. Cookies de terceros
 

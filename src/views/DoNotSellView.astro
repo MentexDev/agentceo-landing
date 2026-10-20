@@ -1,0 +1,50 @@
+---
+// «No vender ni compartir mi información personal» (CCPA/CPRA): enlace exigido en el pie.
+// Registra la solicitud (cookie `consent`, d=1), detecta GPC y da la vía para la cuenta.
+import Base from '../layouts/Base.astro'
+import PageHead from '../components/page/PageHead.astro'
+import '../styles/pages.css'
+import { t } from '../i18n/config.js'
+import { href, hasRoute, alternatesFor } from '../i18n/rutas.js'
+import { breadcrumbs, ORIGIN } from '../lib/jsonld.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const tr = (k: string) => t(lang, `dns.${k}`)
+const path = href('no-vender', lang)
+const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: tr('eyebrow'), url: path }]
+const ca = hasRoute('legal:california', lang) ? href('legal:california', lang) : null
+const jsonLd = { '@context': 'https://schema.org', '@graph': [{ '@type': 'WebPage', name: tr('title'), url: `${ORIGIN}${path}`, inLanguage: lang }, breadcrumbs(crumbs)] }
+---
+<Base lang={lang} title={tr('title')} description={tr('sub')} path={path} alternates={alternatesFor('no-vender')} page="no-vender" jsonLd={jsonLd}>
+  <div class="pg"><div class="pg-narrow">
+    <PageHead crumbs={crumbs} eyebrow={tr('eyebrow')} h1a={tr('h1a')} h1b={tr('h1b')} sub={tr('sub')} />
+    <p class="box dns-gpc" data-dns-gpc hidden role="status">{tr('gpcOn')}</p>
+    <div class="dns-act">
+      <button type="button" class="ac-btn ac-btn-dark" data-dns-btn>{tr('btn')}</button>
+      <button type="button" class="ac-btn ac-btn-ghost" data-cookie-prefs hidden>{tr('prefs')}</button>
+    </div>
+    <p class="dns-msg" role="status" data-dns-msg data-done={tr('done')} data-already={tr('already')}></p>
+    <div class="prose">
+      <p>{tr('email')} <a href="mailto:privacidad@klinworks.com">privacidad@klinworks.com</a>.</p>
+      {ca && <p>{tr('more')} <a href={ca}>{tr('california')}</a>.</p>}
+    </div>
+  </div></div>
+</Base>
+<style>
+  .dns-gpc { margin: 0 0 18px; }
+  .dns-gpc[hidden] { display: none; }
+  .dns-act { display: flex; flex-wrap: wrap; gap: 10px; }
+  .dns-msg { min-height: 1.5em; margin: 14px 0 26px; color: var(--gold-ink); font-weight: 500; }
+</style>
+<script>
+  import { readConsent, writeConsent } from '../scripts/consent.js'
+  const msg = document.querySelector<HTMLElement>('[data-dns-msg]')!
+  const c = readConsent()
+  if (c.gpc) document.querySelector<HTMLElement>('[data-dns-gpc]')!.hidden = false
+  if (c.d) msg.textContent = msg.dataset.already!
+  document.querySelector('[data-dns-btn]')!.addEventListener('click', () => {
+    const now = readConsent()
+    writeConsent({ f: now.f === 1, a: false, d: true })
+    msg.textContent = msg.dataset.done!
+  })
+</script>

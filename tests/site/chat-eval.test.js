@@ -53,6 +53,10 @@ export const CASES = {
     ['¿atienden a mis clientes por whatsapp?', 'faq:whatsapp'],
     ['¿esto es un chatbot?', 'intent:human'],
     ['escríbeme un cuento', 'fallback'],
+    // Legal (fase L): la base del widget incluye los documentos legales.
+    ['¿cómo pido un reembolso?', 'legal:reembolsos'],
+    ['¿cumplen con la accesibilidad?', 'legal:accesibilidad'],
+    ['tengo un aviso de derechos de autor', 'legal:dmca'],
     ['¿cuál es la capital de Francia?', 'fallback'],
     ['recomiéndame una receta de pasta', 'fallback'],
   ],

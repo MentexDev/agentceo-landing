@@ -1,13 +1,16 @@
 ---
 titulo: Política de privacidad
-ruta: /legal/privacidad
-actualizado: 2026-08-02
-version: 2.0
+id: privacidad
+slug: privacidad
+estado: borrador
+actualizado: 2026-10-20
+version: 2.1
+descripcion: Qué datos trata Klinworks, LLC en Agent CEO y en agentceo.io, para qué, con quién los comparte y qué derechos tienes.
 ---
 
 # Política de privacidad
 
-**Última actualización: 2 de agosto de 2026**
+**Última actualización: 20 de octubre de 2026**
 
 Esta política explica qué datos personales trata **Klinworks, LLC** («Klinworks»,
 «nosotros») al prestar el servicio **AgentCEO** (el «Servicio»), para qué, con
@@ -68,6 +71,16 @@ tiempo, sesiones activas y registros de errores.
 **2.8 Registros de actividad.** Guardamos una bitácora de cambios en tus datos
 para que puedas auditar y restaurar lo que hicieron tus agentes.
 
+**2.9 Datos de esta web (agentceo.io).** Si te apuntas a la lista de espera:
+tu correo, el idioma de la página, la campaña que te trajo (parámetros UTM o de
+clic), la primera página que viste, el origen del sitio que te enlazó, tu
+navegador (user-agent), el tipo de negocio si nos lo dices y la versión del aviso
+de privacidad que viste al apuntarte. Si pides un recurso: tu correo y el recurso.
+El asistente de IA de la web **no guarda tus conversaciones en nuestros
+servidores**: viven solo en tu navegador durante 7 días; para limitar el abuso
+contamos los mensajes por día con un **hash** de tu IP, sin guardar la IP en claro.
+**Esta web no usa analítica ni cookies publicitarias.**
+
 **No tratamos categorías especiales de datos** (salud, origen étnico, opiniones
 políticas, biometría) de forma deliberada. Si los introduces en tu contenido, lo
 haces bajo tu responsabilidad y debes tener base legal para ello.
@@ -107,13 +120,11 @@ Para prestar el Servicio recurrimos a los siguientes proveedores. Todos actúan
 como encargados o subencargados, bajo contrato que les obliga a proteger los
 datos y a no usarlos para fines propios.
 
-| Proveedor | Para qué | Dónde trata los datos |
-|---|---|---|
-| **Supabase, Inc.** | Base de datos, autenticación y almacenamiento | Estados Unidos |
-| **Cloudflare, Inc.** | Infraestructura, red de distribución y protección | Global (red distribuida) |
-| **OpenRouter, Inc.** | Enrutado a los modelos de lenguaje que ejecutan los agentes | Estados Unidos |
-| Proveedor de pagos | Procesamiento de cobros | Según el proveedor |
-| Proveedor de correo transaccional | Envío de correos del Servicio | Según el proveedor |
+{{subprocesadores}}
+
+La lista viva, con su historial de cambios, está en
+[Subprocesadores](/legal/subprocesadores). Los marcados «No activo» no reciben
+datos personales hoy.
 
 **Cambios en esta lista.** Si incorporamos un subencargado nuevo que trate datos
 personales, actualizaremos esta tabla y la fecha de esta política. Si tienes un
@@ -208,13 +219,25 @@ autoridad de control cuando proceda.
 ## 11. Menores
 
 El Servicio no está dirigido a menores de 18 años y no recogemos sus datos a
-sabiendas. Si detectamos una cuenta de un menor, la eliminaremos. Si crees que un
+sabiendas; en particular, cumplimos la ley COPPA de EE. UU. respecto de menores
+de 13 años. Si detectamos una cuenta de un menor, la eliminaremos. Si crees que un
 menor nos ha facilitado datos, escríbenos a privacidad@klinworks.com.
 
 ## 12. Cookies
 
-Usamos cookies y tecnologías similares según se describe en la
-[Política de cookies](/legal/cookies).
+Usamos solo cookies y almacenamiento local **necesarios o funcionales**, según se
+describe en la [Política de cookies](/legal/cookies). No hay analítica ni
+publicidad.
+
+## 12 bis. Residentes de EE. UU. y la señal GPC
+
+**No vendemos ni compartimos** información personal (en el sentido de la ley de
+California). Respetamos la señal **Global Privacy Control (GPC)** de tu navegador
+como una solicitud de no vender ni compartir, y puedes hacer la misma solicitud en
+[No vender ni compartir mi información personal](/no-vender-ni-compartir).
+Los detalles para California están en el
+[Aviso para residentes de California](/legal/california) y, para otros estados,
+en [Derechos de privacidad en otros estados](/legal/estados).
 
 ## 13. Cambios en esta política
 

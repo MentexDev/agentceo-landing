@@ -78,7 +78,10 @@ const SETS = { 1: HELD1, 2: HELD2 }
 // '2es' bajó de 6 a 5 el 2026-10-20 por CAMBIO DE CONTENIDO, no del motor: con los precios reales
 // entró la FAQ «¿Hay límite de agentes?» (habla de planes y equipo) y capta «precio del plan para
 // equipos». Medido y documentado en docs/DUDAS.md; no se afinó el motor mirando este conjunto.
-const FLOOR = { '1es': 14, '1en': 9, '2es': 5, '2en': 5 }
+// '1es' bajó de 14 a 13 el 2026-10-20, también por CORPUS: al indexar los 14 documentos legales
+// (que ahora responden reembolsos, accesibilidad o DMCA) cambian las frecuencias y «¿qué hago si
+// se traba una tarea?» va al blog. Intercambio aceptado y documentado (docs/DUDAS.md).
+const FLOOR = { '1es': 13, '1en': 9, '2es': 5, '2en': 5 }
 
 describe.each([[1, 'es'], [1, 'en'], [2, 'es'], [2, 'en']])('reservado #%s · %s', (n, lang) => {
   const res = SETS[n][lang].map(([q, want]) => ({ q, want, got: decide(lang, q) }))

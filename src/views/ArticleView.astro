@@ -113,6 +113,7 @@ const jsonLd = {
   // recordado POR RECURSO en localStorage (sin el correo).
   import { getAttribution } from '../scripts/attribution.js'
   import { track } from '../scripts/track.js'
+  import { ls } from '../scripts/storage.js'
   const form = document.querySelector<HTMLFormElement>('[data-lead]')
   if (form) {
     const gate = document.querySelector<HTMLElement>('[data-gate]')!
@@ -120,7 +121,7 @@ const jsonLd = {
     const msg = form.querySelector<HTMLElement>('[data-lead-msg]')!
     const KEY = `agentceo_lead_${form.dataset.resource}`
     const reveal = () => { gate.hidden = true; content.hidden = false }
-    try { if (localStorage.getItem(KEY)) reveal() } catch {}
+    if (ls.get(KEY)) reveal()
     form.addEventListener('submit', async (e) => {
       e.preventDefault()
       msg.textContent = ''
@@ -135,7 +136,7 @@ const jsonLd = {
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok || !data.ok) throw new Error(data.error || 'fail')
-        try { localStorage.setItem(KEY, '1') } catch {}
+        ls.set(KEY, '1')
         track('lead_success', { resource: form.dataset.resource })
         reveal()
         content.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })

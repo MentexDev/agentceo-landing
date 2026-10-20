@@ -30,11 +30,8 @@ const SRC = {
   es: { noticias: noticiasEs, blog: blogEs, recursos: recursosEs },
 }
 
-/** Normaliza un slug (misma regla que la v1: blinda href y nombres de fichero). */
-export function slugify(s = '') {
-  return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '').slice(0, 70)
-}
+import { slugify } from './slug.js'
+export { slugify }
 
 /** { META, CATEGORIES, ITEMS } de una sección en un idioma, o null si no existe. */
 export function section(kind, lang) {

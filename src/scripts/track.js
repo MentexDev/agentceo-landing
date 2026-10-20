@@ -9,13 +9,8 @@ export function addSink(fn) {
   sinks.push(fn)
 }
 
-function consented() {
-  try {
-    return /(?:^|;\s*)consent=[^;]*analytics:1/.test(document.cookie)
-  } catch {
-    return false
-  }
-}
+import { analyticsAllowed } from './consent.js'
+const consented = analyticsAllowed
 
 export function track(name, props = {}) {
   const safe = {}

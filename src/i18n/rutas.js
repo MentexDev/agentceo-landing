@@ -22,6 +22,18 @@ export const RUTAS = {
   empresa: { es: '/empresa/' },
   contacto: { es: '/contacto/' },
   prensa: { es: '/prensa/' },
+  'no-vender': { es: '/no-vender-ni-compartir/' },
+}
+
+// Documentos legales: rutas generadas desde el frontmatter de content/legal/{es,en}/*.md
+// (id, slug, titulo). Un documento sin traducir no tiene ruta en ese idioma.
+import { legalDocs } from '../lib/legal.js'
+for (const d of legalDocs()) {
+  const key = `legal:${d.id}`
+  RUTAS[key] ||= { label: {} }
+  RUTAS[key][d.lang] = d.lang === 'es' ? `/legal/${d.slug}` : `/${d.lang}/legal/${d.slug}`
+  RUTAS[key].label[d.lang] = d.titulo
+  RUTAS[key].updated = d.actualizado
 }
 
 /** ¿Existe esta ruta (en este idioma)? */

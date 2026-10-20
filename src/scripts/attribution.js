@@ -3,6 +3,7 @@
 // persona envía el formulario de la lista. No es seguimiento entre sesiones ni
 // entre sitios (por eso no necesita consentimiento previo de cookies).
 import { UTM_KEYS, CLICK_KEYS } from '../data/waitlist.js'
+import { ss } from './storage.js'
 
 const KEY = 'ac_attr'
 
@@ -31,17 +32,17 @@ export function parseAttribution(search = '', path = '/', referrer = '') {
 /** Guarda el primer toque de la sesión (no lo pisa si ya existe). */
 export function captureAttribution() {
   try {
-    if (sessionStorage.getItem(KEY)) return
+    if (ss.get(KEY)) return
     const a = parseAttribution(location.search, location.pathname, document.referrer)
     // Un referrer del propio sitio no es una fuente.
     if (a.referrer === location.origin) delete a.referrer
-    sessionStorage.setItem(KEY, JSON.stringify(a))
+    ss.set(KEY, JSON.stringify(a))
   } catch {}
 }
 
 export function getAttribution() {
   try {
-    return JSON.parse(sessionStorage.getItem(KEY) || '{}')
+    return JSON.parse(ss.get(KEY) || '{}')
   } catch {
     return {}
   }

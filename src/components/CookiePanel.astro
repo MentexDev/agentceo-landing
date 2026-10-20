@@ -1,0 +1,74 @@
+---
+// Panel de PREFERENCIAS DE COOKIES (y de «no vender ni compartir»). Se abre desde el pie.
+// No aparece solo: hoy no hay nada no esencial que aceptar (sin analítica, decisión de Diego).
+// Si algún día se añade un proveedor a ANALYTICS_PROVIDERS, el panel ya lo bloquea hasta
+// el consentimiento y nunca lo activa con GPC.
+import { t } from '../i18n/config.js'
+import { hasRoute, href } from '../i18n/rutas.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const tr = (k: string) => t(lang, `consent.${k}`)
+const cookies = hasRoute('legal:cookies', lang) ? href('legal:cookies', lang) : null
+---
+<dialog class="ck" id="cookie-panel" aria-labelledby="ck-h" data-cookie-panel>
+  <form method="dialog" class="ck-card" data-cookie-form>
+    <h2 id="ck-h">{tr('title')}</h2>
+    <p class="ck-p">{tr('intro')}</p>
+    <p class="ck-gpc" data-gpc hidden role="status">{tr('gpc')}</p>
+    <fieldset class="ck-list">
+      <legend class="sr-only">{tr('title')}</legend>
+      <label class="ck-row"><span><strong>{tr('necessary')}</strong><small>{tr('necessaryTxt')}</small></span><input type="checkbox" checked disabled /></label>
+      <label class="ck-row"><span><strong>{tr('functional')}</strong><small>{tr('functionalTxt')}</small></span><input type="checkbox" name="f" /></label>
+      <label class="ck-row"><span><strong>{tr('analytics')}</strong><small>{tr('analyticsTxt')}</small></span><input type="checkbox" name="a" disabled /></label>
+      <label class="ck-row"><span><strong>{tr('dns')}</strong><small>{tr('dnsTxt')}</small></span><input type="checkbox" name="d" /></label>
+    </fieldset>
+    {cookies && <p class="ck-more"><a href={cookies}>{tr('policy')}</a></p>}
+    <div class="ck-actions">
+      <button type="submit" value="save" class="ac-btn ac-btn-dark">{tr('save')}</button>
+      <button type="submit" value="cancel" class="ac-btn ac-btn-ghost" formnovalidate>{tr('cancel')}</button>
+    </div>
+    <p class="sr-only" role="status" data-cookie-msg></p>
+  </form>
+</dialog>
+<style>
+  .ck { width: min(560px, calc(100% - 32px)); padding: 0; border: 0; background: transparent; color: var(--ink); }
+  .ck::backdrop { background: rgba(17, 17, 19, .5); }
+  .ck-card { padding: 26px; border: 1.5px solid var(--ink); border-radius: 24px; background: var(--cream); box-shadow: 8px 8px 0 var(--gold); }
+  .ck-card h2 { margin: 0 0 8px; font-family: var(--serif); font-weight: 400; font-size: 32px; line-height: 1.1; }
+  .ck-p { margin: 0 0 14px; color: var(--muted); line-height: 1.55; }
+  .ck-gpc { margin: 0 0 14px; padding: 10px 14px; border-radius: 12px; background: var(--gold-3); font-size: 14px; }
+  .ck-gpc[hidden] { display: none; }
+  .ck-list { margin: 0; padding: 0; border: 0; display: grid; gap: 8px; }
+  .ck-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); cursor: pointer; }
+  .ck-row span { display: grid; gap: 2px; }
+  .ck-row small { color: var(--muted); font-size: 13px; line-height: 1.4; }
+  .ck-row input { width: 22px; height: 22px; accent-color: var(--ink); flex: none; }
+  .ck-more { margin: 12px 0 0; font-size: 14px; }
+  .ck-more a { color: var(--gold-ink); }
+  .ck-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+</style>
+<script>
+  import { readConsent, writeConsent } from '../scripts/consent.js'
+  const dlg = document.querySelector<HTMLDialogElement>('[data-cookie-panel]')!
+  const form = dlg.querySelector<HTMLFormElement>('[data-cookie-form]')!
+  const sync = () => {
+    const c = readConsent()
+    ;(form.elements.namedItem('f') as HTMLInputElement).checked = c.f === 1
+    ;(form.elements.namedItem('d') as HTMLInputElement).checked = c.d === 1
+    ;(form.elements.namedItem('d') as HTMLInputElement).disabled = Boolean(c.gpc)
+    dlg.querySelector<HTMLElement>('[data-gpc]')!.hidden = !c.gpc
+  }
+  // Los botones del pie (y de la página «No vender ni compartir») abren el panel.
+  for (const b of document.querySelectorAll<HTMLElement>('[data-cookie-prefs]')) {
+    b.hidden = false
+    b.addEventListener('click', () => { sync(); dlg.showModal() })
+  }
+  dlg.addEventListener('close', () => {
+    if (dlg.returnValue !== 'save') return
+    writeConsent({
+      f: (form.elements.namedItem('f') as HTMLInputElement).checked,
+      a: false,
+      d: (form.elements.namedItem('d') as HTMLInputElement).checked,
+    })
+  })
+</script>

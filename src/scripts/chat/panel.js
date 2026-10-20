@@ -8,6 +8,7 @@
 import { renderMd } from './md.js'
 import { track } from '../track.js'
 import { enhanceForm } from '../waitlist.js'
+import { ls } from '../storage.js'
 
 const KEY = 'ac_chat'
 const TTL = 7 * 24 * 3600 * 1000
@@ -41,11 +42,11 @@ export function initPanel(root) {
 
   // ── Persistencia ────────────────────────────────────────────────────────
   const save = () => {
-    try { localStorage.setItem(KEY, JSON.stringify({ v: 1, t: Date.now(), lang, msgs: msgs.slice(-MAX_STORED) })) } catch {}
+    ls.set(KEY, JSON.stringify({ v: 1, t: Date.now(), lang, msgs: msgs.slice(-MAX_STORED) }))
   }
   const load = () => {
     try {
-      const d = JSON.parse(localStorage.getItem(KEY) || 'null')
+      const d = JSON.parse(ls.get(KEY) || 'null')
       if (d?.v === 1 && d.lang === lang && Date.now() - d.t < TTL && Array.isArray(d.msgs)) return d.msgs
     } catch {}
     return []
@@ -53,7 +54,7 @@ export function initPanel(root) {
 
   // ── Pintado ─────────────────────────────────────────────────────────────
   const scroll = () => { log.scrollTop = log.scrollHeight }
-  const joined = () => { try { return localStorage.getItem('ac_wl') === '1' } catch { return false } }
+  const joined = () => ls.get('ac_wl') === '1'
 
   function bubble(role, html) {
     const el = document.createElement('div')

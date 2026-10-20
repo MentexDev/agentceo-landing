@@ -143,3 +143,13 @@ test('si el servidor rechaza (429 real), la interfaz muestra el error y NUNCA un
   await expect(page.locator('dialog[data-wl-modal]')).toBeHidden()
   expect(queryLocal(`SELECT COUNT(*) AS n FROM signups WHERE email = '${email}'`)[0].n).toBe(0)
 })
+
+test('móvil: la barra fija no tapa el pie (se esconde al llegar a él)', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'la barra fija solo existe en móvil')
+  // Página larga SIN formulario de la lista (si hubiera uno al final, la barra se escondería igual).
+  await page.goto('/legal/terminos')
+  await page.evaluate(() => scrollTo(0, document.body.scrollHeight * 0.4))
+  await expect(page.locator('[data-wl-sticky]')).toBeVisible()
+  await page.evaluate(() => scrollTo(0, document.body.scrollHeight))
+  await expect(page.locator('[data-wl-sticky]')).toBeHidden()
+})

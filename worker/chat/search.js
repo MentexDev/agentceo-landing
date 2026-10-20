@@ -88,8 +88,10 @@ export function search(index, query, k = 5) {
     }
     // Que la pregunta esté contenida en el título es la señal más fuerte (p. ej. «¿qué es un agente?»).
     if (score > 0) score += 2 * (inTitle / q.length)
-    // Las FAQ son respuestas directas: a igualdad, ganan a un artículo largo.
-    if (score > 0) res.push({ chunk: d.c, score: d.c.kind === 'faq' ? score * 1.25 : score, coverage: hit / q.length, titleHit: inTitle / q.length })
+    // Las FAQ son respuestas directas: a igualdad, ganan a un artículo largo. La letra legal
+    // pesa menos: solo gana cuando la pregunta es claramente legal (reembolsos, datos, DMCA…).
+    const w = d.c.kind === 'faq' ? 1.25 : d.c.kind === 'legal' ? 0.7 : 1
+    if (score > 0) res.push({ chunk: d.c, score: score * w, coverage: hit / q.length, titleHit: inTitle / q.length })
   }
   return res.sort((a, b) => b.score - a.score).slice(0, k)
 }

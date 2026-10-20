@@ -12,6 +12,7 @@ import * as BLOG from '../../content/blog.js'
 import * as RECURSOS from '../../content/recursos.js'
 import { t } from '../i18n/config.js'
 import { RUTAS } from '../i18n/rutas.js'
+import { legalDocs } from './legal.js'
 
 const MAX = 1400
 const plain = (s = '') => String(s).replace(/\*\*(.+?)\*\*/g, '$1').replace(/\s+/g, ' ').trim()
@@ -55,6 +56,12 @@ export function buildKnowledge(lang) {
     for (const f of PRECIOS.FAQ) out.push({ id: `pricing-faq:${f.q}`, kind: 'faq', title: f.q, text: f.a, url: routeUrl('precios', lang) || `${home}#faq` })
     for (const it of BLOG.ITEMS) out.push({ id: `blog:${it.slug}`, kind: 'blog', title: it.title, text: clip(`${it.excerpt} ${bodyText(it.body)}`), url: `/blog/${it.slug}` })
     for (const it of RECURSOS.ITEMS) out.push({ id: `recurso:${it.slug}`, kind: 'recurso', title: it.title, text: clip(`${it.excerpt} ${(it.whatYouGet || []).map(plain).join(' ')}`), url: `/recursos/${it.slug}` })
+  }
+  // Documentos legales: título + introducción + títulos de sección, con su URL.
+  for (const d of legalDocs().filter((x) => x.lang === lang)) {
+    const intro = d.body.split(/\n---\n/)[0].replace(/^#.*$/m, '').replace(/\*\*Última actualización:[^*]*\*\*|\*\*Last updated:[^*]*\*\*/, '')
+    const heads = [...d.body.matchAll(/^## (.+)$/gm)].map((m) => m[1].replace(/^\d+(\s?bis)?\.\s*/, '')).join(' · ')
+    out.push({ id: `legal:${d.id}`, kind: 'legal', title: d.titulo, text: clip(plain(`${intro} ${heads}`).replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')), url: RUTAS[`legal:${d.id}`]?.[lang] || `/legal/${d.slug}` })
   }
   out.push(...extra[lang])
   return out

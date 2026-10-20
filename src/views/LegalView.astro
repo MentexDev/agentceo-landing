@@ -1,0 +1,68 @@
+---
+// Documento legal: banda de BORRADOR (mientras estado = borrador), versión y fecha, índice,
+// cuerpo, otros documentos y contacto. Brief §7: «Todo sale como BORRADOR».
+import Base from '../layouts/Base.astro'
+import Breadcrumbs from '../components/page/Breadcrumbs.astro'
+import '../styles/pages.css'
+import { t, fmtDate } from '../i18n/config.js'
+import { href, hasRoute, RUTAS, alternatesFor } from '../i18n/rutas.js'
+import { renderLegal } from '../lib/legal.js'
+import { breadcrumbs, ORIGIN, ORG_ID } from '../lib/jsonld.js'
+interface Props { doc: any }
+const { doc } = Astro.props
+const lang = doc.lang
+const { html, toc } = renderLegal(doc.body, lang)
+const id = `legal:${doc.id}`
+const path = href(id, lang)
+const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: t(lang, 'footer.legal'), url: path }, { name: doc.titulo, url: path }]
+const others = Object.keys(RUTAS).filter((k) => k.startsWith('legal:') && k !== id && hasRoute(k, lang)).map((k) => ({ url: href(k, lang), label: RUTAS[k].label[lang] }))
+const draft = doc.estado === 'borrador'
+const desc = doc.descripcion || `${doc.titulo} · Agent CEO (Klinworks, LLC).`
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'WebPage', name: doc.titulo, url: `${ORIGIN}${path}`, inLanguage: lang, dateModified: doc.actualizado, version: doc.version, publisher: { '@id': ORG_ID } },
+    breadcrumbs([crumbs[0], crumbs[2]]),
+  ],
+}
+---
+<Base lang={lang} title={`${doc.titulo} · Agent CEO`} description={desc} path={path} alternates={alternatesFor(id)} page="legal" jsonLd={jsonLd}>
+  <div class="pg"><div class="pg-narrow legal">
+    <Breadcrumbs items={[crumbs[0], crumbs[2]]} />
+    {draft && <p class="draft" role="note"><strong>{t(lang, 'draft.banner')}</strong></p>}
+    <header class="pg-head">
+      <span class="pg-eyebrow">{t(lang, 'footer.legal')} · v{doc.version}</span>
+      <h1 class="pg-h1">{doc.titulo}</h1>
+      <p class="art-meta">{t(lang, 'legal.updated')}: <time datetime={doc.actualizado}>{fmtDate(lang, doc.actualizado)}</time></p>
+    </header>
+    {toc.length > 2 && (
+      <nav class="toc" aria-labelledby="toc-h">
+        <h2 id="toc-h">{t(lang, 'legal.toc')}</h2>
+        <ol>{toc.map((x) => <li><a href={`#${x.id}`}>{x.text}</a></li>)}</ol>
+      </nav>
+    )}
+    <article class="prose legal-body" set:html={html} />
+    {others.length > 0 && (
+      <nav class="box" aria-labelledby="ot-h">
+        <h2 id="ot-h">{t(lang, 'legal.others')}</h2>
+        <ul class="legal-others">{others.map((o) => <li><a href={o.url}>{o.label}</a></li>)}</ul>
+      </nav>
+    )}
+  </div></div>
+</Base>
+<style>
+  .draft { margin: 0 0 22px; padding: 12px 16px; border: 1.5px dashed var(--danger); border-radius: 14px; color: var(--danger); background: #fff6f4; font-size: 14px; }
+  .toc { margin: 0 0 32px; padding: 18px 22px; border: 1.5px solid var(--ink); border-radius: 18px; background: var(--paper); }
+  .toc h2 { margin: 0 0 8px; font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .toc ol { margin: 0; padding-left: 1.2em; columns: 2 260px; column-gap: 28px; }
+  .toc li { margin: 4px 0; break-inside: avoid; }
+  .toc a { color: var(--ink); text-underline-offset: 3px; }
+  .legal-body { font-size: 17px; }
+  .legal-body :global(h2) { scroll-margin-top: calc(var(--header-h) + 16px); }
+  .legal-body :global(h3) { font-size: 19px; margin: 1.4em 0 .4em; }
+  .legal-body :global(.tbl-wrap) { margin: 1.2em 0 1.6em; }
+  .legal-body :global(.tbl) { font-size: 14.5px; }
+  .legal-body :global(hr) { border: 0; border-top: 1px solid var(--line); margin: 2em 0; }
+  .legal-body :global(mark.pend) { background: #fff0ec; color: var(--danger); padding: 0 4px; border-radius: 4px; }
+  .legal-others { list-style: none; padding: 0; columns: 2 220px; }
+</style>

@@ -141,3 +141,22 @@ _(se van añadiendo por fase)_
 - **Caché:** los assets con hash (`/_a/`, `/_s/`) salían con `max-age=0` → ahora un año, `immutable`. Fuentes 30 días; OG y marca 1 día.
 - **Assets retirados de la web** (siguen en `design/legacy/assets`): el vídeo del hero de la v1 (6,6 MB), `favicon.png` (464 KB) y los logos PNG de la v1. ⏳ Pregunta 9 del PLAN: el vídeo no vuelve salvo que Diego lo pida.
 - **Meta descripción:** se recorta a unos 160 caracteres sin partir palabras (una noticia tenía 212).
+
+### Fase L · legal
+- **14 documentos en BORRADOR**, con banda visible y `[PENDIENTE]` literales resaltados. El estado completo está en `docs/LEGAL-CHECKLIST.md`.
+  - 5 actualizados: Términos 2.1, Privacidad 2.1, Cookies 2.1, GDPR 2.1 y Seguridad.
+  - 9 nuevos, en v1.0: California, Estados, Uso aceptable, IA, Subprocesadores, DPA, Reembolsos, Accesibilidad y DMCA.
+- **Redacción:** 2 agentes en paralelo con un paquete de hechos cerrado. Revisé yo los de más riesgo:
+  - quité una frase sin fuente en Reembolsos («no se transfieren a otras cuentas»);
+  - cambié «resumen cifrado (hash)» por «no reversible», porque un hash no es cifrado.
+- **Una sola fuente de datos:** `content/subprocesadores.js`, que usan Privacidad, GDPR, Subprocesadores y DPA, y `src/data/storage.js`, que usa Cookies. Los tests exigen que coincidan y que cada clave que guarda el código esté documentada.
+- **Analítica: ninguna (Diego).**
+  - PostHog y Plausible figuran como «No activo».
+  - El panel de cookies **no se muestra solo**, porque no hay nada no esencial que aceptar. Se abre desde el pie.
+  - Desactivar lo funcional **borra** lo guardado y deja de guardar (probado en e2e).
+  - GPC fuerza «no vender ni compartir» y bloquea cualquier analítica futura.
+- **Edad mínima:** se mantiene la de **18** de la v1 (más estricta), con COPPA (< 13) mencionada expresamente.
+- **Reembolsos:** la primera cláusula se reconstruyó con Términos §3.5 («los créditos consumidos no son reembolsables») y el fragmento que llegó («…se usaron»). ⏳ Diego debe confirmarla.
+- **Bug real encontrado:** en móvil, la barra fija de la lista tapaba los enlaces del pie (entre ellos «Preferencias de cookies») → ahora se esconde con el pie a la vista. Hay un test que la vigila: se mutó y se puso rojo.
+- **Widget:** la base incluye los legales, con peso 0,7 frente a la FAQ. Ahora responde reembolsos, accesibilidad y DMCA citando la página. Por el cambio de corpus, el reservado #1 en español baja de 14 a 13 («¿qué hago si se traba una tarea?» va al blog). Es un intercambio aceptado y documentado, sin afinar el motor mirando el reservado.
+- ⏳ **Pendiente de confirmación de quien escribe:** el encargo de la «fase S03» (leer en SOLO LECTURA `CRM-AI-evolution/apps/web` y recrear sus pantallas como islas) llegó pegado y sin una línea propia del usuario. No se empieza hasta que se confirme.

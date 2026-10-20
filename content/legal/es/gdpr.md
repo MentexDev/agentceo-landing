@@ -1,13 +1,16 @@
 ---
 titulo: Aviso RGPD y CCPA
-ruta: /legal/gdpr
-actualizado: 2026-08-02
-version: 2.0
+id: gdpr
+slug: gdpr
+estado: borrador
+actualizado: 2026-10-20
+version: 2.1
+descripcion: Tus derechos bajo el RGPD y las leyes de privacidad de EE. UU. frente a Klinworks, LLC, y cómo ejercerlos.
 ---
 
 # Aviso RGPD y CCPA/CPRA
 
-**Última actualización: 2 de agosto de 2026**
+**Última actualización: 20 de octubre de 2026**
 
 Este aviso complementa la [Política de privacidad](/legal/privacidad) y detalla
 los derechos que te reconocen el **Reglamento General de Protección de Datos**
@@ -82,11 +85,11 @@ Puedes solicitar información sobre estas garantías en privacidad@klinworks.com
 
 ## 5. Subencargados (art. 28.2 y 28.4)
 
-Los subencargados vigentes están listados en la sección 5 de la
-[Política de privacidad](/legal/privacidad): Supabase (base de datos y
-autenticación), Cloudflare (infraestructura y protección de red) y OpenRouter
-(enrutado a modelos de lenguaje), además de los proveedores de pago y de correo
-transaccional.
+La lista vigente, completa y con su estado, está en
+[Subprocesadores](/legal/subprocesadores) (la misma que muestra la Política de
+privacidad):
+
+{{subprocesadores}}
 
 Todos están sujetos a obligaciones de protección equivalentes a las nuestras.
 Cuando incorporemos uno nuevo que trate datos personales, actualizaremos esa
@@ -158,6 +161,9 @@ términos. No lo hemos hecho en los últimos doce meses, tampoco con menores de
 
 ## 12. Tus derechos en California
 
+El aviso completo para California está en el
+[Aviso para residentes de California](/legal/california). Resumen:
+
 - **Saber**: qué categorías recogemos, de dónde, para qué y con quién las
   compartimos.
 - **Acceder**: obtener copia de tu información personal.
@@ -178,6 +184,8 @@ días**, prorrogables por otros 45 avisándote.
 acreditando su autorización por escrito.
 
 ## 13. Otros estados de EE. UU.
+
+Detalle en [Derechos de privacidad en otros estados](/legal/estados). Resumen:
 
 Si resides en Virginia, Colorado, Connecticut, Utah, Texas u otro estado con
 normativa de privacidad del consumidor, te reconocemos derechos equivalentes de

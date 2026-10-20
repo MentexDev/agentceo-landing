@@ -1,8 +1,11 @@
 ---
 titulo: Política de seguridad
-ruta: /legal/seguridad
+id: seguridad
+slug: seguridad
+estado: borrador
 actualizado: 2026-08-02
 version: 2.0
+descripcion: Cómo protege Klinworks, LLC la información en Agent CEO: cifrado, aislamiento, control de acceso, agentes de IA y lo que aún no tenemos.
 ---
 
 # Política de seguridad
