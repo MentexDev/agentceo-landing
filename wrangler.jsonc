@@ -19,8 +19,21 @@
   // Rate limiting nativo de Workers (ventana de 60 s por clave = IP + ruta).
   // Cierra la deuda MED de la auditoría del 2026-08-10 (endpoints sin límite de tasa).
   "ratelimits": [
-    { "name": "RL_FORMS", "namespace_id": "7001", "simple": { "limit": 8, "period": 60 } }
+    { "name": "RL_FORMS", "namespace_id": "7001", "simple": { "limit": 8, "period": 60 } },
+    { "name": "RL_CHAT", "namespace_id": "7002", "simple": { "limit": 10, "period": 60 } }
   ],
+  // Widget de soporte. DECISIÓN DE DIEGO (2026-10-20): se queda en «stub» (sin LLM, sin keys).
+  // Para «live» harían falta CHAT_MODE=live + el secreto OPENROUTER_API_KEY (wrangler secret put).
+  "vars": {
+    "CHAT_MODE": "stub",
+    "CHAT_MODEL": "google/gemini-3.1-flash-lite",
+    "CHAT_DAILY_BUDGET_USD": "5"
+  },
+  // Topes diarios del widget (por IP con hash, y gasto global del modo live).
+  "durable_objects": {
+    "bindings": [{ "name": "CHAT_GUARD", "class_name": "ChatGuard" }]
+  },
+  "migrations": [{ "tag": "v1-chat-guard", "new_sqlite_classes": ["ChatGuard"] }],
   "d1_databases": [
     {
       "binding": "DB",

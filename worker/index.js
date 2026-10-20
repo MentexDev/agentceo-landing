@@ -2,9 +2,14 @@
 // - Sirve el sitio estático que genera Astro en ./dist (binding ASSETS).
 // - Captura la LISTA DE ESPERA (pre-lanzamiento) en D1 vía POST /api/waitlist.
 // - Captura los leads de los recursos vía POST /api/lead.
+// - Widget de soporte vía POST /api/chat (flag CHAT_MODE; hoy «stub», sin LLM).
 import { json, withSecurityHeaders } from './lib/http.js'
 import { handleWaitlist } from './waitlist.js'
 import { handleLead } from './lead.js'
+import { handleChat } from './chat/handler.js'
+
+// Durable Object de los topes del widget (lo exige wrangler: se exporta desde el main).
+export { ChatGuard } from './chat/guard.js'
 
 // Las legales se enlazaban con .html hasta la v1: redirección PERMANENTE a la URL limpia.
 const LEGACY_HTML = /^\/legal\/([a-z-]+)\.html$/
@@ -34,6 +39,8 @@ export default {
       if (request.method === 'POST') return handleWaitlist(request, env, ctx)
       return json({ ok: false, error: 'Método no permitido' }, 405, { allow: 'POST' })
     }
+
+    if (url.pathname === '/api/chat') return handleChat(request, env, ctx)
 
     if (url.pathname === '/api/lead') {
       if (request.method === 'POST') return handleLead(request, env, ctx)

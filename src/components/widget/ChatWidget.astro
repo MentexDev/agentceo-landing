@@ -1,0 +1,273 @@
+---
+// ─────────────────────────────────────────────────────────────────────────────
+// WIDGET DE SOPORTE «Tu CEO» (brief §8 + addendum §11).
+// · Lanzador ≤ 3 KB con la mascota (respira, parpadea, sus ojos te siguen) y la
+//   etiqueta «IA» siempre visible (SB 1001: que nadie dude de que habla con una IA).
+// · Panel compacto → grande → pantalla completa; hoja inferior arrastrable en móvil.
+// · El código del panel se carga SOLO al primer uso (import dinámico): la página no
+//   paga el widget si nadie lo abre.
+// · Las preguntas sugeridas dependen de la página (en /precios/, preguntas de precio).
+// ─────────────────────────────────────────────────────────────────────────────
+import Mascot from '../Mascot.astro'
+import WaitlistForm from '../waitlist/WaitlistForm.astro'
+import { t } from '../../i18n/config.js'
+import { hasRoute, href } from '../../i18n/rutas.js'
+import { FAQ } from '../../../content/faq.js'
+interface Props { lang: string; page?: string }
+const { lang, page = 'home' } = Astro.props
+const tr = (k: string, v?: Record<string, unknown>) => t(lang, k, v)
+
+const SUGGEST: Record<string, string[]> = {
+  precios: ['precio', 'cuando', 'datos', 'varios-negocios'],
+  home: ['precio', 'programar', 'whatsapp', 'solos'],
+}
+const suggestions = (SUGGEST[page] || SUGGEST.home)
+  .map((id) => FAQ.find((f) => f.id === id)?.q[lang])
+  .filter(Boolean)
+const privacy = hasRoute('legal:privacidad', lang) ? href('legal:privacidad', lang) : null
+const strings = {
+  hello: tr('chat.hello'), typing: tr('chat.typing'), answered: tr('chat.answered', { text: '{text}' }),
+  matched: tr('chat.matched'), source: tr('chat.source'), errNet: tr('chat.errNet'), errRate: tr('chat.errRate'),
+  errDaily: tr('chat.errDaily'), errOff: tr('chat.errOff'), joinedMsg: tr('chat.joinedMsg'), retry: tr('chat.retry'),
+  expand: tr('chat.expand'), shrink: tr('chat.shrink'), fullscreen: tr('chat.fullscreen'), exitFullscreen: tr('chat.exitFullscreen'),
+}
+---
+<div class="cw-root" data-chat-root data-lang={lang}>
+  <div class="cw-tease" data-chat-tease hidden>
+    <button type="button" class="cw-tease-txt" data-chat-open data-chat-source="tease">{tr('chat.tease')}</button>
+    <button type="button" class="cw-tease-x" data-chat-tease-close aria-label={tr('chat.teaseClose')}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+    </button>
+  </div>
+
+  <button type="button" class="cw-launch" data-chat-open data-chat-launch data-chat-source="launcher" aria-expanded="false" aria-controls="cw-panel">
+    <span class="cw-launch-face"><Mascot size={44} variant="light" eye={2.4} blink="4.2s" blinkDelay="-.6s" /></span>
+    <span class="cw-launch-txt"><span class="cw-launch-t">{tr('chat.launch')}</span><span class="cw-launch-s">{tr('chat.launchSub')}</span></span>
+    <span class="cw-ai-badge" aria-hidden="true">{tr('chat.ai')}</span>
+  </button>
+
+  <section class="cw" id="cw-panel" data-chat-panel data-size="compact" role="dialog" aria-modal="false" aria-labelledby="cw-title" aria-describedby="cw-sub" hidden>
+    <div class="cw-grab" data-chat-grab aria-hidden="true"><span></span></div>
+    <header class="cw-head">
+      <span class="cw-avatar" aria-hidden="true"><Mascot size={36} variant="light" eye={1.8} blink="3.6s" /></span>
+      <div class="cw-who">
+        <h2 id="cw-title" class="cw-title">{tr('chat.title')} <span class="cw-ai">{tr('chat.ai')}</span></h2>
+        <p id="cw-sub" class="cw-sub">{tr('chat.subtitle')}</p>
+      </div>
+      <div class="cw-tools">
+        <button type="button" class="cw-tool" data-chat-reset aria-label={tr('chat.newChat')} title={tr('chat.newChat')}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>
+        </button>
+        <button type="button" class="cw-tool cw-only-wide" data-chat-size aria-label={tr('chat.expand')} title={tr('chat.expand')}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>
+        </button>
+        <button type="button" class="cw-tool cw-only-wide" data-chat-full aria-pressed="false" aria-label={tr('chat.fullscreen')} title={tr('chat.fullscreen')}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"></rect></svg>
+        </button>
+        <button type="button" class="cw-tool" data-chat-close aria-label={tr('chat.close')} title={tr('chat.close')}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="cw-log" data-chat-log role="log" aria-label={tr('chat.title')} tabindex="0"></div>
+
+    <div class="cw-suggest" data-chat-suggest>
+      <p class="cw-suggest-h">{tr('chat.suggestTitle')}</p>
+      <div class="cw-chips">
+        {suggestions.map((q) => <button type="button" class="cw-chip" data-chat-ask={q}>{q}</button>)}
+      </div>
+    </div>
+
+    <form class="cw-form" data-chat-form novalidate>
+      <label class="sr-only" for="cw-input">{tr('chat.inputLabel')}</label>
+      <textarea id="cw-input" class="cw-input" data-chat-input rows="1" maxlength="500" placeholder={tr('chat.placeholder')} enterkeyhint="send" autocomplete="off"></textarea>
+      <span class="cw-count" data-chat-count aria-hidden="true"></span>
+      <button type="submit" class="cw-send" aria-label={tr('chat.send')} data-chat-send>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+      </button>
+    </form>
+    <p class="cw-foot">{tr('chat.foot')}{privacy && <> <a href={privacy}>{tr('chat.footLink')}</a></>}</p>
+    <p class="sr-only" aria-live="polite" data-chat-announce></p>
+  </section>
+
+  <template data-chat-wl-tpl>
+    <div class="cw-card">
+      <WaitlistForm lang={lang} source="widget" id="cw-wl" layout="stack" submitLabel={t(lang, 'wl.modal.cta')} busyLabel={t(lang, 'wl.modal.ctaBusy')} />
+    </div>
+  </template>
+  <script type="application/json" data-chat-i18n set:html={JSON.stringify(strings).replace(/</g, '\\u003c')}></script>
+</div>
+
+<style>
+  .cw-root { --cw-z: 45; }
+  /* ── Lanzador ─────────────────────────────────────────────────────────── */
+  .cw-launch {
+    position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: var(--cw-z);
+    display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; min-height: 56px;
+    border: 0; border-radius: var(--radius-pill); cursor: pointer;
+    background: var(--ink); color: var(--cream);
+    box-shadow: 4px 4px 0 var(--gold), 0 14px 30px -12px rgba(17, 17, 19, .45);
+    transition: transform .35s var(--ease-spring), box-shadow .35s var(--ease-out), opacity .25s;
+    animation: cwIn .7s var(--ease-spring) .6s both;
+  }
+  @keyframes cwIn { from { opacity: 0; transform: translateY(24px) scale(.8); } }
+  .cw-launch:hover { transform: translateY(-3px) rotate(-1deg); box-shadow: 6px 6px 0 var(--gold), 0 18px 34px -12px rgba(17, 17, 19, .5); }
+  .cw-launch:active { transform: scale(.97); }
+  .cw-launch:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 4px; }
+  .cw-launch[aria-expanded='true'] { opacity: 0; pointer-events: none; transform: scale(.8); }
+  .cw-launch-face {
+    display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #1f1f23;
+    animation: cwBreathe 3.6s ease-in-out infinite;
+  }
+  @keyframes cwBreathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-2px) scale(1.04); } }
+  .cw-launch-txt { display: grid; text-align: left; line-height: 1.15; }
+  .cw-launch-t { font-size: 14.5px; font-weight: 600; }
+  .cw-launch-s { font-size: 12px; color: var(--mute-dark); }
+  .cw-ai-badge, .cw-ai {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; font-weight: 600;
+    padding: 3px 7px; border-radius: var(--radius-pill); background: var(--gold-2); color: var(--ink);
+  }
+  .cw-ai-badge { position: absolute; top: -6px; left: 36px; box-shadow: 0 0 0 2px var(--ink); }
+
+  .cw-tease {
+    position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(16px, env(safe-area-inset-bottom)) + 72px); z-index: var(--cw-z);
+    display: flex; align-items: center; gap: 2px; padding: 4px 4px 4px 14px; border-radius: 18px 18px 6px 18px;
+    background: var(--paper); border: 1.5px solid var(--ink); box-shadow: 3px 3px 0 var(--gold-2);
+    animation: cwTease .55s var(--ease-spring) both;
+  }
+  .cw-tease[hidden] { display: none; }
+  @keyframes cwTease { from { opacity: 0; transform: translateY(10px) scale(.9); transform-origin: bottom right; } }
+  .cw-tease-txt { border: 0; background: none; padding: 8px 4px; font-size: 14px; cursor: pointer; color: var(--ink); }
+  .cw-tease-x { width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 50%; background: none; color: var(--muted); cursor: pointer; }
+  .cw-tease-x:hover { background: rgba(17, 17, 19, .06); color: var(--ink); }
+
+  /* ── Panel ────────────────────────────────────────────────────────────── */
+  .cw {
+    position: fixed; right: 16px; bottom: 16px; z-index: calc(var(--cw-z) + 1);
+    width: min(400px, calc(100vw - 32px)); height: min(620px, calc(100dvh - 32px));
+    display: grid; grid-template-rows: auto auto 1fr auto auto auto; overflow: hidden;
+    background: var(--cream); color: var(--ink);
+    border: 1.5px solid var(--ink); border-radius: 26px;
+    box-shadow: 8px 8px 0 var(--gold), 0 30px 60px -24px rgba(17, 17, 19, .45);
+    transform-origin: bottom right;
+    animation: cwOpen .45s var(--ease-spring) both;
+    transition: width .35s var(--ease-out), height .35s var(--ease-out), border-radius .35s, right .35s, bottom .35s;
+  }
+  .cw[hidden] { display: none; }
+  @keyframes cwOpen { from { opacity: 0; transform: translateY(16px) scale(.92); } }
+  .cw[data-size='large'] { width: min(760px, calc(100vw - 32px)); height: min(84dvh, 900px); }
+  .cw[data-size='full'] { right: 0; bottom: 0; width: 100vw; height: 100dvh; border-radius: 0; border-width: 0; box-shadow: none; }
+  .cw[data-size='full'] .cw-log, .cw[data-size='full'] .cw-form, .cw[data-size='full'] .cw-suggest, .cw[data-size='full'] .cw-foot { width: min(760px, 100%); margin-inline: auto; }
+
+  .cw-grab { display: none; }
+  .cw-head { display: flex; align-items: center; gap: 10px; padding: 12px 10px 12px 14px; background: var(--ink); color: var(--cream); }
+  .cw-avatar { display: grid; place-items: center; width: 42px; height: 42px; flex: none; border-radius: 50%; background: #1f1f23; }
+  .cw-who { flex: 1; min-width: 0; }
+  .cw-title { margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .cw-sub { margin: 2px 0 0; font-size: 12px; line-height: 1.3; color: var(--mute-dark); }
+  .cw-tools { display: flex; gap: 2px; }
+  .cw-tool { width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 10px; background: transparent; color: var(--cream); cursor: pointer; }
+  .cw-tool:hover { background: rgba(244, 242, 237, .12); }
+  .cw-tool:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 1px; }
+
+  .cw-log { overflow-y: auto; overscroll-behavior: contain; padding: 16px 14px 8px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+  .cw-log:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: -4px; }
+  .cw-log :global(.cw-msg) { max-width: 88%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; animation: cwMsg .35s var(--ease-spring) both; }
+  @keyframes cwMsg { from { opacity: 0; transform: translateY(6px) scale(.97); } }
+  .cw-log :global(.cw-bot) { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+  .cw-log :global(.cw-user) { align-self: flex-end; background: var(--ink); color: var(--cream); border-bottom-right-radius: 6px; }
+  .cw-log :global(.cw-msg p) { margin: 0 0 8px; }
+  .cw-log :global(.cw-msg p:last-child) { margin-bottom: 0; }
+  .cw-log :global(.cw-msg ul) { margin: 4px 0 8px; padding-left: 18px; }
+  .cw-log :global(.cw-msg a) { color: var(--gold-ink); text-underline-offset: 2px; }
+  .cw-log :global(.cw-matched) { display: block; margin-bottom: 6px; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--muted); }
+  .cw-log :global(.cw-src) { display: inline-flex; margin-top: 8px; font-size: 13px; }
+  .cw-log :global(.cw-typing) { display: inline-flex; gap: 4px; padding: 14px 16px; }
+  .cw-log :global(.cw-typing span) { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: cwDot 1s ease-in-out infinite; }
+  .cw-log :global(.cw-typing span:nth-child(2)) { animation-delay: .15s; }
+  .cw-log :global(.cw-typing span:nth-child(3)) { animation-delay: .3s; }
+  @keyframes cwDot { 0%, 100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+  .cw-log :global(.cw-chips-row) { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -4px; }
+  .cw-log :global(.cw-card) { align-self: stretch; padding: 14px; border-radius: 18px; background: var(--gold-3); border: 1.5px solid var(--ink); }
+  .cw-log :global(.cw-err) { align-self: center; font-size: 13px; color: var(--danger); text-align: center; }
+  .cw-log :global(.cw-retry) { margin-top: 8px; color: var(--ink); }
+
+  .cw-suggest { padding: 0 14px 8px; }
+  .cw-suggest[hidden] { display: none; }
+  .cw-suggest-h { margin: 0 0 8px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cw-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cw-chip, .cw-log :global(.cw-chip) {
+    min-height: 36px; padding: 6px 12px; border-radius: var(--radius-pill); border: 1.5px solid var(--ink);
+    background: transparent; color: var(--ink); font-size: 13.5px; cursor: pointer; text-align: left;
+    transition: background-color .2s, transform .2s var(--ease-spring);
+  }
+  .cw-chip:hover, .cw-log :global(.cw-chip:hover) { background: var(--gold-3); transform: translateY(-1px); }
+
+  .cw-form { position: relative; display: flex; align-items: flex-end; gap: 8px; margin: 4px 12px 0; padding: 6px 6px 6px 14px; border: 1.5px solid var(--ink); border-radius: 22px; background: #fff; }
+  .cw-form:focus-within { box-shadow: 3px 3px 0 var(--gold-2); }
+  .cw-input { flex: 1; min-height: 40px; max-height: 120px; padding: 9px 0; border: 0; resize: none; background: transparent; font-size: 16px; line-height: 1.4; }
+  .cw-input:focus { outline: none; }
+  .cw-form:has(.cw-input:focus-visible) { outline: 2px solid var(--gold-ink); outline-offset: 2px; }
+  .cw-input::placeholder { color: var(--muted); opacity: 1; }
+  .cw-count { position: absolute; right: 58px; bottom: -18px; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  .cw-send { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--ink); color: var(--cream); cursor: pointer; transition: transform .2s var(--ease-spring); }
+  .cw-send:hover { transform: translateX(2px); }
+  .cw-send[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+  .cw-foot { margin: 0; padding: 10px 14px 12px; font-size: 11.5px; line-height: 1.4; color: var(--muted); text-align: center; }
+  .cw-foot a { color: inherit; }
+
+  /* ── Móvil: hoja inferior arrastrable ─────────────────────────────────── */
+  @media (max-width: 640px) {
+    .cw-launch { padding: 6px; }
+    .cw-launch-txt { display: none; }
+    .cw, .cw[data-size='large'], .cw[data-size='full'] {
+      right: 0; left: 0; bottom: 0; width: 100%; height: min(88dvh, 100dvh - 24px);
+      border-radius: 26px 26px 0 0; border-width: 1.5px 0 0; box-shadow: 0 -20px 50px -20px rgba(17, 17, 19, .5);
+      animation: cwSheet .4s var(--ease-out) both; padding-bottom: env(safe-area-inset-bottom);
+    }
+    @keyframes cwSheet { from { transform: translateY(100%); } }
+    .cw-grab { display: grid; place-items: center; height: 22px; background: var(--ink); touch-action: none; cursor: grab; }
+    .cw-grab span { width: 44px; height: 5px; border-radius: 3px; background: rgba(244, 242, 237, .35); }
+    .cw-head { padding-top: 2px; }
+    .cw-only-wide { display: none; }
+    .cw[data-dragging] { transition: none; animation: none; }
+  }
+  /* Con el CTA fijo de la lista visible (móvil), el lanzador sube para no taparlo. */
+  :global(html:has([data-wl-sticky]:not([hidden]))) .cw-launch,
+  :global(html:has([data-wl-sticky]:not([hidden]))) .cw-tease { translate: 0 -76px; }
+  :global(html[data-chat-open]) { overflow: hidden; }
+  @media (min-width: 641px) { :global(html[data-chat-open]) { overflow: auto; } }
+  @media (prefers-reduced-motion: reduce) {
+    .cw-launch, .cw-launch-face, .cw, .cw-tease { animation: none; }
+  }
+</style>
+
+<script>
+  // Cargador mínimo: el panel (y su código) se descargan en el primer uso.
+  const root = document.querySelector<HTMLElement>('[data-chat-root]')
+  if (root) {
+    let loading: Promise<any> | null = null
+    const load = () => (loading ||= import('../../scripts/chat/panel.js').then((m) => m.initPanel(root)))
+    root.addEventListener('click', async (e) => {
+      const opener = (e.target as HTMLElement).closest<HTMLElement>('[data-chat-open]')
+      if (!opener) return
+      const api = await load()
+      api.open(opener.dataset.chatSource || 'launcher')
+    })
+    // Precarga en reposo para que el primer clic sea instantáneo.
+    ;(window as any).requestIdleCallback?.(() => setTimeout(() => import('../../scripts/chat/panel.js'), 2500))
+    // Burbuja de invitación: una vez por sesión, a los 8 s, si nadie abrió el chat.
+    const tease = root.querySelector<HTMLElement>('[data-chat-tease]')!
+    let seen = false
+    try { seen = Boolean(sessionStorage.getItem('ac_tease')) } catch {}
+    if (!seen) {
+      setTimeout(() => {
+        if (root.querySelector('[data-chat-launch]')?.getAttribute('aria-expanded') === 'true') return
+        tease.hidden = false
+        try { sessionStorage.setItem('ac_tease', '1') } catch {}
+      }, 8000)
+    }
+    root.querySelector('[data-chat-tease-close]')?.addEventListener('click', () => { tease.hidden = true })
+  }
+</script>

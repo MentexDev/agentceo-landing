@@ -2,7 +2,7 @@
    Lo usan el header, el footer, el widget y las secciones. */
 .mascot { display: block; overflow: visible; }
 .pupil { transition: transform .14s ease-out; }
-[data-idle] .pupil { transition: transform .9s var(--ease-out); }
+html[data-idle] .pupil, [data-idle] .pupil { transition: transform .9s var(--ease-out); }
 [data-tilt] { transform-box: fill-box; transform-origin: 50% 90%; transition: transform .25s ease-out; }
 .eyes { transform-box: fill-box; transform-origin: center; animation: blink var(--bl, 4.6s) infinite; animation-delay: var(--bd, 0s); }
 @keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 95.5% { transform: scaleY(.08); } }

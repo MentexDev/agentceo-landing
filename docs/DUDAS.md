@@ -37,3 +37,17 @@ _(se van añadiendo por fase)_
 - **Respaldo de esquema probado en vivo:** la D1 local de `wrangler dev` todavía no tenía la 0002 y el Worker guardó igualmente con el esquema v1. ⏳ Al desplegar, Diego aplica la 0002 en remoto (aditiva, solo columnas NULL).
 - **El aviso CCPA del formulario** describe exactamente lo que se guarda: correo, idioma, campaña de origen y navegador (user-agent). Lleva `notice_version` = `2026-10-20` en cada fila, para poder demostrar qué aviso vio cada persona.
 - ⏳ **Baja (CAN-SPAM):** el aviso promete «darte de baja desde cualquier correo». Los correos los enviará Resend desde agentceo.io, y el enlace de baja se construye con el envío, que queda fuera de esta rama.
+
+### Fase W · widget
+- **Modo:** `CHAT_MODE=stub` en `wrangler.jsonc`, sin LLM y sin keys, como decidió Diego. El modo live está escrito y probado **solo contra un `fetch` falso**: nunca se llamó a OpenRouter. Para activarlo harían falta `CHAT_MODE=live` y `wrangler secret put OPENROUTER_API_KEY`. El tope duro es de $5/día, en el Durable Object `ChatGuard`. Al superarlo, vuelve solo a stub.
+- **Precisión del stub, MEDIDA (no estimada):**
+  - Conjunto de afinado: 64/64. Está sobreajustado, así que no vale como estimación.
+  - Reservado #1: 66,7 % (16/24) al medirlo. Después quedó contaminado, porque sus fallos inspiraron arreglos por categoría.
+  - **Reservado #2, limpio: 44,0 % (11/25).** Es la cifra honesta para preguntas con palabras nuevas. El PLAN estimaba 60–80 %: **era optimista y queda corregido.**
+  - Los clics en las preguntas sugeridas aciertan al 100 % (hay un test que recorre todo el FAQ).
+- **Cómo se compensa sin LLM:** (1) cada respuesta muestra «Respuesta a: «…»», para que un emparejamiento dudoso se vea como tal; (2) la interfaz guía con preguntas sugeridas y chips; (3) lo que no está en la web se admite y lleva a la lista o a `info@klinworks.com`. **En ningún caso el stub genera texto:** solo cita la web.
+- ⏳ **Recomendación para Diego:** con un 44 % en preguntas abiertas, el modo live (≈ $7 por cada 1.000 conversaciones con `gemini-3.1-flash-lite`, según el PLAN §6.3) es lo que convierte el widget en un agente útil. El stub sirve para guiar.
+- **SB 1001 / Ley de IA de la UE art. 50:** la IA se declara en cuatro sitios: insignia «IA» en el lanzador, título y subtítulo del panel, primer mensaje y pie («Soy una IA y puedo equivocarme»). Además, toda pregunta del tipo «¿eres humano?» recibe la declaración explícita. Hay tests en es y en en.
+- **Privacidad:** el contenido de los chats no se guarda en el servidor. El tope diario por IP usa un hash SHA-256 como nombre de instancia, sin la IP en claro (hay un test que lo comprueba). En el navegador, la conversación vive 7 días en `localStorage`, sin correos.
+- **Bug real encontrado con WebKit:** recargar a mitad de una respuesta borraba la pregunta del historial. Ahora la pregunta se conserva y aparece «Reintentar». Hay un test que lo vigila.
+- **Contacto que da el widget:** `info@klinworks.com` (aclaración de Diego: los contactos se quedan en @klinworks.com).

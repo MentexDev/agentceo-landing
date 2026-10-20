@@ -121,7 +121,10 @@ function bindForm(form) {
       return
     }
     onJoined(email, source)
-    if (inModal) {
+    form.dispatchEvent(new CustomEvent('wl:joined', { bubbles: true, detail: { source } }))
+    if (form.hasAttribute('data-no-modal')) {
+      markDone(form, msgs.success)
+    } else if (inModal) {
       goStep('biz')
     } else {
       markDone(form, msgs.success)
@@ -237,15 +240,20 @@ function bindExitIntent() {
   })
 }
 
+/** Para formularios insertados después de cargar la página (p. ej. dentro del widget). */
+export function enhanceForm(form) {
+  if (form.__wl) return
+  form.__wl = true
+  bindForm(form)
+  // Si ya se apuntó en otra visita, el formulario lo dice en vez de volver a pedirlo.
+  if (joined() && !form.closest('[data-wl-modal]')) markDone(form, msgs.already)
+}
+
 export function initWaitlist() {
   try { msgs = JSON.parse(document.getElementById('wl-i18n').textContent) } catch {}
   captureAttribution()
-  for (const f of document.querySelectorAll('form[data-waitlist]')) bindForm(f)
+  for (const f of document.querySelectorAll('form[data-waitlist]')) enhanceForm(f)
   bindModal()
   bindSticky()
   bindExitIntent()
-  // Si ya se apuntó en otra visita, los formularios lo dicen en vez de volver a pedirlo.
-  if (joined()) {
-    for (const f of document.querySelectorAll('form[data-waitlist]')) if (!f.closest('[data-wl-modal]')) markDone(f, msgs.already)
-  }
 }

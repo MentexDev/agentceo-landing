@@ -8,6 +8,7 @@ import Seo from '../components/Seo.astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import WaitlistLayer from '../components/waitlist/WaitlistLayer.astro'
+import ChatWidget from '../components/widget/ChatWidget.astro'
 import { LOCALE_META, t } from '../i18n/config.js'
 interface Props {
   lang: string
@@ -21,6 +22,8 @@ interface Props {
   jsonLd?: object | object[] | null
   noindex?: boolean
   mainClass?: string
+  /** id de la página (sugerencias del widget según la página). */
+  page?: string
 }
 const p = Astro.props
 ---
@@ -39,6 +42,11 @@ const p = Astro.props
     </main>
     <Footer lang={p.lang} alternates={p.alternates} />
     <WaitlistLayer lang={p.lang} />
+    <ChatWidget lang={p.lang} page={p.page || p.active || 'home'} />
     <slot name="after" />
+    <script>
+      import { initVida } from '../scripts/vida.js'
+      initVida()
+    </script>
   </body>
 </html>
