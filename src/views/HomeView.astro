@@ -2,7 +2,8 @@
 // PORTADA · las secciones del prototipo (design/prototype), compiladas a UN árbol
 // responsive por scripts/port/compile-sections.mjs.
 //  · Estáticas (sin JS): S02 hero, S06, S07, S14, S15, S16, S17, S19.
-//  · Islas Preact, hidratadas al hacerse visibles: S03–S05, S08–S13.
+//  · Islas Preact, hidratadas al hacerse visibles: S04, S05, S08–S13.
+//  · S03 «Así se ve por dentro»: recreación de la APP REAL (sections/appdemo, fase S03).
 //  · S18 (FAQ) es a mano, alimentada por content/faq.js (+ schema FAQPage).
 //  · S01/S20/S21 → Header, Footer y WaitlistModal del sitio.
 import Base from '../layouts/Base.astro'
@@ -18,7 +19,7 @@ import S15 from '../sections/gen/S15.jsx'
 import S16 from '../sections/gen/S16.jsx'
 import S17 from '../sections/gen/S17.jsx'
 import S19 from '../sections/gen/S19.jsx'
-import I03 from '../sections/islands/I03.jsx'
+import AppDemoSection from '../sections/AppDemoSection.astro'
 import I04 from '../sections/islands/I04.jsx'
 import I05 from '../sections/islands/I05.jsx'
 import I08 from '../sections/islands/I08.jsx'
@@ -46,7 +47,7 @@ const d = (id: string) => sectionDict(lang, id)
   <S02 v={v} t={d('S02')}>
     <WaitlistForm lang={lang} source="hero" id="wl-hero" note={t(lang, 'wl.note')} />
   </S02>
-  <I03 client:visible t={d('S03')} L={L} />
+  <AppDemoSection lang={lang} />
   <I04 client:visible t={d('S04')} L={L} />
   <I05 client:visible t={d('S05')} L={L} />
   <S06 v={v} t={d('S06')} />

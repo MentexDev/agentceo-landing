@@ -39,8 +39,10 @@ const OUT = join(ROOT, 'src', 'sections', 'gen')
 const I18N = join(ROOT, 'src', 'i18n', 'sections')
 
 // Secciones que se sustituyen por componentes del sitio (no se compilan):
-//   S01 → Header.astro · S20 → Footer.astro · S21 → WaitlistModal.astro
-const SKIP = new Set(['S01', 'S20', 'S21'])
+//   S01 → Header.astro · S20 → Footer.astro · S21 → WaitlistModal.astro · S03 → appdemo
+// S03 (recorrido simulado del prototipo) se sustituye por la recreación de la app real
+// (src/sections/appdemo, fase S03, 2026-10-20).
+const SKIP = new Set(['S01', 'S03', 'S20', 'S21'])
 // Secciones cuyo formulario de lista de espera se sustituye por <WaitlistForm> (children).
 const FORM_SLOT = new Set(['S02', 'S19'])
 const BREAK = 1023 // ≤ esto: diseño móvil

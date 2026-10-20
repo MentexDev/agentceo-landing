@@ -172,3 +172,19 @@ _(se van añadiendo por fase)_
 - **Subprocesadores:** **PostHog, Sentry y Plausible retirados** (12 proveedores). Desaparece la columna «Estado». Privacidad y GDPR pasan a 2.2 y Subprocesadores a 1.1.
 - **Evidencia sobre Sentry** (búsqueda en SOLO LECTURA de `CRM-AI-evolution`): solo aparece como **conector** que el cliente puede enlazar con su propia cuenta (`apps/web/src/lib/conectores/categorias.js`, `apps/api/src/integrations/connectors/*`) y como palabra del vocabulario de dictado. **No hay** `@sentry/*`, ni `Sentry.init`, ni `SENTRY_DSN`. Retirado como pidió Diego.
 - **«En es y en»:** los legales en inglés todavía no existen (se escriben en la Fase 6). Nacerán ya con estos datos.
+
+### Fase S03 · recreación de la app real («Así se ve por dentro»)
+- **Fuente, leída en SOLO LECTURA:** `CRM-AI-evolution/apps/web`. Se tomaron de ahí:
+  - los tokens de `tailwind.config.js`, `lib/paleta.js` e `index.css`;
+  - los textos literales del sidebar (`AdminLayout`, `ElInterruptorDelLado`), del chat (`AgenteHablando`, `PensandoIndicador`, `PasosDelTurno`, `ChatComposer`), de Biblioteca, Aprobaciones (`FilaDeAprobacion`), del Panel de Comando (`TarjetaDeComando`), de Ventas (`PedidosDeVentas`), de Clientes (`ClientesDirectorio`) y de `MarcaEnLasMigas`.
+  - No se ejecutó la app, no se instaló nada allí y no se llamó a ninguna API.
+- **Datos:** todos inventados, para la marca de ejemplo **«Lúa / Casa Lúa»** (ropa cómoda para mujer en Colombia, coherente con S08 y S14). Clientas con nombre + inicial y correos `@example.com`. **Los fixtures con conversaciones reales de la app no se leyeron.** Hay un test que exige `@example.com` y la etiqueta «datos inventados».
+- **Fidelidad frente a peso:** la app usa Inter, Playfair Display y JetBrains Mono. Aquí se usan Geist, Instrument Serif y Geist Mono, que ya están cargadas: **cero fuentes extra**. Los iconos son los mismos (lucide, en su versión para Preact).
+- **Inglés:** la app no tiene i18n. Los textos en inglés de la demo son traducción nuestra.
+- **Accesibilidad:**
+  - pestañas con patrón tablist (flechas, Inicio, Fin);
+  - **botón de pausa visible** (cumple WCAG 2.2.2 para esta animación);
+  - el recorrido se detiene al interactuar y no corre fuera de pantalla ni con motion reducido (estados finales al instante);
+  - axe da 0 violaciones en 390, 900 y 1440 px.
+- **Bug encontrado en mi test:** el test de pausa **no probaba nada**. Pulsaba sobre el HTML del servidor antes de la hidratación y la mutación sobrevivía. Ahora espera la hidratación real (la isla pierde `ssr`) y verifica primero que el recorrido avanza. Mutado: rojo.
+- La S03 compilada del prototipo (el recorrido de 6 pantallas «pendiente de rediseño») sale del compilador: así no hay CSS muerto.

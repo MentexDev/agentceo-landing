@@ -1,0 +1,26 @@
+---
+// S03 «Así se ve por dentro» · cabecera de la sección (en el HTML, para buscadores y sin JS)
+// + la isla que recrea la app real (se hidrata al hacerse visible).
+import AppDemo from './appdemo/AppDemo.jsx'
+import { DICT } from './appdemo/data.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const T = DICT[lang]
+---
+<section id="pordentro" class="adsec" aria-labelledby="adsec-h">
+  <div class="adsec-wrap">
+    <div data-rv class="adsec-eyebrow"><span>{T.eyebrow}</span></div>
+    <h2 id="adsec-h" data-rv style="--d:80ms" class="adsec-h2">{T.h2a}<em>{T.h2b}</em></h2>
+    <p data-rv style="--d:140ms" class="adsec-sub">{T.sub}</p>
+    <AppDemo client:visible lang={lang} />
+  </div>
+</section>
+<style>
+  .adsec { padding: calc(140 * var(--u)) calc(96 * var(--u)); border-top: 1.5px solid var(--ink); }
+  .adsec-eyebrow { margin-bottom: 18px; }
+  .adsec-eyebrow span { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .adsec-h2 { margin: 0 0 12px; font-family: var(--serif); font-weight: 400; font-size: max(calc(62 * var(--u)), 38px); line-height: 1.04; letter-spacing: -.02em; }
+  .adsec-h2 em { font-style: italic; }
+  .adsec-sub { margin: 0 0 32px; font-size: max(calc(19 * var(--u)), 16px); color: var(--muted); max-width: 58ch; }
+  @media (max-width: 1023px) { .adsec { padding: 64px 16px; } }
+</style>
