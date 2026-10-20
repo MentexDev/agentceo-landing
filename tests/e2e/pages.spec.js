@@ -2,18 +2,24 @@
 import { test, expect } from './fixtures.js'
 import { queryLocal, testEmail } from './db.js'
 
-test('noticias: filtrar por categoría con los chips', async ({ page }) => {
+test('noticias: filtrar por categoría con los chips (radios, sin JS ni salto de diseño)', async ({ page }) => {
   await page.goto('/noticias/')
-  const chips = page.locator('[data-filters] [data-filter]')
-  await expect(chips.first()).toHaveAttribute('aria-pressed', 'true')
+  const chips = page.locator('[data-filters] input[type=radio]')
+  await expect(chips.first()).toBeChecked()
   const total = await page.locator('[data-cat]:visible').count()
-  await chips.nth(1).click()
-  await expect(chips.nth(1)).toHaveAttribute('aria-pressed', 'true')
-  const cat = await chips.nth(1).getAttribute('data-filter')
+  await page.locator('[data-filters] .chip').nth(1).click()
+  await expect(chips.nth(1)).toBeChecked()
+  const cat = await chips.nth(1).getAttribute('value')
   const visible = page.locator('[data-cat]:visible')
   const n = await visible.count()
+  expect(n).toBeGreaterThan(0)
   expect(n).toBeLessThanOrEqual(total)
   for (let i = 0; i < n; i++) await expect(visible.nth(i)).toHaveAttribute('data-cat', cat)
+  // Con el teclado: flechas entre radios.
+  await chips.nth(1).focus()
+  await page.keyboard.press('ArrowLeft')
+  await expect(chips.first()).toBeChecked()
+  await expect(page.locator('[data-cat]:visible')).toHaveCount(total)
 })
 
 test('noticia: fuentes verificadas que abren en otra pestaña y migas de pan', async ({ page }) => {

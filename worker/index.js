@@ -3,7 +3,7 @@
 // - Captura la LISTA DE ESPERA (pre-lanzamiento) en D1 vía POST /api/waitlist.
 // - Captura los leads de los recursos vía POST /api/lead.
 // - Widget de soporte vía POST /api/chat (flag CHAT_MODE; hoy «stub», sin LLM).
-import { json, withSecurityHeaders } from './lib/http.js'
+import { json, withSecurityHeaders, withCache } from './lib/http.js'
 import { handleWaitlist } from './waitlist.js'
 import { handleLead } from './lead.js'
 import { handleChat } from './chat/handler.js'
@@ -50,7 +50,7 @@ export default {
     // Todo lo demás → los assets estáticos (con cabeceras de seguridad en el HTML).
     const res = await env.ASSETS.fetch(request)
     const ct = res.headers.get('content-type') || ''
-    if (!ct.includes('text/html')) return res
+    if (!ct.includes('text/html')) return withCache(res, url.pathname)
     return withSecurityHeaders(res, url.protocol === 'https:')
   },
 }

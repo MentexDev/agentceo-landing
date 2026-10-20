@@ -19,7 +19,7 @@ const tr = (k: string) => t(lang, k)
       <a class="ac-btn ac-btn-dark" href={href('home', lang)}>{tr('wl.thanks.back')}</a>
     </div>
     <div class="ty-err" id="error" tabindex="-1">
-      <h1>{tr('wl.thanks.errH1')}</h1>
+      <h2 class="ty-h">{tr('wl.thanks.errH1')}</h2>
       <p>{tr('wl.thanks.errP')}</p>
       <WaitlistForm lang={lang} source="gracias-retry" id="ty-form" submitLabel={tr('wl.thanks.retry')} />
     </div>
@@ -28,7 +28,7 @@ const tr = (k: string) => t(lang, k)
 <style>
   .ty { display: grid; justify-items: center; text-align: center; padding: 96px 0 120px; }
   .ty-ok, .ty-err { display: grid; justify-items: center; gap: 18px; }
-  .ty h1 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 6vw, 72px); line-height: 1.02; }
+  .ty h1, .ty .ty-h { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 6vw, 72px); line-height: 1.02; }
   .ty h1 em { font-style: italic; color: var(--gold-ink); }
   .ty p { margin: 0 0 8px; max-width: 46ch; color: var(--muted); font-size: 18px; }
   .ty-err { display: none; }

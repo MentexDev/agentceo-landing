@@ -26,34 +26,26 @@ const jsonLd = {
 }
 ---
 <Base lang={lang} title={s.META.title} description={s.META.sub} path={path} alternates={alternatesFor(kind)} active={kind} page={kind} jsonLd={jsonLd}>
-  <div class="pg"><div class="pg-wrap">
+  <div class="pg"><div class="pg-wrap lst">
     <PageHead crumbs={crumbs} eyebrow={s.META.eyebrow} h1a={s.META.h1} sub={s.META.sub} />
-    <div class="chips" role="group" aria-label={t(lang, 'pages.filterBy')} data-filters hidden>
-      <button class="chip" type="button" aria-pressed="true" data-filter="all">{t(lang, 'pages.all')}</button>
-      {s.CATEGORIES.map((c) => <button class="chip" type="button" aria-pressed="false" data-filter={c}>{c}</button>)}
-    </div>
+    <!-- Filtros SIN JS: radios con estilo de chip + :has(). No aparecen tarde (CLS 0,062 medido
+         cuando los revelaba el JS), funcionan sin JavaScript y son un grupo de radio nativo. -->
+    <fieldset class="chips filt" data-filters>
+      <legend class="sr-only">{t(lang, 'pages.filterBy')}</legend>
+      {['all', ...s.CATEGORIES].map((c, i) => (
+        <label class="chip"><input type="radio" name="cat" value={c} checked={i === 0} /><span>{c === 'all' ? t(lang, 'pages.all') : c}</span></label>
+      ))}
+    </fieldset>
     {featured && <Card item={featured} url={itemUrl(kind, lang, featured.slug)} lang={lang} featured />}
     <div class="cgrid">
       {rest.map((it) => <Card item={it} url={itemUrl(kind, lang, it.slug)} lang={lang} headingLevel={2} />)}
     </div>
-    <p class="empty" data-empty hidden>{t(lang, 'pages.empty')}</p>
+    <p class="empty" data-empty>{t(lang, 'pages.empty')}</p>
   </div></div>
 </Base>
-<script>
-  // Los filtros solo aparecen con JS (sin JS, todo el listado está visible).
-  const box = document.querySelector<HTMLElement>('[data-filters]')
-  if (box) {
-    box.hidden = false
-    const cards = [...document.querySelectorAll<HTMLElement>('[data-cat]')]
-    const empty = document.querySelector<HTMLElement>('[data-empty]')!
-    box.addEventListener('click', (e) => {
-      const chip = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]')
-      if (!chip) return
-      box.querySelectorAll('[data-filter]').forEach((c) => c.setAttribute('aria-pressed', String(c === chip)))
-      const f = chip.dataset.filter
-      let shown = 0
-      for (const c of cards) { const ok = f === 'all' || c.dataset.cat === f; c.hidden = !ok; if (ok) shown++ }
-      empty.hidden = shown > 0
-    })
-  }
-</script>
+<style set:html={[
+  // Una regla por categoría: oculta lo que no es de la categoría marcada…
+  ...s.CATEGORIES.map((c) => `.lst:has(input[value="${c.replace(/"/g, '')}"]:checked) [data-cat]:not([data-cat="${c.replace(/"/g, '')}"]){display:none}`),
+  // …y muestra el aviso de vacío solo si esa categoría no tiene piezas.
+  ...s.CATEGORIES.filter((c) => !s.ITEMS.some((i) => i.category === c)).map((c) => `.lst:has(input[value="${c.replace(/"/g, '')}"]:checked) [data-empty]{display:block}`),
+].join('')} />

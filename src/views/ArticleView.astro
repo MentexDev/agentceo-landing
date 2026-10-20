@@ -14,6 +14,7 @@ import { href } from '../i18n/rutas.js'
 import { section, itemUrl, itemAlternates, esSlugOf, SCHEMA } from '../lib/content.js'
 import { safeUrl, inlineBold } from '../lib/escape.js'
 import { breadcrumbs, ORIGIN, ORG_ID } from '../lib/jsonld.js'
+import { ogPathFor } from '../lib/og.js'
 interface Props { kind: 'noticias' | 'blog' | 'recursos'; lang: string; item: any }
 const { kind, lang, item } = Astro.props
 const s = section(kind, lang)!
@@ -37,7 +38,7 @@ const jsonLd = {
       inLanguage: lang,
       mainEntityOfPage: `${ORIGIN}${url}`,
       url: `${ORIGIN}${url}`,
-      image: `${ORIGIN}/og${url.replace(/\/$/, '')}.png`,
+      image: `${ORIGIN}${ogPathFor(url)}`,
       author: { '@id': ORG_ID },
       publisher: { '@id': ORG_ID },
       ...(sources.length ? { citation: sources.map((x: any) => ({ '@type': 'CreativeWork', name: x.name, url: x.url })) } : {}),
@@ -47,7 +48,7 @@ const jsonLd = {
   ],
 }
 ---
-<Base lang={lang} title={`${item.title} · Agent CEO`} description={item.excerpt} path={url} alternates={itemAlternates(kind, esSlugOf(item, lang))} active={kind} page={kind} ogType="article" ogImage={`/og${url.replace(/\/$/, '')}.png`} jsonLd={jsonLd}>
+<Base lang={lang} title={`${item.title} · Agent CEO`} description={item.excerpt} path={url} alternates={itemAlternates(kind, esSlugOf(item, lang))} active={kind} page={kind} ogType="article" jsonLd={jsonLd}>
   <article class="pg">
     <div class="pg-narrow">
       <Breadcrumbs items={crumbs} />

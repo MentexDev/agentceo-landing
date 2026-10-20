@@ -4,6 +4,7 @@
 // canonical y hreflang SIEMPRE absolutos sobre https://agentceo.io.
 import { LOCALE_META, DEFAULT_LOCALE } from '../i18n/config.js'
 import { jsonForScript } from '../lib/escape.js'
+import { ogPathFor } from '../lib/og.js'
 interface Props {
   lang: string
   title: string
@@ -15,7 +16,12 @@ interface Props {
   jsonLd?: object | object[] | null
   noindex?: boolean
 }
-const { lang, title, description, path, alternates, ogImage = '/apple-touch-icon.png' /* FASE 5: OG 1200×630 por página */, ogType = 'website', jsonLd = null, noindex = false } = Astro.props
+const { lang, title, path, alternates, ogType = 'website', jsonLd = null, noindex = false } = Astro.props
+// Meta descripción ≤ 160 caracteres (Google la corta hacia ahí), sin partir palabras.
+const clip = (s: string, n = 160) => (s.length <= n ? s : `${s.slice(0, n - 1).replace(/[\s,;:—-]+\S*$/, '')}…`)
+const description = clip(Astro.props.description)
+// OG 1200×630 propia de cada página (src/lib/og.js); las noindex usan la de su portada.
+const ogImage = Astro.props.ogImage ?? (noindex ? ogPathFor(lang === 'es' ? '/' : `/${lang}/`) : ogPathFor(path))
 const ORIGIN = 'https://agentceo.io'
 const abs = (p: string) => new URL(p, ORIGIN).href
 const canonical = abs(path)

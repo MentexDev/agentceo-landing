@@ -41,3 +41,19 @@ export function withSecurityHeaders(res, secure = true) {
   h.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), browsing-topics=()')
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h })
 }
+
+/**
+ * Caché de assets: los de Astro (/_a/) y el CSS no crítico (/_s/) llevan hash → inmutables un año.
+ * Fuentes: 30 días (nombre fijo). Imágenes OG y marca: 1 día. El resto, lo que diga ASSETS.
+ * (Medido: sin esto todo salía con max-age=0 y cada visita revalidaba el JS y el CSS.)
+ */
+export function withCache(res, path) {
+  let cc = null
+  if (path.startsWith('/_a/') || path.startsWith('/_s/')) cc = 'public, max-age=31536000, immutable'
+  else if (path.startsWith('/fonts/')) cc = 'public, max-age=2592000'
+  else if (path.startsWith('/og/') || path.startsWith('/brand/')) cc = 'public, max-age=86400'
+  if (!cc || res.status !== 200) return res
+  const h = new Headers(res.headers)
+  h.set('Cache-Control', cc)
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h })
+}

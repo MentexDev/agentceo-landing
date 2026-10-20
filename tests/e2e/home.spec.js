@@ -82,6 +82,8 @@ test.describe('sin JavaScript', () => {
     await page.goto('/')
     await expect(page.locator('h1')).toHaveCount(1)
     await expect(page.locator('h1')).toBeVisible()
+    // La entrada del hero es una animación CSS (también sin JS): se mira el estado FINAL.
+    await page.waitForTimeout(1800)
     const hidden = await page.evaluate(() => [...document.querySelectorAll('[data-rv], .in')].filter((e) => e.getClientRects().length && getComputedStyle(e).opacity === '0').length)
     expect(hidden).toBe(0)
     await expect(page.locator('section#faq .ansb').nth(5)).toBeVisible()

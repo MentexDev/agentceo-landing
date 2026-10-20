@@ -32,6 +32,7 @@ import { t, dict } from '../i18n/config.js'
 import { sectionDict } from '../i18n/sections.js'
 import { href, alternatesFor } from '../i18n/rutas.js'
 import { homeJsonLd } from '../lib/jsonld.js'
+import { REST_CSS } from '../sections/gen/rest-css.js'
 interface Props { lang: string }
 const { lang } = Astro.props
 const L = dict(lang).logic
@@ -39,6 +40,9 @@ const v = renderVals(initialState(), L)
 const d = (id: string) => sectionDict(lang, id)
 ---
 <Base lang={lang} title={t(lang, 'site.title')} description={t(lang, 'site.description')} path={href('home', lang)} alternates={alternatesFor('home')} jsonLd={homeJsonLd(lang)} page="home" mainClass="home">
+  <!-- CSS no crítico de las secciones: se descarga en paralelo sin bloquear el primer pintado. -->
+  <link slot="head" rel="preload" as="style" href={REST_CSS} onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript slot="head"><link rel="stylesheet" href={REST_CSS} /></noscript>
   <S02 v={v} t={d('S02')}>
     <WaitlistForm lang={lang} source="hero" id="wl-hero" note={t(lang, 'wl.note')} />
   </S02>

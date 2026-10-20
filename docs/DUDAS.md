@@ -116,3 +116,28 @@ _(se van añadiendo por fase)_
   - sin límite de agentes.
 - **Efecto medido en el widget:** el reservado #2 en español pasa de 6/15 a 5/15 por el **cambio de contenido**: la nueva FAQ «¿Hay límite de agentes?» capta «¿precio del plan para equipos?». El suelo se baja a lo medido, documentado y sin afinar el motor.
 - **El mensaje «Datos reales» no llegó entero.** De él solo constan aquí los precios y los fragmentos de reembolsos y DMCA de más arriba. ⏳ Si traía más datos de reembolsos, falta la primera cláusula.
+
+### Fase 5 · SEO + GEO
+- **Generado desde las mismas fuentes que las páginas** (`rutas.js` + `content/` + diccionarios):
+  - `sitemap.xml`: 24 URL, hreflang recíproco con x-default, sin páginas `noindex`;
+  - `robots.txt`: bots de búsqueda e IA permitidos explícitamente, `/api/` fuera;
+  - `/llms.txt` y `/llms-full.txt` en es/en, con entidad, FAQ, portada, precios reales y contenido;
+  - **una OG de 1200×630 por página**, hecha con resvg y las fuentes del propio sitio.
+- **Lista de user-agents de IA** (GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-User, Claude-SearchBot, PerplexityBot, Perplexity-User, Google-Extended, Googlebot, Bingbot, Applebot, Applebot-Extended, CCBot): sale de lo que sé a junio de 2026. **No la verifiqué en la web**, por la regla de no llamar a APIs/terceros. ⏳ Conviene revisarla antes de desplegar. Como `User-agent: *` ya permite todo, un nombre mal escrito no bloquearía a nadie.
+- **Bug real:** resvg-js 2.6 **ignora `fontBuffers`** (medido: imagen idéntica con cualquier familia) → se usa `fontFiles` con TTF descomprimidos en caché.
+- **Lighthouse local** (Lighthouse 13, Chrome de Playwright, sin PageSpeed ni servicios externos, `wrangler dev` con brotli como producción):
+  - **98–100 en las 4 categorías**; Accesibilidad, Buenas prácticas y SEO a 100 en todas las páginas medidas;
+  - TBT 0 ms, CLS 0–0,013.
+- **LCP:**
+  - escritorio 0,4–0,6 s;
+  - móvil (4G lento simulado + CPU ×4) 1,7–1,8 s en las páginas internas.
+  - ⏳ **La portada en móvil se queda en 2,0–2,1 s frente al objetivo de < 2,0 s.** Probado y medido:
+    - la entrada del hero esperaba al JS → animación CSS: el retraso del elemento LCP baja de 1,56 s a 0,09 s;
+    - CSS crítico separado (hero bloqueante, el resto sin bloquear);
+    - CSS en línea → **empeora** (2,3 s, HTML de 75 KB gz), revertido;
+    - quitar la precarga de la serif → sin efecto, revertido.
+  - Lo que queda es el peso del HTML (45 KB gz, el **42 % son SVG en línea** de las mascotas, con ojos animados por instancia). La siguiente palanca: renderizar bajo demanda los SVG de las secciones que quedan por debajo del pliegue. Queda para la auditoría.
+- **CLS de /noticias/ (0,062 → 0):** los filtros los revelaba el JS después de pintar → ahora son radios con `:has()`. Funcionan sin JS, no causan salto y son navegables con flechas.
+- **Caché:** los assets con hash (`/_a/`, `/_s/`) salían con `max-age=0` → ahora un año, `immutable`. Fuentes 30 días; OG y marca 1 día.
+- **Assets retirados de la web** (siguen en `design/legacy/assets`): el vídeo del hero de la v1 (6,6 MB), `favicon.png` (464 KB) y los logos PNG de la v1. ⏳ Pregunta 9 del PLAN: el vídeo no vuelve salvo que Diego lo pida.
+- **Meta descripción:** se recorta a unos 160 caracteres sin partir palabras (una noticia tenía 212).

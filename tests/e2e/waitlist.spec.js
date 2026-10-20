@@ -96,7 +96,7 @@ test.describe('sin JavaScript', () => {
     await form.locator('input[type=email]').fill('mal')
     await form.locator('button[type=submit]').click()
     await expect(page).toHaveURL(/\/en\/thanks\/#error$/)
-    await expect(page.locator('.ty-err h1')).toBeVisible()
+    await expect(page.locator('.ty-err .ty-h')).toBeVisible()
     await expect(page.locator('.ty-ok h1')).toBeHidden()
   })
 

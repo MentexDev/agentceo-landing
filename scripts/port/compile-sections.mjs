@@ -25,7 +25,7 @@
 // Uso:  node scripts/port/compile-sections.mjs     (escribe src/sections/gen/*)
 // No se ejecuta en el build: la salida se versiona y se revisa como código.
 // ═══════════════════════════════════════════════════════════════════════════
-import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
@@ -161,6 +161,8 @@ function onGold(stat) {
 }
 
 const rules = new Map() // className → { base, mob }
+const usedBy = new Map() // className → Set(sección)
+let currentSection = ''
 function classFor(desk, mob, dark) {
   desk = onGold(desk)
   mob = onGold(mob)
@@ -175,6 +177,8 @@ function classFor(desk, mob, dark) {
   const mobStr = over.join(';')
   const name = `x${createHash('sha1').update(`${base}|${mobStr}`).digest('base64url').replace(/[-_]/g, '').slice(0, 6)}`
   if (!rules.has(name)) rules.set(name, { base, mob: mobStr })
+  if (!usedBy.has(name)) usedBy.set(name, new Set())
+  usedBy.get(name).add(currentSection)
   return name
 }
 
@@ -446,6 +450,7 @@ for (const f of files) {
   const dRoot = rootOf(dAst), mRoot = rootOf(mAst)
   const dict = makeDict()
   const stats = { splits: 0 }
+  currentSection = id
   mergeChildren(id, dRoot, mRoot, { dark: false, dict, stats })
   if (FORM_SLOT.has(id) && !replaceFormSlot(dRoot)) warn(id, 'no se encontró el formulario a sustituir')
 
@@ -468,22 +473,39 @@ export default function ${name}({ v, t, children }) {
 
 // CSS: base (escritorio con --u) + overrides móviles (≤ 1023 px). Clase doble = la
 // especificidad que tenía el style inline frente a las clases del prototipo.
-// Capa «sections» POR ENCIMA de «proto» (estilos del prototipo): así lo que era style
-// inline sigue ganando a las clases del prototipo, como en el original.
-let css = '/* GENERADO por scripts/port/compile-sections.mjs · no editar a mano */\n@layer reset, proto, sections;\n@layer sections {\n'
-const mob = []
-for (const [n, r] of rules) {
-  if (r.base) css += `.${n}.${n}{${r.base}}\n`
-  if (r.mob) mob.push(`.${n}.${n}{${r.mob}}`)
+// CSS CRÍTICO (medido con Lighthouse: el CSS de la portada bloqueaba el render ≈ 755 ms en
+// móvil): las reglas del hero (S02) van en sections.css (bloqueante, pequeño); el resto en
+// public/_s/sections-rest.<hash>.css, que la portada carga SIN bloquear.
+const CRITICAL = new Set(['S02'])
+function cssFor(names) {
+  let out = '/* GENERADO por scripts/port/compile-sections.mjs · no editar a mano */\n@layer reset, proto, sections;\n@layer sections {\n'
+  const mob = []
+  for (const n of names) {
+    const r = rules.get(n)
+    if (r.base) out += `.${n}.${n}{${r.base}}\n`
+    if (r.mob) mob.push(`.${n}.${n}{${r.mob}}`)
+  }
+  out += `@media (max-width:${BREAK}px){\n${mob.join('\n')}\n}\n}\n`
+  return out
 }
-css += `@media (max-width:${BREAK}px){\n${mob.join('\n')}\n}\n}\n`
+const all = [...rules.keys()]
+const crit = all.filter((n) => [...usedBy.get(n)].some((x) => CRITICAL.has(x)))
+const rest = all.filter((n) => !crit.includes(n))
+let css = cssFor(crit)
 css += `@media (max-width:${BREAK}px){.only-d{display:none!important}}\n@media (min-width:${BREAK + 1}px){.only-m{display:none!important}}\n.dc{display:contents}\n`
 writeFileSync(join(OUT, 'sections.css'), css)
+const restCss = cssFor(rest)
+const restHash = createHash('sha1').update(restCss).digest('hex').slice(0, 10)
+const REST_DIR = join(ROOT, 'public', '_s')
+mkdirSync(REST_DIR, { recursive: true })
+for (const f of readdirSync(REST_DIR)) if (f.startsWith('sections-rest.')) unlinkSync(join(REST_DIR, f))
+writeFileSync(join(REST_DIR, `sections-rest.${restHash}.css`), restCss)
+writeFileSync(join(OUT, 'rest-css.js'), `// GENERADO · ruta del CSS no crítico de las secciones (con hash: caché inmutable)\nexport const REST_CSS = '/_s/sections-rest.${restHash}.css'\n`)
 
 // Diccionario español (fuente). El inglés se traduce aparte con las MISMAS claves.
 writeFileSync(join(I18N, 'es.json'), `${JSON.stringify(sectionsEs, null, 2)}\n`)
 
 const nTexts = Object.values(sectionsEs).reduce((a, d) => a + Object.keys(d).length, 0)
 console.log(report.join('\n'))
-console.log(`\n✓ ${Object.keys(sectionsEs).length} secciones · ${rules.size} clases CSS · ${nTexts} textos · CSS ${(css.length / 1024).toFixed(1)} KB`)
+console.log(`\n✓ ${Object.keys(sectionsEs).length} secciones · ${rules.size} clases CSS · ${nTexts} textos · CSS crítico ${(css.length / 1024).toFixed(1)} KB + resto ${(restCss.length / 1024).toFixed(1)} KB`)
 if (warnings.length) console.log(`\n⚠️ ${warnings.length} avisos:\n  ${[...new Set(warnings)].slice(0, 60).join('\n  ')}`)

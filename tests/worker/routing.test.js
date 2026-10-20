@@ -46,6 +46,14 @@ describe('enrutado', () => {
     expect(r.headers.get('strict-transport-security')).toBeNull()
   })
 
+  it('los assets con hash (/_a/) se cachean un año como inmutables', async () => {
+    const html = await (await get('/')).text()
+    const asset = /\/_a\/[^"]+\.(css|js)/.exec(html)[0]
+    const r = await get(asset)
+    expect(r.status).toBe(200)
+    expect(r.headers.get('cache-control')).toBe('public, max-age=31536000, immutable')
+  })
+
   it('/en/ se sirve en inglés', async () => {
     const r = await get('/en/')
     expect(r.status).toBe(200)

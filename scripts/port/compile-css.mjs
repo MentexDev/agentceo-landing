@@ -45,8 +45,17 @@ let css = base.join('\n')
 css = css.replace('[data-rv]{opacity:0', 'html.js [data-rv]{opacity:0')
 css = css.replace('[data-rv][data-in]{opacity:1', 'html.js [data-rv][data-in]{opacity:1')
 css = css.replace('button.agent[data-rv][data-in]:hover', 'html.js button.agent[data-rv][data-in]:hover')
-css = css.replace(/(^|\n)\.in\{opacity:0/, '$1html.js .in{opacity:0')
-css = css.replace('[data-ready] .in{opacity:1', 'html.js[data-ready] .in{opacity:1')
+// Entrada del hero (.in): en el prototipo esperaba a que el JS marcara [data-ready] y luego
+// hacía la transición. Medido con Lighthouse: retrasaba el LCP 1,56 s en móvil. Ahora es una
+// ANIMACIÓN CSS que arranca con el primer pintado (mismo escalonado, misma curva, mismo
+// recorrido), no depende del JS y también funciona sin él.
+css = css.replace(
+  '.in{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i)*110ms + 150ms)}',
+  '.in{animation:inrise .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*110ms + 150ms)}@keyframes inrise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}' +
+  // En móvil (red y CPU más lentas) el mismo escalonado, algo más corto: el texto llega antes.
+  '@media (max-width:1023px){.in{animation-duration:.7s;animation-delay:calc(var(--i)*80ms + 100ms)}}',
+)
+css = css.replace('[data-ready] .in{opacity:1;transform:none}', '')
 const fix = (s) => s.replace(/\[style\*="--i: (\d+)"\]/g, '[data-i="$1"]')
 
 const out = `/* GENERADO por scripts/port/compile-css.mjs desde design/prototype/src/styles · no editar a mano */
