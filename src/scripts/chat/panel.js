@@ -9,11 +9,16 @@ import { renderMd } from './md.js'
 import { track } from '../track.js'
 import { enhanceForm } from '../waitlist.js'
 import { ls } from '../storage.js'
+import { offlineReply, isGreeting } from './offline.js'
 
 const KEY = 'ac_chat'
 const TTL = 7 * 24 * 3600 * 1000
 const MAX_STORED = 30
 const MAX_CHARS = 500
+// Tiempos máximos (T35 · adenda: sin timeout, una respuesta colgada dejaba el widget callado para
+// siempre y bloqueaba los mensajes siguientes). Primer dato y cada trozo: 15 s; total: 40 s.
+const T_IDLE = 15_000
+const T_TOTAL = 40_000
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 
 export function initPanel(root) {
@@ -103,18 +108,21 @@ export function initPanel(root) {
     const src = m?.url && /^\/(?!\/)/.test(m.url) ? `<a class="cw-src" href="${esc(m.url)}">${esc(S.source)} →</a>` : ''
     return head + renderMd(content) + src
   }
-  function chipsRow(chips = []) {
+  // Chips: el texto se pregunta y, si el servidor lo trae, su id CURADO viaja en `chip` (T35):
+  // respuesta escrita de antemano, al instante y sin modelo.
+  function chipsRow(chips = [], ids = []) {
     if (!chips.length) return
     const row = document.createElement('div')
     row.className = 'cw-chips-row'
-    for (const c of chips) {
+    chips.forEach((c, i) => {
       const b = document.createElement('button')
       b.type = 'button'
       b.className = 'cw-chip'
       b.textContent = c
       b.dataset.chatAsk = c
+      if (ids[i]) b.dataset.chatChip = ids[i]
       row.append(b)
-    }
+    })
     log.append(row)
     scroll()
   }
@@ -142,7 +150,7 @@ export function initPanel(root) {
     suggest.hidden = msgs.length > 0
     const last = msgs[msgs.length - 1]
     if (last?.role === 'assistant') {
-      chipsRow(last.meta?.chips)
+      chipsRow(last.meta?.chips, last.meta?.chipIds)
       if (last.meta?.cta === 'waitlist') waitlistCard()
     } else if (last?.role === 'user') {
       showError('errNet') // la respuesta se perdió (p. ej. recarga a mitad): «Reintentar»
@@ -150,27 +158,43 @@ export function initPanel(root) {
   }
 
   // ── Conversación ────────────────────────────────────────────────────────
-  async function ask(text, { retry = false } = {}) {
+  async function ask(text, { retry = false, chip = null } = {}) {
     text = String(text || '').trim().slice(0, MAX_CHARS)
     if (!text || busy) return
     busy = true
     send.disabled = true
-    suggest.hidden = true
-    log.querySelectorAll('.cw-chips-row, .cw-err').forEach((r) => r.remove())
-    if (!retry) {
-      msgs.push({ role: 'user', content: text })
-      bubble('user', userHtml(text))
-      save()
-    }
-    track('chat_message', { turn: msgs.filter((m) => m.role === 'user').length, retry })
-
-    const typing = bubble('assistant', '<span class="cw-typing" aria-label="' + esc(S.typing) + '"><span></span><span></span><span></span></span>')
-    let content = '', meta = null, el = null
+    let typing = null, el = null, content = '', meta = null
+    const ac = new AbortController()
+    let idle = 0
+    const arm = () => { clearTimeout(idle); idle = setTimeout(() => ac.abort(), T_IDLE) }
+    const total = setTimeout(() => ac.abort(), T_TOTAL)
+    // TODO dentro del try: pase lo que pase, `busy` se libera (antes, una excepción o un fetch
+    // colgado dejaba el envío bloqueado y los mensajes siguientes se ignoraban en silencio).
     try {
+      suggest.hidden = true
+      log.querySelectorAll('.cw-chips-row, .cw-err').forEach((r) => r.remove())
+      if (!retry) {
+        msgs.push({ role: 'user', content: text })
+        bubble('user', userHtml(text))
+        save()
+      }
+      track('chat_message', { turn: msgs.filter((m) => m.role === 'user').length, retry })
+
+      // SALUDO → al instante, aquí mismo: sin petición, sin modelo y sin gastar cupo.
+      if (isGreeting(text)) {
+        const r = offlineReply(text, lang)
+        const sug = [...suggest.querySelectorAll('.cw-chip')]
+        answer(r.text, { mode: 'local', kind: r.kind, cta: null, chips: sug.map((b) => b.textContent.trim()), chipIds: sug.map((b) => b.dataset.chatChip || null), matched: null, sources: [] })
+        return
+      }
+
+      typing = bubble('assistant', '<span class="cw-typing" aria-label="' + esc(S.typing) + '"><span></span><span></span><span></span></span>')
+      arm()
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ locale: lang, page: location.pathname, session: sid, ...(tsToken ? { turnstile: tsToken } : {}), messages: msgs.map(({ role, content }) => ({ role, content })) }),
+        signal: ac.signal,
+        body: JSON.stringify({ locale: lang, page: location.pathname, session: sid, ...(chip ? { chip } : {}), ...(tsToken ? { turnstile: tsToken } : {}), messages: msgs.map(({ role, content }) => ({ role, content })) }),
       })
       if (!res.ok || !res.body) {
         let code = ''
@@ -181,6 +205,7 @@ export function initPanel(root) {
       const dec = new TextDecoder()
       let buf = ''
       for (;;) {
+        arm()
         const { value, done } = await reader.read()
         if (done) break
         buf += dec.decode(value, { stream: true })
@@ -194,48 +219,80 @@ export function initPanel(root) {
           if (ev === 'meta') { meta = data; tsToken = null; if (data.challenge?.turnstile) turnstile(data.challenge.turnstile) }
           else if (ev === 'delta') {
             content += data.t || ''
-            if (!el) { typing.remove(); el = bubble('assistant', '') }
+            if (!el) { typing.remove(); typing = null; el = bubble('assistant', '') }
             el.innerHTML = botHtml(content, meta)
             scroll()
           } else if (ev === 'error') throw new Error('net')
         }
       }
-      if (!content) throw new Error('net')
+      if (!content) throw new Error('empty')
       msgs.push({ role: 'assistant', content, meta })
       save()
       announce.textContent = S.answered.replace('{text}', content.replace(/\*\*|\[|\]\([^)]*\)/g, ''))
       track('chat_answer', { kind: meta?.kind || 'unknown', mode: meta?.mode || 'unknown' })
       if (meta?.kind === 'fallback') track('chat_fallback', {})
-      chipsRow(meta?.chips)
+      chipsRow(meta?.chips, meta?.chipIds)
       if (meta?.cta === 'waitlist') waitlistCard()
     } catch (e) {
-      typing.remove()
-      if (el) el.remove()
-      showError({ off: 'errOff', daily: 'errDaily', rate: 'errRate' }[e.message] || 'errNet')
-      track('chat_error', { error: e.message })
+      const why = e?.name === 'AbortError' ? 'timeout' : ['off', 'daily', 'rate', 'empty'].includes(e?.message) ? e.message : 'net'
+      typing?.remove()
+      track('chat_error', { error: why })
+      if (el && content) {
+        // Se cortó a MITAD de una respuesta: se conserva lo recibido y se ofrece reintentar.
+        msgs.push({ role: 'assistant', content: `${content}…`, meta })
+        save()
+        el.innerHTML = botHtml(`${content}…`, meta)
+        showError('errCut')
+      } else {
+        el?.remove()
+        // NUNCA en silencio: un mensaje amable + la respuesta que se puede dar aquí mismo.
+        const r = offlineReply(text, lang, chip)
+        const body = r.kind === 'generic' ? S.offlineGeneric : r.text
+        const soft = { rate: S.softRate, daily: S.softDaily, off: S.softOff }[why] || S.softNet
+        answer(`${soft}\n\n${body}`, { mode: 'offline', kind: r.kind, reason: why, cta: r.cta, chips: [], matched: null, sources: [] })
+        if (why !== 'daily' && why !== 'off') showError(why === 'rate' ? 'errRate' : 'errNet', { soft: true })
+      }
     } finally {
+      clearTimeout(idle)
+      clearTimeout(total)
+      typing?.remove()
       busy = false
       send.disabled = false
       scroll()
     }
   }
 
-  /** Error con botón «Reintentar» (reenvía la última pregunta sin duplicarla). */
-  function showError(key) {
+  /** Pinta y guarda una respuesta del asistente que no viene del stream (saludo o sin red). */
+  function answer(content, meta) {
+    msgs.push({ role: 'assistant', content, meta })
+    save()
+    bubble('assistant', botHtml(content, meta))
+    announce.textContent = S.answered.replace('{text}', content.replace(/\*\*|\[|\]\([^)]*\)/g, ''))
+    track('chat_answer', { kind: meta.kind, mode: meta.mode })
+    chipsRow(meta.chips, meta.chipIds)
+    if (meta.cta === 'waitlist') waitlistCard()
+  }
+
+  /** Error con botón «Reintentar» (reenvía la última pregunta sin duplicarla). `soft`: solo el
+   *  botón (el mensaje amable ya lo dio la respuesta sin red). */
+  function showError(key, { soft = false } = {}) {
     const box = document.createElement('div')
-    box.className = 'cw-err'
-    box.setAttribute('role', 'alert')
-    box.append(S[key])
-    if (key === 'errNet' || key === 'errRate') {
+    box.className = soft ? 'cw-err cw-err-soft' : 'cw-err'
+    if (!soft) { box.setAttribute('role', 'alert'); box.append(S[key]) }
+    if (key === 'errNet' || key === 'errRate' || key === 'errCut') {
       const b = document.createElement('button')
       b.type = 'button'
       b.className = 'cw-chip cw-retry'
       b.textContent = S.retry
       b.addEventListener('click', () => {
+        // La respuesta provisional (sin red o cortada) no viaja al servidor como si fuera del asistente.
+        const lastMsg = msgs[msgs.length - 1]
+        if (lastMsg?.role === 'assistant' && (lastMsg.meta?.mode === 'offline' || lastMsg.content.endsWith('…'))) { msgs.pop(); save() }
         const last = [...msgs].reverse().find((m) => m.role === 'user')
         if (last) ask(last.content, { retry: true })
       })
-      box.append(document.createElement('br'), b)
+      if (!soft) box.append(document.createElement('br'))
+      box.append(b)
     }
     log.append(box)
     if (key === 'errOff' || key === 'errDaily') waitlistCard()
@@ -313,7 +370,7 @@ export function initPanel(root) {
     const chip = e.target.closest('[data-chat-ask]')
     if (!chip) return
     track('chat_suggestion_click', {})
-    ask(chip.dataset.chatAsk)
+    ask(chip.dataset.chatAsk, { chip: chip.dataset.chatChip || null })
   })
   // Al apuntarse desde el chat, el CEO lo celebra (y no vuelve a ofrecer la tarjeta).
   log.addEventListener('wl:joined', () => {

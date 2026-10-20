@@ -19,6 +19,9 @@
 //   logs                         counter(): solo contadores, sin PII   —
 // ─────────────────────────────────────────────────────────────────────────────
 
+import VERSION from '../generated/content-version.json' with { type: 'json' }
+export const CONTENT_VERSION = VERSION.version
+
 export const TURNSTILE_VERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
 
 // Clientes automáticos conocidos (no son navegadores de una persona).
@@ -37,13 +40,16 @@ export function suspicion({ ua = '', acceptLanguage = '' } = {}) {
 }
 
 /** Normaliza una pregunta para compararla (minúsculas, sin tildes, sin signos, espacios simples). */
-export function normQ(text = '') {
-  return String(text).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim()
-}
+import { normQ } from './match.js'
+export { normQ }
 
-/** Hash de una pregunta normalizada (caché y dedupe): nunca se guarda ni se registra el texto. */
-export async function textKey(lang, text) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`agentceo-chat-q:${lang}:${normQ(text)}`))
+/**
+ * Hash de una pregunta normalizada (caché y dedupe): nunca se guarda ni se registra el texto.
+ * Lleva la VERSIÓN DE CONTENIDO (T35, version.js): un cambio de precios o de respuestas curadas
+ * cambia la clave, y la caché vieja deja de servirse sola.
+ */
+export async function textKey(lang, text, version = CONTENT_VERSION) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`agentceo-chat-q:${version}:${lang}:${normQ(text)}`))
   return `q:${[...new Uint8Array(buf)].slice(0, 16).map((b) => b.toString(16).padStart(2, '0')).join('')}`
 }
 
@@ -74,8 +80,15 @@ export async function verifyTurnstile({ secret, token, ip, fetchImpl = fetch }) 
 
 // Campos que PUEDEN ir a los logs: solo etiquetas de un conjunto cerrado. Nada de IP, texto,
 // correo, sesión ni hash (un hash de IP sigue siendo un identificador).
-const SAFE = new Set(['ev', 'channel', 'path', 'reason', 'limit', 'mode', 'lang'])
+const SAFE = new Set(['ev', 'channel', 'path', 'reason', 'limit', 'mode', 'lang', 'src'])
 const LABEL = /^[a-z0-9_:-]{1,40}$/
+
+/**
+ * ¿De dónde salió una respuesta? (T35) Para el % servido sin modelo frente a LLM:
+ *   curated (ficha escrita de antemano) · cache (respuesta live guardada) · llm (modelo) ·
+ *   stub (búsqueda en el sitio, también la caída ante topes o errores) · cap (fin de charla).
+ */
+export const srcOf = (path) => ({ curated: 'curated', cache: 'cache', live: 'llm', stub: 'stub', cap: 'cap' }[path] || 'stub')
 
 /** Registro de CONTADORES (adenda T32): una línea JSON por evento, sin datos personales. */
 export function counter(ev, data = {}, log = console.log) {

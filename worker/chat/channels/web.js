@@ -57,6 +57,9 @@ export const web = {
       msg: {
         channel: 'web',
         sessionId: typeof body.session === 'string' && SID.test(body.session) ? body.session : null,
+        // Chip pulsado (T35): id de una respuesta curada (content/chat-answers.js). Solo un id con
+        // forma válida; si no existe, se ignora y se responde al texto.
+        chip: typeof body.chip === 'string' && /^[a-z0-9-]{1,40}$/.test(body.chip) ? body.chip : null,
         userKey: who.userKey,
         ...p,
         signals: {

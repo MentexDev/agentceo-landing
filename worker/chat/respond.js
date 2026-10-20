@@ -18,14 +18,17 @@
 //                          estricto; lo decide guardsFor en channels/index.js)
 //
 // ORDEN de las capas (de la más barata a la que gasta):
-//   turnos → modo/clave/modelo con precio → intención o FAQ exacta (gratis) → señales de bot → pregunta repetida
+//   turnos → CURADA (chip o texto con alta confianza, T35: coste 0 en cualquier modo)
+//   → modo/clave/modelo con precio → intención o FAQ exacta (gratis) → señales de bot → pregunta repetida
 //   → caché → Turnstile → tope live por IP → reserva del tope global → modelo.
 // ─────────────────────────────────────────────────────────────────────────────
 import { streamText } from './text.js'
 import { stubReply, KB, INDEX } from './stub.js'
 import { liveReply, pickContext, systemPrompt, estimateUSD, historyForModel, priceFor, DEFAULT_MODEL } from './live.js'
-import { say } from './persona.js'
+import { say, intentOf } from './persona.js'
 import { textKey, hasPII } from './abuse.js'
+import { matchCurated, curatedReply, chipIdsFor, langOf } from './curated.js'
+import { answerById } from '../../content/chat-answers.js'
 
 // Salida máxima: 400 tokens es TECHO DURO. CHAT_MAX_TOKENS solo puede bajarlo.
 export const LIVE = { maxTokens: 400, timeoutMs: 15000 }
@@ -54,7 +57,21 @@ const none = async () => null
  * mode = CHAT_MODE · env (OPENROUTER_API_KEY, CHAT_MODEL, CHAT_DAILY_BUDGET_USD…)
  * Devuelve un resumen para tests/evals/contadores: { path, reason?, cost? }.
  */
-export async function respond({ p, mode, env, guards = {}, send, delay = 18, fetchImpl, capTurns }) {
+/**
+ * ¿Respuesta curada? Chip con id curado → siempre; si no, texto libre sin intención de la persona
+ * (saludo, «¿eres humano?», gracias, unirse, contacto: esas las responde la persona) que case con
+ * alta confianza (curated.js). Devuelve { id, how, lang } | null.
+ */
+export function curatedFor(p) {
+  if (p.chip && answerById(p.chip)) return { id: p.chip, how: 'chip', lang: p.lang }
+  if (intentOf(p.userText)) return null
+  const m = matchCurated(p.userText)
+  return m ? { id: m.id, how: m.how, lang: langOf(p.userText, p.lang) } : null
+}
+
+export async function respond({ p, mode, env, guards = {}, send: rawSend, delay = 18, fetchImpl, capTurns }) {
+  // Toda meta con chips lleva sus ids curados (el cliente los devuelve en `chip` al pulsarlos).
+  const send = (ev, d) => rawSend(ev, ev === 'meta' && d?.chips && !d.chipIds ? { ...d, chipIds: chipIdsFor(d.chips) } : d)
   const g = {
     liveIp: guards.liveIp || no,
     reserve: guards.reserve || (async () => ({ allowed: false })),
@@ -69,6 +86,15 @@ export async function respond({ p, mode, env, guards = {}, send, delay = 18, fet
     await send('meta', { mode: 'stub', kind: 'cap', cta: 'waitlist', chips: [], matched: null, sources: [] })
     await streamText(send, say(p.lang, 'cap'), delay)
     return { path: 'cap' }
+  }
+
+  // CAPA CURADA (T35): las preguntas comunes nunca llegan al modelo. Coste 0, al instante.
+  const cur = curatedFor(p)
+  if (cur) {
+    const r = curatedReply(cur.id, cur.lang)
+    await send('meta', r.meta)
+    await streamText(send, r.text, delay)
+    return { path: 'curated', reason: cur.how }
   }
 
   const apiKey = env.OPENROUTER_API_KEY

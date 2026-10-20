@@ -20,6 +20,8 @@ const req = (body, { ip = ipOf(), headers = {} } = {}) => new Request('https://a
   body: JSON.stringify(body),
 })
 const ask = (text, extra = {}) => ({ locale: 'es', messages: [{ role: 'user', content: text }], ...extra })
+// Pregunta que SÍ gasta cupo (no es saludo ni ficha curada: esas son gratis desde T35 · adenda).
+const PAGA = 'Tengo una ferretería pequeña, ¿me serviría?'
 async function readSSE(res) {
   const raw = await res.text()
   const events = raw.trim().split('\n\n').map((b) => ({ ev: /event: (\w+)/.exec(b)?.[1], data: JSON.parse(/data: (.*)/.exec(b)?.[1] || '{}') }))
@@ -44,16 +46,38 @@ describe('límites por IP (hora y día, en el Durable Object)', () => {
   it('hora: la 31.ª petición de la misma IP en la hora → 429 rate_limited', async () => {
     const ip = ipOf()
     await guard(await ipKey(ip)).bump(`hr:${hourOf()}`, LIMITS.ipHour)
-    const r = await handleChat(req(ask('hola'), { ip }), fast)
+    const r = await handleChat(req(ask(PAGA), { ip }), fast)
     expect(r.status).toBe(429)
     expect((await r.json()).error).toBe('rate_limited')
   })
   it('día: la 61.ª petición de la misma IP en el día → 429 daily_limit', async () => {
     const ip = ipOf()
     await guard(await ipKey(ip)).bump(`day:${today()}`, LIMITS.ipDay)
-    const r = await handleChat(req(ask('hola'), { ip }), fast)
+    const r = await handleChat(req(ask(PAGA), { ip }), fast)
     expect(r.status).toBe(429)
     expect((await r.json()).error).toBe('daily_limit')
+  })
+})
+
+describe('respuestas GRATIS (T35 · adenda): saludo y fichas curadas no gastan cupo por IP ni sesión', () => {
+  it.each(['hola amigo', 'buenas, ¿qué tal?', 'hi there', '¿Cuánto cuesta?'])('«%s» con el cupo del DÍA agotado → 200 con respuesta', async (texto) => {
+    const ip = ipOf()
+    await guard(await ipKey(ip)).bump(`day:${today()}`, LIMITS.ipDay)
+    const r = await handleChat(req(ask(texto), { ip }), fast)
+    expect(r.status).toBe(200)
+    const { text } = await readSSE(r)
+    expect(text.length).toBeGreaterThan(10)
+  })
+  it('una pregunta que sí cuesta, con el mismo cupo agotado → 429', async () => {
+    const ip = ipOf()
+    await guard(await ipKey(ip)).bump(`day:${today()}`, LIMITS.ipDay)
+    expect((await handleChat(req(ask(PAGA), { ip }), fast)).status).toBe(429)
+  })
+  it('un saludo NO incrementa el contador diario de la IP', async () => {
+    const ip = ipOf()
+    await handleChat(req(ask('hola amigo'), { ip }), fast).then((r) => r.text())
+    const g = guard(await ipKey(ip))
+    expect(await g.get(`day:${today()}`)).toBe(0)
   })
 })
 
@@ -65,10 +89,10 @@ describe('límites por sesión (minuto, hora y día)', () => {
   ])('%s: la sesión llena → 429, y otra sesión de la misma IP sigue', async (_, key, max, error) => {
     const ip = ipOf(), s = sid()
     await guard(await sessionKey(s)).bump(key(), max)
-    const r = await handleChat(req(ask('hola', { session: s }), { ip }), fast)
+    const r = await handleChat(req(ask(PAGA, { session: s }), { ip }), fast)
     expect(r.status).toBe(429)
     expect((await r.json()).error).toBe(error)
-    const otra = await handleChat(req(ask('hola', { session: sid() }), { ip }), fast)
+    const otra = await handleChat(req(ask(PAGA, { session: sid() }), { ip }), fast)
     expect(otra.status).toBe(200)
     await otra.text()
   })
@@ -218,7 +242,7 @@ describe('logs: solo contadores, sin datos personales', () => {
     expect(lines.length).toBeGreaterThan(0)
     const all = lines.join('\n')
     for (const bad of [ip, 'ana@example.com', 'precio', s, (await ipKey(ip)).slice(3)]) expect(all).not.toContain(bad)
-    for (const l of lines) expect(Object.keys(JSON.parse(l)).every((k) => ['t', 'ev', 'channel', 'path', 'reason', 'limit', 'mode', 'lang'].includes(k))).toBe(true)
+    for (const l of lines) expect(Object.keys(JSON.parse(l)).every((k) => ['t', 'ev', 'channel', 'path', 'src', 'reason', 'limit', 'mode', 'lang'].includes(k))).toBe(true)
   })
   it('counter descarta cualquier campo o valor fuera de la lista cerrada', () => {
     const out = counter('x', { path: 'stub', ip: '1.2.3.4', reason: 'tiene espacios y @', text: 'hola' }, () => {})

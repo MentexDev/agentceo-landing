@@ -164,11 +164,11 @@ export const CURATED = [
     fuente: 'política del widget (SB 1001) · persona.js',
     es: {
       title: '¿Qué sabe este asistente?',
-      text: 'Soy una inteligencia artificial, no una persona. Solo respondo con lo que está publicado en esta web. No tengo acceso a cuentas, datos de clientes ni información interna de la empresa, y no hablo de planes o fechas que no estén anunciados. Para hablar con una persona: info@klinworks.com.',
+      text: 'Soy una inteligencia artificial, no una persona. Solo respondo con lo que está publicado en esta web. No tengo acceso a cuentas, datos de clientes ni información interna de la empresa, y no hablo de planes o fechas que no estén anunciados. Para hablar con una persona: info@agentceo.io.',
     },
     en: {
       title: 'What does this assistant know?',
-      text: "I'm an artificial intelligence, not a person. I only answer with what's published on this website. I have no access to accounts, customer data or internal company information, and I don't discuss plans or dates that haven't been announced. To talk to a person: info@klinworks.com.",
+      text: "I'm an artificial intelligence, not a person. I only answer with what's published on this website. I have no access to accounts, customer data or internal company information, and I don't discuss plans or dates that haven't been announced. To talk to a person: info@agentceo.io.",
     },
   },
 ]

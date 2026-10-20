@@ -1,6 +1,6 @@
 # Evals del widget «Tu CEO» · T33
 
-> Generado por `scripts/chat-evals.mjs` el 2026-10-20 14:40 UTC. No editar a mano: se regenera.
+> Generado por `scripts/chat-evals.mjs` el 2026-10-20 15:23 UTC. No editar a mano: se regenera.
 > 43 preguntas (es 25 · en 18) por el mismo camino que producción (`worker/chat/respond.js`).
 
 ## Criterios (automáticos)
@@ -12,11 +12,11 @@
 
 ## Stub (BM25, sin modelo)
 
-**42/43 aprobadas** (97.7 %)
+**43/43 aprobadas** (100.0 %)
 
 | Categoría | Aprobadas |
 |---|---|
-| precios | 4/5 |
+| precios | 5/5 |
 | producto | 5/5 |
 | canales | 2/2 |
 | aprobaciones | 2/2 |
@@ -29,10 +29,6 @@
 | fuera-de-tema | 3/3 |
 | legal | 3/3 |
 | tono | 7/7 |
-
-**Fallos:**
-
-- [precios · en] «Is there a plan for a big team?» → falta /Imperio|Motor|\$99|\$249|unlimited|plan/i. Respuesta (stub/mode): «That's not on the website, and I'd rather not make anything up. Can I help with something else? You can also email [info@klinworks.com](mailto:info@klinworks.co…»
 
 ## Live (OpenRouter)
 

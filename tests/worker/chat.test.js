@@ -62,7 +62,8 @@ describe('stub', () => {
     const r = await exports.default.fetch(req(ask('¿Cuánto cuesta?')))
     expect(r.headers.get('content-type')).toContain('text/event-stream')
     const { meta, text, events } = await readSSE(r)
-    expect(meta.mode).toBe('stub')
+    // T35: las preguntas comunes las responde la capa CURADA (coste 0), no el stub BM25.
+    expect(meta.mode).toBe('curated')
     expect(meta.matched.title).toBe('¿Cuánto cuesta?')
     expect(meta.cta).toBe('waitlist')
     expect(text).toContain('Arranque es gratis')

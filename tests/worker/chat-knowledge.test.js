@@ -39,10 +39,10 @@ describe('base completa del widget (worker/generated/knowledge.json)', () => {
     for (const lang of ['es', 'en']) for (const c of KB[lang]) expect(`${c.title} ${c.text}`, c.id).not.toMatch(SECRET)
   })
 
-  it('solo aparecen correos públicos (@klinworks.com o de ejemplo)', () => {
+  it('solo aparecen correos públicos (@agentceo.io / @klinworks.com o de ejemplo)', () => {
     for (const lang of ['es', 'en']) {
       for (const c of KB[lang]) {
-        for (const m of `${c.text}`.match(EMAIL) || []) expect(m, c.id).toMatch(/@klinworks\.com$|@example\.com$|@correo\.com$|@email\.com$/)
+        for (const m of `${c.text}`.match(EMAIL) || []) expect(m, c.id).toMatch(/@agentceo\.io$|@klinworks\.com$|@example\.com$|@correo\.com$|@email\.com$/)
       }
     }
   })

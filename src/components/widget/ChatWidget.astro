@@ -21,14 +21,18 @@ const SUGGEST: Record<string, string[]> = {
   precios: ['precio', 'cuando', 'datos', 'varios-negocios'],
   home: ['precio', 'programar', 'whatsapp', 'solos'],
 }
+// Cada sugerencia lleva el id de su respuesta CURADA (content/chat-answers.js, T35): el panel lo
+// manda en `chip` y el servidor responde al instante, sin modelo.
 const suggestions = (SUGGEST[page] || SUGGEST.home)
-  .map((id) => FAQ.find((f) => f.id === id)?.q[lang])
-  .filter(Boolean)
+  .map((id) => ({ id, q: FAQ.find((f) => f.id === id)?.q[lang] }))
+  .filter((s) => s.q)
 const privacy = hasRoute('legal:privacidad', lang) ? href('legal:privacidad', lang) : null
 const strings = {
   hello: tr('chat.hello'), typing: tr('chat.typing'), answered: tr('chat.answered', { text: '{text}' }),
   matched: tr('chat.matched'), source: tr('chat.source'), errNet: tr('chat.errNet'), errRate: tr('chat.errRate'),
   errDaily: tr('chat.errDaily'), errOff: tr('chat.errOff'), joinedMsg: tr('chat.joinedMsg'), retry: tr('chat.retry'),
+  softRate: tr('chat.softRate'), softDaily: tr('chat.softDaily'), softOff: tr('chat.softOff'), softNet: tr('chat.softNet'),
+  offlineGeneric: tr('chat.offlineGeneric'), errCut: tr('chat.errCut'),
   expand: tr('chat.expand'), shrink: tr('chat.shrink'), fullscreen: tr('chat.fullscreen'), exitFullscreen: tr('chat.exitFullscreen'),
 }
 ---
@@ -75,7 +79,7 @@ const strings = {
     <div class="cw-suggest" data-chat-suggest>
       <p class="cw-suggest-h">{tr('chat.suggestTitle')}</p>
       <div class="cw-chips">
-        {suggestions.map((q) => <button type="button" class="cw-chip" data-chat-ask={q}>{q}</button>)}
+        {suggestions.map((s) => <button type="button" class="cw-chip" data-chat-ask={s.q} data-chat-chip={s.id}>{s.q}</button>)}
       </div>
     </div>
 

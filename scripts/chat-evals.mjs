@@ -185,6 +185,11 @@ if (target) {
   const P = PRICES[MODEL]
   const GAP = Number(process.env.EVAL_GAP_MS || 125_000)
   const MAX_USD = 0.5
+  // Condiciones de Luca para producción (T35 · adenda): intervalo ≥ 15 s y como mucho 20 casos live
+  // (la IP es la de Diego: no se le puede dejar sin cupo). Contra el preview local no aplican.
+  const PROD = !/^https?:\/\/(127\.0\.0\.1|localhost)/.test(target)
+  const MAX_LIVE = 20
+  if (PROD && GAP < 15_000) { console.error('En producción el intervalo mínimo es 15 s (EVAL_GAP_MS ≥ 15000).'); process.exit(2) }
   const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
   const sid = () => [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('')
   const headers = (lang) => ({ 'content-type': 'application/json', accept: 'text/event-stream', origin: target, referer: `${target}/`, 'user-agent': UA, 'accept-language': lang === 'en' ? 'en-US,en;q=0.9' : 'es-ES,es;q=0.9,en;q=0.6' })
@@ -216,36 +221,16 @@ if (target) {
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
   const out = []
   let typUSD = 0, maxUSD = 0
-  console.log(`T34 · ${plan.length} casos contra ${target} · modelo ${MODEL} · 1 petición cada ${GAP / 1000} s`)
-  for (const [i, raw] of plan.entries()) {
-    if (i) await sleep(GAP)
-    const [cat, lang, q] = raw
-    if (maxUSD > MAX_USD - 0.01) { out.push({ cat, lang, q, raw, skipped: 'tope de gasto de la prueba' }); continue }
-    const r = await ask(lang, q)
-    const mode = r.meta ? `${r.meta.mode}/${r.meta.kind}${r.meta.fallback ? `·${r.meta.fallback}` : ''}` : `HTTP ${r.status}${r.error ? ` ${r.error}` : ''}`
-    let c2 = { typ: 0, max: 0 }
-    if (r.meta?.mode === 'live' && r.meta.kind === 'live') { c2 = cost(lang, q, r.text); typUSD += c2.typ; maxUSD += c2.max }
-    const errs = r.meta ? judge({ cat, lang, q, raw }, r) : [`sin respuesta (${mode})`]
-    out.push({ cat, lang, q, raw, mode, live: r.meta?.mode === 'live', kind: r.meta?.kind, fallback: r.meta?.fallback, text: r.text, errs, usd: c2 })
-    console.log(`${String(i + 1).padStart(2)} ${errs.length ? '✗' : '✓'} [${cat}·${lang}] ${mode} · ${q.slice(0, 50)}`)
-  }
-  // Comprobaciones de abuso (al final: el cupo live ya está gastado, no cuestan nada).
-  await sleep(GAP)
-  const long = await ask('es', 'hola '.repeat(120))
-  console.log(`>500 caracteres → HTTP ${long.status} ${long.error || ''}`)
-  await sleep(GAP)
-  const burst = await Promise.all(Array.from({ length: 12 }, (_, k) => ask('es', `ráfaga ${k}`)))
-  const codes = burst.map((b) => b.status)
-  console.log(`ráfaga de 12 → ${codes.join(' ')}`)
-
-  // ── Informe ─────────────────────────────────────────────────────────────────
-  const live = out.filter((r) => r.live && r.kind === 'live'), cache = out.filter((r) => r.kind === 'cache')
-  const stubbed = out.filter((r) => r.mode?.startsWith('stub')), httpErr = out.filter((r) => r.mode?.startsWith('HTTP'))
-  const okOf = (rs) => rs.filter((r) => !r.errs?.length).length
-  const usd = (n) => `$${n.toFixed(5)}`
-  const row = (r) => `| ${r.cat} | ${r.lang} | ${r.q.replace(/\|/g, '/')} | ${r.mode || r.skipped} | ${r.errs?.length ? '✗ ' + r.errs.join('; ') : '✓'} |`
-  const quote = (r) => `- [${r.cat} · ${r.lang}] «${r.q}» (${r.mode}) → ${r.errs.join('; ')}.\n  > ${r.text.replace(/\s+/g, ' ').slice(0, 400)}`
-  const md = `# Evals del widget CONTRA PRODUCCIÓN (T34)
+  // Informe: se reescribe tras CADA caso y al interrumpir (Ctrl+C): una parada no pierde nada.
+  let long = null, codes = null
+  const report = (partial) => {
+    const live = out.filter((r) => r.live && r.kind === 'live'), cache = out.filter((r) => r.kind === 'cache')
+    const stubbed = out.filter((r) => r.mode?.startsWith('stub')), httpErr = out.filter((r) => r.mode?.startsWith('HTTP'))
+    const okOf = (rs) => rs.filter((r) => !r.errs?.length).length
+    const usd = (n) => `$${n.toFixed(5)}`
+    const row = (r) => `| ${r.cat} | ${r.lang} | ${r.q.replace(/\|/g, '/')} | ${r.mode || r.skipped} | ${r.errs?.length ? '✗ ' + r.errs.join('; ') : '✓'} |`
+    const quote = (r) => `- [${r.cat} · ${r.lang}] «${r.q}» (${r.mode}) → ${r.errs.join('; ')}.\n  > ${r.text.replace(/\s+/g, ' ').slice(0, 400)}`
+    const md = `# Evals del widget CONTRA PRODUCCIÓN (T34)${partial ? ' — PARCIAL' : ''}
 
 > ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC · \`node scripts/chat-evals.mjs --target=${target}\` · modelo \`${MODEL}\`.
 > Cada caso como el widget real (JSON + SSE, Origin del sitio, UA de navegador, Accept-Language), con una sesión nueva por caso y una petición cada ${GAP / 1000} s. Mismos criterios que las evals locales.
@@ -262,8 +247,9 @@ if (target) {
 
 - **Cupo live por IP:** el código desplegado da **${LIMITS.livePerDayOpen} respuestas live por IP y día sin Turnstile** (${LIMITS.livePerDay} con Turnstile, que no está configurado). Por eso, desde una sola IP, solo los primeros casos llegan al modelo; el resto confirma el fallback al stub (${out.filter((r) => r.fallback === 'ip_cap').length} casos con \`fallback: ip_cap\`).
 - **Coste estimado de la prueba:** típico ${usd(typUSD)} · cota superior (reserva del servidor) ${usd(maxUSD)} · límite fijado $${MAX_USD.toFixed(2)}.
-- **Mensaje de más de 500 caracteres:** HTTP ${long.status}${long.error ? ` (${long.error})` : ''} ${long.status === 400 ? '✓' : '✗ (se esperaba 400)'}.
-- **Ráfaga de 12 mensajes en <60 s:** ${codes.join(' · ')} → ${codes.includes(429) ? `✓ ${codes.filter((c) => c === 429).length} respuestas 429` : '✗ ningún 429'}.
+- **Mensaje de más de 500 caracteres:** ${long ? `HTTP ${long.status}${long.error ? ` (${long.error})` : ''} ${long.status === 400 ? '✓' : '✗ (se esperaba 400)'}` : 'no ejecutado'}.
+- **Ráfaga de 12 mensajes en <60 s:** ${codes ? `${codes.join(' · ')} → ${codes.includes(429) ? `✓ ${codes.filter((c) => c === 429).length} respuestas 429` : '✗ ningún 429'}` : 'no ejecutada'}.
+- **Fallos del proveedor (fallback \`http\`):** ${out.filter((r) => r.fallback === 'http').length} casos.
 - **Fallback al stub:** ${out.some((r) => r.fallback === 'ip_cap') ? '✓ confirmado (cupo live por IP agotado → stub, sin error para el usuario)' : '✗ no observado'}.
 
 ## Fallos notables
@@ -280,8 +266,37 @@ ${live.map((r) => `- [${r.cat} · ${r.lang}] «${r.q}» ${r.errs.length ? '✗' 
 |---|---|---|---|---|
 ${out.map(row).join('\n')}
 `
-  writeFileSync('docs/EVALS-CHAT-T34-PROD.md', md)
-  console.log(`LIVE ${okOf(live)}/${live.length} · total ${okOf(out)}/${out.length} · coste típico ${usd(typUSD)} (cota ${usd(maxUSD)}) → docs/EVALS-CHAT-T34-PROD.md`)
+    writeFileSync('docs/EVALS-CHAT-T34-PROD.md', md)
+    return { live, out, okOf }
+  }
+  process.on('SIGINT', () => { report(true); console.log('interrumpido: informe parcial guardado'); process.exit(130) })
+  process.on('SIGTERM', () => { report(true); console.log('interrumpido: informe parcial guardado'); process.exit(143) })
+  console.log(`T34 · ${plan.length} casos contra ${target} · modelo ${MODEL} · 1 petición cada ${GAP / 1000} s`)
+  for (const [i, raw] of plan.entries()) {
+    if (i) await sleep(GAP)
+    const [cat, lang, q] = raw
+    if (maxUSD > MAX_USD - 0.01) { out.push({ cat, lang, q, raw, skipped: 'tope de gasto de la prueba' }); continue }
+    if (PROD && out.filter((r) => r.live && r.kind === 'live').length >= MAX_LIVE) { out.push({ cat, lang, q, raw, skipped: `tope de ${MAX_LIVE} casos live de la prueba` }); continue }
+    const r = await ask(lang, q)
+    const mode = r.meta ? `${r.meta.mode}/${r.meta.kind}${r.meta.fallback ? `·${r.meta.fallback}` : ''}` : `HTTP ${r.status}${r.error ? ` ${r.error}` : ''}`
+    let c2 = { typ: 0, max: 0 }
+    if (r.meta?.mode === 'live' && r.meta.kind === 'live') { c2 = cost(lang, q, r.text); typUSD += c2.typ; maxUSD += c2.max }
+    const errs = r.meta ? judge({ cat, lang, q, raw }, r) : [`sin respuesta (${mode})`]
+    out.push({ cat, lang, q, raw, mode, live: r.meta?.mode === 'live', kind: r.meta?.kind, fallback: r.meta?.fallback, text: r.text, errs, usd: c2 })
+    console.log(`${String(i + 1).padStart(2)} ${errs.length ? '✗' : '✓'} [${cat}·${lang}] ${mode} · ${q.slice(0, 50)}`)
+    report(true)
+  }
+  // Comprobaciones de abuso (al final: el cupo live ya está gastado, no cuestan nada).
+  await sleep(GAP)
+  long = await ask('es', 'hola '.repeat(120))
+  console.log(`>500 caracteres → HTTP ${long.status} ${long.error || ''}`)
+  await sleep(GAP)
+  const burst = await Promise.all(Array.from({ length: 12 }, (_, k) => ask('es', `ráfaga ${k}`)))
+  codes = burst.map((b) => b.status)
+  console.log(`ráfaga de 12 → ${codes.join(' ')}`)
+
+  const { live, out: o2, okOf } = report(false)
+  console.log(`LIVE ${okOf(live)}/${live.length} · total ${okOf(o2)}/${o2.length} · coste típico $${typUSD.toFixed(5)} (cota $${maxUSD.toFixed(5)}) → docs/EVALS-CHAT-T34-PROD.md`)
   process.exit(0)
 }
 
@@ -352,3 +367,92 @@ ${liveMd}
 
 ${econMd}`)
 console.log('→ docs/EVALS-CHAT-T33.md')
+
+// ── T35 · CAPA CURADA Y CACHÉ: ¿cuántas de las 43 preguntas se responden SIN modelo? ──────────
+// Mismo camino que producción (respond.js) en modo LIVE con una clave FALSA y un modelo SIMULADO
+// (stream con el formato de OpenRouter; nunca red). Pasada 1: lo que responde la capa curada o la
+// persona/FAQ exacta sin modelo, y que esas respuestas aprueben los mismos criterios. Pasada 2:
+// las MISMAS preguntas otra vez (caché de 6 h, versionada por contenido): lo que ya fue al modelo
+// sale de la caché. Escribe docs/EVALS-CHAT-T35.md.
+{
+  const { matchCurated, UMBRAL } = await import('../worker/chat/curated.js')
+  const { CONTENT_VERSION } = await import('../worker/chat/abuse.js')
+  const { POS, NEG, HELD_POS, HELD_NEG } = await import('../tests/worker/chat-curated.sets.js')
+  const { intentOf } = await import('../worker/chat/persona.js')
+  const enc = new TextEncoder()
+  const fakeModel = { calls: 0 }
+  fakeModel.fetchImpl = async () => {
+    fakeModel.calls++
+    const body = [{ choices: [{ index: 0, delta: { role: 'assistant', content: 'Respuesta simulada del modelo (evals T35, sin red).' } }] }, { choices: [{ index: 0, delta: {}, finish_reason: 'stop' }], usage: { prompt_tokens: 3000, completion_tokens: 20, total_tokens: 3020 } }]
+    return new Response(new ReadableStream({ start(c) { for (const b of body) c.enqueue(enc.encode(`data: ${JSON.stringify(b)}\n\n`)); c.enqueue(enc.encode('data: [DONE]\n\n')); c.close() } }), { headers: { 'content-type': 'text/event-stream' } })
+  }
+  const cache = new Map()
+  const guards = {
+    liveIp: async () => true,
+    reserve: async () => ({ allowed: true }),
+    settle: async () => {},
+    human: async () => ({ ok: true }),
+    dedupe: async () => false,
+    cacheGet: async (k) => cache.get(k) || null,
+    cachePut: async (k, t) => { cache.set(k, t) },
+  }
+  const env = { CHAT_MODE: 'live', OPENROUTER_API_KEY: 'clave-FALSA-evals', CHAT_MODEL: DEFAULT_MODEL }
+  const pass = async () => {
+    const rows = []
+    for (const raw of CASES) {
+      const [cat, lang, q] = raw
+      const events = []
+      const before = fakeModel.calls
+      const s = await respond({ p: { channel: 'eval', sessionId: null, lang, userText: q, turns: 1, history: [{ role: 'user', content: q }], signals: { suspicious: [] } }, mode: 'live', env, guards, send: async (ev, data) => { events.push({ ev, data }) }, delay: 0, fetchImpl: fakeModel.fetchImpl, capTurns: 12 })
+      const r = { meta: events.find((e) => e.ev === 'meta')?.data, text: events.filter((e) => e.ev === 'delta').map((e) => e.data.t).join('') }
+      const llm = fakeModel.calls > before
+      // El texto simulado del modelo no se juzga (no es una respuesta real); el resto, sí.
+      rows.push({ cat, lang, q, path: s.path, reason: s.reason, llm, errs: llm || s.path === 'cache' ? [] : judge({ cat, lang, q, raw }, r), curated: r.meta?.curated })
+    }
+    return rows
+  }
+  const p1 = await pass()
+  const p2 = await pass()
+  const k = (rows, f) => rows.filter(f).length
+  const pct = (a, b) => `${((a / b) * 100).toFixed(0)} %`
+  const N = CASES.length
+  const cur1 = k(p1, (r) => r.path === 'curated'), free1 = k(p1, (r) => !r.llm), llm1 = k(p1, (r) => r.llm)
+  const cache2 = k(p2, (r) => r.path === 'cache'), free2 = k(p2, (r) => !r.llm)
+  const badCur = p1.filter((r) => r.path === 'curated' && r.errs.length)
+  const route = (q) => (intentOf(q) ? null : matchCurated(q))
+  const cal = (pos, neg) => ({ ok: pos.filter(([q, id]) => route(q)?.id === id).length, n: pos.length, wrong: pos.filter(([q, id]) => route(q) && route(q).id !== id).length, fp: neg.filter((q) => route(q)).length, nn: neg.length })
+  const A = cal(POS, NEG), B = cal(HELD_POS, HELD_NEG)
+  console.log(`T35 · sin modelo: ${free1}/${N} (curadas ${cur1}) · 2.ª pasada sin modelo ${free2}/${N} (caché ${cache2}) · curadas incorrectas ${badCur.length}`)
+  writeFileSync('docs/EVALS-CHAT-T35.md', `# Evals del widget «Tu CEO» · T35 · capa curada y caché
+
+> Generado por \`scripts/chat-evals.mjs\` el ${date} UTC. No editar a mano: se regenera.
+> Las ${N} preguntas de las evals por el MISMO camino que producción (\`worker/chat/respond.js\`) en modo **live** con una clave falsa y un modelo **simulado** (nunca red). Versión de contenido de la caché: \`${CONTENT_VERSION}\`.
+
+## Cuántas se responden sin llegar al modelo
+
+| | Sin modelo | De ellas, curadas | Al modelo |
+|---|---|---|---|
+| **1.ª vez** (caché vacía) | **${free1}/${N} (${pct(free1, N)})** | ${cur1} | ${llm1} |
+| **2.ª vez** (mismas preguntas, caché de 6 h) | **${free2}/${N} (${pct(free2, N)})** | ${k(p2, (r) => r.path === 'curated')} | ${k(p2, (r) => r.llm)} (caché: ${cache2}) |
+
+- **Curadas incorrectas** según los criterios de las evals: **${badCur.length}**${badCur.length ? `: ${badCur.map((r) => `«${r.q}» → ${r.errs.join('; ')}`).join(' · ')}` : ''}.
+- Sin modelo en la 1.ª vez = ficha curada (chip o texto con alta confianza) + persona (saludo, «¿eres humano?», gracias, unirse, contacto) + pregunta exacta del FAQ. Lo demás (jailbreaks, fuera de tema, confidenciales, competidores y preguntas que la capa no reconoce con confianza) va al modelo, con todas sus reglas y topes.
+- En la 2.ª vez, lo que fue al modelo sale de la caché (preguntas idénticas normalizadas, sin datos personales). La clave lleva la versión de contenido: si cambian los precios o una ficha, la versión cambia y la caché vieja deja de servirse sola.
+
+## Calibración de la capa curada (umbral ${UMBRAL})
+
+| Conjunto | Aciertos | Ficha equivocada | Falsos positivos |
+|---|---|---|---|
+| Calibración (paráfrasis y trampas usadas para ajustar) | ${A.ok}/${A.n} | ${A.wrong} | ${A.fp}/${A.nn} |
+| **Ciego** (escrito después de calibrar) | **${B.ok}/${B.n}** | **${B.wrong}** | **${B.fp}/${B.nn}** |
+
+La capa prioriza la **precisión**: una pregunta que no reconoce con confianza va al modelo (cuesta céntimos); una ficha equivocada engañaría al usuario. Conjuntos en \`tests/worker/chat-curated.sets.js\`.
+
+## Por pregunta (1.ª vez)
+
+| Categoría | Idioma | Pregunta | Camino |
+|---|---|---|---|
+${p1.map((r) => `| ${r.cat} | ${r.lang} | ${r.q.replace(/\|/g, '/')} | ${r.llm ? 'modelo' : r.path === 'curated' ? `**curada** (${r.curated}, ${r.reason})` : `${r.path}${r.reason ? ` (${r.reason})` : ''}`}${r.errs.length ? ` ✗ ${r.errs.join('; ')}` : ''} |`).join('\n')}
+`)
+  console.log('→ docs/EVALS-CHAT-T35.md')
+}

@@ -8,7 +8,7 @@
 //                                 (userKey = hash: nunca el identificador en claro)
 //   parse(input, env)          → { msg } | { error, status, headers? }
 //      msg = MENSAJE NORMALIZADO:
-//        { channel, sessionId|null, userKey, lang: 'es'|'en', userText, turns,
+//        { channel, sessionId|null, userKey, lang: 'es'|'en', userText, turns, chip?: id curado,
 //          history: [{ role: 'user'|'assistant', content }],
 //          signals: { ip?, ua?, acceptLanguage?, turnstileToken?, suspicious: [] } }
 //   open(env)                  → { send(evento, datos), close(), response, delay }
@@ -20,9 +20,10 @@
 // El núcleo (runChannel) aplica a TODOS los canales lo mismo: límites por usuario y sesión,
 // la decisión stub/live (respond.js, que no sabe de HTTP ni de SSE) y los contadores sin PII.
 // ─────────────────────────────────────────────────────────────────────────────
-import { respond } from '../respond.js'
+import { respond, curatedFor } from '../respond.js'
+import { intentOf } from '../persona.js'
 import { today, hourOf, minuteOf, sessionKey } from '../guard.js'
-import { verifyTurnstile, counter } from '../abuse.js'
+import { verifyTurnstile, counter, srcOf } from '../abuse.js'
 
 // Los límites viven en un módulo puro (sin runtime de Workers) para que también los lean las
 // evals en Node (scripts/chat-evals.mjs).
@@ -107,7 +108,11 @@ export async function runChannel(channel, input, env, ctx, { fetchImpl, verifyFe
   if (parsed.error) return channel.reject(parsed)
   const msg = parsed.msg
 
-  const lim = await checkLimits(who, msg.sessionId, env)
+  // Respuestas GRATIS (T35 · adenda, Diego): saludo y demás intenciones de la persona, y fichas
+  // curadas, no gastan el cupo por IP ni por sesión (hora/día): cuestan 0 y no tocan el modelo. La
+  // ráfaga (RL_CHAT, 10/min por IP) sí aplica a todo: frena el abuso por volumen.
+  const free = msg.turns <= LIMITS.maxTurns && Boolean(intentOf(msg.userText) || curatedFor(msg))
+  const lim = free ? { ok: true } : await checkLimits(who, msg.sessionId, env)
   if (!lim.ok) {
     counter('limit', { channel: channel.name, limit: lim.limit }, log)
     return channel.reject({ error: lim.error, status: 429, retryAfter: lim.retryAfter })
@@ -117,7 +122,7 @@ export async function runChannel(channel, input, env, ctx, { fetchImpl, verifyFe
   const run = async () => {
     try {
       const r = await respond({ p: msg, mode, env, guards: guardsFor(msg, env, { verifyFetch }), send, delay, fetchImpl, capTurns: LIMITS.maxTurns })
-      counter('answer', { channel: channel.name, path: r.path, reason: r.reason || 'ok', lang: msg.lang }, log)
+      counter('answer', { channel: channel.name, path: r.path, src: srcOf(r.path), reason: r.reason || 'ok', lang: msg.lang }, log)
     } catch {
       counter('error', { channel: channel.name }, log)
       await send('error', { error: 'server_error' })

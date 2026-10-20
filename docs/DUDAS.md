@@ -297,3 +297,49 @@ _(se van añadiendo por fase)_
 - **Widget sobre el contenido:** el lanzador se compacta a su círculo (con la insignia IA) y la burbuja se esconde mientras un bloque marcado `data-chat-avoid` (hoy, el acta) pasa por la franja inferior. Medido sin solape a 1024, 1280, 1440 y 1920 px.
 - **Panel del widget por encima del header:** con el panel expandido el header tapaba el botón de cerrar (z-index 46 frente a 50). El panel abierto va ahora a 60 en cualquier tamaño; lanzador y burbuja siguen por debajo del header.
 - **Bug de las imágenes OG (anterior a T33, salió al regenerar la caché):** las fuentes se descomprimían en paralelo y Geist salía corrupto, así que la OG se pintaba entera con la serif. Ahora se descomprimen una a una, con test.
+
+### T35 · chat: capa curada y caché versionada (2026-10-20)
+- **Respuestas curadas** (`content/chat-answers.js`, 16 fichas es/en, ≤ 45 palabras, tono de fundador, precios generados desde `content/precios.js`). Se sirven **antes de cualquier modelo y en cualquier modo**, al instante y con coste 0:
+  - **chips:** el cliente manda `chip` (id curado). Los chips sugeridos lo llevan en `data-chat-chip` (`ChatWidget.astro`); los de respuesta, en `meta.chipIds`;
+  - **texto libre:** se casa con alta confianza (`worker/chat/curated.js`).
+- **Cómo se decide en texto libre:**
+  - normalización (minúsculas, sin tildes ni signos), sinónimos y plurales de `search.js`, relleno fuera («están», «sirve», «get»…) y frases → término («how much», «al mes» → precio);
+  - exige ≥ 1 palabra ANCLA de la ficha, cobertura ≥ **0,75** de los términos de la pregunta, ≤ 6 términos y ningún empate;
+  - nunca casa si la pregunta huele a jailbreak, datos internos, métricas de la empresa o competidores (lista `DENY`): eso va al modelo con sus reglas.
+- **Calibración** (`tests/worker/chat-curated.sets.js`):
+  - **calibración:** 46/46 aciertos, 0 fichas equivocadas y 0/36 falsos positivos;
+  - **ciego, escrito después:** 7/18 aciertos, 0 fichas equivocadas y 0/12 falsos positivos (1 FP inicial, «¿cuántos usuarios tienen ya?» → planes, corregido con la regla de métricas internas);
+  - el umbral es estable entre 0,67 y 1; con 0,5–0,6 aparecen falsos positivos.
+  - **Prioridad: precisión.** Lo que no se reconoce con confianza va al modelo (céntimos); una ficha equivocada engañaría al usuario.
+- **Sobre las 43 preguntas de las evals** (`docs/EVALS-CHAT-T35.md`):
+  - **1.ª vez:** 27/43 (63 %) sin modelo, 17 de ellas curadas y 0 incorrectas;
+  - **2.ª vez:** 43/43, con la caché;
+  - ⚠️ **cifra inflada:** varias de las 17 son coincidencias exactas porque las formas de preguntar se escribieron viendo esas evals. La cifra honesta de generalización es la del conjunto ciego.
+- **Caché de 6 h versionada:** la clave lleva la versión de contenido (hash de conocimiento + fichas, `worker/generated/content-version.json`, generado en cada build). Si cambian los precios o una ficha, la caché vieja deja de servirse sola.
+- **Contadores:** cada respuesta registra `src` = `curated` · `cache` · `llm` · `stub` · `cap` (solo etiquetas, sin PII). El % se saca de los logs: `count(src=curated|cache) / count(ev=answer)`.
+  - ⏳ **Para leerlo en producción** hace falta `"observability": { "enabled": true }` en `wrangler.jsonc`, o `wrangler tail`. Hoy no está activado; es decisión de Diego y Luca.
+- **Embeddings de Workers AI: NO se usan.**
+  - [PENDIENTE verificar] su coste y si entran en el plan gratis: no se pudo consultar la tarifa sin red.
+  - La capa léxica ya da 0 falsos positivos medidos. Los embeddings añadirían una llamada por mensaje y necesitarían un modelo multilingüe; solo merecen la pena si el ciego (7/18) se queda corto en producción.
+- **Rareza anterior detectada:** el regex de la persona que detecta «¿eres humano?» también se activa con «¿Qué es un empleado de IA?» (contiene «es … IA»), y responde «soy una IA, no una persona». No se tocó (protege la declaración SB 1001); un test impide que una ficha use esas formas.
+
+### T35 · adenda, punto 0: «hola amigo» sin respuesta (20-oct)
+- **Reproducido con el JS de producción** (página real de agentceo.io con `/api/chat` interceptado en el navegador: ninguna petición llegó al servidor ni gastó cupo):
+  - si la respuesta del servidor no termina, el widget se queda en «escribiendo…» para siempre;
+  - **el mensaje siguiente ni se envía**: el `fetch` no tenía tiempo máximo y `busy` se quedaba en `true`;
+  - 429, stream vacío y error de red sí mostraban aviso.
+- **Por qué colgaba en el caso de Diego:** no observable sin los logs de producción. Lo que sí se midió:
+  - «hola amigo» **no** contaba como saludo (solo «hola» exacto), así que iba al modelo;
+  - en esa franja el proveedor del modelo devolvía error HTTP (ver `docs/EVALS-CHAT-T34-PROD.md`).
+- **Sobre el cupo:** mis evals a producción iban a 1 petición cada 125 s (7 peticiones en 13 min), no a 6,5 s; esos 6,5 s eran del ensayo contra el preview local. No agotaron el 10/min, pero sí gastaron 5 del cupo live diario de esa IP (10 sin Turnstile), que es la de Diego.
+- **Arreglo:**
+  - **Cliente:**
+    - tiempo máximo con `AbortController`: 15 s hasta el primer dato y entre trozos, 40 s en total;
+    - `busy` siempre se libera;
+    - ante 429, límite, error, timeout o stream vacío, mensaje amable + **respuesta calculada en el navegador** con la misma lógica del Worker (`worker/chat/match.js`, módulo puro);
+    - los saludos se responden en el navegador al instante, sin petición.
+  - **Servidor:**
+    - saludos con cortesía («hola amigo», «buenas, ¿qué tal?», «hi there») = intención de saludo;
+    - saludos, intenciones y fichas curadas **no gastan cupo** por IP ni por sesión; la ráfaga de 10/min sí aplica.
+  - **Guardianes:** e2e en 3 navegadores (saludo sin petición, 429, stream vacío, servidor colgado) y unitarios; 5 mutaciones, todas en rojo.
+- **Punto 5:** el chat cita `info@agentceo.io` (persona, prompt, base curada, textos del widget y la base generada de la web, reemplazado al construirla). Los documentos legales y la web conservan sus contactos.
