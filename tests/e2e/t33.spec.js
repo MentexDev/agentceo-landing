@@ -25,18 +25,22 @@ test('1 · ningún divisor de sección es un filete negro a todo el ancho', asyn
   expect(d.left).toBeGreaterThan(0)
 })
 
-test('2 · titulares en Fraunces con peso real (500–600) y sin trazo falso', async ({ page }) => {
+test('2 · titulares (T35): Instrument Serif a 400, sin negrita sintética, con trazo bajo el relleno', async ({ page }) => {
   await page.goto('/')
   await page.evaluate(() => document.fonts.ready)
   const r = await page.evaluate(() => {
-    const h1 = getComputedStyle(document.querySelector('section#top h1'))
-    const it = getComputedStyle(document.querySelector('section#top h1 .in:last-child'))
-    return { fam: h1.fontFamily, w: +h1.fontWeight, stroke: parseFloat(h1.webkitTextStrokeWidth || '0'), itStyle: it.fontStyle, loaded: document.fonts.check(`italic 560 40px Fraunces`) && document.fonts.check(`560 40px Fraunces`) }
+    const el = document.querySelector('section#top h1'), h1 = getComputedStyle(el)
+    const fs = parseFloat(h1.fontSize)
+    return { fam: h1.fontFamily, w: +h1.fontWeight, synth: h1.fontSynthesisWeight || h1.fontSynthesis, stroke: parseFloat(h1.webkitTextStrokeWidth || '0') / fs, order: h1.paintOrder, track: parseFloat(h1.letterSpacing) / fs, loaded: document.fonts.check(`italic 400 40px "Instrument Serif"`) && document.fonts.check(`400 40px "Instrument Serif"`) }
   })
-  expect(r.fam).toMatch(/^Fraunces/)
-  expect(r.w).toBeGreaterThanOrEqual(500)
-  expect(r.w).toBeLessThanOrEqual(600)
-  expect(r.stroke).toBe(0)
+  expect(r.fam).toMatch(/^"?Instrument Serif/)
+  expect(r.w).toBe(400)
+  expect(r.synth).toMatch(/none/)
+  // Trazo medido (≈ 0,035 em) pintado DEBAJO del relleno, y el interletrado lo compensa (−0,02 + 0,035 em).
+  expect(r.stroke).toBeGreaterThan(0.03)
+  expect(r.stroke).toBeLessThan(0.04)
+  expect(r.order).toMatch(/^stroke/)
+  expect(r.track).toBeGreaterThan(0.01)
   expect(r.loaded).toBe(true)
 })
 

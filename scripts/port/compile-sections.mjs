@@ -551,19 +551,21 @@ function cssFor(names) {
   out += `@media (max-width:${BREAK}px){\n${mob.join('\n')}\n}\n}\n`
   // Respaldo con las métricas de la fuente real (src/styles/fonts-fallback.css): sin él, el
   // titular del hero saltaba al llegar Instrument Serif (CLS 0,18 medido con Lighthouse 13).
-  // TIPOGRAFÍA (T33, Diego: «títulos claramente más gruesos»): la serif del prototipo (Instrument
-  // Serif, solo 400) pasa a Fraunces con pesos reales (src/styles/fonts.css). Cada regla que la usa
-  // toma var(--serif) (con su respaldo de métricas) y var(--serif-weight) en lugar de su 400.
-  // El gris secundario del prototipo (#5E5C56, 5,98:1) baja a var(--muted) (#4E4C47, 7,6:1).
   // DIVISORES (T33, Diego): el filete negro de 1,5 px a todo el ancho que el prototipo pone arriba
   // de cada sección pasa a la línea sutil y contenida de los tokens (--divider, --divider-inset).
   out = out.replace(/\.(x\w+)\.\1\{(padding:calc\(140[^{}]*?)border-top:1\.5px solid #111113([^{}]*)\}/g, (_, c, a, b) =>
     `.${c}.${c}{${a}border-top:0;position:relative${b}}\n.${c}.${c}::before{content:'';position:absolute;top:0;left:var(--divider-inset);right:var(--divider-inset);height:1px;background:var(--divider)}`)
+  // TIPOGRAFÍA (T35, Diego: vuelve Instrument Serif con un grosor cercano a Fraunces 560). Cada regla
+  // con la serif del prototipo toma var(--serif) (con su respaldo de métricas), peso 400 sin negrita
+  // sintética y el trazo medido (tokens.css: --serif-stroke, pintado DEBAJO del relleno), y suma
+  // --serif-track a su interletrado para devolver el espacio que se come el trazo.
+  // El gris secundario del prototipo (#5E5C56, 5,98:1) baja a var(--muted) (#4E4C47, 7,6:1).
   return out
     .replace(/\{([^{}]*'Instrument Serif',Georgia,serif[^{}]*)\}/g, (_, body) => {
       body = body.replace("font-family:'Instrument Serif',Georgia,serif", 'font-family:var(--serif)')
       body = /font-weight:/.test(body) ? body.replace(/font-weight:\s*400\b/, 'font-weight:var(--serif-weight)') : `${body};font-weight:var(--serif-weight)`
-      return `{${body}}`
+      body = /letter-spacing:/.test(body) ? body.replace(/letter-spacing:\s*([^;]+)/, 'letter-spacing:calc($1 + var(--serif-track))') : `${body};letter-spacing:var(--serif-track)`
+      return `{${body};font-synthesis:none;-webkit-text-stroke:var(--serif-stroke) currentColor;paint-order:stroke fill}`
     })
     .replaceAll('#5E5C56', 'var(--muted)')
 }

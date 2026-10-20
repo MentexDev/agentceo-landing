@@ -1,20 +1,20 @@
 /* GENERADO por scripts/font-fallbacks.mjs · no editar a mano */
 @font-face {
-  font-family: 'Fraunces Fallback';
+  font-family: 'Instrument Serif Fallback';
   font-style: normal;
   src: local('Georgia'), local('Times New Roman');
-  size-adjust: 87.26%;
-  ascent-override: 112.08%;
-  descent-override: 29.22%;
+  size-adjust: 76.49%;
+  ascent-override: 129.43%;
+  descent-override: 40.53%;
   line-gap-override: 0.00%;
 }
 @font-face {
-  font-family: 'Fraunces Fallback';
+  font-family: 'Instrument Serif Fallback';
   font-style: italic;
   src: local('Georgia Italic'), local('Georgia-Italic'), local('Times New Roman Italic');
-  size-adjust: 84.14%;
-  ascent-override: 116.23%;
-  descent-override: 30.31%;
+  size-adjust: 78.97%;
+  ascent-override: 125.36%;
+  descent-override: 39.25%;
   line-gap-override: 0.00%;
 }
 @font-face {

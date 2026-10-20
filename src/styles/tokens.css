@@ -18,8 +18,14 @@
   --gold-3: #EFE4C8;
   --gold-ink: #7A5C17;
   --muted: #4E4C47;
-  /* Peso de los titulares serif (T33): Fraunces 560, peso real (sin trazo falso). */
-  --serif-weight: 560;
+  /* Titulares serif (T35, Diego: Instrument Serif «con un grosor cercano a Fraunces 560»). Solo
+     existe en 400, así que: peso 400 SIN negrita sintética + un trazo del color del texto pintado
+     DEBAJO del relleno (paint-order: stroke fill: engorda hacia fuera, no empasta las contraformas).
+     Medido a 84 px: asta de Instrument 6 px, Fraunces 560 10 px; +0,035 em → ~8,5 px. El trazo
+     crece hacia fuera y se come el interletrado: --serif-track devuelve ese espacio (mismo valor). */
+  --serif-weight: 400;
+  --serif-stroke: .035em;
+  --serif-track: .035em;
   /* Divisor entre secciones (T33, Diego: nada de filete negro a todo el ancho): 1 px, alineado al
      contenedor y difuminado en los extremos. Lo usan las secciones compiladas y las hechas a mano. */
   --divider: linear-gradient(90deg, transparent, rgba(17, 17, 19, .16) 18%, rgba(17, 17, 19, .16) 82%, transparent);
@@ -33,7 +39,7 @@
   --danger-dark: #F2B8A8;
 
   --sans: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --serif: 'Fraunces', 'Fraunces Fallback', Georgia, 'Times New Roman', serif;
+  --serif: 'Instrument Serif', 'Instrument Serif Fallback', Georgia, 'Times New Roman', serif;
   --mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   --ease-out: cubic-bezier(.2, .7, .2, 1);

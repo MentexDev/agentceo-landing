@@ -11,7 +11,7 @@ describe('fuentes de las OG', () => {
     rmSync(join(process.cwd(), 'node_modules', '.cache', 'og-fonts'), { recursive: true, force: true })
     const { fonts } = await import('../../src/lib/og.js')
     const files = await fonts()
-    expect(files.map((f) => f.split('/').pop())).toEqual(['geist-latin-wght-normal.ttf', 'geist-mono-latin-wght-normal.ttf', 'fraunces-latin-560-normal.ttf'])
+    expect(files.map((f) => f.split('/').pop())).toEqual(['geist-latin-wght-normal.ttf', 'geist-mono-latin-wght-normal.ttf', 'instrument-serif-latin-400-normal.ttf'])
     for (const f of files) expect(readFileSync(f).subarray(0, 4).toString('hex'), f).toBe('00010000')
   }, 30_000)
 })

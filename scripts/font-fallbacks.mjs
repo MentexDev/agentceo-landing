@@ -6,15 +6,13 @@
 // tamaño, ascendente y descendente para que el respaldo ocupe lo mismo (técnica de next/font).
 // Se ejecuta a mano (lee las fuentes del sistema de macOS) y su salida se versiona:
 //   node scripts/font-fallbacks.mjs  →  src/styles/fonts-fallback.css
-// Fraunces se mide en su instancia estática a 560 (el peso de los titulares), que deja
-// scripts/font-fraunces.sh en node_modules/.cache/fraunces/: ejecutar ese antes.
 import { fromFile } from '@capsizecss/unpack/fs'
 import { writeFileSync } from 'node:fs'
 
 const SYS = '/System/Library/Fonts/Supplemental'
 const FACES = [
-  { family: 'Fraunces Fallback', style: 'normal', font: 'node_modules/.cache/fraunces/normal-560.ttf', local: ['Georgia', 'Times New Roman'], ref: `${SYS}/Georgia.ttf` },
-  { family: 'Fraunces Fallback', style: 'italic', font: 'node_modules/.cache/fraunces/italic-560.ttf', local: ['Georgia Italic', 'Georgia-Italic', 'Times New Roman Italic'], ref: `${SYS}/Georgia Italic.ttf` },
+  { family: 'Instrument Serif Fallback', style: 'normal', font: 'public/fonts/instrument-serif-latin-400-normal.woff2', local: ['Georgia', 'Times New Roman'], ref: `${SYS}/Georgia.ttf` },
+  { family: 'Instrument Serif Fallback', style: 'italic', font: 'public/fonts/instrument-serif-latin-400-italic.woff2', local: ['Georgia Italic', 'Georgia-Italic', 'Times New Roman Italic'], ref: `${SYS}/Georgia Italic.ttf` },
   { family: 'Geist Fallback', style: 'normal', font: 'public/fonts/geist-latin-wght-normal.woff2', local: ['Arial', 'ArialMT', 'Helvetica'], ref: `${SYS}/Arial.ttf` },
 ]
 const pct = (n) => `${(n * 100).toFixed(2)}%`

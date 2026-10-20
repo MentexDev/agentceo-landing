@@ -50,7 +50,7 @@ const items = FAQ.filter((f) => f.q[lang] && f.a[lang]).map((f, i) => ({
   .faq-eyebrow span { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
   .faq-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: calc(72 * var(--u)); align-items: start; }
   .faq-left { display: flex; flex-direction: column; gap: calc(34 * var(--u)); }
-  .faq-h2 { margin: 0; font-family: var(--serif); font-weight: var(--serif-weight); font-size: max(calc(62 * var(--u)), 38px); line-height: 1.04; letter-spacing: -.02em; }
+  .faq-h2 { margin: 0; font-family: var(--serif); font-weight: var(--serif-weight); font-size: max(calc(62 * var(--u)), 38px); line-height: 1.04; letter-spacing: calc(-.02em + var(--serif-track)); font-synthesis: none; -webkit-text-stroke: var(--serif-stroke) currentColor; paint-order: stroke fill; }
   .faq-h2 em { font-style: italic; }
   .faq-answers { display: flex; flex-direction: column; gap: 18px; }
   .ansb { position: relative; padding: 24px 26px; border-radius: 22px; background: var(--paper); border: 1.5px solid var(--ink); box-shadow: 6px 6px 0 var(--gold); }
