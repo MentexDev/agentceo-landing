@@ -54,7 +54,7 @@ describe('stub', () => {
     expect(meta.mode).toBe('stub')
     expect(meta.matched.title).toBe('¿Cuánto cuesta?')
     expect(meta.cta).toBe('waitlist')
-    expect(text).toContain('plan gratis')
+    expect(text).toContain('Arranque es gratis')
     expect(events.at(-1).ev).toBe('done')
   })
 

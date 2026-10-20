@@ -4,6 +4,7 @@
 // Fuente de la entidad: content/legal/privacidad.md (Klinworks, LLC, Delaware, n.º 10704723).
 // ─────────────────────────────────────────────────────────────────────────────
 import { FAQ } from '../../content/faq.js'
+import * as PRECIOS from '../../content/precios.js'
 import { t, LOCALE_META } from '../i18n/config.js'
 import { href } from '../i18n/rutas.js'
 
@@ -62,8 +63,15 @@ export function softwareApplication(lang) {
     description: t(lang, 'site.description'),
     inLanguage: LOCALE_META[lang].bcp47,
     publisher: { '@id': ORG_ID },
-    // Solo lo confirmado: hay un plan gratis para empezar. Precios de pago: pendientes (Diego).
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', description: t(lang, 'jsonld.freeOffer') },
+    // Precios de la app (content/precios.js): de Arranque ($0) a Imperio ($249/mes).
+    offers: {
+      '@type': 'AggregateOffer',
+      priceCurrency: PRECIOS.CURRENCY,
+      lowPrice: String(Math.min(...PRECIOS.PLANS.map((p) => p.price))),
+      highPrice: String(Math.max(...PRECIOS.PLANS.map((p) => p.price))),
+      offerCount: String(PRECIOS.PLANS.length),
+      description: t(lang, 'jsonld.freeOffer'),
+    },
   }
 }
 

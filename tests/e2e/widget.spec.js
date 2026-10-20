@@ -29,7 +29,7 @@ test('pregunta sugerida → respuesta del sitio en streaming, con su procedencia
   const panel = await openChat(page)
   await panel.locator('[data-chat-suggest] .cw-chip', { hasText: '¿Cuánto cuesta?' }).click()
   const answer = panel.locator('.cw-bot').last()
-  await expect(answer).toContainText('plan gratis')
+  await expect(answer).toContainText('Arranque es gratis')
   await expect(answer.locator('.cw-matched')).toContainText('¿Cuánto cuesta?')
   await expect(panel.locator('.cw-chips-row .cw-chip').first()).toBeVisible()
   // El precio lleva a la lista dentro del chat.

@@ -1,84 +1,102 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Página de PRECIOS de AgentCEO (dedicada, estilo NeuralOS).
+// PRECIOS de Agent CEO = los de la app.
 //
-// Contenido REAL de pre-lanzamiento. NO se inventan tarifas.
-// ⚠️ 2026-10-20 · DECISIÓN DE DIEGO: los precios serán LOS DE LA APP y los pasará él.
-// Hasta entonces: el plan gratis (confirmado por la v1 y por el prototipo) se muestra;
-// los planes de pago llevan `pendiente: 'precios'` y la página pinta la marca visible
-// «PENDIENTE · precios de la app». La tabla COMPARE describe un plan de pago que puede no
-// coincidir con la app: NO se pinta mientras PRICES_PENDING sea true.
+// Fuente: mensaje de Luca/Diego del 2026-10-20 («Datos reales»). Solo se publica lo que
+// ese mensaje dice; NADA inventado (ni funciones por plan, ni descuentos anuales).
+//   · Planes (por mes): Arranque $0 · Impulso $29 (destacado) · Motor $99 · Imperio $249.
+//   · Todos: agentes sin límite; los créditos se renuevan cada lunes; historial de 30 días.
+//   · Paquetes de créditos (pago único): Chispa · Envión (destacado) · Turbina · Reserva (no caduca).
+// ⏳ Moneda: se muestra en USD (Klinworks, LLC es una sociedad de EE. UU.) — ver docs/DUDAS.md.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const META = {
-  title: 'Precios · AgentCEO',
+  title: 'Precios · Agent CEO',
   eyebrow: 'Precios',
   h1: 'Empieza gratis. Crece cuando quieras.',
-  sub: 'Estamos en pre-lanzamiento. Crea tu empresa y arma tu equipo de agentes sin costo; cuando tu operación crezca, pasamos a un plan a la medida de tu negocio.',
+  sub: 'Cada plan trae créditos que se renuevan cada lunes y agentes sin límite. Empieza con Arranque, sin tarjeta, y sube de plan cuando tu operación crezca.',
 }
 
-export const PRICES_PENDING = true
+export const PRICES_PENDING = false
+export const CURRENCY = 'USD'
 
+/** Lo que incluyen TODOS los planes (del mensaje «Datos reales»). */
+export const ALL_PLANS = [
+  'Agentes sin límite',
+  'Los créditos se renuevan cada lunes',
+  'Historial de 30 días',
+]
+
+// `credits` = créditos por semana; `seats` = personas (null = sin límite).
 export const PLANS = [
   {
-    name: 'Para empezar',
-    price: 'Gratis',
-    priceNote: 'Sin tarjeta de crédito',
-    desc: 'Crea tu empresa y conversa con tu CEO Global. Ideal para arrancar.',
-    features: [
-      'Tu empresa y tu primera marca',
-      'CEO Global que entiende tu negocio',
-      'Crea tus primeros agentes',
-      'Conecta tus herramientas (Shopify, WhatsApp…)',
-    ],
-    cta: { label: 'Únete a la lista', href: '/#waitlist', style: 'ghost' },
+    id: 'arranque',
+    name: 'Arranque',
+    price: 0,
+    period: 'mes',
+    credits: 300,
+    seats: 1,
+    desc: 'Para conocer a tu equipo de IA sin poner una tarjeta.',
+    features: ['**300 créditos** por semana', '1 usuario', 'Sin tarjeta de crédito'],
+    cta: { label: 'Únete a la lista' },
     featured: false,
   },
   {
-    name: 'Para tu equipo',
-    price: 'A tu medida',
-    priceNote: 'Cuando tu operación crece',
-    pendiente: 'precios',
-    desc: 'Más agentes, más marcas y más automatización, con acompañamiento para montarlo todo.',
-    features: [
-      'Agentes ilimitados y varias marcas',
-      'Automatizaciones y tareas autónomas',
-      'Aprobaciones y guardrails por firma',
-      'Acompañamiento para montarlo todo',
-    ],
-    cta: { label: 'Únete a la lista', href: '/#waitlist', style: 'primary' },
+    id: 'impulso',
+    name: 'Impulso',
+    price: 29,
+    period: 'mes',
+    credits: 2300,
+    seats: 5,
+    features: ['**2.300 créditos** por semana', 'Hasta 5 personas'],
+    cta: { label: 'Únete a la lista' },
     featured: true,
     badge: 'Recomendado',
   },
+  {
+    id: 'motor',
+    name: 'Motor',
+    price: 99,
+    period: 'mes',
+    credits: 40000,
+    seats: 20,
+    features: ['**40.000 créditos** por semana', 'Hasta 20 personas'],
+    cta: { label: 'Únete a la lista' },
+    featured: false,
+  },
+  {
+    id: 'imperio',
+    name: 'Imperio',
+    price: 249,
+    period: 'mes',
+    credits: 200000,
+    seats: null,
+    features: ['**200.000 créditos** por semana', 'Personas sin límite'],
+    cta: { label: 'Únete a la lista' },
+    featured: false,
+  },
 ]
 
-// Banda de garantías (iconos simples inline en el generador por su `icon`).
+/** Paquetes de créditos: pago único, para cuando necesitas más esa semana. */
+export const PACKS = [
+  { id: 'chispa', name: 'Chispa', credits: 1000, price: 5, featured: false },
+  { id: 'envion', name: 'Envión', credits: 3000, price: 12, featured: true },
+  { id: 'turbina', name: 'Turbina', credits: 8000, price: 29, featured: false },
+  { id: 'reserva', name: 'Reserva', credits: 20000, price: 65, featured: false, noExpiry: true },
+]
+
+// Banda de garantías: solo lo que respaldan los datos de arriba y los Términos.
 export const GUARANTEES = [
-  { icon: 'gift', text: 'Gratis para empezar' },
-  { icon: 'card', text: 'Sin tarjeta de crédito' },
-  { icon: 'x', text: 'Cancela cuando quieras' },
+  { icon: 'gift', text: 'Arranque es gratis' },
+  { icon: 'card', text: 'Sin tarjeta para empezar' },
+  { icon: 'x', text: 'Agentes sin límite' },
   { icon: 'lock', text: 'Tus datos son tuyos' },
 ]
 
-// Tabla comparativa. `free`/`team` pueden ser true (✓), false (—) o texto.
-export const COMPARE = {
-  cols: ['Para empezar', 'Para tu equipo'],
-  rows: [
-    { label: 'Tu empresa y primera marca', free: true, team: true },
-    { label: 'Marcas adicionales', free: false, team: 'Ilimitadas' },
-    { label: 'CEO Global que coordina', free: true, team: true },
-    { label: 'Agentes', free: 'Los primeros', team: 'Ilimitados' },
-    { label: 'Conectores (Shopify, WhatsApp, Gmail…)', free: true, team: true },
-    { label: 'Automatizaciones y tareas autónomas', free: false, team: true },
-    { label: 'Aprobaciones y guardrails por firma', free: true, team: true },
-    { label: 'Acompañamiento para montarlo', free: false, team: true },
-  ],
-}
-
 export const FAQ = [
-  { q: '¿Es gratis de verdad?', a: 'Sí. Creas tu empresa, hablas con tu CEO Global y armas tus primeros agentes sin poner una tarjeta. Empiezas a operar y solo creces de plan cuando lo necesites.' },
-  { q: '¿Cuándo van a tener precios?', a: 'Estamos en pre-lanzamiento. El plan para equipos se ajusta a tu operación; cuando definamos tarifas públicas, quienes estén en la lista de espera serán los primeros en saberlo, con condiciones de fundador.' },
-  { q: '¿Necesito tarjeta de crédito para empezar?', a: 'No. El plan para empezar no pide tarjeta. Solo la necesitarías más adelante si pasas a un plan de pago.' },
-  { q: '¿Qué pasa cuando mi operación crezca?', a: 'Pasas al plan para tu equipo: agentes ilimitados, varias marcas, automatizaciones y acompañamiento para montarlo todo, a la medida de tu negocio.' },
-  { q: '¿Puedo cancelar cuando quiera?', a: 'Sí. Sin permanencia ni ataduras. Tú decides cuándo empezar y cuándo parar.' },
+  { q: '¿Es gratis de verdad?', a: 'Sí. El plan Arranque cuesta $0: trae 300 créditos por semana para 1 usuario y no pide tarjeta.' },
+  { q: '¿Qué pasa si me quedo sin créditos?', a: 'Tus agentes se detienen hasta que se renueven (cada lunes) o hasta que compres un paquete de créditos: Chispa, Envión, Turbina o Reserva. No hay cobros automáticos por exceso.' },
+  { q: '¿Cuándo se renuevan los créditos?', a: 'Cada lunes, en todos los planes.' },
+  { q: '¿Hay límite de agentes?', a: 'No. Todos los planes, incluido Arranque, tienen agentes sin límite. Lo que cambia entre planes son los créditos por semana y cuántas personas de tu equipo pueden entrar.' },
+  { q: '¿Necesito tarjeta de crédito para empezar?', a: 'No. Arranque no pide tarjeta. Solo la necesitas si pasas a un plan de pago o compras un paquete de créditos.' },
   { q: '¿Mis datos son míos?', a: 'Sí. La información de tu negocio y la de tus agentes es tuya. Puedes exportarla o pedir que la borremos.' },
 ]

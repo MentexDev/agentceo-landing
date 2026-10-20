@@ -44,10 +44,17 @@ test('recurso: el gate guarda el lead en D1 y revela la guía', async ({ page },
   await expect(page.locator('[data-gated]')).toBeVisible()
 })
 
-test('precios: los planes de pago muestran la marca de pendiente (placeholder honesto)', async ({ page }) => {
+test('precios: los 4 planes y los 4 paquetes con los precios reales de la app', async ({ page }) => {
   await page.goto('/precios/')
-  await expect(page.locator('[data-pendiente="precios"]').first()).toBeVisible()
-  await expect(page.locator('.plan').first()).toContainText('Gratis')
+  await expect(page.locator('[data-pendiente]')).toHaveCount(0)
+  const plans = page.locator('[data-plan]')
+  await expect(plans).toHaveCount(4)
+  for (const [id, price] of [['arranque', '$0'], ['impulso', '$29'], ['motor', '$99'], ['imperio', '$249']]) {
+    await expect(page.locator(`[data-plan="${id}"] .plan-amount`)).toHaveText(price)
+  }
+  await expect(page.locator('[data-plan="impulso"]')).toHaveClass(/plan-feat/)
+  await expect(page.locator('.pack')).toHaveCount(4)
+  await expect(page.locator('.pack', { hasText: 'Reserva' })).toContainText('No caduca')
   await page.locator('.pfaq-i summary').first().click()
   await expect(page.locator('.pfaq-i[open] p')).toBeVisible()
 })

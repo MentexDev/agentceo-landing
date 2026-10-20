@@ -36,7 +36,8 @@ export const CASES = {
     ['tengo dos negocios, ¿puedo manejar varios?', 'faq:varios-negocios'],
     ['¿cuándo abren?', 'faq:cuando'],
     ['¿cuándo va a estar disponible?', 'faq:cuando'],
-    ['¿puedo cancelar cuando quiera?', 'pricing-faq:¿Puedo cancelar cuando quiera?'],
+    // 2026-10-20: con los precios reales ya no hay FAQ de cancelación (la cubrirá Reembolsos, Fase L).
+    ['¿puedo cancelar cuando quiera?', 'fallback'],
     ['qué tareas puedo automatizar', 'recurso:checklist-tareas-para-automatizar'],
     ['hola', 'intent:greet'],
     ['¿eres humano?', 'intent:human'],

@@ -48,9 +48,10 @@ export function buildKnowledge(lang) {
   }
   // El contenido editorial existe hoy solo en español (la Fase 6 añade content/en).
   if (lang === 'es') {
-    // Un plan con precio pendiente (precios de la app, los pasa Diego) NO se cita con precio.
-    const plans = PRECIOS.PLANS.map((p) => `${p.name}: ${p.pendiente ? 'precio pendiente de publicar' : `${p.price} (${p.priceNote})`}. ${p.desc} Incluye: ${p.features.join(', ')}.`).join(' ')
-    out.push({ id: 'pricing', kind: 'pricing', title: PRECIOS.META.h1, text: clip(`${PRECIOS.META.sub} ${plans}`), url: routeUrl('precios', lang) || `${home}#faq` })
+    const fmt = (n) => n.toLocaleString('es-ES')
+    const plans = PRECIOS.PLANS.map((p) => `${p.name}: $${p.price} al mes, ${fmt(p.credits)} créditos por semana, ${p.seats === null ? 'personas sin límite' : `${p.seats} ${p.seats === 1 ? 'usuario' : 'personas'}`}.`).join(' ')
+    const packs = PRECIOS.PACKS.map((k) => `${k.name}: ${fmt(k.credits)} créditos por $${k.price}${k.noExpiry ? ' (no caduca)' : ''}`).join('; ')
+    out.push({ id: 'pricing', kind: 'pricing', title: PRECIOS.META.h1, text: clip(`${PRECIOS.META.sub} ${plans} Todos los planes: ${PRECIOS.ALL_PLANS.join(', ').toLowerCase()}. Paquetes de créditos (pago único): ${packs}. Precios en USD.`), url: routeUrl('precios', lang) || `${home}#faq` })
     for (const f of PRECIOS.FAQ) out.push({ id: `pricing-faq:${f.q}`, kind: 'faq', title: f.q, text: f.a, url: routeUrl('precios', lang) || `${home}#faq` })
     for (const it of BLOG.ITEMS) out.push({ id: `blog:${it.slug}`, kind: 'blog', title: it.title, text: clip(`${it.excerpt} ${bodyText(it.body)}`), url: `/blog/${it.slug}` })
     for (const it of RECURSOS.ITEMS) out.push({ id: `recurso:${it.slug}`, kind: 'recurso', title: it.title, text: clip(`${it.excerpt} ${(it.whatYouGet || []).map(plain).join(' ')}`), url: `/recursos/${it.slug}` })

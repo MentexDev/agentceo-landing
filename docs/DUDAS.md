@@ -94,3 +94,25 @@ _(se van añadiendo por fase)_
 - **Bugs reales encontrados:** `display: grid` anulaba `hidden` (el gate no desaparecía tras dejar el correo; los filtros se veían sin JS) → corregido, con un test e2e que lo vigila.
 - **Test intermitente investigado:** el rate limit nativo cuenta por ventanas de 60 s y el test fallaba si caía en el cambio de minuto → los tests esperan ahora a una ventana limpia.
 - **Skill `crear-recurso-agentceo` actualizada** al flujo de la v2 (Astro, `dist/`, `scripts/preview-restart.sh`). Se recupera `npm run deploy` (build + `wrangler deploy`) **solo para Diego**: ninguna rama de agente lo ejecuta.
+
+### Precios reales (mensaje de Luca/Diego, 2026-10-20) · commit aparte
+- **Aplicado tal cual:**
+  - Arranque $0 (300 créditos/semana, 1 usuario, sin tarjeta) · Impulso $29/mes, destacado (2.300/semana, 5 personas) · Motor $99/mes (40.000/semana, 20 personas) · Imperio $249/mes (200.000/semana, personas sin límite).
+  - Todos los planes: agentes sin límite y créditos que se renuevan cada lunes.
+  - Paquetes: Chispa 1.000/$5 · Envión 3.000/$12, destacado · Turbina 8.000/$29 · Reserva 20.000/$65, no caduca.
+  - Historial de 30 días.
+- **Interpretaciones (⏳ para confirmar):**
+  - «Historial 30 días» se aplica a **todos los planes**.
+  - **Solo Reserva** dice «no caduca». De los demás paquetes no se dice nada, y no se inventa.
+  - Moneda **USD** («$», sociedad de EE. UU.). La página lo declara.
+- **Retirado por obsoleto:**
+  - la marca PENDIENTE;
+  - la tabla comparativa de la v1 («Para empezar / Para tu equipo»), sustituida por otra generada de los datos reales;
+  - las FAQ de precios de la v1 que ya no aplican («¿Cuándo van a tener precios?», «¿Puedo cancelar cuando quiera?»);
+  - las descripciones de marketing que yo había escrito para los planes de pago, porque insinuaban funciones que no están en los datos.
+- **FAQ nuevas de precios, todas con fuente:**
+  - créditos agotados → se detienen y no hay cobro automático por exceso (`seguridad.md` §7.3);
+  - renovación cada lunes;
+  - sin límite de agentes.
+- **Efecto medido en el widget:** el reservado #2 en español pasa de 6/15 a 5/15 por el **cambio de contenido**: la nueva FAQ «¿Hay límite de agentes?» capta «¿precio del plan para equipos?». El suelo se baja a lo medido, documentado y sin afinar el motor.
+- **El mensaje «Datos reales» no llegó entero.** De él solo constan aquí los precios y los fragmentos de reembolsos y DMCA de más arriba. ⏳ Si traía más datos de reembolsos, falta la primera cláusula.

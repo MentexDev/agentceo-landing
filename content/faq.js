@@ -10,8 +10,7 @@
 //   [PRI] content/legal/privacidad.md §4 · [SEG] content/legal/seguridad.md §7
 //   [TER] content/legal/terminos.md §1 · [ENT] entidad Klinworks, LLC (privacidad.md, cabecera)
 //
-// ⚠️ PRECIOS: Diego pasará los precios de la app. Hasta entonces la respuesta de
-// precio NO da cifras y lleva `pendiente: 'precios'` (lo vigila un test).
+//   [PRE] content/precios.js — precios de la app (datos de Luca/Diego, 2026-10-20)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const FAQ = [
@@ -138,14 +137,14 @@ export const FAQ = [
   },
   {
     id: 'precio',
-    src: '[v1][S18]',
-    pendiente: 'precios',
+    src: '[PRE] content/precios.js (precios de la app, 2026-10-20)',
     q: { es: '¿Cuánto cuesta?', en: 'How much does it cost?' },
     a: {
-      es: 'Hay un plan gratis para empezar, sin tarjeta. Los precios de los planes de pago los publicaremos antes de abrir tu grupo, y quienes estén en la lista serán los primeros en conocerlos.',
-      en: 'There is a free plan to get started, no card required. We will publish paid plan prices before your wave opens, and people on the waitlist will be the first to know.',
+      es: 'El plan Arranque es gratis: 300 créditos por semana, 1 usuario y sin tarjeta. Los planes de pago son Impulso ($29 al mes), Motor ($99) e Imperio ($249). Todos tienen agentes sin límite y los créditos se renuevan cada lunes.',
+      en: 'The Arranque plan is free: 300 credits per week, 1 user and no card. The paid plans are Impulso ($29 a month), Motor ($99) and Imperio ($249). All of them include unlimited agents, and credits renew every Monday.',
     },
     more: 'precios',
+    cta: 'waitlist',
   },
   {
     id: 'cuando',
