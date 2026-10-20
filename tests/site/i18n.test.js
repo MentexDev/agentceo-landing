@@ -40,7 +40,7 @@ describe('rutas construidas', () => {
   })
 
   it('hreflang es recíproco: si A apunta a B, B apunta a A', () => {
-    for (const r of routes) {
+    for (const r of routes.filter((x) => !x.noindex)) {
       const links = tags(html(r.url), 'link').filter((l) => l.rel === 'alternate' && l.hreflang && l.hreflang !== 'x-default')
       for (const l of links) {
         const other = new URL(l.href).pathname
@@ -51,11 +51,19 @@ describe('rutas construidas', () => {
   })
 
   it('cada página indexable tiene canonical absoluto a agentceo.io', () => {
-    for (const r of routes) {
+    for (const r of routes.filter((x) => !x.noindex)) {
       const c = tags(html(r.url), 'link').find((l) => l.rel === 'canonical')
       expect(c?.href, r.url).toBe(`https://agentceo.io${r.url}`)
     }
   })
+})
+
+it('las páginas noindex lo declaran y no llevan canonical', () => {
+  for (const r of allStaticRoutes().filter((x) => x.noindex)) {
+    const src = html(r.url)
+    expect(src, r.url).toContain('name="robots" content="noindex')
+    expect(tags(src, 'link').find((l) => l.rel === 'canonical'), r.url).toBeUndefined()
+  }
 })
 
 describe('páginas en inglés', () => {

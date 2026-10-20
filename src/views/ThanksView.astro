@@ -1,0 +1,38 @@
+---
+// /gracias/ · destino del formulario SIN JS. El Worker redirige aquí (éxito) o a
+// /gracias/#error (fallo). El estado de error se pinta con :target, sin JS.
+import Base from '../layouts/Base.astro'
+import Mascot from '../components/Mascot.astro'
+import WaitlistForm from '../components/waitlist/WaitlistForm.astro'
+import { t } from '../i18n/config.js'
+import { href, alternatesFor } from '../i18n/rutas.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const tr = (k: string) => t(lang, k)
+---
+<Base lang={lang} title={tr('wl.thanks.title')} description={tr('wl.thanks.p')} path={href('gracias', lang)} alternates={alternatesFor('gracias')} noindex>
+  <section class="ty wrap">
+    <div class="ty-ok">
+      <div class="jumpy"><Mascot size={120} tie eye={4} blink="3.4s" /></div>
+      <h1>{tr('wl.thanks.h1a')}<em>{tr('wl.thanks.h1b')}</em></h1>
+      <p>{tr('wl.thanks.p')}</p>
+      <a class="btn btn-dark" href={href('home', lang)}>{tr('wl.thanks.back')}</a>
+    </div>
+    <div class="ty-err" id="error" tabindex="-1">
+      <h1>{tr('wl.thanks.errH1')}</h1>
+      <p>{tr('wl.thanks.errP')}</p>
+      <WaitlistForm lang={lang} source="gracias-retry" id="ty-form" submitLabel={tr('wl.thanks.retry')} />
+    </div>
+  </section>
+</Base>
+<style>
+  .ty { display: grid; justify-items: center; text-align: center; padding: 96px 0 120px; }
+  .ty-ok, .ty-err { display: grid; justify-items: center; gap: 18px; }
+  .ty h1 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 6vw, 72px); line-height: 1.02; }
+  .ty h1 em { font-style: italic; color: var(--gold-ink); }
+  .ty p { margin: 0 0 8px; max-width: 46ch; color: var(--muted); font-size: 18px; }
+  .ty-err { display: none; }
+  .ty-err:target { display: grid; }
+  .ty:has(.ty-err:target) .ty-ok { display: none; }
+  .jumpy :global(.body) { animation: jump .7s var(--ease-spring); }
+</style>

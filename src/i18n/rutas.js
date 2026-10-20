@@ -12,6 +12,8 @@ import { LOCALES } from './config.js'
 /** id → { es, en }: rutas estáticas (las de contenido se generan desde content/). */
 export const RUTAS = {
   home: { es: '/', en: '/en/' },
+  // noindex: páginas de servicio (no van al sitemap ni llevan canonical).
+  gracias: { es: '/gracias/', en: '/en/thanks/', noindex: true },
 }
 
 /** ¿Existe esta ruta (en este idioma)? */
@@ -35,9 +37,9 @@ export function alternatesFor(id) {
   return LOCALES.filter((l) => r[l]).map((l) => ({ lang: l, url: r[l] }))
 }
 
-/** Todas las URLs estáticas (para sitemap y tests): [{ id, lang, url }]. */
+/** Todas las URLs estáticas (para sitemap y tests): [{ id, lang, url, noindex }]. */
 export function allStaticRoutes() {
   const out = []
-  for (const [id, r] of Object.entries(RUTAS)) for (const l of LOCALES) if (r[l]) out.push({ id, lang: l, url: r[l] })
+  for (const [id, r] of Object.entries(RUTAS)) for (const l of LOCALES) if (r[l]) out.push({ id, lang: l, url: r[l], noindex: Boolean(r.noindex) })
   return out
 }

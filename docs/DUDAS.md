@@ -27,3 +27,13 @@ _(se van añadiendo por fase)_
 - **Migraciones:** `schema.sql` pasa a `migrations/0001_init.sql`, con `IF NOT EXISTS`, así que reaplicarla en producción es inocuo. ⛔ La aplica Diego.
 - **Bug real encontrado con WebKit:** `upgrade-insecure-requests` y la cookie `Secure` rompían Safari en http local. Ahora solo se emiten bajo https. Hay un test que lo vigila.
 - ⏳ La skill `crear-recurso-agentceo` todavía apunta a `build-content.mjs`. Se actualiza en la Fase 4, cuando se porten los recursos.
+
+### Fase 2
+- **El paso 2 (tipo de negocio) es opcional** y lleva el botón «Saltar este paso», que el prototipo no tenía. El correo ya está guardado en el paso 1, así que el paso 2 nunca puede costar un lead.
+- **Tras apuntarse desde el hero, el modal se abre en el paso 2**, igual que en el prototipo (`trySend` → `join:'biz'`).
+- **Atribución en `sessionStorage`, no en cookies ni en `localStorage`.** Dura lo que la pestaña y solo sale del navegador si la persona envía el formulario, así que no es seguimiento y no necesita consentimiento previo. El referrer se guarda solo como origen (sin ruta ni query).
+- **Rate limit:** 8 envíos por minuto por IP y ruta, con el binding nativo de Workers. Se midió en `wrangler dev`: 8 × 200 y la 9.ª devuelve 429. La ventana diaria no es posible con este binding (solo admite 10 o 60 s).
+- **Trampa de tiempo:** un envío hecho en menos de 1,2 s desde que se pintó la página se trata como bot. Recibe un OK silencioso y no se guarda.
+- **Respaldo de esquema probado en vivo:** la D1 local de `wrangler dev` todavía no tenía la 0002 y el Worker guardó igualmente con el esquema v1. ⏳ Al desplegar, Diego aplica la 0002 en remoto (aditiva, solo columnas NULL).
+- **El aviso CCPA del formulario** describe exactamente lo que se guarda: correo, idioma, campaña de origen y navegador (user-agent). Lleva `notice_version` = `2026-10-20` en cada fila, para poder demostrar qué aviso vio cada persona.
+- ⏳ **Baja (CAN-SPAM):** el aviso promete «darte de baja desde cualquier correo». Los correos los enviará Resend desde agentceo.io, y el enlace de baja se construye con el envío, que queda fuera de esta rama.

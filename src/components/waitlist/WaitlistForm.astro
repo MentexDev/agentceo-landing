@@ -1,0 +1,170 @@
+---
+// FORMULARIO ÚNICO de la lista de espera. Lo usan el hero, el CTA final, el modal y el widget.
+// · Es un <form> REAL: sin JS hace POST a /api/waitlist y el Worker redirige a /gracias/.
+// · Con JS (src/scripts/waitlist.js) se envía por fetch, el éxito solo se muestra si el
+//   Worker responde ok (nada del «éxito» simulado del prototipo) y se adjunta la atribución.
+// · Lleva el aviso de privacidad en el momento de la recogida (CCPA/CPRA) y la baja (CAN-SPAM).
+import { t } from '../../i18n/config.js'
+import { hasRoute, href } from '../../i18n/rutas.js'
+import { NOTICE_VERSION } from '../../data/waitlist.js'
+
+interface Props {
+  lang: string
+  source: string
+  id: string
+  tone?: 'light' | 'dark'
+  layout?: 'pill' | 'stack'
+  submitLabel?: string
+  busyLabel?: string
+  note?: string | null
+  showNotice?: boolean
+}
+const { lang, source, id, tone = 'light', layout = 'pill', submitLabel, busyLabel, note = null, showNotice = true } = Astro.props
+const tr = (k: string) => t(lang, k)
+const privacy = hasRoute('legal:privacidad', lang) ? href('legal:privacidad', lang) : null
+const california = hasRoute('legal:california', lang) ? href('legal:california', lang) : null
+const label = submitLabel ?? tr('wl.submit')
+---
+<form
+  class:list={['wl', `wl-${tone}`, `wl-${layout}`]}
+  method="post"
+  action="/api/waitlist"
+  novalidate
+  data-waitlist
+  data-source={source}
+  aria-describedby={showNotice ? `${id}-notice` : undefined}
+>
+  <input type="hidden" name="locale" value={lang} />
+  <input type="hidden" name="source" value={source} />
+  <input type="hidden" name="notice_version" value={NOTICE_VERSION} />
+  <!-- Trampa para bots: invisible para personas y lectores de pantalla. -->
+  <div class="wl-hp" aria-hidden="true">
+    <label for={`${id}-company`}>Company</label>
+    <input id={`${id}-company`} type="text" name="company" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="wl-box" data-wl-fields>
+    <label class:list={['wl-label', { 'sr-only': layout === 'pill' }]} for={`${id}-email`}>{tr('wl.label')}</label>
+    <div class="wl-row">
+      <input
+        id={`${id}-email`}
+        class="wl-input"
+        type="email"
+        name="email"
+        required
+        inputmode="email"
+        autocomplete="email"
+        autocapitalize="off"
+        spellcheck="false"
+        maxlength="160"
+        placeholder={tr('wl.placeholder')}
+        aria-describedby={`${id}-msg`}
+      />
+      <button class="wl-btn" type="submit" data-label={label} data-busy={busyLabel ?? tr('wl.busy')}>
+        <span class="wl-spin" aria-hidden="true"></span><span class="wl-btn-txt">{label}</span>
+      </button>
+    </div>
+  </div>
+
+  <p class="wl-msg" id={`${id}-msg`} role="alert" data-wl-msg></p>
+
+  <p class="wl-ok" role="status" data-wl-ok hidden>
+    <span class="wl-ok-ic" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>
+    <span data-wl-ok-text>{tr('wl.success')}</span>
+  </p>
+
+  {note && <p class="wl-note">{note}</p>}
+
+  {showNotice && (
+    <p class="wl-notice" id={`${id}-notice`}>
+      {tr('wl.notice')}
+      {privacy && <> <a href={privacy}>{tr('wl.noticePrivacy')}</a></>}
+      {california && <> · <a href={california}>{tr('wl.noticeCalifornia')}</a></>}
+    </p>
+  )}
+</form>
+
+<style>
+  .wl { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 480px; }
+  .wl-light { color: var(--ink); }
+  .wl-dark { color: var(--cream); }
+  .wl-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .wl-label { font-size: 13px; }
+
+  /* Píldora del prototipo: input y botón dentro de un mismo contorno. */
+  .wl-pill .wl-box {
+    padding: 6px; border-radius: var(--radius-pill); border: 1.5px solid currentColor;
+    transition: box-shadow .25s var(--ease-out);
+  }
+  .wl-pill .wl-box:focus-within { box-shadow: 4px 4px 0 var(--gold-2); }
+  .wl-row { display: flex; gap: 8px; }
+  .wl-pill .wl-input {
+    flex: 1; min-width: 0; min-height: 48px; padding: 0 18px; border: 0; border-radius: var(--radius-pill);
+    background: transparent; font-size: 16px;
+  }
+  .wl-pill .wl-input:focus { outline: none; }
+  .wl-pill .wl-box:has(.wl-input:focus-visible) { outline: 2px solid var(--gold-ink); outline-offset: 3px; }
+  .wl-dark.wl-pill .wl-box:has(.wl-input:focus-visible) { outline-color: var(--gold-2); }
+
+  /* Apilado (modal): input grande y botón ancho. */
+  .wl-stack .wl-box { display: grid; gap: 10px; }
+  .wl-stack .wl-row { flex-direction: column; gap: 10px; }
+  .wl-stack .wl-input {
+    min-height: 54px; padding: 0 20px; border-radius: 16px; border: 1.5px solid var(--ink);
+    background: #fff; font-size: 16px;
+  }
+  .wl-stack .wl-input:focus { outline: none; box-shadow: 0 0 0 4px rgba(17, 17, 19, .1); }
+  .wl-stack .wl-input:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 2px; }
+  .wl-stack .wl-btn { min-height: 56px; border-radius: 16px; font-size: 17px; font-weight: 600; }
+
+  .wl-input::placeholder { color: var(--muted); opacity: 1; }
+  .wl-dark .wl-input::placeholder { color: var(--mute-dark); }
+  .wl-input[aria-invalid='true'] { box-shadow: inset 0 0 0 1.5px var(--danger); }
+  .wl-dark .wl-input[aria-invalid='true'] { box-shadow: inset 0 0 0 1.5px var(--danger-dark); }
+  /* Quita el fondo del autocompletado de Chrome (fix de la v1, e8f402d). */
+  .wl-input:-webkit-autofill { -webkit-text-fill-color: currentColor; transition: background-color 9999s ease-out 0s; }
+
+  .wl-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    min-height: 48px; padding: 0 22px; border: 0; border-radius: var(--radius-pill);
+    background: var(--ink); color: var(--cream); font-size: 15px; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    transition: transform .2s var(--ease-out), background-color .2s;
+  }
+  .wl-btn:hover { background: #2a2a2e; }
+  .wl-btn:active { transform: scale(.98); }
+  .wl-dark .wl-btn { background: var(--cream); color: var(--ink); }
+  .wl-dark .wl-btn:hover { background: #fff; }
+  .wl-spin { display: none; width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(244, 242, 237, .35); border-top-color: var(--cream); animation: wlspin .7s linear infinite; }
+  .wl-dark .wl-spin { border-color: rgba(17, 17, 19, .25); border-top-color: var(--ink); }
+  .wl[aria-busy='true'] .wl-spin { display: inline-block; }
+  .wl[aria-busy='true'] .wl-btn { cursor: progress; opacity: .88; }
+  @keyframes wlspin { to { transform: rotate(360deg); } }
+
+  .wl-msg { margin: 0; padding-left: 18px; font-size: 13px; color: var(--danger); min-height: 0; }
+  .wl-msg:empty { display: none; }
+  .wl-dark .wl-msg { color: var(--danger-dark); }
+  .wl-stack .wl-msg { padding-left: 2px; }
+
+  .wl-ok {
+    margin: 0; display: flex; align-items: center; gap: 10px; padding: 14px 20px;
+    border-radius: var(--radius-pill); border: 1.5px solid currentColor; font-size: 15px;
+    animation: wlpop .55s var(--ease-spring) both;
+  }
+  .wl-ok[hidden] { display: none; }
+  .wl-ok-ic { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--gold-ink); display: grid; place-items: center; }
+  @keyframes wlpop { 0% { opacity: 0; transform: scale(.85); } 100% { opacity: 1; transform: none; } }
+
+  .wl-note { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+  .wl-dark .wl-note { color: var(--mute-dark); }
+  .wl-notice { margin: 4px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted); max-width: 60ch; }
+  .wl-dark .wl-notice { color: var(--mute-dark); }
+  .wl-notice a { color: inherit; text-underline-offset: 2px; }
+
+  .wl[data-done] [data-wl-fields] { display: none; }
+
+  @media (max-width: 560px) {
+    .wl-pill .wl-box { border-radius: 26px; padding: 8px; }
+    .wl-pill .wl-row { flex-direction: column; }
+  }
+</style>

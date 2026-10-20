@@ -1,19 +1,24 @@
 // POST /api/lead · leads de los recursos (lead magnet). Un correo puede pedir varios recursos.
 import { json } from './lib/http.js'
 import { readJson, str, cleanEmail, isBot } from './lib/validate.js'
+import { limited, foreignOrigin } from './lib/ratelimit.js'
 
 export async function handleLead(request, env) {
+  if (foreignOrigin(request)) return json({ ok: false, error: 'forbidden' }, 403)
+  const rl = await limited(request, env)
+  if (rl) return rl
+
   const body = await readJson(request)
-  if (!body) return json({ ok: false, error: 'Cuerpo inválido' }, 400)
+  if (!body) return json({ ok: false, error: 'invalid_body' }, 400)
 
   // Honeypot: se responde OK a propósito, sin guardar (no le avisamos al bot).
   if (isBot(body)) return json({ ok: true, received: true })
 
   const email = cleanEmail(body.email)
-  if (!email) return json({ ok: false, error: 'Escribe un correo válido.' }, 400)
+  if (!email) return json({ ok: false, error: 'invalid_email' }, 400)
 
   const resource = str(body.resource, 120)
-  if (!resource) return json({ ok: false, error: 'Falta el recurso solicitado.' }, 400)
+  if (!resource) return json({ ok: false, error: 'missing_resource' }, 400)
 
   const name = str(body.name, 120)
   const source = str(body.source, 60) || 'recursos'
@@ -29,6 +34,6 @@ export async function handleLead(request, env) {
       .run()
     return json({ ok: true, received: true })
   } catch {
-    return json({ ok: false, error: 'No pudimos guardarlo. Intenta de nuevo.' }, 500)
+    return json({ ok: false, error: 'server_error' }, 500)
   }
 }

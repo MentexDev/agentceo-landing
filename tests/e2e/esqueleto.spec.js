@@ -1,5 +1,5 @@
 // FASE 1 · esqueleto: idioma, menú móvil, 404, sin errores de consola.
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures.js'
 
 test.beforeEach(async ({ page }) => {
   page.on('pageerror', (e) => { throw e })

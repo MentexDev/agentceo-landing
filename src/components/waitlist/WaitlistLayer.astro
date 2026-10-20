@@ -1,0 +1,24 @@
+---
+// Capa global de la lista de espera (va en el layout de TODAS las páginas):
+// modal, CTA fijo móvil y el script que mejora los formularios.
+import WaitlistModal from './WaitlistModal.astro'
+import StickyCta from './StickyCta.astro'
+import { t } from '../../i18n/config.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+// Mensajes que el script necesita (en el idioma de la página).
+const msgs = {
+  invalid: t(lang, 'wl.errInvalid'),
+  server: t(lang, 'wl.errServer'),
+  rate: t(lang, 'wl.errRate'),
+  success: t(lang, 'wl.success'),
+  already: t(lang, 'wl.already'),
+}
+---
+<WaitlistModal lang={lang} />
+<StickyCta lang={lang} />
+<script type="application/json" id="wl-i18n" set:html={JSON.stringify(msgs).replace(/</g, '\\u003c')}></script>
+<script>
+  import { initWaitlist } from '../../scripts/waitlist.js'
+  initWaitlist()
+</script>
