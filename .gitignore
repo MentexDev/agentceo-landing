@@ -14,3 +14,7 @@ playwright-report/
 .lighthouseci/
 /worker/generated/
 /public/_s/
+
+# Correos (T42): render y caché locales; las capturas sí se versionan
+emails/out/
+emails/.cache/

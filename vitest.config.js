@@ -2,6 +2,7 @@
 //  · worker → corre DENTRO del runtime de Workers (workerd/Miniflare) con una D1
 //             LOCAL y efímera por test (nunca la de producción).
 //  · site   → Node: i18n, rutas, escapes y verificación del HTML de dist/.
+//  · emails → Node: las plantillas de correo (emails/), sin envío.
 import { defineConfig } from 'vitest/config'
 import { cloudflareTest, readD1Migrations } from '@cloudflare/vitest-plugin'
 
@@ -25,6 +26,8 @@ export default defineConfig(async () => {
           test: { name: 'worker', include: ['tests/worker/**/*.test.js'], setupFiles: ['tests/worker/setup.js'] },
         },
         { test: { name: 'site', environment: 'node', include: ['tests/site/**/*.test.js'] } },
+        // Plantillas de correo (paquete emails/, React Email): su propia config, por el JSX de React.
+        './emails/vitest.config.js',
       ],
     },
   }
