@@ -1,0 +1,47 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   TOKENS · la ÚNICA fuente de color, tipo, espacio y motion de la landing v2.
+   Paleta del brief (§1) + los cuatro tonos que el prototipo usa sin declararlos.
+
+   ⚠️ CONTRASTE (medido en FASE 0, WCAG 2.2 AA):
+     --gold  #B8923A sobre --cream  = 2,6:1   → NUNCA como texto sobre crema.
+     --gold-2 #D9B866 sobre --cream = 1,71:1  → solo decoración o sobre --ink.
+     --gold-ink #7A5C17 sobre crema = 5,57:1  → el dorado PARA TEXTO en fondo claro.
+     --muted  #5E5C56 sobre crema   = 5,98:1  → texto secundario en fondo claro.
+     --mute-dark #a9a7a0            → texto secundario SOLO sobre --ink (2,15:1 en crema).
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --ink: #111113;
+  --cream: #F4F2ED;
+  --paper: #FBFAF7;
+  --gold: #B8923A;
+  --gold-2: #D9B866;
+  --gold-3: #EFE4C8;
+  --gold-ink: #7A5C17;
+  --muted: #5E5C56;
+  --mute-dark: #a9a7a0;
+  --line: rgba(17, 17, 19, 0.12);
+  --line-dark: rgba(244, 242, 237, 0.14);
+  --danger: #B3261E;
+  --danger-dark: #F2B8A8;
+
+  --sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+  --ease-spring: cubic-bezier(.3, 1.6, .5, 1);
+
+  --radius: 18px;
+  --radius-pill: 999px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --wrap: 1200px;
+  --header-h: 76px;
+
+  /* Unidad de escala del diseño de escritorio (1440 px). Sustituye al `zoom` por JS
+     del prototipo: entre el corte móvil y 1440 px todo escala sin layout shift. */
+  --u: min(1px, calc(100vw / 1440));
+}
+
+@media (max-width: 1023px) {
+  :root { --header-h: 64px; }
+}

@@ -1,0 +1,23 @@
+---
+// 404 por idioma. El Worker sirve /en/404.html a las rutas /en/* que no existen.
+import Base from '../layouts/Base.astro'
+import Mascot from '../components/Mascot.astro'
+import { t } from '../i18n/config.js'
+import { href, alternatesFor } from '../i18n/rutas.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+---
+<Base lang={lang} title={`${t(lang, 'notFound.title')} · Agent CEO`} description={t(lang, 'notFound.body')} path={lang === 'es' ? '/404' : '/en/404'} alternates={alternatesFor('home')} noindex>
+  <section class="nf wrap">
+    <Mascot size={120} tie eye={4} blink="3.4s" />
+    <p class="eyebrow">404</p>
+    <h1>{t(lang, 'notFound.h1')}</h1>
+    <p>{t(lang, 'notFound.body')}</p>
+    <a class="btn btn-dark" href={href('home', lang)}>{t(lang, 'notFound.home')}</a>
+  </section>
+</Base>
+<style>
+  .nf { display: grid; justify-items: center; text-align: center; gap: 16px; padding: 96px 0 120px; }
+  .nf h1 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(36px, 5vw, 64px); line-height: 1.05; }
+  .nf p:not(.eyebrow) { margin: 0 0 12px; color: var(--muted); max-width: 46ch; }
+</style>

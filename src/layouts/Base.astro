@@ -1,0 +1,42 @@
+---
+// Layout de TODA página: <html lang>, head SEO, skip-link, header, <main>, footer.
+// La clase `js` en <html> se pone ANTES de pintar: los estados iniciales de las
+// animaciones de aparición solo existen con JS (sin JS, todo el contenido se ve).
+import '../styles/base.css'
+import '../styles/mascot.css'
+import Seo from '../components/Seo.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import { LOCALE_META, t } from '../i18n/config.js'
+interface Props {
+  lang: string
+  title: string
+  description: string
+  path: string
+  alternates: { lang: string; url: string }[]
+  active?: string
+  ogImage?: string
+  ogType?: string
+  jsonLd?: object | object[] | null
+  noindex?: boolean
+  mainClass?: string
+}
+const p = Astro.props
+---
+<!doctype html>
+<html lang={LOCALE_META[p.lang].bcp47} dir="ltr">
+  <head>
+    <script is:inline>document.documentElement.classList.add('js')</script>
+    <Seo {...p} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">{t(p.lang, 'a11y.skip')}</a>
+    <Header lang={p.lang} alternates={p.alternates} active={p.active} />
+    <main id="contenido" tabindex="-1" class={p.mainClass}>
+      <slot />
+    </main>
+    <Footer lang={p.lang} alternates={p.alternates} />
+    <slot name="after" />
+  </body>
+</html>

@@ -1,0 +1,20 @@
+---
+// Portada. FASE 1: esqueleto (header, footer, i18n). Las 21 secciones del
+// prototipo se portan en la FASE 3; la lista de espera en la FASE 2.
+import Base from '../layouts/Base.astro'
+import { t } from '../i18n/config.js'
+import { href, alternatesFor } from '../i18n/rutas.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+---
+<Base lang={lang} title={t(lang, 'site.title')} description={t(lang, 'site.description')} path={href('home', lang)} alternates={alternatesFor('home')}>
+  <section class="wrap esqueleto" id="acceso">
+    <h1>{t(lang, 'site.tagline')}</h1>
+    <p>{t(lang, 'site.entity')}</p>
+  </section>
+</Base>
+<style>
+  .esqueleto { padding: 120px 0; min-height: 60vh; }
+  .esqueleto h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 6vw, 76px); line-height: 1.02; margin: 0 0 24px; }
+  .esqueleto p { max-width: 60ch; color: var(--muted); }
+</style>

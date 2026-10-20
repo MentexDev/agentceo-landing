@@ -1,0 +1,66 @@
+// UI dictionary · English. Must mirror every key in es.js (tests/site/i18n.test.js).
+export default {
+  site: {
+    name: 'Agent CEO',
+    title: 'Agent CEO · AI employees that sell for you',
+    description:
+      'Agent CEO is your team of AI employees: they sell on WhatsApp, look after your store and create content. Anything important, they always ask you first. Join the waitlist.',
+    entity:
+      'Agent CEO is a product of Klinworks, LLC, a Delaware (USA) limited liability company. It is a platform where a business owner builds a team of AI agents that sell on WhatsApp, look after their store and create content, and that ask for permission before any important action.',
+    tagline: 'Your AI team works. You decide.',
+  },
+  a11y: {
+    skip: 'Skip to content',
+    home: 'Agent CEO, home',
+    menuOpen: 'Open menu',
+    menuClose: 'Close menu',
+    mainNav: 'Main',
+    footerNav: 'Footer',
+    langLabel: 'Language',
+    langCurrent: 'Current language: {name}',
+    close: 'Close',
+    newTab: '(opens in a new tab)',
+  },
+  nav: {
+    recursos: 'Resources',
+    blog: 'Blog',
+    noticias: 'News',
+    precios: 'Pricing',
+    join: 'Join the waitlist',
+  },
+  footer: {
+    producto: 'Product',
+    comoFunciona: 'How it works',
+    agentes: 'Agents',
+    precios: 'Pricing',
+    recursos: 'Resources',
+    contenido: 'Resources',
+    blog: 'Blog',
+    noticias: 'News',
+    preguntas: 'FAQ',
+    empresa: 'Company',
+    sobre: 'About Klinworks',
+    contacto: 'Contact',
+    prensa: 'Press & brand',
+    unirse: 'Join the waitlist',
+    legal: 'Legal',
+    rights: '© {year} Klinworks, LLC. All rights reserved.',
+    cookiePrefs: 'Cookie preferences',
+    doNotSell: 'Do Not Sell or Share My Personal Information',
+    made: 'Built for business owners, not programmers.',
+  },
+  lang: {
+    switchTo: 'Change language',
+    notTranslated: 'This page is not translated yet; taking you to the {name} home page.',
+    suggest: 'Prefer to read in English?',
+  },
+  notFound: {
+    title: 'Page not found',
+    h1: 'This page got away from us.',
+    body: 'The link may be broken or the page has moved. Your CEO is already looking for it.',
+    home: 'Back to home',
+  },
+  draft: {
+    banner: 'DRAFT — requires attorney review. This text is not final.',
+  },
+}

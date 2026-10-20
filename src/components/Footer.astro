@@ -1,0 +1,126 @@
+---
+// Footer del sitio (estilo S20 del prototipo, ampliado con las columnas del brief §3).
+// Cada enlace sale de rutas.js: si la página aún no existe, el enlace NO se pinta.
+// Un test de enlaces exige que todo lo pintado responda 200.
+import Logo from './Logo.astro'
+import LangSwitch from './LangSwitch.astro'
+import { t } from '../i18n/config.js'
+import { href, hasRoute } from '../i18n/rutas.js'
+interface Props { lang: string; alternates: { lang: string; url: string }[] }
+const { lang, alternates } = Astro.props
+const year = new Date().getUTCFullYear()
+
+type L = { id: string; hash?: string; label: string }
+const cols: { title: string; links: L[] }[] = [
+  {
+    title: t(lang, 'footer.producto'),
+    links: [
+      { id: 'home', hash: 'empieza', label: t(lang, 'footer.comoFunciona') },
+      { id: 'home', hash: 'equipo', label: t(lang, 'footer.agentes') },
+      { id: 'precios', label: t(lang, 'footer.precios') },
+    ],
+  },
+  {
+    title: t(lang, 'footer.contenido'),
+    links: [
+      { id: 'recursos', label: t(lang, 'footer.recursos') },
+      { id: 'blog', label: t(lang, 'footer.blog') },
+      { id: 'noticias', label: t(lang, 'footer.noticias') },
+      { id: 'home', hash: 'faq', label: t(lang, 'footer.preguntas') },
+    ],
+  },
+  {
+    title: t(lang, 'footer.empresa'),
+    links: [
+      { id: 'empresa', label: t(lang, 'footer.sobre') },
+      { id: 'contacto', label: t(lang, 'footer.contacto') },
+      { id: 'prensa', label: t(lang, 'footer.prensa') },
+      { id: 'home', hash: 'acceso', label: t(lang, 'footer.unirse') },
+    ],
+  },
+  {
+    title: t(lang, 'footer.legal'),
+    links: [
+      'terminos', 'privacidad', 'cookies', 'seguridad', 'gdpr', 'california', 'estados',
+      'uso-aceptable', 'ia', 'subprocesadores', 'dpa', 'reembolsos', 'accesibilidad', 'dmca',
+    ].map((d) => ({ id: `legal:${d}`, label: d })),
+  },
+]
+// Las etiquetas legales vienen del propio documento (rutas.js guarda su título).
+import { RUTAS } from '../i18n/rutas.js'
+const visible = cols
+  .map((c) => ({
+    ...c,
+    links: c.links
+      .filter((l) => hasRoute(l.id, lang))
+      .map((l) => ({ ...l, url: href(l.id, lang, l.hash), label: l.id.startsWith('legal:') ? RUTAS[l.id].label[lang] : l.label })),
+  }))
+  .filter((c) => c.links.length > 0)
+---
+<footer class="site-footer on-dark">
+  <div class="ft-top">
+    <div class="ft-brand">
+      <a class="ft-home" href={href('home', lang)} aria-label={t(lang, 'a11y.home')}><Logo variant="light" size={28} text={17} /></a>
+      <p class="ft-entity">{t(lang, 'site.entity')}</p>
+      <p class="ft-made">{t(lang, 'footer.made')}</p>
+    </div>
+    <nav class="ft-cols" aria-label={t(lang, 'a11y.footerNav')}>
+      {visible.map((c) => (
+        <div class="ft-col">
+          <h2 class="ft-h">{c.title}</h2>
+          <ul role="list">
+            {c.links.map((l) => <li><a href={l.url}>{l.label}</a></li>)}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  </div>
+  <div class="ft-bottom">
+    <span>{t(lang, 'footer.rights', { year })}</span>
+    <div class="ft-bottom-links">
+      {hasRoute('no-vender', lang) && <a href={href('no-vender', lang)}>{t(lang, 'footer.doNotSell')}</a>}
+      <button type="button" class="ft-linkbtn" data-cookie-prefs hidden>{t(lang, 'footer.cookiePrefs')}</button>
+      <LangSwitch lang={lang} alternates={alternates} tone="dark" />
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--ink); color: var(--mute-dark);
+    padding: 64px var(--gutter) 28px; font-size: 14px;
+    border-top: 1px solid var(--line-dark);
+  }
+  .ft-top { display: grid; grid-template-columns: minmax(240px, 1.1fr) 3fr; gap: 48px; max-width: 1280px; margin: 0 auto; }
+  .ft-home { display: inline-flex; color: var(--cream); text-decoration: none; border-radius: 10px; }
+  .ft-home:hover { color: var(--cream); }
+  .ft-entity { margin: 18px 0 8px; line-height: 1.6; max-width: 38ch; }
+  .ft-made { margin: 0; color: var(--gold-2); }
+  .ft-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 32px; }
+  .ft-h {
+    margin: 0 0 14px; font-family: var(--mono); font-size: 12px; font-weight: 500;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--cream);
+  }
+  .ft-col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+  .ft-col a {
+    display: inline-flex; align-items: center; min-height: 32px;
+    color: var(--mute-dark); text-decoration: none; transition: color .2s;
+  }
+  .ft-col a:hover { color: var(--cream); text-decoration: underline; text-underline-offset: 3px; }
+  .ft-bottom {
+    max-width: 1280px; margin: 48px auto 0; padding-top: 22px; border-top: 1px solid var(--line-dark);
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;
+  }
+  .ft-bottom-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
+  .ft-bottom-links a, .ft-linkbtn {
+    color: var(--mute-dark); text-decoration: underline; text-underline-offset: 3px;
+    background: none; border: 0; padding: 0; cursor: pointer; font-size: 14px;
+    min-height: 44px; display: inline-flex; align-items: center;
+  }
+  .ft-bottom-links a:hover, .ft-linkbtn:hover { color: var(--cream); }
+  .ft-bottom :global(.lang summary) { color: var(--cream); }
+  @media (max-width: 860px) {
+    .ft-top { grid-template-columns: 1fr; gap: 36px; }
+    .ft-cols { grid-template-columns: repeat(2, 1fr); gap: 28px 20px; }
+  }
+</style>

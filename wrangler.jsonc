@@ -3,10 +3,13 @@
   "name": "agentceo-landing",
   "compatibility_date": "2026-05-04",
   "main": "worker/index.js",
+  // El sitio estático lo genera Astro en ./dist (npm run build).
   "assets": {
-    "directory": "./public",
+    "directory": "./dist",
     "binding": "ASSETS",
-    "run_worker_first": true
+    "run_worker_first": true,
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
   },
   "workers_dev": false,
   "routes": [
@@ -17,7 +20,9 @@
     {
       "binding": "DB",
       "database_name": "agentceo-waitlist",
-      "database_id": "06f5dc3a-1355-4518-b5c0-665a9809fba5"
+      "database_id": "06f5dc3a-1355-4518-b5c0-665a9809fba5",
+      // ⛔ Las migraciones se aplican en local (npm run db:local). En producción las aplica Diego.
+      "migrations_dir": "migrations"
     }
   ]
 }

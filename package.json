@@ -3,9 +3,29 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-content.mjs",
-    "deploy": "npm run build && wrangler deploy",
-    "build:legal": "node scripts/build-legal.mjs",
-    "check:legal": "node scripts/build-legal.mjs --check"
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev --port 5179",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview": "WRANGLER_SEND_METRICS=false wrangler dev --port 8787 --local",
+    "db:local": "WRANGLER_SEND_METRICS=false wrangler d1 migrations apply agentceo-waitlist --local",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "check": "npm run build && npm test"
+  },
+  "dependencies": {
+    "@astrojs/react": "^7.1.0",
+    "astro": "^7.4.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@babel/generator": "^8.0.6",
+    "@babel/parser": "^8.0.7",
+    "@babel/traverse": "^8.0.7",
+    "@cloudflare/vitest-plugin": "^1.4.5",
+    "@playwright/test": "^1.64.1",
+    "@resvg/resvg-js": "^2.6.2",
+    "vitest": "^4.1.12",
+    "wrangler": "^4.151.2"
   }
 }

@@ -1,0 +1,23 @@
+/* Vida de la mascota (portado literal del prototipo, styles/desktop.css §1).
+   Lo usan el header, el footer, el widget y las secciones. */
+.mascot { display: block; overflow: visible; }
+.pupil { transition: transform .14s ease-out; }
+[data-idle] .pupil { transition: transform .9s var(--ease-out); }
+[data-tilt] { transform-box: fill-box; transform-origin: 50% 90%; transition: transform .25s ease-out; }
+.eyes { transform-box: fill-box; transform-origin: center; animation: blink var(--bl, 4.6s) infinite; animation-delay: var(--bd, 0s); }
+@keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 95.5% { transform: scaleY(.08); } }
+.eyearc, .blush { opacity: 0; transition: opacity .2s; }
+.happy .eyeopen { opacity: 0; }
+.happy .eyearc, .happy .blush { opacity: 1; }
+.eyeopen { transition: opacity .15s; }
+.mouth { transition: d .3s; }
+.happy .mouth { d: path('M42 67q8 9 16 0'); }
+.ant { animation: antp 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes antp { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+.tie { transform-box: fill-box; transform-origin: 50% 0; animation: tie 3.2s ease-in-out infinite; }
+@keyframes tie { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+.body { transform-box: fill-box; transform-origin: 50% 100%; }
+.jumpy .body, .ceo-happy .body { animation: jump .7s var(--ease-spring); }
+@keyframes jump { 0% { transform: translateY(0) scale(1, 1); } 25% { transform: translateY(4px) scale(1.08, .9); } 55% { transform: translateY(-16px) scale(.95, 1.06); } 100% { transform: none; } }
+.ceo-btn:hover .body, a:hover > .mascot .body { animation: wiggle .6s ease-in-out; }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }

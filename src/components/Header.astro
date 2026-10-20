@@ -1,0 +1,128 @@
+---
+// Header del sitio (estilo S01 del prototipo: crema translúcida con blur, logo con mascota).
+// Enlaces del brief §3: Recursos · Blog · Noticias · Precios. Solo se pintan los que
+// YA existen en rutas.js (nunca un enlace a una página sin construir).
+// Móvil: menú en <details> (funciona sin JS); con JS: Escape, clic fuera y bloqueo de scroll.
+import Logo from './Logo.astro'
+import LangSwitch from './LangSwitch.astro'
+import { t } from '../i18n/config.js'
+import { href, hasRoute } from '../i18n/rutas.js'
+interface Props { lang: string; alternates: { lang: string; url: string }[]; active?: string }
+const { lang, alternates, active } = Astro.props
+const links = ['recursos', 'blog', 'noticias', 'precios']
+  .filter((id) => hasRoute(id, lang))
+  .map((id) => ({ id, url: href(id, lang), label: t(lang, `nav.${id}`) }))
+const joinHref = href('home', lang, 'acceso')
+---
+<header class="site-header" data-header>
+  <a class="hdr-home" href={href('home', lang)} aria-label={t(lang, 'a11y.home')}>
+    <Logo />
+  </a>
+
+  <nav class="hdr-nav" aria-label={t(lang, 'a11y.mainNav')}>
+    {links.map((l) => (
+      <a class="nl" href={l.url} aria-current={active === l.id ? 'page' : undefined}>{l.label}</a>
+    ))}
+  </nav>
+
+  <div class="hdr-actions">
+    <LangSwitch lang={lang} alternates={alternates} />
+    <a class="btn btn-dark hdr-cta" href={joinHref} data-open-waitlist data-wl-source="header">{t(lang, 'nav.join')}</a>
+    {links.length > 0 && (
+      <details class="hdr-menu" data-mobile-menu>
+        <summary aria-label={t(lang, 'a11y.menuOpen')} data-label-open={t(lang, 'a11y.menuOpen')} data-label-close={t(lang, 'a11y.menuClose')}>
+          <span class="burger" aria-hidden="true"><span></span><span></span><span></span></span>
+        </summary>
+        <nav class="hdr-sheet" aria-label={t(lang, 'a11y.mainNav')}>
+          {links.map((l) => (
+            <a href={l.url} aria-current={active === l.id ? 'page' : undefined}>{l.label}</a>
+          ))}
+          <a class="btn btn-dark" href={joinHref} data-open-waitlist data-wl-source="menu">{t(lang, 'nav.join')}</a>
+        </nav>
+      </details>
+    )}
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    height: var(--header-h); padding: 0 var(--gutter);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    background: rgba(244, 242, 237, .82);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    transition: box-shadow .3s;
+  }
+  .site-header[data-scrolled] { box-shadow: 0 1px 0 var(--line), 0 10px 30px -18px rgba(17, 17, 19, .25); }
+  .hdr-home { display: inline-flex; min-height: 44px; align-items: center; text-decoration: none; color: var(--ink); border-radius: 12px; }
+  .hdr-home:hover { color: var(--ink); }
+  .hdr-nav { display: flex; gap: 28px; font-size: 15px; }
+  .nl { position: relative; color: var(--ink); text-decoration: none; padding: 10px 0; }
+  .nl::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 4px; height: 1.5px; background: var(--ink);
+    transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease-out);
+  }
+  .nl:hover { color: var(--ink); }
+  .nl:hover::after, .nl[aria-current='page']::after { transform: scaleX(1); }
+  .nl[aria-current='page']::after { background: var(--gold); height: 2px; }
+  .hdr-actions { display: flex; align-items: center; gap: 6px; }
+  .hdr-cta { font-size: 14px; padding: 0 20px; }
+
+  .hdr-menu { display: none; position: relative; }
+  .hdr-menu summary {
+    list-style: none; display: grid; place-items: center; width: 44px; height: 44px;
+    border-radius: 50%; cursor: pointer;
+  }
+  .hdr-menu summary::-webkit-details-marker { display: none; }
+  .burger { display: grid; gap: 4px; width: 18px; }
+  .burger span { display: block; height: 1.8px; background: var(--ink); border-radius: 2px; transition: transform .3s var(--ease-out), opacity .2s; }
+  .hdr-menu[open] .burger span:nth-child(1) { transform: translateY(5.8px) rotate(45deg); }
+  .hdr-menu[open] .burger span:nth-child(2) { opacity: 0; }
+  .hdr-menu[open] .burger span:nth-child(3) { transform: translateY(-5.8px) rotate(-45deg); }
+  .hdr-sheet {
+    position: fixed; left: 12px; right: 12px; top: calc(var(--header-h) + 4px);
+    display: grid; gap: 4px; padding: 10px;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 22px;
+    box-shadow: 0 24px 50px -20px rgba(17, 17, 19, .35);
+    animation: sheetIn .28s var(--ease-spring);
+  }
+  @keyframes sheetIn { from { opacity: 0; transform: translateY(-8px) scale(.98); } }
+  .hdr-sheet a:not(.btn) {
+    display: flex; align-items: center; min-height: 52px; padding: 0 14px; border-radius: 14px;
+    text-decoration: none; color: var(--ink); font-size: 18px;
+  }
+  .hdr-sheet a:not(.btn):hover, .hdr-sheet a[aria-current='page'] { background: var(--gold-3); }
+  .hdr-sheet .btn { margin-top: 6px; min-height: 52px; }
+
+  @media (max-width: 1023px) {
+    .hdr-nav { display: none; }
+    .hdr-menu { display: block; }
+  }
+  @media (max-width: 520px) {
+    .hdr-cta { padding: 0 14px; }
+  }
+  @media (max-width: 380px) {
+    .hdr-actions :global(.lang-cur) { display: none; }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]')
+  if (header) {
+    const onScroll = () => header.toggleAttribute('data-scrolled', window.scrollY > 8)
+    onScroll()
+    addEventListener('scroll', onScroll, { passive: true })
+  }
+  for (const d of document.querySelectorAll<HTMLDetailsElement>('[data-mobile-menu]')) {
+    const sum = d.querySelector<HTMLElement>('summary')!
+    const sync = () => {
+      sum.setAttribute('aria-label', d.open ? sum.dataset.labelClose! : sum.dataset.labelOpen!)
+      document.documentElement.toggleAttribute('data-menu-open', d.open)
+    }
+    d.addEventListener('toggle', sync)
+    d.addEventListener('keydown', (e) => { if (e.key === 'Escape' && d.open) { d.open = false; sum.focus() } })
+    document.addEventListener('click', (e) => { if (d.open && !d.contains(e.target as Node)) d.open = false })
+    // Un enlace a un ancla de la misma página cierra el menú.
+    for (const a of d.querySelectorAll('a')) a.addEventListener('click', () => { d.open = false })
+  }
+</script>
