@@ -65,7 +65,7 @@ const jsonLd = {
       {gated && (
         <section class="gate" id="gate" data-gate aria-labelledby="gate-title">
           {item.whatYouGet?.length > 0 && (
-            <div class="gate-what"><h3>{t(lang, 'pages.gateWhat')}</h3><ul>{item.whatYouGet.map((w: string) => <li set:html={inlineBold(w)} />)}</ul></div>
+            <div class="gate-what"><h2 class="gate-what-h">{t(lang, 'pages.gateWhat')}</h2><ul>{item.whatYouGet.map((w: string) => <li set:html={inlineBold(w)} />)}</ul></div>
           )}
           <form class="gate-form" data-resource={item.slug} data-lead data-err={t(lang, 'pages.gateErr')} data-invalid={t(lang, 'wl.errInvalid')} data-rate={t(lang, 'wl.errRate')} novalidate>
             <h2 id="gate-title">{t(lang, 'pages.gateTitle')}</h2>

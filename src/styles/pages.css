@@ -84,7 +84,7 @@
 .gate { margin-top: 32px; display: grid; gap: 18px; padding: clamp(22px, 3vw, 34px); border: 1.5px solid var(--ink); border-radius: 26px; background: var(--paper); box-shadow: 8px 8px 0 var(--gold); }
 .gate h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 3vw, 34px); line-height: 1.1; }
 .gate ul { margin: 0; padding-left: 1.1em; }
-.gate-what h3 { margin: 0 0 8px; font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.gate-what h3, .gate .gate-what-h { margin: 0 0 8px; font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .gate-row { display: flex; gap: 8px; padding: 6px; border: 1.5px solid var(--ink); border-radius: var(--radius-pill); background: #fff; }
 .gate-row:focus-within { box-shadow: 4px 4px 0 var(--gold-2); }
 .gate-row input[type=email] { flex: 1; min-width: 0; min-height: 48px; padding: 0 18px; border: 0; border-radius: var(--radius-pill); background: transparent; font-size: 16px; }

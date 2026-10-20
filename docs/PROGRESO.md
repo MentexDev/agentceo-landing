@@ -11,3 +11,15 @@ Una línea por fase cerrada: fecha · fase · qué quedó · commit.
 - 2026-10-20 · **Fase L · Legal** — 14 documentos en borrador (5 actualizados + 9 nuevos) con banda visible y PENDIENTE resaltados, docs/LEGAL-CHECKLIST.md, datos de una sola fuente (subprocesadores, almacenamiento), panel de cookies (sin analítica; funcional desactivable que borra lo guardado), GPC respetado, página «No vender ni compartir», aviso CCPA en formularios, widget con base legal. axe 0 violaciones. Tests: 263 unitarios + 136 e2e. `c9e6b17` · fix(legal) `fc00328`
 - 2026-10-20 · **Fase S03 · La app real, recreada** — isla Preact con los tokens y textos reales de la app (sidebar Trabajo/Empresa, chat con el CEO que piensa → usa herramientas con créditos → responde en streaming, aprobación que se firma, Biblioteca, Panel de Comando, Ventas y Clientes con métricas que suben, selector de marca), datos inventados de «Lúa», es/en, pausa visible, reduced-motion, axe 0. Tests: 268 unitarios + 168 e2e. `f49540a`
 - 2026-10-20 · **Fase 6 · Inglés** — noticias, blog, recursos, precios, empresa, contacto, prensa, «Do Not Sell or Share» y los 14 legales en /en/ (80 páginas en total), hreflang recíproco por pieza, widget y llms.txt en inglés con su contenido, axe 0 en /en/. Tests: 438 unitarios + 176 e2e.
+- 2026-10-20 · **Fase 7 · Verificación final** — todo medido sobre un build limpio (`rm -rf dist .astro`):
+  - **Build:** 80 páginas HTML + 80 imágenes OG, 1,95 s; `dist/` 9,1 MB; base del widget de 45 + 45 fragmentos.
+  - **Unitarios (vitest; Worker en workerd con D1 local + sitio):** **438/438** en 11 ficheros.
+  - **E2E (Playwright, Chromium escritorio 1440, WebKit iPhone 15 y Chromium Pixel 7, contra `wrangler dev` con D1 local):** **176 pasan, 0 fallan**. Se omiten 10 por dispositivo (p. ej. el exit-intent solo en escritorio y la hoja del chat solo en móvil).
+  - **Lighthouse 13 local** (sin PageSpeed; 11 páginas × móvil y escritorio = 22 pasadas):
+    - **Rendimiento:** móvil 98–100; escritorio 100 en todas.
+    - **Accesibilidad:** 100 en todas, tras corregir el orden de títulos del gate de recursos (antes 98).
+    - **Buenas prácticas** y **SEO:** 100 en todas.
+    - **LCP:** escritorio 0,4–0,5 s; móvil 1,5–1,8 s en las internas; **portada 2,1 s (es) / 2,0 s (en)**, sobre el presupuesto de < 2,0 s (ver DUDAS, Fase 5).
+    - **CLS** 0–0,029 (presupuesto < 0,05) ✅ · **TBT** 0 ms en todas (INP no se mide en laboratorio) ✅.
+  - **axe WCAG 2.2 AA:** 0 violaciones en todas las páginas auditadas (es y en, 390 y 1440 px).
+  - **Seguridad:** sin claves en el código, en `dist/` ni en el historial de git; `npm audit`: 0 vulnerabilidades.
