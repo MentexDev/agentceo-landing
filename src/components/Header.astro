@@ -27,7 +27,7 @@ const joinHref = href('home', lang, 'acceso')
 
   <div class="hdr-actions">
     <LangSwitch lang={lang} alternates={alternates} />
-    <a class="btn btn-dark hdr-cta" href={joinHref} data-open-waitlist data-wl-source="header">{t(lang, 'nav.join')}</a>
+    <a class="ac-btn ac-btn-dark hdr-cta" href={joinHref} data-open-waitlist data-wl-source="header">{t(lang, 'nav.join')}</a>
     {links.length > 0 && (
       <details class="hdr-menu" data-mobile-menu>
         <summary aria-label={t(lang, 'a11y.menuOpen')} data-label-open={t(lang, 'a11y.menuOpen')} data-label-close={t(lang, 'a11y.menuClose')}>
@@ -37,7 +37,7 @@ const joinHref = href('home', lang, 'acceso')
           {links.map((l) => (
             <a href={l.url} aria-current={active === l.id ? 'page' : undefined}>{l.label}</a>
           ))}
-          <a class="btn btn-dark" href={joinHref} data-open-waitlist data-wl-source="menu">{t(lang, 'nav.join')}</a>
+          <a class="ac-btn ac-btn-dark" href={joinHref} data-open-waitlist data-wl-source="menu">{t(lang, 'nav.join')}</a>
         </nav>
       </details>
     )}
@@ -87,12 +87,12 @@ const joinHref = href('home', lang, 'acceso')
     animation: sheetIn .28s var(--ease-spring);
   }
   @keyframes sheetIn { from { opacity: 0; transform: translateY(-8px) scale(.98); } }
-  .hdr-sheet a:not(.btn) {
+  .hdr-sheet a:not(.ac-btn) {
     display: flex; align-items: center; min-height: 52px; padding: 0 14px; border-radius: 14px;
     text-decoration: none; color: var(--ink); font-size: 18px;
   }
-  .hdr-sheet a:not(.btn):hover, .hdr-sheet a[aria-current='page'] { background: var(--gold-3); }
-  .hdr-sheet .btn { margin-top: 6px; min-height: 52px; }
+  .hdr-sheet a:not(.ac-btn):hover, .hdr-sheet a[aria-current='page'] { background: var(--gold-3); }
+  .hdr-sheet .ac-btn { margin-top: 6px; min-height: 52px; }
 
   @media (max-width: 1023px) {
     .hdr-nav { display: none; }
@@ -102,7 +102,7 @@ const joinHref = href('home', lang, 'acceso')
     .hdr-cta { padding: 0 14px; }
   }
   @media (max-width: 380px) {
-    .hdr-actions :global(.lang-cur) { display: none; }
+    .hdr-actions :global(.lang-cur) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   }
 </style>
 

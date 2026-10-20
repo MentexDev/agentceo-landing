@@ -220,7 +220,8 @@ const strings = {
   /* ── Móvil: hoja inferior arrastrable ─────────────────────────────────── */
   @media (max-width: 640px) {
     .cw-launch { padding: 6px; }
-    .cw-launch-txt { display: none; }
+    /* Oculto solo a la vista: sigue siendo el nombre accesible del botón. */
+    .cw-launch-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .cw, .cw[data-size='large'], .cw[data-size='full'] {
       right: 0; left: 0; bottom: 0; width: 100%; height: min(88dvh, 100dvh - 24px);
       border-radius: 26px 26px 0 0; border-width: 1.5px 0 0; box-shadow: 0 -20px 50px -20px rgba(17, 17, 19, .5);

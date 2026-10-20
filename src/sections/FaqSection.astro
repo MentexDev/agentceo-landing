@@ -1,0 +1,107 @@
+---
+// S18 «Pregúntale a tu CEO» · porte A MANO de la FAQ del prototipo, ahora alimentada por
+// content/faq.js (la FAQ fusionada del brief §4) y con mejoras de fondo:
+//  · TODAS las respuestas están en el HTML (buscadores, LLM y lectura sin JS); con JS se
+//    muestra una a la vez, como en el prototipo;
+//  · botones con aria-expanded/aria-controls (el prototipo usaba aria-pressed);
+//  · el schema FAQPage lo emite la página a partir de los mismos datos (HomeView).
+import Mascot from '../components/Mascot.astro'
+import { FAQ } from '../../content/faq.js'
+import { t } from '../i18n/config.js'
+import { hasRoute, href } from '../i18n/rutas.js'
+interface Props { lang: string }
+const { lang } = Astro.props
+const items = FAQ.filter((f) => f.q[lang] && f.a[lang]).map((f, i) => ({
+  ...f, i, q: f.q[lang], a: f.a[lang], more: f.more && hasRoute(f.more, lang) ? href(f.more, lang) : null,
+}))
+---
+<section id="faq" class="faq" aria-labelledby="faq-h" data-faq>
+  <div data-rv class="faq-eyebrow"><span>{t(lang, 'home.faq.eyebrow')}</span></div>
+  <div class="faq-grid">
+    <div class="faq-left">
+      <h2 id="faq-h" data-rv style="--d:80ms" class="faq-h2">{t(lang, 'home.faq.h2a')}<em>{t(lang, 'home.faq.h2b')}</em></h2>
+      <div data-rv style="--d:140ms" class="faq-answers" aria-live="polite">
+        {items.map((it) => (
+          <div class="ansb" id={`faq-a-${it.i}`} role="region" aria-labelledby={`faq-q-${it.i}`} data-faq-answer={it.i} data-open={it.i === 0 ? '' : undefined}>
+            <span class="ans-q" aria-hidden="true">{it.q.toLocaleUpperCase(lang)}</span>
+            <span class="typer" aria-hidden="true"><span class="td"></span><span class="td td2"></span><span class="td td3"></span></span>
+            <span class="atext">{it.a}{it.more && <> <a href={it.more}>{t(lang, 'home.faq.more')}</a></>}</span>
+            <span class="ans-tail" aria-hidden="true"></span>
+          </div>
+        ))}
+        <div class="faq-face" data-faq-face><Mascot size={140} tie eye={3.2} blink="4.2s" /></div>
+      </div>
+    </div>
+    <div data-rv style="--d:120ms" class="faq-qs" role="list">
+      {items.map((it) => (
+        <div role="listitem" class="faq-qi">
+          <button type="button" id={`faq-q-${it.i}`} class:list={['faq-q', it.i === 0 ? 'fqa' : 'fqb']} aria-expanded={it.i === 0 ? 'true' : 'false'} aria-controls={`faq-a-${it.i}`} data-faq-q={it.i}>{it.q}</button>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq { padding: calc(140 * var(--u)) calc(96 * var(--u)); border-top: 1.5px solid var(--ink); }
+  .faq-eyebrow { margin-bottom: calc(26 * var(--u)); }
+  .faq-eyebrow span { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .faq-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: calc(72 * var(--u)); align-items: start; }
+  .faq-left { display: flex; flex-direction: column; gap: calc(34 * var(--u)); }
+  .faq-h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: max(calc(62 * var(--u)), 38px); line-height: 1.04; letter-spacing: -.02em; }
+  .faq-h2 em { font-style: italic; }
+  .faq-answers { display: flex; flex-direction: column; gap: 18px; }
+  .ansb { position: relative; padding: 24px 26px; border-radius: 22px; background: var(--paper); border: 1.5px solid var(--ink); box-shadow: 6px 6px 0 var(--gold); }
+  .ans-q { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--gold-ink); margin-bottom: 8px; }
+  .typer { display: flex; gap: 5px; margin-bottom: 4px; }
+  .atext { display: block; font-size: max(calc(19 * var(--u)), 16px); line-height: 1.5; }
+  .atext a { color: var(--gold-ink); text-underline-offset: 3px; white-space: nowrap; }
+  .ans-tail { position: absolute; left: 40px; bottom: -9px; width: 16px; height: 16px; background: var(--paper); border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); transform: rotate(45deg); }
+  /* Con JS: una respuesta a la vez (sin JS se leen todas). */
+  :global(html.js) .ansb:not([data-open]) { display: none; }
+  .faq-face { padding-left: 18px; }
+  .faq-qs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start; }
+  .faq-qi { display: contents; }
+  .faq-q {
+    min-height: 58px; padding: 12px 18px; border-radius: 18px; border: 1.5px solid var(--ink);
+    font-family: var(--serif); font-size: max(calc(21 * var(--u)), 17px); line-height: 1.15; text-align: left; cursor: pointer;
+  }
+
+  @media (max-width: 1023px) {
+    .faq { padding: 64px 16px; }
+    .faq-grid { display: flex; flex-direction: column; align-items: stretch; gap: 22px; }
+    .faq-left { display: contents; }
+    .faq-h2 { order: 1; }
+    .faq-qs {
+      order: 2; min-width: 0; display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, auto); grid-template-columns: none;
+      gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 8px; scrollbar-width: none; overscroll-behavior-x: contain;
+    }
+    .faq-qs::-webkit-scrollbar { display: none; }
+    .faq-q { flex-shrink: 0; white-space: nowrap; min-height: 46px; font-size: 17px; }
+    .faq-answers { order: 3; }
+    .ansb { padding: 18px 20px; }
+    .faq-face :global(svg) { width: 96px; height: 113px; }
+  }
+</style>
+
+<script>
+  for (const sec of document.querySelectorAll<HTMLElement>('[data-faq]')) {
+    const qs = [...sec.querySelectorAll<HTMLButtonElement>('[data-faq-q]')]
+    const as = [...sec.querySelectorAll<HTMLElement>('[data-faq-answer]')]
+    const face = sec.querySelector<HTMLElement>('[data-faq-face]')!
+    const show = (i: number) => {
+      qs.forEach((b, k) => {
+        const on = k === i
+        b.setAttribute('aria-expanded', String(on))
+        b.classList.toggle('fqa', on)
+        b.classList.toggle('fqb', !on)
+      })
+      as.forEach((a, k) => a.toggleAttribute('data-open', k === i))
+      // Reinicia la animación de «escribiendo» y la cara que habla, como en el prototipo.
+      face.classList.remove('faq-talk')
+      void face.offsetWidth
+      face.classList.add('faq-talk')
+    }
+    qs.forEach((b, i) => b.addEventListener('click', () => show(i)))
+  }
+</script>

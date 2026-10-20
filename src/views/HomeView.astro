@@ -1,22 +1,72 @@
 ---
-// Portada. FASE 1: esqueleto (header, footer, i18n). Las 21 secciones del
-// prototipo se portan en la FASE 3; la lista de espera en la FASE 2.
+// PORTADA · las secciones del prototipo (design/prototype), compiladas a UN árbol
+// responsive por scripts/port/compile-sections.mjs.
+//  · Estáticas (sin JS): S02 hero, S06, S07, S14, S15, S16, S17, S19.
+//  · Islas Preact, hidratadas al hacerse visibles: S03–S05, S08–S13.
+//  · S18 (FAQ) es a mano, alimentada por content/faq.js (+ schema FAQPage).
+//  · S01/S20/S21 → Header, Footer y WaitlistModal del sitio.
 import Base from '../layouts/Base.astro'
 import WaitlistForm from '../components/waitlist/WaitlistForm.astro'
-import { t } from '../i18n/config.js'
+import FaqSection from '../sections/FaqSection.astro'
+import '../sections/gen/prototype.css'
+import '../sections/gen/sections.css'
+import S02 from '../sections/gen/S02.jsx'
+import S06 from '../sections/gen/S06.jsx'
+import S07 from '../sections/gen/S07.jsx'
+import S14 from '../sections/gen/S14.jsx'
+import S15 from '../sections/gen/S15.jsx'
+import S16 from '../sections/gen/S16.jsx'
+import S17 from '../sections/gen/S17.jsx'
+import S19 from '../sections/gen/S19.jsx'
+import I03 from '../sections/islands/I03.jsx'
+import I04 from '../sections/islands/I04.jsx'
+import I05 from '../sections/islands/I05.jsx'
+import I08 from '../sections/islands/I08.jsx'
+import I09 from '../sections/islands/I09.jsx'
+import I10 from '../sections/islands/I10.jsx'
+import I11 from '../sections/islands/I11.jsx'
+import I12 from '../sections/islands/I12.jsx'
+import I13 from '../sections/islands/I13.jsx'
+import { renderVals, initialState } from '../sections/store.js'
+import { t, dict } from '../i18n/config.js'
+import { sectionDict } from '../i18n/sections.js'
 import { href, alternatesFor } from '../i18n/rutas.js'
+import { homeJsonLd } from '../lib/jsonld.js'
 interface Props { lang: string }
 const { lang } = Astro.props
+const L = dict(lang).logic
+const v = renderVals(initialState(), L)
+const d = (id: string) => sectionDict(lang, id)
 ---
-<Base lang={lang} title={t(lang, 'site.title')} description={t(lang, 'site.description')} path={href('home', lang)} alternates={alternatesFor('home')}>
-  <section class="wrap esqueleto" id="acceso">
-    <h1>{t(lang, 'site.tagline')}</h1>
-    <p>{t(lang, 'site.entity')}</p>
+<Base lang={lang} title={t(lang, 'site.title')} description={t(lang, 'site.description')} path={href('home', lang)} alternates={alternatesFor('home')} jsonLd={homeJsonLd(lang)} page="home" mainClass="home">
+  <S02 v={v} t={d('S02')}>
     <WaitlistForm lang={lang} source="hero" id="wl-hero" note={t(lang, 'wl.note')} />
-  </section>
+  </S02>
+  <I03 client:visible t={d('S03')} L={L} />
+  <I04 client:visible t={d('S04')} L={L} />
+  <I05 client:visible t={d('S05')} L={L} />
+  <S06 v={v} t={d('S06')} />
+  <S07 v={v} t={d('S07')} />
+  <I08 client:visible t={d('S08')} L={L} />
+  <I09 client:visible t={d('S09')} L={L} />
+  <I10 client:visible t={d('S10')} L={L} />
+  <I11 client:visible t={d('S11')} L={L} />
+  <I12 client:visible t={d('S12')} L={L} />
+  <I13 client:visible t={d('S13')} L={L} />
+  <S14 v={v} t={d('S14')} />
+  <S15 v={v} t={d('S15')} />
+  <S16 v={v} t={d('S16')} />
+  <S17 v={v} t={d('S17')} />
+  <FaqSection lang={lang} />
+  <S19 v={v} t={d('S19')}>
+    <WaitlistForm lang={lang} source="final" id="wl-final" tone="dark" />
+  </S19>
+  <script type="application/json" id="ceo-msgs" set:html={JSON.stringify(L.ceo).replace(/</g, '\\u003c')}></script>
 </Base>
-<style>
-  .esqueleto { padding: 120px 0; min-height: 60vh; }
-  .esqueleto h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 6vw, 76px); line-height: 1.02; margin: 0 0 24px; }
-  .esqueleto p { max-width: 60ch; color: var(--muted); }
-</style>
+
+<script>
+  import { initReveal, initCarousels, initCeoTap } from '../scripts/vida.js'
+  initReveal()
+  initCarousels()
+  initCeoTap()
+</script>

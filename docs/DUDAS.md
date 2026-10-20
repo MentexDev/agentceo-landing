@@ -51,3 +51,30 @@ _(se van añadiendo por fase)_
 - **Privacidad:** el contenido de los chats no se guarda en el servidor. El tope diario por IP usa un hash SHA-256 como nombre de instancia, sin la IP en claro (hay un test que lo comprueba). En el navegador, la conversación vive 7 días en `localStorage`, sin correos.
 - **Bug real encontrado con WebKit:** recargar a mitad de una respuesta borraba la pregunta del historial. Ahora la pregunta se conserva y aparece «Reintentar». Hay un test que lo vigila.
 - **Contacto que da el widget:** `info@klinworks.com` (aclaración de Diego: los contactos se quedan en @klinworks.com).
+
+### Fase 3 · portada
+- **Método: un compilador, no una reescritura a mano** (`scripts/port/compile-sections.mjs` + `compile-css.mjs`). Hace cinco cosas:
+  - fusiona los árboles de escritorio y móvil en uno solo;
+  - saca 4.017 estilos inline a 641 clases;
+  - escala el escritorio con `--u` en lugar del `zoom` por JS;
+  - corrige el contraste según el fondo;
+  - extrae 722 textos a `src/i18n/sections/*.json`.
+
+  La salida se versiona y no se edita a mano. **Para cambiar un texto se edita el JSON; para cambiar el diseño, el prototipo, y se recompila.**
+- **Fidelidad medida con pixelmatch frente al prototipo**, con las mismas fuentes, 1440 y 390 px y motion reducido:
+  - escritorio: 0,8–5,7 % de diferencia y alturas casi al píxel;
+  - móvil: 2,9–11 %.
+  - Lo que difiere a propósito: la FAQ (15 preguntas en vez de 12), los formularios con el aviso CCPA y los colores corregidos por contraste.
+- **Islas con Preact + compat** en lugar de React 19: unos 10 KB frente a 68 KB gz, medido. **Estáticas, sin JS:** S02 (hero), S06, S07, S14–S17 y S19. El toque a la mascota del hero lo hace `vida.js` en vanilla, así que el LCP no paga ninguna hidratación.
+- **S01, S20 y S21 se sustituyen** por Header, Footer y WaitlistModal del sitio. **S18 se reescribe a mano**, alimentada por `content/faq.js`: todas las respuestas están en el HTML, con `aria-expanded` y FAQPage.
+- **Bugs reales encontrados y corregidos durante el porte:**
+  - el reset fuera de capa pisaba las clases del prototipo (chip «Todas» negro sobre negro) → capas `reset < proto < sections`;
+  - `box-sizing: border-box` global cambiaba los tamaños del prototipo → `content-box` dentro de las secciones, con especificidad 0;
+  - la clase `.btn` mía chocaba con la del prototipo → renombrada a `.ac-btn`;
+  - el hero de móvil está reordenado y la LCS duplicaba el `<h1>` → detección de permutaciones, que reordena con `order`;
+  - en la FAQ móvil, `align-items: start` hacía que la tira midiera 1.951 px;
+  - las tarjetas de los carruseles nunca aparecían porque el contenedor recorta la intersección.
+- **Accesibilidad añadida:** axe WCAG 2.2 AA **0 violaciones** en /, /en/, /gracias/ y /404 (escritorio y móvil). Se resolvieron: texto claro sobre dorado → tinta; carruseles enfocables con teclado; controles dentro de `aria-hidden` fuera del orden de tabulación (sin `inert`, que rompía el toque); nombre accesible del selector de idioma y del lanzador del chat.
+- ⏳ **S03 «Así se ve por dentro»:** el README del prototipo dice que está pendiente de rediseño. Se porta tal cual. Sus URLs simuladas (`app.agentceo.io/admin/agentes`…) se quedan en español también en `/en/`, porque son las rutas reales de la app.
+- **Carruseles automáticos:** se pausan con puntero, foco y toque, y no corren con motion reducido. ⏳ WCAG 2.2.2 pide además un control de pausa visible para lo que se mueve más de 5 s; queda para la auditoría (Fase 7).
+- **Inglés de la portada:** 722 textos traducidos por 3 agentes en paralelo con un glosario común. Lo validé yo: las mismas claves, los espacios de los bordes y que quedan sin traducir solo marcas, URLs y nombres propios (59). Hay un test de paridad.

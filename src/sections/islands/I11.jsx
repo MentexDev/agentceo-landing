@@ -1,0 +1,8 @@
+// Isla de la sección S11 (se hidrata al hacerse visible). Estado compartido: ../store.js
+import S from '../gen/S11.jsx'
+import { useLanding } from '../store.js'
+
+export default function I11({ t, L }) {
+  const v = useLanding(L)
+  return <S v={v} t={t} />
+}

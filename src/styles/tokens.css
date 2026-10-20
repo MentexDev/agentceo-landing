@@ -38,8 +38,12 @@
   --header-h: 76px;
 
   /* Unidad de escala del diseño de escritorio (1440 px). Sustituye al `zoom` por JS
-     del prototipo: entre el corte móvil y 1440 px todo escala sin layout shift. */
-  --u: min(1px, calc(100vw / 1440));
+     del prototipo: entre 1024 y 1440 px el diseño de escritorio escala en CSS, sin JS
+     y sin layout shift. En móvil (< 1024 px) vale exactamente 1px. */
+  --u: 1px;
+}
+@media (min-width: 1024px) {
+  :root { --u: min(1px, calc(100vw / 1440)); }
 }
 
 @media (max-width: 1023px) {

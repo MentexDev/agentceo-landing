@@ -6,6 +6,7 @@ import en from '../../src/i18n/ui/en.js'
 import { LOCALES, t } from '../../src/i18n/config.js'
 import { allStaticRoutes } from '../../src/i18n/rutas.js'
 import { html, tags, allPages } from './helpers.js'
+import { readFileSync } from 'node:fs'
 
 /** Lista de claves hoja 'a.b.c' de un diccionario. */
 const keys = (o, p = '') =>
@@ -30,6 +31,21 @@ describe('diccionarios', () => {
 
   it('interpola variables', () => {
     expect(t('en', 'footer.rights', { year: 2026 })).toContain('2026')
+  })
+})
+
+describe('textos de las secciones de la portada', () => {
+  const ses = JSON.parse(readFileSync(new URL('../../src/i18n/sections/es.json', import.meta.url)))
+  const sen = JSON.parse(readFileSync(new URL('../../src/i18n/sections/en.json', import.meta.url)))
+  it('es y en tienen las mismas secciones y claves', () => {
+    expect(Object.keys(sen).sort()).toEqual(Object.keys(ses).sort())
+    for (const s of Object.keys(ses)) expect(Object.keys(sen[s]).sort(), s).toEqual(Object.keys(ses[s]).sort())
+  })
+  it('los espacios de los bordes coinciden (en JSX separan palabras)', () => {
+    for (const [s, d] of Object.entries(ses)) for (const [k, v] of Object.entries(d)) {
+      const w = sen[s][k]
+      expect([w.startsWith(' '), w.endsWith(' ')], `${s}.${k}`).toEqual([v.startsWith(' '), v.endsWith(' ')])
+    }
   })
 })
 

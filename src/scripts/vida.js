@@ -53,3 +53,89 @@ export function initVida(root = document) {
     queue()
   }, 1700)
 }
+
+// ── Aparición al hacer scroll ([data-rv] → data-in) y arranque ([data-ready]) ───────
+// Sustituye al cálculo por scroll del prototipo con IntersectionObserver (sin trabajo
+// en cada scroll). Con motion reducido todo aparece ya visible.
+export function initReveal(root = document) {
+  const html = document.documentElement
+  const els = root.querySelectorAll('[data-rv]:not([data-in])')
+  if (reduce.matches || !('IntersectionObserver' in window)) {
+    els.forEach((e) => e.setAttribute('data-in', ''))
+    html.setAttribute('data-ready', '')
+    return
+  }
+  // Dentro de un carrusel horizontal el contenedor RECORTA la intersección (overflow): se
+  // observa el carrusel y, al entrar en pantalla, aparecen todas sus tarjetas (como en el
+  // prototipo, que solo miraba la posición vertical).
+  const groups = new Map()
+  for (const e of els) {
+    const target = e.closest('.hs, .hs-d, .faqstrip') || e
+    if (!groups.has(target)) groups.set(target, [])
+    groups.get(target).push(e)
+  }
+  const io = new IntersectionObserver((entries) => {
+    for (const en of entries) {
+      if (!en.isIntersecting) continue
+      for (const e of groups.get(en.target) || []) e.setAttribute('data-in', '')
+      io.unobserve(en.target)
+    }
+  }, { rootMargin: '0px 0px -10% 0px' })
+  groups.forEach((_, target) => io.observe(target))
+  setTimeout(() => html.setAttribute('data-ready', ''), 80)
+}
+
+// ── Carruseles horizontales .hs del prototipo (flechas [data-hs] + avance solo) ──
+export function initCarousels(root = document) {
+  const hold = (el) => { el.__hold = true; clearTimeout(el.__ht); el.__ht = setTimeout(() => { el.__hold = false }, 7000) }
+  const step = (el, dir) => {
+    const w = el.clientWidth + 12
+    if (dir > 0 && el.scrollLeft >= el.scrollWidth - el.clientWidth - 8) el.scrollTo({ left: 0, behavior: 'smooth' })
+    else if (dir < 0 && el.scrollLeft <= 4) el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' })
+    else el.scrollBy({ left: dir * w, behavior: 'smooth' })
+  }
+  for (const el of root.querySelectorAll('.hs:not(.hs-d)')) {
+    el.addEventListener('touchstart', () => hold(el), { passive: true })
+    el.addEventListener('pointerdown', () => hold(el))
+    el.addEventListener('focusin', () => hold(el))
+  }
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest?.('[data-hs]')
+    if (!b) return
+    const el = b.parentElement?.nextElementSibling
+    if (!el?.classList.contains('hs')) return
+    hold(el)
+    step(el, parseInt(b.getAttribute('data-hs'), 10) || 1)
+  })
+  if (reduce.matches) return
+  setInterval(() => {
+    if (document.hidden) return
+    for (const el of root.querySelectorAll('.hs:not(.hs-d)')) {
+      if (el.__hold || el.scrollWidth <= el.clientWidth + 4) continue
+      const r = el.getBoundingClientRect()
+      if (r.bottom < 80 || r.top > innerHeight - 80) continue
+      step(el, 1)
+    }
+  }, 3400)
+}
+
+// ── Toque a la mascota en las secciones estáticas (S02, S19) ───────────────────
+export function initCeoTap(root = document) {
+  let msgs = []
+  try { msgs = JSON.parse(document.getElementById('ceo-msgs')?.textContent || '[]') } catch {}
+  let n = 0, timer = 0
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest?.('[data-ceo-tap]')
+    if (!b) return
+    n++
+    const sec = b.closest('section') || document
+    const msg = sec.querySelector('[data-ceo-msg]')
+    if (msg && msgs.length) msg.textContent = msgs[n % msgs.length]
+    const masc = b.querySelector('.mascot') || b
+    masc.classList.remove('happy', 'ceo-happy')
+    void masc.getBoundingClientRect()
+    masc.classList.add('happy', 'ceo-happy')
+    clearTimeout(timer)
+    timer = setTimeout(() => masc.classList.remove('happy', 'ceo-happy'), 900)
+  })
+}
