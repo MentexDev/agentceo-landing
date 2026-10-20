@@ -36,3 +36,9 @@ Una línea por fase cerrada: fecha · fase · qué quedó · commit.
     - 438 unitarios;
     - e2e: escritorio 64/64 y Chromium móvil 63/63, con `carousels.spec.js` nuevo y 4 mutaciones a mano que se ponen en rojo;
     - ⚠️ WebKit no se pudo medir al final: deja de arrancar en esta Mac (`browserType.launch` timeout). Antes de romperse, `carousels.spec` pasó 42/42 en los 3 navegadores. La suite completa con los 3 proyectos en paralelo se cuelga también en HEAD (`a2b5086`): no lo introduce este cambio.
+- 2026-10-20 · **E2E completos en los 3 navegadores (Luca)**:
+  - **Resultado:** 190 pasan y 0 fallan en **3 pasadas seguidas** (~1 min cada una; 17 omitidos por dispositivo, 207 en total).
+  - **WebKit** vuelve a arrancar sin reinstalar: el fallo de antes era de la Mac, no del código.
+  - **Dos intermitencias medidas y corregidas:**
+    - el fixture usaba 254 IPv4 al azar: el test del 429 agotaba su IP y otro test que coincidía en ella recibía `#error`. Ahora cada test sale de una IPv6 de documentación propia (2001:db8::/32);
+    - en la demo de S03, `choose()` cancela el temporizador del recorrido en el mismo clic: antes podía saltar entre el render y la limpieza del efecto, y pisar la vista elegida.

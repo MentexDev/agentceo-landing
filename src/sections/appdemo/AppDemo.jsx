@@ -322,14 +322,17 @@ export default function AppDemo({ lang = 'es' }) {
 
   useEffect(() => { run(view, reduce) }, [view, reduce, run])
 
-  // Recorrido automático.
+  // Recorrido automático. `autoT` guarda el temporizador para que choose() lo cancele EN EL
+  // MISMO CLIC: si se esperaba a la limpieza del efecto (tras el render), el temporizador podía
+  // saltar en ese hueco y pisar la vista elegida (medido: e2e intermitente en WebKit con carga).
+  const autoT = useRef(0)
   useEffect(() => {
     if (!playing || !visible || reduce) return
-    const t = setTimeout(() => setView((v) => VIEWS[(VIEWS.indexOf(v) + 1) % VIEWS.length]), DWELL[view])
-    return () => clearTimeout(t)
+    autoT.current = setTimeout(() => setView((v) => VIEWS[(VIEWS.indexOf(v) + 1) % VIEWS.length]), DWELL[view])
+    return () => clearTimeout(autoT.current)
   }, [playing, visible, reduce, view])
 
-  const choose = (v) => { setPlaying(false); setBrandOpen(false); setView(v) }
+  const choose = (v) => { clearTimeout(autoT.current); setPlaying(false); setBrandOpen(false); setView(v) }
   const onTabKey = (e) => {
     const i = VIEWS.indexOf(view)
     const next = e.key === 'ArrowRight' ? (i + 1) % VIEWS.length : e.key === 'ArrowLeft' ? (i - 1 + VIEWS.length) % VIEWS.length : e.key === 'Home' ? 0 : e.key === 'End' ? VIEWS.length - 1 : -1
