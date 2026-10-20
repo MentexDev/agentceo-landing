@@ -105,7 +105,8 @@
 .ad-bubble-agent p { margin: 0 0 6px; }
 .ad-bubble-agent ul { margin: 4px 0 0; padding-left: 18px; }
 .ad-bubble-agent strong { color: #fff; }
-.ad-thinking { display: flex; align-items: center; gap: 6px; font-family: var(--n-display); font-size: 15px; color: var(--n-chrome); }
+/* «Entendiendo lo que pediste…» en sans (T40, Diego): es texto de estado de la interfaz, no un titular. */
+.ad-thinking { display: flex; align-items: center; gap: 6px; font-family: var(--n-sans); font-size: 14px; color: var(--n-chrome); }
 .ad-thinking i { width: 5.5px; height: 5.5px; border-radius: 50%; background: var(--n-chrome); animation: adHop 1.15s ease-in-out infinite; }
 .ad-thinking i:nth-of-type(2) { animation-delay: .19s; } .ad-thinking i:nth-of-type(3) { animation-delay: .38s; }
 @keyframes adHop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-5px); } }

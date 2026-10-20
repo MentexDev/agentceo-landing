@@ -26,3 +26,12 @@ for (const url of ['/#reunion', '/en/#reunion']) {
     expect(r.eyebrow).toBeGreaterThanOrEqual(r.header)
   })
 }
+
+test('S03: la línea de tipeo («Entendiendo lo que pediste…») va en sans, no en serif', async ({ page }) => {
+  await page.goto('/')
+  const demo = page.locator('[data-appdemo]')
+  await demo.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }))
+  const thinking = demo.locator('.ad-thinking')
+  await expect(thinking).toBeVisible({ timeout: 8000 })
+  expect(await thinking.evaluate((e) => getComputedStyle(e).fontFamily)).toMatch(/^"?Geist/)
+})
