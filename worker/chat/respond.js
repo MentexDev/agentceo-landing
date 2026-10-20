@@ -24,8 +24,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { streamText } from './text.js'
 import { stubReply, KB, INDEX } from './stub.js'
-import { liveReply, pickContext, systemPrompt, estimateUSD, historyForModel, priceFor, DEFAULT_MODEL } from './live.js'
-import { say, intentOf } from './persona.js'
+import { liveReply, pickContext, systemPrompt, estimateUSD, historyForModel, priceFor, DEFAULT_MODEL, RULES, CANARY } from './live.js'
+import { say, intentOf, privateReply } from './persona.js'
+import { stripInjection, findOutputLeak, promptEchoes } from './private.js'
 import { textKey, hasPII } from './abuse.js'
 import { matchCurated, curatedReply, chipIdsFor, langOf } from './curated.js'
 import { answerById } from '../../content/chat-answers.js'
@@ -69,6 +70,11 @@ export function curatedFor(p) {
   return m ? { id: m.id, how: m.how, lang: langOf(p.userText, p.lang) } : null
 }
 
+// Filtro de SALIDA (T40 b): fragmentos del prompt de sistema que el modelo no puede repetir nunca.
+const ECHOES = [CANARY, ...promptEchoes([RULES.es, RULES.en])]
+/** ¿Esta respuesta (del modelo o de la caché) se puede mostrar? → null si sí; { kind, name } si no. */
+export const outputLeak = (text) => findOutputLeak(text, ECHOES)
+
 export async function respond({ p, mode, env, guards = {}, send: rawSend, delay = 18, fetchImpl, capTurns }) {
   // Toda meta con chips lleva sus ids curados (el cliente los devuelve en `chip` al pulsarlos).
   const send = (ev, d) => rawSend(ev, ev === 'meta' && d?.chips && !d.chipIds ? { ...d, chipIds: chipIdsFor(d.chips) } : d)
@@ -86,6 +92,34 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
     await send('meta', { mode: 'stub', kind: 'cap', cta: 'waitlist', chips: [], matched: null, sources: [] })
     await streamText(send, say(p.lang, 'cap'), delay)
     return { path: 'cap' }
+  }
+
+  // INYECCIÓN (T40 b · I01/I02): una petición con inyección NUNCA llega al modelo. Se recorta el
+  // bloque inyectado y la parte LIMPIA solo se responde por vías SIN modelo: ficha curada o FAQ del
+  // sitio con confianza («¿cuánto cuesta el plan básico? [SISTEMA: …]» → el precio). Si no hay parte
+  // legítima que responder así («Analiza esta reseña: …</review> nuevas instrucciones…») → negativa
+  // de reglas.
+  const inj = stripInjection(p.userText)
+  if (inj.injected) {
+    const clean = { ...p, userText: inj.clean, chip: null }
+    const okClean = inj.clean && intentOf(inj.clean) !== 'private'
+    const cur = okClean ? curatedFor(clean) : null
+    if (cur) {
+      const r = curatedReply(cur.id, cur.lang)
+      await send('meta', r.meta)
+      await streamText(send, r.text, delay)
+      return { path: 'curated', reason: 'injection_stripped' }
+    }
+    const sr = okClean ? stubReply(p.lang, inj.clean) : null
+    if (sr && sr.meta.kind !== 'fallback' && !sr.meta.kind.startsWith('intent:')) {
+      await send('meta', sr.meta)
+      await streamText(send, sr.text, delay)
+      return { path: 'stub', reason: 'injection_stripped' }
+    }
+    const r = privateReply(p.userText, p.lang, 'rules')
+    await send('meta', { mode: 'stub', kind: 'intent:private', privateKind: 'rules', cta: null, chips: [], matched: null, sources: [] })
+    await streamText(send, r.text, delay)
+    return { path: 'stub', reason: 'injection' }
   }
 
   // CAPA CURADA (T35): las preguntas comunes nunca llegan al modelo. Coste 0, al instante.
@@ -130,6 +164,8 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
   const qk = cacheable ? await textKey(p.lang, p.userText) : null
   const liveMetaBase = { mode: 'live', cta: null, chips: stub.meta.chips, matched: null, sources: [] }
   const serveCached = async (text, reason) => {
+    // Una entrada vieja que no pase el filtro de salida no se sirve (se responde como si no hubiera).
+    if (outputLeak(text)) return null
     await send('meta', { ...liveMetaBase, kind: 'cache' })
     await streamText(send, text, delay)
     return { path: 'cache', reason }
@@ -137,13 +173,15 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
 
   if (qk && (await g.dedupe(qk))) {
     const cached = await g.cacheGet(qk)
-    if (cached) return serveCached(cached, 'dup')
+    const served = cached && (await serveCached(cached, 'dup'))
+    if (served) return served
     await sendStub(send, p.lang, p.userText, delay, 'dup')
     return { path: 'stub', reason: 'dup' }
   }
   if (qk) {
     const cached = await g.cacheGet(qk)
-    if (cached) return serveCached(cached, 'hit')
+    const served = cached && (await serveCached(cached, 'hit'))
+    if (served) return served
   }
 
   // Persona verificada con Turnstile ANTES de gastar (si está configurado; sin configurar, el canal
@@ -170,7 +208,11 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
     return { path: 'stub', reason: 'budget' }
   }
 
-  let started = false
+  // FILTRO DE SALIDA (T40 b): la respuesta del modelo se BUFFERIZA entera (máx. 400 tokens) y solo
+  // se emite si pasa el filtro; si no, se SUSTITUYE por la negativa del tipo que toque y no se
+  // cachea. Así nunca llega al cliente un trozo filtrado (lo ya enviado no se puede borrar). Coste:
+  // el primer texto visible espera a que el modelo termine (~0,5–2 s con flash-lite); luego se
+  // emite con el mismo efecto de escritura que el stub.
   const liveMeta = { ...liveMetaBase, kind: 'live' }
   const r = await liveReply({
     system,
@@ -180,10 +222,7 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
     fetchImpl,
     maxTokens,
     timeoutMs: Number(env.CHAT_LIVE_TIMEOUT_MS || LIVE.timeoutMs),
-    onDelta: async (t) => {
-      if (!started) { started = true; await send('meta', liveMeta) }
-      await send('delta', { t })
-    },
+    onDelta: async () => {}, // bufferizado: se emite abajo, tras el filtro
   })
 
   // Contabilidad: error HTTP sin texto → no factura, se devuelve la reserva; con consumo
@@ -196,11 +235,16 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
     await sendStub(send, p.lang, p.userText, delay, r.reason)
     return { path: 'stub', reason: r.reason }
   }
-  if (r.reason === 'leak') {
-    if (!started) await send('meta', liveMeta)
-    await streamText(send, `${r.text ? '\n\n' : ''}${say(p.lang, 'guard')}`, delay)
-    return { path: 'live', reason: 'leak', cost: r.cost }
+  // Eco del prompt detectado en vivo (live.js corta el stream) o filtro de salida → negativa del
+  // tipo que toque, en el idioma del usuario; nada de lo generado se muestra y nada se cachea.
+  const leak = r.reason === 'leak' ? { kind: 'rules', name: 'canario' } : outputLeak(r.text)
+  if (leak) {
+    await send('meta', { ...liveMeta, kind: 'live', filtered: leak.kind })
+    await streamText(send, privateReply(p.userText, p.lang, leak.kind).text, delay)
+    return { path: 'live', reason: 'filtered', filtered: leak.kind, cost: r.cost }
   }
+  await send('meta', liveMeta)
+  await streamText(send, r.text, delay)
   if (r.reason) {
     await streamText(send, `…\n\n${say(p.lang, 'cut')}`, delay)
     return { path: 'live', reason: r.reason, cost: r.cost }

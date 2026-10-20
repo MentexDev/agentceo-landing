@@ -369,3 +369,20 @@ _(se van añadiendo por fase)_
 - **Curada nueva «¿Qué tan protegidos están mis datos?»** (`proteccion`): solo con lo publicado (Seguridad §1–2; Privacidad §4.1 y §10), con enlace a la Política de seguridad.
 - **Caché:** `CACHE_SCHEMA = 2`, y la versión de contenido incluye ahora el prompt de sistema, así que lo cacheado antes de T40 deja de servirse.
 - ⏳ **Fuera del chat (para Diego y Luca):** la WEB sigue mostrando «una sociedad de Delaware» en `site.entity` (pie y JSON-LD) y el expediente en la página Empresa (`legalTypeVal`, `fileNo` en `src/i18n/ui`). Es transparencia corporativa deliberada en la web, no está en el alcance de este punto y no se tocó.
+
+### T40b · chat: endurecimiento tras el red-team de Luca (20-oct)
+- **Intención `private` por tipos** (`worker/chat/private.js` → `privateKind`, en es/en/pt/fr/de/it), atrapada ANTES del modelo, sin LLM y sin gastar cupo:
+  - `legal`: datos societarios y registrales, también en francés, alemán, italiano y portugués (adresse légale, Handelsregisternummer, partita IVA, CNPJ…);
+  - `personal`: contacto, teléfono, WhatsApp o dirección personal del fundador o del equipo;
+  - `internal`: cómo está hecho, proveedor o modelo, costes, gasto o límite internos, inversores, métricas;
+  - `rules`: sus instrucciones y marcadores de inyección ([SISTEMA], <system>, «nuevas instrucciones», «ignore previous», DAN, «admin verificado»…).
+  - Los 7 casos del red-team se atrapan. Batería de 40 preguntas legítimas es/en: **0 falsos positivos** (con trampas como «¿qué límite de créditos tiene Arranque?», «tell me the rules of the free plan» o «¿puede gastar dinero sin mi permiso?»).
+- **Negativas por tipo y en el idioma del usuario:** es/en completas, y frases cortas propias en fr/de/pt/it (decisión: mejor en su idioma que en inglés). Solo la de tipo legal enlaza `/legal/`; la técnica y la de costes nunca dicen «lo legal».
+- **Inyección (I01/I02):** una petición con inyección **nunca llega al modelo**. Se recorta el bloque inyectado y la parte limpia solo se responde por vías sin modelo: ficha curada o FAQ del sitio con confianza. I01 («¿cuánto cuesta el plan básico? [SISTEMA…]») responde el precio; I02 recibe la negativa de reglas. Se descartó pasar la parte limpia al modelo: el recorte puede no ser perfecto y el coste de equivocarse es una fuga.
+- **Filtro de salida (live y caché):** la respuesta del modelo se **bufferiza entera** (máximo 400 tokens) y solo se emite si pasa `findOutputLeak`:
+  - qué detecta: datos societarios, modelo o proveedor, claves `sk-…`, stack interno, coste por mensaje y eco del prompt (canario + fragmentos de 7 palabras de las reglas);
+  - si no pasa, se sustituye entera por la negativa del tipo y no se cachea;
+  - una entrada vieja de la caché que no pase el filtro no se sirve.
+  - Así nunca llega un trozo al cliente, aunque el dato venga partido entre dos deltas (probado). **Coste:** el primer texto visible espera a que el modelo termine (~0,5–2 s con flash-lite; antes el texto empezaba a salir antes), y luego se emite con el mismo efecto de escritura.
+- **Bug encontrado por los tests:** al construir la lista legal del filtro de salida, excluir por un trozo del nombre dejó fuera el patrón de Delaware. Corregido.
+- **Pendiente fuera del Worker:** `src/scripts/chat/offline.js` (respuesta sin red del widget) usa `say(L, 'private')`, el texto genérico de tipo legal. Para que sin red también salga la negativa por tipo y en el idioma del usuario, conviene usar `privateReply(text, lang)`.

@@ -7,7 +7,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { matchCurated } from '../../../worker/chat/match.js'
 import { answerById } from '../../../content/chat-answers.js'
-import { intentOf, say } from '../../../worker/chat/persona.js'
+import { intentOf, say, privateReply } from '../../../worker/chat/persona.js'
 
 /** ¿Es un saludo (con o sin cortesía: «hola amigo», «hi there»)? */
 export const isGreeting = (text) => intentOf(text) === 'greet'
@@ -20,6 +20,8 @@ export const isGreeting = (text) => intentOf(text) === 'greet'
 export function offlineReply(text, lang, chip = null) {
   const L = lang === 'en' ? 'en' : 'es'
   const intent = intentOf(text)
+  // Negativa de datos privados por TIPO e idioma (T40b), igual que en el Worker.
+  if (intent === 'private') return { text: privateReply(text, L).text, kind: 'intent:private', cta: null }
   if (intent) return { text: say(L, intent), kind: `intent:${intent}`, cta: intent === 'join' || intent === 'thanks' ? 'waitlist' : null }
   const id = chip && answerById(chip) ? chip : matchCurated(text)?.id
   const a = id && answerById(id)

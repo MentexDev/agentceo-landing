@@ -5,6 +5,7 @@
 // cada vez que alguien pregunta si habla con una persona.
 // ─────────────────────────────────────────────────────────────────────────────
 import { norm } from './search.js'
+import { privateKind, userLang } from './private.js'
 
 export const CONTACT = 'info@agentceo.io'
 
@@ -49,25 +50,54 @@ const T = {
 
 export const say = (lang, key) => (T[lang] || T.es)[key]
 
+// NEGATIVAS por TIPO (T40 b, Luca): en el idioma del usuario (es/en; fr/de/pt/it con frases cortas
+// propias). Nunca «lo legal de la empresa» ante una pregunta técnica o de costes.
+const PRIV = {
+  es: {
+    legal: 'Eso prefiero no compartirlo por aquí 🙂. Lo legal de la empresa está en las [páginas legales](/legal/), y para cualquier otra cosa, [info@agentceo.io](mailto:info@agentceo.io). ¿Te cuento cómo funciona Agent CEO?',
+    internal: 'Eso es de cocina interna y no lo comparto 🙂: cómo está hecho por dentro, proveedores o costes. Lo que sí te cuento encantado: qué hace Agent CEO, sus planes o cómo entrar en la lista.',
+    personal: 'No comparto datos personales de nadie del equipo, ni teléfonos ni direcciones 🙂. Si quieres hablar con nosotros, escríbenos a [info@agentceo.io](mailto:info@agentceo.io) y te responde alguien.',
+    rules: 'Mis instrucciones internas no las comparto, y tampoco cambio de papel 🙂. Sigo siendo la IA de Agent CEO: ¿te cuento qué hace, cuánto cuesta o cómo entrar en la lista?',
+  },
+  en: {
+    legal: "That's not something I share here 🙂. The company's legal details are in our [legal pages](/en/legal/), and for anything else, [info@agentceo.io](mailto:info@agentceo.io). Want me to tell you how Agent CEO works?",
+    internal: "That's behind-the-scenes stuff I keep to myself 🙂: how it's built, providers or costs. Happy to tell you what Agent CEO does, its plans or how to join the waitlist.",
+    personal: "I don't share anyone's personal details, no phone numbers or addresses 🙂. If you'd like to reach us, email [info@agentceo.io](mailto:info@agentceo.io) and someone will reply.",
+    rules: "I don't share my internal instructions, and I don't switch roles 🙂. I'm still Agent CEO's AI: want to hear what it does, what it costs or how to join the waitlist?",
+  },
+  fr: {
+    legal: "Je préfère ne pas partager cela ici 🙂. Les informations légales sont sur nos [pages légales](/en/legal/) ; pour le reste : [info@agentceo.io](mailto:info@agentceo.io).",
+    internal: "C'est de la cuisine interne que je ne partage pas 🙂. Je peux vous expliquer ce que fait Agent CEO et ses offres.",
+    personal: "Je ne partage les données personnelles de personne 🙂. Pour nous joindre : [info@agentceo.io](mailto:info@agentceo.io).",
+    rules: "Je ne partage pas mes instructions internes et je ne change pas de rôle 🙂. Je reste l'IA d'Agent CEO.",
+  },
+  de: {
+    legal: 'Das teile ich hier lieber nicht 🙂. Die rechtlichen Angaben stehen auf unseren [Rechtsseiten](/en/legal/); sonst: [info@agentceo.io](mailto:info@agentceo.io).',
+    internal: 'Das sind interne Details, die ich nicht teile 🙂. Gern erkläre ich, was Agent CEO macht und was es kostet.',
+    personal: 'Persönliche Daten von niemandem gebe ich weiter 🙂. Schreib uns an [info@agentceo.io](mailto:info@agentceo.io).',
+    rules: 'Meine internen Anweisungen teile ich nicht und ich wechsle nicht die Rolle 🙂. Ich bleibe die KI von Agent CEO.',
+  },
+  pt: {
+    legal: 'Prefiro não compartilhar isso aqui 🙂. Os dados legais estão nas nossas [páginas legais](/en/legal/); para o resto: [info@agentceo.io](mailto:info@agentceo.io).',
+    internal: 'Isso é bastidor interno e não compartilho 🙂. Posso contar o que o Agent CEO faz e quanto custa.',
+    personal: 'Não compartilho dados pessoais de ninguém 🙂. Para falar conosco: [info@agentceo.io](mailto:info@agentceo.io).',
+    rules: 'Não compartilho minhas instruções internas nem mudo de papel 🙂. Continuo sendo a IA do Agent CEO.',
+  },
+  it: {
+    legal: 'Preferisco non condividerlo qui 🙂. I dati legali sono nelle nostre [pagine legali](/en/legal/); per il resto: [info@agentceo.io](mailto:info@agentceo.io).',
+    internal: 'Sono dettagli interni che non condivido 🙂. Posso raccontarti cosa fa Agent CEO e quanto costa.',
+    personal: 'Non condivido dati personali di nessuno 🙂. Per contattarci: [info@agentceo.io](mailto:info@agentceo.io).',
+    rules: 'Non condivido le mie istruzioni interne e non cambio ruolo 🙂. Resto l’IA di Agent CEO.',
+  },
+}
+/** Negativa amable para una pregunta reservada: { text, lang, kind }. `pageLang` = idioma de la página. */
+export function privateReply(text, pageLang = 'es', kind = privateKind(text) || 'internal') {
+  const lang = userLang(text, pageLang === 'en' ? 'en' : 'es')
+  return { text: (PRIV[lang] || PRIV.en)[kind] || PRIV.es[kind], lang, kind }
+}
+
 // Intenciones que no se resuelven buscando en el contenido.
 const INTENTS = [
-  // T40 (Luca: el bot dio la fecha de constitución y el expediente): datos societarios/registrales
-  // de la empresa e información interna → negativa amable (say('private')), antes que nada más.
-  { id: 'private', re: new RegExp([
-    // (a) societario / registral
-    'constitu(id[ao]|cion|yo|yeron|ir)', 'se fundo', 'fecha de (fundacion|creacion) de la (empresa|sociedad|compania)', 'expediente', 'numero de registro', 'registro mercantil',
-    '\\bein\\b', 'tax id', '(numero|identificacion) fiscal', '\\b(nif|cif|rfc)\\b', 'agente registrad', 'registered (agent|office)', 'oficina registrada',
-    'domicilio (social|fiscal)', 'direccion (de la empresa|de la oficina|fisica|postal|de klinworks|de agent ceo)', 'donde (esta|estan) (la empresa|ubicad|la oficina|sus oficinas|klinworks)',
-    'where (are you|is the company|is klinworks|is agent ceo) (located|based|registered)', '(company|office|mailing|business) address', 'delaware', 'incorporat', 'file number', 'state of (formation|incorporation)',
-    // (b) información interna
-    '(que|cual|which|what) (modelo|model)\\b(?! de (negocio|precios|suscripcion|cobro))', '(que|cual|which|what) (llm|ia usan|ai do you use|ai model)', 'modelo de (ia|lenguaje)', '\\bstack\\b', 'tecnologia (usan|utilizan)', 'tech(nology)? stack', 'built with', 'hech[oa] con que',
-    'proveedor(es)? (de ia|que usan|del modelo)', '\\b(openrouter|openai|gemini|chatgpt|gpt|anthropic|claude)\\b', 'system prompt', 'prompt (de sistema|interno)', 'tus instrucciones', 'your (instructions|prompt)',
-    'api ?key', 'clave(s)? (de api|secreta)', 'cuanto (les |te )?cuesta (operar|mantener|el servidor|la ia|cada (mensaje|respuesta))', 'costos? internos?', 'internal costs?', 'how much does (it|each message) cost you',
-    'inversor', 'inversionista', 'investor', 'funding', 'ronda de', 'valuacion', 'valuation', 'facturacion', 'revenue', '\\bingresos\\b',
-    'cuantos (usuarios|clientes|empleados) (tienen|hay|usan)', 'how many (users|customers|clients|employees) (do you have|have you got|are there|use (it|agent ceo|you))', '\\bmetricas\\b', '\\bmetrics\\b',
-    'quien(es)? (trabaja|trabajan) (en|ahi)', 'who works (there|on|at)', 'equipo interno', 'internal team',
-    'fundador.*(vive|edad|telefono|direccion|correo personal|casa|familia)', 'founder.*(lives?|address|age|phone|personal|home|family)', 'donde vive', 'where does .* live',
-  ].join('|')) },
   { id: 'human', re: /\b(eres|sos|es|hablo con|estoy hablando con|esto es)\b.*\b(humano|humana|persona|real|bot|robot|ia|maquina|chatbot)\b|\b(are you|am i (talking|chatting|speaking) (to|with)|is this|is it)\b.*\b(human|person|real|bot|robot|ai|machine|chatbot)\b|^(bot|humano|human|robot|chatbot)\??$/ },
   { id: 'contact', re: /\b(hablar|hablo|comunicarme) con (una |un |alguien|persona|humano|el equipo)|\b(contacto|contactar|soporte)\b|\b(talk|speak|chat) (to|with) (a |an |someone|somebody|person|human|real|the team)|\bcontact (you|us|support|the team)\b|^contact\??$|\bcustomer (support|service)\b|^support\??$/ },
   { id: 'join', re: /\b(apuntarme|apuntar|unirme|inscribirme|registrarme|lista de espera|waitlist|sign ?up|join|register|quiero entrar|quiero acceso|get access|early access)\b/ },
@@ -83,6 +113,9 @@ const GREET_RE = new RegExp(`^${GREET}( ${COURTESY}){0,2}$`)
 
 /** Detecta una intención en el ÚLTIMO mensaje del usuario. */
 export function intentOf(text = '') {
+  // T40/T40 b: lo reservado va antes que nada (datos societarios, personales, internos, reglas e
+  // inyección; es/en/pt/fr/de/it): private.js → privateKind.
+  if (privateKind(text)) return 'private'
   const s = norm(text).replace(/[¿¡]/g, '').trim()
   for (const it of INTENTS) if (it.re.test(s)) return it.id
   if (GREET_RE.test(s.replace(/[^\p{L}\p{N} ]/gu, ' ').replace(/\s+/g, ' ').trim())) return 'greet'

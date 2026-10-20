@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import KB from '../generated/knowledge.json' with { type: 'json' }
 import { makeIndex, search, confident } from './search.js'
-import { intentOf, say } from './persona.js'
+import { intentOf, say, privateReply } from './persona.js'
 
 export const INDEX = { es: makeIndex(KB.es), en: makeIndex(KB.en) }
 // Sugerencias por defecto (las preguntas más útiles para decidir apuntarse).
@@ -29,6 +29,10 @@ export function stubReply(lang, userText) {
   if (intent) {
     const cta = intent === 'join' || intent === 'thanks' ? 'waitlist' : null
     const chips = intent === 'join' ? [] : [...chipsFrom(L, DEFAULT_CHIPS).slice(0, 3), join]
+    if (intent === 'private') {
+      const r = privateReply(userText, L)
+      return { text: r.text, meta: { mode: 'stub', kind: 'intent:private', privateKind: r.kind, cta: null, chips, matched: null, sources: [] } }
+    }
     return { text: say(L, intent), meta: { mode: 'stub', kind: `intent:${intent}`, cta, chips, matched: null, sources: [] } }
   }
 

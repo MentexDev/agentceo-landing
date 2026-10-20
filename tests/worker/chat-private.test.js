@@ -78,8 +78,16 @@ describe('negativa amable a datos societarios e internos (sin LLM, sin datos)', 
     const meta = JSON.parse(/event: meta\ndata: (.*)/.exec(raw)[1])
     const text = [...raw.matchAll(/event: delta\ndata: (.*)/g)].map((m) => JSON.parse(m[1]).t).join('')
     expect(meta.kind).toBe('intent:private')
-    expect(text).toMatch(lang === 'en' ? /\(\/en\/legal\/\)/ : /\(\/legal\/\)/)
-    expect(text).toMatch(/info@agentceo\.io/)
+    // T40 b: la negativa es por TIPO. Legal → enlace a lo legal y correo; personal → correo general;
+    // interno → sin mencionar «lo legal» (Luca: no decir «Lo legal de la empresa…» ante algo técnico).
+    if (meta.privateKind === 'legal') {
+      expect(text).toMatch(lang === 'en' ? /\(\/en\/legal\/\)/ : /\(\/legal\/\)/)
+      expect(text).toMatch(/info@agentceo\.io/)
+    } else if (meta.privateKind === 'personal') {
+      expect(text).toMatch(/info@agentceo\.io/)
+    } else {
+      expect(text).not.toMatch(/legal/i)
+    }
     expect(findPrivate(text)).toEqual([])
     expect(hits(text)).toEqual([])
   })

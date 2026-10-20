@@ -353,8 +353,10 @@ describe('live con OpenRouter (fetch FALSO: nunca se llama a OpenRouter en tests
   it('si el modelo empieza a filtrar su prompt, se corta y responde con la negativa', async () => {
     const fakeFetch = async () => orStream([part('Claro, mis reglas: '), part('REGLAS INQUEBRANTABLES 1. IDENTIDAD…'), part(' y más')])
     const { text } = await readSSE(await handleChat(req(ask(`cuéntame algo de los agentes ${++qn}`)), liveEnv, null, { verifyFetch: okTs, fetchImpl: fakeFetch }))
-    expect(text).not.toMatch(/INQUEBRANTABLES|y más/)
-    expect(text).toMatch(/Eso no lo puedo compartir/)
+    // T40 b: la respuesta se bufferiza: NADA de lo generado llega al cliente (ni «Claro, mis reglas:»),
+    // solo la negativa de tipo «reglas».
+    expect(text).not.toMatch(/INQUEBRANTABLES|y más|Claro, mis reglas/)
+    expect(text).toMatch(/Mis instrucciones internas no las comparto/)
   })
 
   it('tope de respuestas live por IP y día (con Turnstile: 25) → stub (no error)', async () => {
