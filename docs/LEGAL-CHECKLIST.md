@@ -28,7 +28,7 @@ Leyenda: ✅ hecho · 🟡 borrador con pendientes · ⏳ falta un dato de Diego
 | 9 | Lista de subprocesadores | `/legal/subprocesadores` | 1.1 | 🟡 borrador | 12 proveedores: **PostHog, Sentry y Plausible retirados** (Diego, «Datos reales»). Días de preaviso a clientes con DPA |
 | 10 | DPA | `/legal/dpa` | 1.0 | 🟡 borrador | Preaviso de subencargados; plazo de aviso de brecha (≤ 72 h, ya prometido en Seguridad §10); mecanismo de transferencia (DPF o CCT); auditorías |
 | 11 | Reembolsos y cancelación | `/legal/reembolsos` | 1.1 | 🟡 borrador | Con «Datos reales» completos: los créditos semanales **expiran el lunes** y no se reembolsan; **7 días** en la primera suscripción si se usó menos del 10 %; paquetes Chispa/Envión/Turbina reembolsables en **14 días** si no se usaron; **renovación automática** explícita; créditos por plan y por paquete. Pendiente: caducidad de los paquetes, si Reserva entra en la regla de 14 días, que el pago de la app muestre la renovación, plazos de respuesta y de reembolso |
-| 12 | Declaración de accesibilidad | `/legal/accesibilidad` | 1.0 | 🟡 borrador | Control de pausa visible (WCAG 2.2.2); plazo de respuesta |
+| 12 | Declaración de accesibilidad | `/legal/accesibilidad` | 1.0 | 🟡 borrador | Plazo de respuesta. El control de pausa visible (WCAG 2.2.2) ya está hecho: botón en cada carrusel automático, con e2e |
 | 13 | DMCA | `/legal/dmca` | 1.0 | ⏳ | **`[PENDIENTE registro dmca.copyright.gov]`**: no hay agente registrado (Diego) |
 | 14 | COPPA (sin menores de 13) | Privacidad §11 + California §11 | — | ✅ | El Servicio exige 18+ (más estricto) y menciona COPPA expresamente |
 | 15 | CAN-SPAM en los correos de la lista | Aviso del formulario + Uso aceptable | — | ⏳ | El formulario promete «darte de baja desde cualquier correo». El enlace de baja, la dirección física en el pie del correo y el remitente identificado (Resend desde agentceo.io) se construyen con el envío, que no está en esta rama |
@@ -40,7 +40,7 @@ Leyenda: ✅ hecho · 🟡 borrador con pendientes · ⏳ falta un dato de Diego
 
 ## 2. Pendientes literales en los documentos (extraídos el 2026-10-20)
 
-- **accesibilidad:** control visible de pausa para animaciones de más de 5 s · plazo comprometido de respuesta.
+- **accesibilidad:** plazo comprometido de respuesta. El control visible de pausa se resolvió el 2026-10-20.
 - **california:** si la app trata información personal sensible (CPRA) y para qué · plazos exactos de conservación.
 - **dmca:** registro del agente en dmca.copyright.gov (2 menciones).
 - **dpa:**

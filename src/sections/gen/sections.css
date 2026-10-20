@@ -5,7 +5,7 @@
 .x7zQ5OV.x7zQ5OV{display:flex;flex-direction:column;gap:calc(28 * var(--u));align-items:flex-start;max-width:calc(600 * var(--u))}
 .x8KpEi9.x8KpEi9{display:inline-flex;align-items:center;gap:calc(10 * var(--u));padding:calc(6 * var(--u)) calc(14 * var(--u)) calc(6 * var(--u)) calc(8 * var(--u));border-radius:calc(999 * var(--u));border:1.5px solid rgba(17,17,19,0.22);font-size:max(calc(13 * var(--u)), 13px);color:#111113}
 .xmowBpR.xmowBpR{padding:calc(3 * var(--u)) calc(8 * var(--u));border-radius:calc(999 * var(--u));background:#111113;color:#F4F2ED;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:0.1em}
-.xryc4Hw.xryc4Hw{margin:0;font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:max(calc(84 * var(--u)), 13px);line-height:1;letter-spacing:-0.02em;color:#111113}
+.xryc4Hw.xryc4Hw{margin:0;font-family:'Instrument Serif','Instrument Serif Fallback',Georgia,serif;font-weight:400;font-size:max(calc(84 * var(--u)), 13px);line-height:1;letter-spacing:-0.02em;color:#111113}
 .x8Z2xR1.x8Z2xR1{display:block;white-space:nowrap}
 .xuukiTA.xuukiTA{display:block;font-style:italic}
 .xkQewTh.xkQewTh{margin:0;font-size:max(calc(20 * var(--u)), 13px);line-height:1.55;color:#5E5C56;max-width:calc(520 * var(--u))}

@@ -101,7 +101,9 @@
     "k41": "Estratega de pauta",
     "k42": "Inventarista",
     "k43": "Vendedor WhatsApp",
-    "k44": "+ Crea el tuyo"
+    "k44": "+ Crea el tuyo",
+    "hsPause": "Pausar el carrusel",
+    "hsPlay": "Reproducir el carrusel"
   },
   "S06": {
     "k1": "Trabajan solos",
@@ -229,7 +231,9 @@
     "k15": "Anterior",
     "k16": "‹",
     "k17": "Siguiente",
-    "k18": "›"
+    "k18": "›",
+    "hsPause": "Pausar el carrusel",
+    "hsPlay": "Reproducir el carrusel"
   },
   "S11": {
     "k1": "Automatizaciones",
@@ -294,7 +298,9 @@
     "k60": "‹",
     "k61": "Siguiente",
     "k62": "›",
-    "k63": "Y 17 más."
+    "k63": "Y 17 más.",
+    "hsPause": "Pausar el carrusel",
+    "hsPlay": "Reproducir el carrusel"
   },
   "S12": {
     "k1": "Estudio creativo",
@@ -409,7 +415,9 @@
     "k22": "‹",
     "k23": "Siguiente",
     "k24": "›",
-    "k25": "Ejemplo con datos inventados."
+    "k25": "Ejemplo con datos inventados.",
+    "hsPause": "Pausar el carrusel",
+    "hsPlay": "Reproducir el carrusel"
   },
   "S15": {
     "k1": "Conexiones",
@@ -502,7 +510,9 @@
     "k46": "$ 720.000",
     "k47": "Antes de pagar, ",
     "k48": "te pido tu firma.",
-    "k49": "✓ Pedido enviado · espera tu firma para pagar"
+    "k49": "✓ Pedido enviado · espera tu firma para pagar",
+    "hsPause": "Pausar el carrusel",
+    "hsPlay": "Reproducir el carrusel"
   },
   "S17": {
     "k1": "Tranquilidad",
@@ -519,7 +529,9 @@
     "k12": "Anterior",
     "k13": "‹",
     "k14": "Siguiente",
-    "k15": "›"
+    "k15": "›",
+    "hsPause": "Pausar el carrusel",
+    "hsPlay": "Reproducir el carrusel"
   },
   "S18": {
     "k1": "Preguntas frecuentes",

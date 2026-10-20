@@ -2,6 +2,7 @@
    Lo específico de cada pieza vive en su componente. */
 @import './tokens.css';
 @import './fonts.css';
+@import './fonts-fallback.css';
 
 /* Orden de capas: reset < proto (CSS del prototipo) < sections (sus estilos inline).
    Lo que NO está en capa (componentes del sitio, :focus-visible) gana a todo. */

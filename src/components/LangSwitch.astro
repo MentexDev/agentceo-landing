@@ -83,21 +83,3 @@ const cur = LOCALE_META[lang]
   .lang-check { color: var(--gold-ink); }
 </style>
 
-<script>
-  import { functionalAllowed } from '../scripts/consent.js'
-  // Cierra con Escape (devolviendo el foco) y al hacer clic fuera; guarda la preferencia.
-  for (const d of document.querySelectorAll<HTMLDetailsElement>('[data-lang-switch]')) {
-    const sum = d.querySelector('summary')!
-    d.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && d.open) { d.open = false; sum.focus() }
-    })
-    document.addEventListener('click', (e) => { if (d.open && !d.contains(e.target as Node)) d.open = false })
-    for (const a of d.querySelectorAll<HTMLAnchorElement>('[data-set-lang]')) {
-      a.addEventListener('click', () => {
-        if (!functionalAllowed()) return
-        const secure = location.protocol === 'https:' ? '; Secure' : ''
-        document.cookie = `lang=${a.dataset.setLang}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`
-      })
-    }
-  }
-</script>

@@ -131,12 +131,19 @@ _(se van añadiendo por fase)_
 - **LCP:**
   - escritorio 0,4–0,6 s;
   - móvil (4G lento simulado + CPU ×4) 1,7–1,8 s en las páginas internas.
-  - ⏳ **La portada en móvil se queda en 2,0–2,1 s frente al objetivo de < 2,0 s.** Probado y medido:
+  - ✅ **Resuelto el 2026-10-20 (arreglo de Luca): la portada en móvil baja a 1,66–1,81 s (es y en), con CLS 0.** Ver PROGRESO, «LCP y pausa». Antes se quedaba en 2,0–2,1 s. Probado y medido entonces:
     - la entrada del hero esperaba al JS → animación CSS: el retraso del elemento LCP baja de 1,56 s a 0,09 s;
     - CSS crítico separado (hero bloqueante, el resto sin bloquear);
     - CSS en línea → **empeora** (2,3 s, HTML de 75 KB gz), revertido;
     - quitar la precarga de la serif → sin efecto, revertido.
   - Lo que queda es el peso del HTML (45 KB gz, el **42 % son SVG en línea** de las mascotas, con ojos animados por instancia). La siguiente palanca: renderizar bajo demanda los SVG de las secciones que quedan por debajo del pliegue. Queda para la auditoría.
+  - **Lo que lo resolvió** (cada paso medido con Lighthouse 13 local móvil):
+    - titular y entradilla del hero suben sin fundido desde opacidad 0 (el fundido impedía contarlos como LCP);
+    - CSS no crítico en un fichero con hash pedido 300 ms tras `load`;
+    - los `<script>` de los componentes, unidos en un solo módulo (`src/scripts/site.js`);
+    - islas que importan sus textos en vez de serializarlos en el HTML;
+    - fuentes de respaldo con las métricas reales (`scripts/font-fallbacks.mjs`): al quitar el fundido, el cambio de fuente movía el hero (CLS 0,18), y ahora da 0.
+  - ⏳ **Pregunta para Diego:** el carrusel de S16 vive dentro de una maqueta decorativa (`aria-hidden`), y sus flechas y su pausa solo se usan con puntero o toque (`tabIndex=-1`, igual que en el prototipo). ¿Lo dejamos así, o S16 no debería avanzar solo?
 - **CLS de /noticias/ (0,062 → 0):** los filtros los revelaba el JS después de pintar → ahora son radios con `:has()`. Funcionan sin JS, no causan salto y son navegables con flechas.
 - **Caché:** los assets con hash (`/_a/`, `/_s/`) salían con `max-age=0` → ahora un año, `immutable`. Fuentes 30 días; OG y marca 1 día.
 - **Assets retirados de la web** (siguen en `design/legacy/assets`): el vídeo del hero de la v1 (6,6 MB), `favicon.png` (464 KB) y los logos PNG de la v1. ⏳ Pregunta 9 del PLAN: el vídeo no vuelve salvo que Diego lo pida.

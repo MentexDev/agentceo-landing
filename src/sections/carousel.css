@@ -1,0 +1,12 @@
+/* PAUSA DE LOS CARRUSELES AUTOMÁTICOS (WCAG 2.2.2) · el botón lo inyecta el compilador
+   (scripts/port/compile-sections.mjs) y lo gobierna src/scripts/vida.js. Mismo trazo que las
+   flechas del prototipo. Solo se ve si hay autoplay: con JS y sin movimiento reducido. */
+@layer sections {
+  .hs-play { flex: none; width: calc(40 * var(--u)); height: calc(40 * var(--u)); min-width: 40px; min-height: 40px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1.5px solid #111113; background: transparent; color: #111113; cursor: pointer; }
+  .hs-play[data-hs-play='d'] { width: calc(48 * var(--u)); height: calc(48 * var(--u)); }
+  .hs-play:focus-visible { outline: 2px solid #8a6a1f; outline-offset: 2px; }
+  .hs-play .hs-ico-play, .hs-play[aria-pressed='true'] .hs-ico-pause { display: none; }
+  .hs-play[aria-pressed='true'] .hs-ico-play { display: block; }
+  html:not(.js) .hs-play { display: none; }
+  @media (prefers-reduced-motion: reduce) { .hs-play { display: none; } }
+}

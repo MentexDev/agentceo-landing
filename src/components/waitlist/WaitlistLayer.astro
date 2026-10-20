@@ -18,7 +18,3 @@ const msgs = {
 <WaitlistModal lang={lang} />
 <StickyCta lang={lang} />
 <script type="application/json" id="wl-i18n" set:html={JSON.stringify(msgs).replace(/</g, '\\u003c')}></script>
-<script>
-  import { initWaitlist } from '../../scripts/waitlist.js'
-  initWaitlist()
-</script>

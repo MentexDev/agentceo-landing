@@ -99,6 +99,20 @@ export function initCarousels(root = document) {
     el.addEventListener('pointerdown', () => hold(el))
     el.addEventListener('focusin', () => hold(el))
   }
+  // Pausa/reproducir (WCAG 2.2.2): el botón [data-hs-play] de cada barra de flechas. Móvil ('m'):
+  // su carrusel es el hermano siguiente de la barra; escritorio ('d', S11): el .hs-d de la sección,
+  // cuyo autoplay (store.js) también mira __paused. La pausa es firme: solo la quita el botón.
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest?.('[data-hs-play]')
+    if (!b) return
+    const el = b.getAttribute('data-hs-play') === 'd' ? b.closest('section')?.querySelector('.hs-d') : b.closest('.hsctl')?.nextElementSibling
+    if (!el) return
+    el.__paused = !el.__paused
+    const label = b.getAttribute(el.__paused ? 'data-l-play' : 'data-l-pause')
+    b.setAttribute('aria-pressed', String(el.__paused))
+    b.setAttribute('aria-label', label)
+    b.setAttribute('title', label)
+  })
   root.addEventListener('click', (e) => {
     const b = e.target.closest?.('[data-hs]')
     if (!b) return
@@ -111,7 +125,7 @@ export function initCarousels(root = document) {
   setInterval(() => {
     if (document.hidden) return
     for (const el of root.querySelectorAll('.hs:not(.hs-d)')) {
-      if (el.__hold || el.scrollWidth <= el.clientWidth + 4) continue
+      if (el.__hold || el.__paused || el.scrollWidth <= el.clientWidth + 4) continue
       const r = el.getBoundingClientRect()
       if (r.bottom < 80 || r.top > innerHeight - 80) continue
       step(el, 1)

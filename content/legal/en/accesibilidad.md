@@ -57,8 +57,10 @@ We are honest about what is not right yet:
 
 - **Animated demos.** Some imitate screens from the application. They are
   **illustrative**: the information they convey is also in the page text.
-- **Automatic carousels.** They pause on mouse hover, on keyboard focus, or on
-  touch. [PENDIENTE: visible pause control for animations longer than 5 s.]
+- **Automatic carousels.** Every carousel that advances on its own has a
+  visible pause and play button next to its arrows (WCAG 2.2.2). They also stop
+  on mouse hover, on keyboard focus, or on touch, and they do not move if your
+  system asks for reduced motion.
 
 ## 5. What an automated audit cannot see
 

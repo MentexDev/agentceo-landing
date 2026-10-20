@@ -47,28 +47,3 @@ const cookies = hasRoute('legal:cookies', lang) ? href('legal:cookies', lang) : 
   .ck-more a { color: var(--gold-ink); }
   .ck-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 </style>
-<script>
-  import { readConsent, writeConsent } from '../scripts/consent.js'
-  const dlg = document.querySelector<HTMLDialogElement>('[data-cookie-panel]')!
-  const form = dlg.querySelector<HTMLFormElement>('[data-cookie-form]')!
-  const sync = () => {
-    const c = readConsent()
-    ;(form.elements.namedItem('f') as HTMLInputElement).checked = c.f === 1
-    ;(form.elements.namedItem('d') as HTMLInputElement).checked = c.d === 1
-    ;(form.elements.namedItem('d') as HTMLInputElement).disabled = Boolean(c.gpc)
-    dlg.querySelector<HTMLElement>('[data-gpc]')!.hidden = !c.gpc
-  }
-  // Los botones del pie (y de la página «No vender ni compartir») abren el panel.
-  for (const b of document.querySelectorAll<HTMLElement>('[data-cookie-prefs]')) {
-    b.hidden = false
-    b.addEventListener('click', () => { sync(); dlg.showModal() })
-  }
-  dlg.addEventListener('close', () => {
-    if (dlg.returnValue !== 'save') return
-    writeConsent({
-      f: (form.elements.namedItem('f') as HTMLInputElement).checked,
-      a: false,
-      d: (form.elements.namedItem('d') as HTMLInputElement).checked,
-    })
-  })
-</script>

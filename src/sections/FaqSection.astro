@@ -84,24 +84,3 @@ const items = FAQ.filter((f) => f.q[lang] && f.a[lang]).map((f, i) => ({
   }
 </style>
 
-<script>
-  for (const sec of document.querySelectorAll<HTMLElement>('[data-faq]')) {
-    const qs = [...sec.querySelectorAll<HTMLButtonElement>('[data-faq-q]')]
-    const as = [...sec.querySelectorAll<HTMLElement>('[data-faq-answer]')]
-    const face = sec.querySelector<HTMLElement>('[data-faq-face]')!
-    const show = (i: number) => {
-      qs.forEach((b, k) => {
-        const on = k === i
-        b.setAttribute('aria-expanded', String(on))
-        b.classList.toggle('fqa', on)
-        b.classList.toggle('fqb', !on)
-      })
-      as.forEach((a, k) => a.toggleAttribute('data-open', k === i))
-      // Reinicia la animación de «escribiendo» y la cara que habla, como en el prototipo.
-      face.classList.remove('faq-talk')
-      void face.offsetWidth
-      face.classList.add('faq-talk')
-    }
-    qs.forEach((b, i) => b.addEventListener('click', () => show(i)))
-  }
-</script>

@@ -61,7 +61,9 @@
     "k41": "Ad strategist",
     "k42": "Inventory Keeper",
     "k43": "WhatsApp Seller",
-    "k44": "+ Create your own"
+    "k44": "+ Create your own",
+    "hsPause": "Pause the carousel",
+    "hsPlay": "Play the carousel"
   },
   "S04": {
     "k1": "How it starts",
@@ -229,7 +231,9 @@
     "k15": "Previous",
     "k16": "‹",
     "k17": "Next",
-    "k18": "›"
+    "k18": "›",
+    "hsPause": "Pause the carousel",
+    "hsPlay": "Play the carousel"
   },
   "S11": {
     "k1": "Automations",
@@ -294,7 +298,9 @@
     "k60": "‹",
     "k61": "Next",
     "k62": "›",
-    "k63": "And 17 more."
+    "k63": "And 17 more.",
+    "hsPause": "Pause the carousel",
+    "hsPlay": "Play the carousel"
   },
   "S12": {
     "k1": "Creative Studio",
@@ -409,7 +415,9 @@
     "k22": "‹",
     "k23": "Next",
     "k24": "›",
-    "k25": "Example with made-up data."
+    "k25": "Example with made-up data.",
+    "hsPause": "Pause the carousel",
+    "hsPlay": "Play the carousel"
   },
   "S15": {
     "k1": "Connections",
@@ -502,7 +510,9 @@
     "k46": "$ 720.000",
     "k47": "Before paying, ",
     "k48": "I ask for your sign-off.",
-    "k49": "✓ Order sent · awaiting your sign-off to pay"
+    "k49": "✓ Order sent · awaiting your sign-off to pay",
+    "hsPause": "Pause the carousel",
+    "hsPlay": "Play the carousel"
   },
   "S17": {
     "k1": "Peace of mind",
@@ -519,7 +529,9 @@
     "k12": "Previous",
     "k13": "‹",
     "k14": "Next",
-    "k15": "›"
+    "k15": "›",
+    "hsPause": "Pause the carousel",
+    "hsPlay": "Play the carousel"
   },
   "S18": {
     "k1": "Frequently asked questions",

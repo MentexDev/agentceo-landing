@@ -46,9 +46,9 @@ const p = Astro.props
     <ChatWidget lang={p.lang} page={p.page || p.active || 'home'} />
     <CookiePanel lang={p.lang} />
     <slot name="after" />
+    <!-- Un solo punto de entrada JS para todo el sitio (src/scripts/site.js). -->
     <script>
-      import { initVida } from '../scripts/vida.js'
-      initVida()
+      import '../scripts/site.js'
     </script>
   </body>
 </html>

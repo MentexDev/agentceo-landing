@@ -41,23 +41,29 @@ const v = renderVals(initialState(), L)
 const d = (id: string) => sectionDict(lang, id)
 ---
 <Base lang={lang} title={t(lang, 'site.title')} description={t(lang, 'site.description')} path={href('home', lang)} alternates={alternatesFor('home')} jsonLd={homeJsonLd(lang)} page="home" mainClass="home">
-  <!-- CSS no crítico de las secciones: se descarga en paralelo sin bloquear el primer pintado. -->
-  <link slot="head" rel="preload" as="style" href={REST_CSS} onload="this.onload=null;this.rel='stylesheet'" />
+  <!-- CSS no crítico (secciones bajo el pliegue + demo S03): se pide 300 ms DESPUÉS del evento load,
+       para que no compita con el hero en la ruta crítica (en local, load llega en ~70 ms y a veces
+       se colaba antes del LCP). Medido con Lighthouse 13 móvil: con
+       rel=preload el LCP oscilaba entre 1,97 y 2,12 s según llegara antes o después del primer
+       pintado; media=print, 1,83–2,16 s. Sin JS: el <noscript> lo carga normal. -->
+  <script is:inline slot="head" define:vars={{ href: REST_CSS }}>
+    addEventListener('load', () => setTimeout(() => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.append(l) }, 300))
+  </script>
   <noscript slot="head"><link rel="stylesheet" href={REST_CSS} /></noscript>
   <S02 v={v} t={d('S02')}>
     <WaitlistForm lang={lang} source="hero" id="wl-hero" note={t(lang, 'wl.note')} />
   </S02>
   <AppDemoSection lang={lang} />
-  <I04 client:visible t={d('S04')} L={L} />
-  <I05 client:visible t={d('S05')} L={L} />
+  <I04 client:visible lang={lang} />
+  <I05 client:visible lang={lang} />
   <S06 v={v} t={d('S06')} />
   <S07 v={v} t={d('S07')} />
-  <I08 client:visible t={d('S08')} L={L} />
-  <I09 client:visible t={d('S09')} L={L} />
-  <I10 client:visible t={d('S10')} L={L} />
-  <I11 client:visible t={d('S11')} L={L} />
-  <I12 client:visible t={d('S12')} L={L} />
-  <I13 client:visible t={d('S13')} L={L} />
+  <I08 client:visible lang={lang} />
+  <I09 client:visible lang={lang} />
+  <I10 client:visible lang={lang} />
+  <I11 client:visible lang={lang} />
+  <I12 client:visible lang={lang} />
+  <I13 client:visible lang={lang} />
   <S14 v={v} t={d('S14')} />
   <S15 v={v} t={d('S15')} />
   <S16 v={v} t={d('S16')} />
@@ -69,9 +75,3 @@ const d = (id: string) => sectionDict(lang, id)
   <script type="application/json" id="ceo-msgs" set:html={JSON.stringify(L.ceo).replace(/</g, '\\u003c')}></script>
 </Base>
 
-<script>
-  import { initReveal, initCarousels, initCeoTap } from '../scripts/vida.js'
-  initReveal()
-  initCarousels()
-  initCeoTap()
-</script>

@@ -24,8 +24,8 @@
   --danger: #B3261E;
   --danger-dark: #F2B8A8;
 
-  --sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --sans: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: 'Instrument Serif', 'Instrument Serif Fallback', Georgia, 'Times New Roman', serif;
   --mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   --ease-out: cubic-bezier(.2, .7, .2, 1);

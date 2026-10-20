@@ -33,9 +33,14 @@ export const store = {
 const later = (key, ms, fn) => { clearTimeout(timers[key]); timers[key] = setTimeout(fn, ms) }
 
 // Carrusel de automatizaciones (S11): avanza solo cada 2,6 s si está a la vista,
-// se pausa con puntero/foco/toque y NO corre con motion reducido.
+// se pausa con puntero/foco/toque, se detiene con su botón de pausa (__paused, lo pone
+// vida.js) y NO corre con motion reducido.
 let autoEl = null, autoHold = false, autoT = 0
 function setAutoRef(el) {
+  // El árbol compilado lleva el ref en los DOS carriles (escritorio .hs-d y móvil .hs): el móvil
+  // se montaba el último y dejaba el autoplay de escritorio muerto (medido por el e2e de la pausa).
+  // El carril móvil lo mueve vida.js.
+  if (el && !el.classList.contains('hs-d')) return
   autoEl = el
   if (!el || el.__bound) return
   el.__bound = true
@@ -46,7 +51,7 @@ function setAutoRef(el) {
   el.addEventListener('touchstart', () => { autoHold = true; later('ht', 6000, free) }, { passive: true })
   if (!autoT && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     autoT = setInterval(() => {
-      if (!autoEl || autoHold || document.hidden || !autoEl.classList.contains('hs-d')) return
+      if (!autoEl || autoHold || autoEl.__paused || document.hidden || !autoEl.classList.contains('hs-d')) return
       const r = autoEl.getBoundingClientRect()
       if (r.bottom < 0 || r.top > innerHeight) return
       const first = autoEl.firstElementChild

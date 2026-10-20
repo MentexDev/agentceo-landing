@@ -58,9 +58,10 @@ Somos honestos con lo que aún no está bien:
 - **Demostraciones animadas.** Algunas imitan pantallas de la aplicación. Son
   **ilustrativas**: la información que transmiten también está en el texto de
   la página.
-- **Carruseles automáticos.** Se pausan al pasar el ratón, al enfocarlos con
-  el teclado o al tocarlos. [PENDIENTE: control visible de pausa para
-  animaciones de más de 5 s.]
+- **Carruseles automáticos.** Cada carrusel que avanza solo tiene un botón
+  visible de pausa y reproducción junto a sus flechas (WCAG 2.2.2). Además se
+  detienen al pasar el ratón, al enfocarlos con el teclado o al tocarlos, y no
+  se mueven si tu sistema pide reducir el movimiento.
 
 ## 5. Lo que una auditoría automática no ve
 

@@ -25,7 +25,7 @@
 // Uso:  node scripts/port/compile-sections.mjs     (escribe src/sections/gen/*)
 // No se ejecuta en el build: la salida se versiona y se revisa como código.
 // ═══════════════════════════════════════════════════════════════════════════
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
@@ -438,6 +438,29 @@ function replaceFormSlot(root) {
   return done
 }
 
+// PAUSA DE LOS CARRUSELES AUTOMÁTICOS (WCAG 2.2.2): todo carrusel que avanza solo lleva un
+// botón visible de pausa/reproducir junto a sus flechas. El prototipo no lo tiene, así que el
+// compilador lo inyecta en cada barra de flechas (móvil: .hsctl, que gobierna vida.js) y en la
+// de escritorio de S11 (autoplay de store.js). La lógica vive en src/scripts/vida.js; los
+// textos, en t.hsPause / t.hsPlay (es aquí, en a mano con las mismas claves).
+const PAUSE_TXT = { hsPause: 'Pausar el carrusel', hsPlay: 'Reproducir el carrusel' }
+const PAUSE_BTN = (where, inert = false) => `<button type="button" className="hs-play" data-hs-play="${where}"${inert ? ' tabIndex="-1"' : ''} aria-pressed="false" aria-label={t.hsPause} title={t.hsPause} data-l-pause={t.hsPause} data-l-play={t.hsPlay}><svg aria-hidden="true" className="hs-ico-pause" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="5" height="16" rx="1"></rect><rect x="14" y="4" width="5" height="16" rx="1"></rect></svg><svg aria-hidden="true" className="hs-ico-play" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"></path></svg></button>`
+function injectPause(id, code, dict) {
+  let n = 0
+  // Móvil: delante de la flecha «anterior» de cada barra .hsctl.
+  code = code.replace(/(<div className="hsctl [^"]*"[^>]*>(?:(?!<\/div>).)*?)(<button type="button" data-hs="-1")/gs, (m, a, b) => {
+    n++
+    // Si la barra vive dentro de un maqueta decorativa (aria-hidden, S16), sus flechas llevan
+    // tabIndex=-1: la pausa también, o habría un foco dentro de aria-hidden (axe: aria-hidden-focus).
+    const inert = /data-hs="-?1"[^>]*tabIndex="-1"/.test(m + code.slice(code.indexOf(m) + m.length, code.indexOf(m) + m.length + 400))
+    return `${a}${PAUSE_BTN('m', inert)}${b}`
+  })
+  // Escritorio (S11): delante de la flecha «anterior» del autoplay.
+  code = code.replace(/(<button type="button" className="[^"]*" onClick=\{v\.autoPrev\})/g, (b) => { n++; return `${PAUSE_BTN('d')}${b}` })
+  if (n) Object.assign(dict, PAUSE_TXT)
+  return { code, n }
+}
+
 const files = readdirSync(join(PROTO, 'desktop')).filter((f) => /^S\d\d/.test(f)).sort()
 const sectionsEs = {}
 const report = []
@@ -468,9 +491,10 @@ export default function ${name}({ v, t, children }) {
   )
 }
 `
-  writeFileSync(join(OUT, `${id}.jsx`), code)
+  const paused = injectPause(id, code, dict.dict)
+  writeFileSync(join(OUT, `${id}.jsx`), paused.code)
   sectionsEs[id] = dict.dict
-  report.push(`${id} ${name.slice(3)} · textos: ${Object.keys(dict.dict).length} · bloques con estructura distinta: ${stats.splits} · reordenados: ${stats.permutations || 0}`)
+  report.push(`${id} ${name.slice(3)} · textos: ${Object.keys(dict.dict).length} · bloques con estructura distinta: ${stats.splits} · reordenados: ${stats.permutations || 0}${paused.n ? ` · pausas: ${paused.n}` : ''}`)
 }
 
 // CSS: base (escritorio con --u) + overrides móviles (≤ 1023 px). Clase doble = la
@@ -488,7 +512,9 @@ function cssFor(names) {
     if (r.mob) mob.push(`.${n}.${n}{${r.mob}}`)
   }
   out += `@media (max-width:${BREAK}px){\n${mob.join('\n')}\n}\n}\n`
-  return out
+  // Respaldo con las métricas de la fuente real (src/styles/fonts-fallback.css): sin él, el
+  // titular del hero saltaba al llegar Instrument Serif (CLS 0,18 medido con Lighthouse 13).
+  return out.replaceAll("'Instrument Serif',Georgia", "'Instrument Serif','Instrument Serif Fallback',Georgia")
 }
 const all = [...rules.keys()]
 const crit = all.filter((n) => [...usedBy.get(n)].some((x) => CRITICAL.has(x)))
@@ -497,12 +523,9 @@ let css = cssFor(crit)
 css += `@media (max-width:${BREAK}px){.only-d{display:none!important}}\n@media (min-width:${BREAK + 1}px){.only-m{display:none!important}}\n.dc{display:contents}\n`
 writeFileSync(join(OUT, 'sections.css'), css)
 const restCss = cssFor(rest)
-const restHash = createHash('sha1').update(restCss).digest('hex').slice(0, 10)
-const REST_DIR = join(ROOT, 'public', '_s')
-mkdirSync(REST_DIR, { recursive: true })
-for (const f of readdirSync(REST_DIR)) if (f.startsWith('sections-rest.')) unlinkSync(join(REST_DIR, f))
-writeFileSync(join(REST_DIR, `sections-rest.${restHash}.css`), restCss)
-writeFileSync(join(OUT, 'rest-css.js'), `// GENERADO · ruta del CSS no crítico de las secciones (con hash: caché inmutable)\nexport const REST_CSS = '/_s/sections-rest.${restHash}.css'\n`)
+// El resto se ensambla en el build (scripts/build-rest-css.mjs) con el resto del prototipo
+// y la demo de S03 en UN fichero con hash, que la portada carga sin bloquear.
+writeFileSync(join(OUT, 'sections-rest.css'), restCss)
 
 // Diccionario español (fuente). El inglés se traduce aparte con las MISMAS claves.
 writeFileSync(join(I18N, 'es.json'), `${JSON.stringify(sectionsEs, null, 2)}\n`)

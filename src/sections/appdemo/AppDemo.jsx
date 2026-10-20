@@ -16,7 +16,7 @@ import {
   Settings, ChevronRight, Play, Pause, FileText, Mail, Presentation, Sheet, Video, Undo2,
 } from 'lucide-preact'
 import { DICT, VIEWS, SIDE_OF, URL_OF, ORDERS, CLIENTS, METRICS } from './data.js'
-import './appdemo.css'
+// Estilos: appdemo.css va en el CSS NO crítico de la portada (scripts/build-rest-css.mjs).
 
 const ICON_VIEW = { chat: MessageSquare, aprobaciones: CircleCheck, biblioteca: Library, panel: LayoutDashboard, ventas: ShoppingCart, clientes: Contact }
 const KIND_ICON = { pink: Image, emerald: Sheet, violet: Mail, amber: Presentation, sky: FileText, rose: Video }

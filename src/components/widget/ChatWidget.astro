@@ -244,32 +244,3 @@ const strings = {
   }
 </style>
 
-<script>
-  import { ss } from '../../scripts/storage.js'
-  // Cargador mínimo: el panel (y su código) se descargan en el primer uso.
-  const root = document.querySelector<HTMLElement>('[data-chat-root]')
-  if (root) {
-    let loading: Promise<any> | null = null
-    const load = () => (loading ||= import('../../scripts/chat/panel.js').then((m) => m.initPanel(root)))
-    root.addEventListener('click', async (e) => {
-      const opener = (e.target as HTMLElement).closest<HTMLElement>('[data-chat-open]')
-      if (!opener) return
-      const api = await load()
-      api.open(opener.dataset.chatSource || 'launcher')
-    })
-    // Precarga en reposo para que el primer clic sea instantáneo.
-    ;(window as any).requestIdleCallback?.(() => setTimeout(() => import('../../scripts/chat/panel.js'), 2500))
-    // Burbuja de invitación: una vez por sesión, a los 8 s, si nadie abrió el chat.
-    const tease = root.querySelector<HTMLElement>('[data-chat-tease]')!
-    let seen = false
-    seen = Boolean(ss.get('ac_tease'))
-    if (!seen) {
-      setTimeout(() => {
-        if (root.querySelector('[data-chat-launch]')?.getAttribute('aria-expanded') === 'true') return
-        tease.hidden = false
-        ss.set('ac_tease', '1')
-      }, 8000)
-    }
-    root.querySelector('[data-chat-tease-close]')?.addEventListener('click', () => { tease.hidden = true })
-  }
-</script>

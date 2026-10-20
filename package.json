@@ -10,8 +10,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "check": "npm run build && npm test",
-    "prebuild": "node scripts/build-knowledge.mjs",
-    "pretest": "node scripts/build-knowledge.mjs",
+    "prebuild": "node scripts/build-knowledge.mjs && node scripts/build-rest-css.mjs",
+    "pretest": "node scripts/build-knowledge.mjs && node scripts/build-rest-css.mjs",
     "deploy": "npm run build && WRANGLER_SEND_METRICS=false wrangler deploy"
   },
   "dependencies": {

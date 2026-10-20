@@ -23,3 +23,16 @@ Una línea por fase cerrada: fecha · fase · qué quedó · commit.
     - **CLS** 0–0,029 (presupuesto < 0,05) ✅ · **TBT** 0 ms en todas (INP no se mide en laboratorio) ✅.
   - **axe WCAG 2.2 AA:** 0 violaciones en todas las páginas auditadas (es y en, 390 y 1440 px).
   - **Seguridad:** sin claves en el código, en `dist/` ni en el historial de git; `npm audit`: 0 vulnerabilidades.
+- 2026-10-20 · **LCP y pausa (arreglos de Luca)**:
+  - **LCP de la portada en móvil (Lighthouse 13 local), de 2,1 s (es) y 2,0 s (en) a 1,66–1,81 s en es y en**, en 8 pasadas. CLS 0, y 99–100 en rendimiento, accesibilidad, buenas prácticas y SEO. Escritorio: 0,4 s.
+  - **Cómo se consiguió:**
+    - titular y entradilla suben sin fundido (la entrada conserva su recorrido y escalonado; etiqueta y botones conservan el fundido completo);
+    - CSS no crítico con hash, pedido tras `load`;
+    - un solo módulo JS;
+    - islas sin props serializados;
+    - fuentes de respaldo con métricas reales, que dejan el CLS en 0.
+  - **Pausa y reproducción visibles (WCAG 2.2.2):** en los 7 carruseles automáticos (S05, S10, S11, S14, S16 y S17 en móvil, y S11 en escritorio). Botón con `aria-pressed` y etiqueta es/en; lo inyecta el compilador y lo gobierna `vida.js`. Arreglado de paso: el autoplay de S11 en escritorio nunca avanzaba (el ref móvil pisaba al de escritorio).
+  - **Tests:**
+    - 438 unitarios;
+    - e2e: escritorio 64/64 y Chromium móvil 63/63, con `carousels.spec.js` nuevo y 4 mutaciones a mano que se ponen en rojo;
+    - ⚠️ WebKit no se pudo medir al final: deja de arrancar en esta Mac (`browserType.launch` timeout). Antes de romperse, `carousels.spec` pasó 42/42 en los 3 navegadores. La suite completa con los 3 proyectos en paralelo se cuelga también en HEAD (`a2b5086`): no lo introduce este cambio.
