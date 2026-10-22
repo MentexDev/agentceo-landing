@@ -3,6 +3,8 @@
 // → emails/screenshots/<id>.<locale>.{escritorio,movil,oscuro}.png (+ .invertido para ES) y overview.png
 //   escritorio = 1200 px · movil = 375 px · oscuro = 375 px con prefers-color-scheme: dark (Apple Mail / iOS)
 //   invertido  = 375 px con la inversión forzada de Gmail/Outlook simulada (colores invertidos, imágenes no)
+//   sinimagenes = 375 px con las imágenes BLOQUEADAS (lo que ve Gmail antes de «Mostrar imágenes»): el alt
+//                 tiene que quedarse dentro de su cuadrado (T54)
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -20,6 +22,7 @@ const MODES = {
   movil: { viewport: { width: 375, height: 812 }, colorScheme: 'light', deviceScaleFactor: 1 },
   oscuro: { viewport: { width: 375, height: 812 }, colorScheme: 'dark', deviceScaleFactor: 1 },
   invertido: { viewport: { width: 375, height: 812 }, colorScheme: 'light', deviceScaleFactor: 1, invert: true, only: 'es' },
+  sinimagenes: { viewport: { width: 375, height: 812 }, colorScheme: 'light', deviceScaleFactor: 1, blockImages: true, only: 'es' },
 }
 const INVERT = 'html{filter:invert(1) hue-rotate(180deg)}img{filter:invert(1) hue-rotate(180deg)}'
 
@@ -30,6 +33,7 @@ let n = 0
 for (const [mode, cfg] of Object.entries(MODES)) {
   const ctx = await browser.newContext({ viewport: cfg.viewport, colorScheme: cfg.colorScheme, deviceScaleFactor: cfg.deviceScaleFactor || 1 })
   const page = await ctx.newPage()
+  if (cfg.blockImages) await page.route(/\/email-assets\//, (route) => route.abort())
   for (const m of meta) {
     for (const locale of Object.keys(m.locales)) {
       if (cfg.only && cfg.only !== locale) continue

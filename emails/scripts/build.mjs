@@ -1,7 +1,12 @@
 // Render ESTÁTICO de todas las plantillas × idiomas, con los datos de ejemplo (ficticios) de cada una.
-//   node emails/scripts/build.mjs
+//   POSTAL_ADDRESS="…" node emails/scripts/build.mjs     → producción + galería (FALLA si falta POSTAL_ADDRESS)
+//   node emails/scripts/build.mjs --gallery              → solo la galería (aviso amarillo donde va la dirección)
+// Configuración (variables de entorno):
+//   POSTAL_ADDRESS        dirección postal del pie (CAN-SPAM). Obligatoria para producción.
+//   EMAIL_ASSET_BASE_URL  base https de los PNG (por defecto https://agentceo.io/email-assets/v1).
+//   EMAILS_OUT_DIR        carpeta de salida (por defecto emails/out; los tests usan una temporal).
 // Salidas (emails/out/, ignorado por git):
-//   out/<id>.<locale>.html|.txt   → listas para un proveedor (PNG y fuentes desde https://agentceo.io)
+//   out/<id>.<locale>.html|.txt   → listas para un proveedor (PNG con URL https absoluta)
 //   out/gallery/…                 → la galería local (PNG y fuentes desde el propio servidor de la galería)
 // El JSX se compila con esbuild (dependencia del paquete); el código que se ejecuta es emails/src tal cual.
 import fs from 'node:fs'
@@ -11,7 +16,7 @@ import { build } from 'esbuild'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const PKG = path.resolve(HERE, '..')
-const OUT = path.join(PKG, 'out')
+const OUT = path.resolve(process.env.EMAILS_OUT_DIR || path.join(PKG, 'out'))
 const CACHE = path.join(PKG, '.cache')
 
 export async function loadEmails() {
@@ -27,20 +32,32 @@ export async function loadEmails() {
 const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch])
 
 async function main() {
+  const galleryOnly = process.argv.includes('--gallery')
+  const postalAddress = (process.env.POSTAL_ADDRESS || '').trim()
+  const assetBase = process.env.EMAIL_ASSET_BASE_URL || undefined
+  if (!galleryOnly && !postalAddress) {
+    console.error('✗ Falta POSTAL_ADDRESS: el build de producción no sale sin dirección postal (CAN-SPAM).\n  Para ver solo la galería: node emails/scripts/build.mjs --gallery')
+    process.exit(1)
+  }
   const { TEMPLATES, LOCALES, render } = await loadEmails()
-  fs.rmSync(OUT, { recursive: true, force: true })
+  // Solo se borra lo que este script crea.
+  fs.rmSync(path.join(OUT, 'gallery'), { recursive: true, force: true })
+  if (!galleryOnly) for (const f of fs.existsSync(OUT) ? fs.readdirSync(OUT) : []) if (/\.(es|en)\.(html|txt)$/.test(f)) fs.rmSync(path.join(OUT, f))
   fs.mkdirSync(path.join(OUT, 'gallery'), { recursive: true })
   const meta = []
   for (const t of TEMPLATES) {
     const row = { id: t.id, phase: t.phase, kind: t.kind, tone: t.tone, title: t.title, when: t.when, locales: {} }
     for (const locale of LOCALES) {
       const data = t.sample(locale)
-      const prod = await render(t, locale, data)
-      const prev = await render(t, locale, data, { assetBase: '' })
-      fs.writeFileSync(path.join(OUT, `${t.id}.${locale}.html`), prod.html)
-      fs.writeFileSync(path.join(OUT, `${t.id}.${locale}.txt`), `${locale === 'es' ? 'Asunto' : 'Subject'}: ${prod.subject}\n\n${prod.text}\n`)
+      const prev = await render(t, locale, data, { preview: true, assetBase: '/email-assets/v1', fontBase: '', postalAddress })
+      const prod = galleryOnly ? prev : await render(t, locale, data, { assetBase, postalAddress })
+      const txt = (r) => `${locale === 'es' ? 'Asunto' : 'Subject'}: ${r.subject}\n\n${r.text}\n`
+      if (!galleryOnly) {
+        fs.writeFileSync(path.join(OUT, `${t.id}.${locale}.html`), prod.html)
+        fs.writeFileSync(path.join(OUT, `${t.id}.${locale}.txt`), txt(prod))
+      }
       fs.writeFileSync(path.join(OUT, 'gallery', `${t.id}.${locale}.html`), prev.html)
-      fs.writeFileSync(path.join(OUT, 'gallery', `${t.id}.${locale}.txt`), `${locale === 'es' ? 'Asunto' : 'Subject'}: ${prod.subject}\n\n${prod.text}\n`)
+      fs.writeFileSync(path.join(OUT, 'gallery', `${t.id}.${locale}.txt`), txt(prev))
       row.locales[locale] = { subject: prod.subject, preheader: prod.preheader, bytes: Buffer.byteLength(prod.html), headers: prod.headers }
     }
     meta.push(row)
@@ -48,7 +65,7 @@ async function main() {
   fs.writeFileSync(path.join(OUT, 'gallery', 'meta.json'), JSON.stringify(meta, null, 2))
   fs.writeFileSync(path.join(OUT, 'gallery', 'index.html'), gallery(meta))
   const kb = meta.flatMap((m) => Object.values(m.locales).map((l) => l.bytes))
-  console.log(`✓ ${meta.length} plantillas × ${LOCALES.length} idiomas → emails/out/ (HTML de ${Math.min(...kb) / 1000 | 0} a ${Math.max(...kb) / 1000 | 0} KB; Gmail recorta a partir de 102 KB)`)
+  console.log(`✓ ${meta.length} plantillas × ${LOCALES.length} idiomas → ${galleryOnly ? 'solo galería' : 'producción + galería'} en ${path.relative(process.cwd(), OUT) || '.'} (HTML de ${Math.min(...kb) / 1000 | 0} a ${Math.max(...kb) / 1000 | 0} KB; Gmail recorta a partir de 102 KB)`)
 }
 
 // La galería: una página, todas las plantillas × ES/EN, con conmutadores de ancho y de tema.

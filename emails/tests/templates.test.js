@@ -1,7 +1,18 @@
 // Todas las plantillas × ES/EN con sus datos de ejemplo: se pintan, traen asunto, preheader y texto plano,
 // las de marketing llevan baja (enlace + cabeceras RFC 8058) y las de servicio no.
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { execFileSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
-import { TEMPLATES, LOCALES, render, byId } from '../src/index.js'
+import { EMAIL_ASSETS, POSTAL_PLACEHOLDER } from '../src/brand.js'
+import { SEND, readDevVar, redact, imageSources, checkImages, buildTestEmail, config } from '../scripts/send-test.mjs'
+import { TEMPLATES, LOCALES, render as renderReal, byId } from '../src/index.js'
+// Dirección postal FICTICIA solo para los tests (la real es configuración: POSTAL_ADDRESS).
+const POSTAL = 'Calle Ficticia 123, 00000 Ciudad de Prueba'
+const BUILD = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../scripts/build.mjs')
+const render = (t, l, d, o) => renderReal(t, l, d, { postalAddress: POSTAL, ...o })
 import { BUSINESS_PROMPTS } from '../src/gifts.js'
 import { BUSINESS_TYPES } from '../../src/data/waitlist.js'
 import { PACKS } from '../../content/precios.js'
@@ -55,7 +66,7 @@ describe.each(cases)('%s · %s', (id, l) => {
     expect(r.html).toContain('<meta name="color-scheme" content="light dark"')
     const imgs = [...r.html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((m) => m[1])
     expect(imgs.length).toBeGreaterThan(0)
-    for (const src of imgs) expect(src).toMatch(/^https:\/\/agentceo\.io\/brand\/email\/[a-z-]+\.png$/)
+    for (const src of imgs) expect(src).toMatch(/^https:\/\/agentceo\.io\/email-assets\/v1\/[a-z0-9-]+\.png$/)
     expect(r.html).not.toMatch(/<svg|\.svg"/)
     expect(Buffer.byteLength(r.html)).toBeLessThan(102_000)
     expect(r.html).toContain(`lang="${l}"`)
@@ -65,7 +76,8 @@ describe.each(cases)('%s · %s', (id, l) => {
     const r = await get(id, l)
     for (const s of [r.html, r.text]) {
       expect(s).toContain('Klinworks, LLC')
-      expect(s).toContain('{{POSTAL_ADDRESS}}')
+      expect(s).toContain(POSTAL)
+      expect(s).not.toContain('POSTAL_ADDRESS')
       expect(s).toContain('info@agentceo.io')
     }
   })
@@ -150,5 +162,165 @@ describe('regalos y precios reales', () => {
       const r = await get(id, l)
       expect(r.html, id).toMatch(/Prompt listo|Ready-to-copy|💡 Tip|class="ac-tint"|ac-half/)
     }
+  })
+})
+
+describe('imágenes que Gmail sí pinta (T54: la Prueba 1 llegó con las imágenes rotas)', () => {
+  const ASSET_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../public/email-assets/v1')
+  const pngSide = (file) => { const b = fs.readFileSync(file); return [b.readUInt32BE(16), b.readUInt32BE(20)] }
+  const imgs = (html) => [...html.matchAll(/<img\b[^>]*>/g)].map((m) => m[0])
+  const attr = (tag, a) => tag.match(new RegExp(`\\s${a}="([^"]*)"`))?.[1]
+
+  it('cada PNG del registro existe en public/email-assets/v1 y mide 2× su tamaño mayor en pantalla', () => {
+    for (const { file, px } of Object.values(EMAIL_ASSETS)) {
+      const f = path.join(ASSET_DIR, file)
+      expect(fs.existsSync(f), file).toBe(true)
+      expect(pngSide(f), file).toEqual([px, px])
+    }
+  })
+
+  it.each(cases)('%s · %s: cada <img> lleva alt, width/height y va en su celda fija', async (id, l) => {
+    const r = await get(id, l)
+    for (const tag of imgs(r.html)) {
+      expect(attr(tag, 'alt')?.trim().length, tag).toBeGreaterThan(1)
+      const w = Number(attr(tag, 'width')), h = Number(attr(tag, 'height'))
+      expect(w, tag).toBeGreaterThan(0)
+      expect(h, tag).toBeGreaterThan(0)
+      // 2× retina: el PNG propio mide al menos el doble de lo que ocupa.
+      const own = Object.values(EMAIL_ASSETS).find((a) => attr(tag, 'src').endsWith(`/${a.file}`))
+      if (own) expect(own.px, tag).toBeGreaterThanOrEqual(2 * w)
+    }
+    // Celda de tamaño fijo: cada avatar va dentro de un <td width=N height=N> (con imágenes bloqueadas,
+    // el alt se queda dentro del cuadrado en vez de desbordarse junto a la píldora).
+    const cells = [...r.html.matchAll(/<td[^>]*\swidth="(\d+)"[^>]*\sheight="(\d+)"[^>]*>(?:(?!<\/td>)[\s\S])*?<img[^>]*\swidth="(\d+)"/g)]
+    expect(cells.length).toBe(imgs(r.html).filter((t) => !/ceo-noche/.test(t)).length)
+    for (const [, tw, th, iw] of cells) expect([tw, th]).toEqual([iw, iw])
+  })
+
+  it('con imágenes bloqueadas, la portada no se rompe: la columna de la mascota tiene ancho fijo', async () => {
+    const r = await get('waitlist-welcome', 'es')
+    expect(r.html).toMatch(/<td[^>]*width="80"[^>]*>[\s\S]*?<table[^>]*width="64"/)
+    expect(r.html).toContain('¡confirmado!')
+  })
+
+  it('el HTML CONSTRUIDO (build.mjs) solo trae <img src> https absolutos acabados en .png/.jpg/.gif', () => {
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'emails-t54-'))
+    try {
+      execFileSync(process.execPath, [BUILD], { env: { ...process.env, POSTAL_ADDRESS: POSTAL, EMAILS_OUT_DIR: out, EMAIL_ASSET_BASE_URL: '' }, stdio: 'pipe' })
+      const files = fs.readdirSync(out).filter((f) => f.endsWith('.html'))
+      expect(files).toHaveLength(TEMPLATES.length * LOCALES.length)
+      let n = 0
+      for (const f of files) {
+        for (const [, src] of fs.readFileSync(path.join(out, f), 'utf8').matchAll(/<img[^>]+src="([^"]+)"/g)) {
+          expect(src, f).toMatch(/^https:\/\/[^\s"]+\.(png|jpg|gif)$/)
+          n++
+        }
+      }
+      expect(n).toBeGreaterThan(TEMPLATES.length * LOCALES.length)
+    } finally {
+      fs.rmSync(out, { recursive: true, force: true })
+    }
+  }, 60_000)
+
+  it('el build de producción FALLA sin POSTAL_ADDRESS (y no escribe nada)', () => {
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'emails-t54-'))
+    try {
+      const { POSTAL_ADDRESS, ...env } = process.env
+      let code = 0
+      try { execFileSync(process.execPath, [BUILD], { env: { ...env, EMAILS_OUT_DIR: out }, stdio: 'pipe' }) } catch (e) { code = e.status }
+      expect(code).toBe(1)
+      expect(fs.readdirSync(out)).toEqual([])
+    } finally {
+      fs.rmSync(out, { recursive: true, force: true })
+    }
+  })
+
+  it('render sin dirección postal → falla; la vista previa pinta el aviso claro', async () => {
+    await expect(renderReal('waitlist-confirm', 'es', byId('waitlist-confirm').sample('es'))).rejects.toThrow('POSTAL_ADDRESS')
+    const prev = await renderReal('waitlist-confirm', 'es', byId('waitlist-confirm').sample('es'), { preview: true, assetBase: '/email-assets/v1' })
+    expect(prev.html).toContain(POSTAL_PLACEHOLDER)
+  })
+
+  it('la base de imágenes es configurable y fuera de la galería tiene que ser https', async () => {
+    const d = byId('waitlist-welcome').sample('es')
+    const r = await render('waitlist-welcome', 'es', d, { assetBase: 'https://cdn.ejemplo.test/correo/v1/' })
+    for (const [, src] of r.html.matchAll(/<img[^>]+src="([^"]+)"/g)) expect(src).toMatch(/^https:\/\/cdn\.ejemplo\.test\/correo\/v1\/[a-z0-9-]+\.png$/)
+    for (const bad of ['', '/email-assets/v1', 'http://agentceo.io/email-assets/v1', '//agentceo.io/x'])
+      await expect(render('waitlist-welcome', 'es', d, { assetBase: bad })).rejects.toThrow('https')
+  })
+})
+
+describe('avatares propios: ceo.avatarUrl y agents[].avatarUrl', () => {
+  const CEO = 'https://cdn.ejemplo.test/fotos/ceo.jpg'
+  const AG = ['https://cdn.ejemplo.test/a/1.png', null, 'https://cdn.ejemplo.test/a/3.gif']
+  it.each(TEMPLATES.map((t) => [t.id]))('%s: el CEO usa su foto si llega, y si no, la mascota', async (id) => {
+    const d = byId(id).sample('es')
+    const base = await render(id, 'es', d)
+    const r = await render(id, 'es', { ...d, ceo: { avatarUrl: CEO }, agents: AG.map((avatarUrl) => ({ avatarUrl })) })
+    const ceoImgs = (base.html.match(/\/ceo\.png"/g) || []).length
+    expect(ceoImgs).toBeGreaterThan(0)
+    expect((r.html.match(new RegExp(`src="${CEO}"`, 'g')) || []).length).toBe(ceoImgs)
+    expect(r.html).not.toContain('/ceo.png"')
+  })
+  it('la fila del equipo: override por posición, y la mascota por defecto donde no llega', async () => {
+    const d = byId('waitlist-welcome').sample('es')
+    const r = await render('waitlist-welcome', 'es', { ...d, agents: AG.map((avatarUrl) => ({ avatarUrl })) })
+    expect(r.html).toContain(`src="${AG[0]}"`)
+    expect(r.html).toContain('/agente-2.png"')
+    expect(r.html).toContain(`src="${AG[2]}"`)
+    expect(r.html).toContain('/agente-4.png"')
+    expect(r.html).not.toContain('/agente-1.png"')
+    expect(r.html).toMatch(new RegExp(`alt="Director General"[^>]*src="${AG[0]}"|src="${AG[0]}"[^>]*alt="Director General"`))
+  })
+  it('un avatar que Gmail no pintaría (http, SVG, relativo, con comillas) → falla en voz alta', async () => {
+    const d = byId('waitlist-welcome').sample('es')
+    for (const bad of ['http://x.test/a.png', 'https://x.test/a.svg', '/a.png', 'https://x.test/a.png" onerror="x', 'https://x.test/a.png?v=1'])
+      await expect(render('waitlist-welcome', 'es', { ...d, ceo: { avatarUrl: bad } })).rejects.toThrow('ceo.avatarUrl')
+    await expect(render('waitlist-welcome', 'es', { ...d, agents: [{}, { avatarUrl: 'https://x.test/a.webp' }] })).rejects.toThrow('agents[1].avatarUrl')
+  })
+})
+
+describe('send-test.mjs (sin enviar nada: solo sus piezas)', () => {
+  const FAKE = 're_FALSA_clave_de_mentira_123456'
+  it('lee la clave de .dev.vars y nunca la deja salir a pantalla', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'emails-t54-'))
+    try {
+      const f = path.join(dir, '.dev.vars')
+      fs.writeFileSync(f, `OTRA=1\nRESEND_API_KEY="${FAKE}"\nPOSTAL_ADDRESS=${POSTAL}\n`)
+      expect(readDevVar(f, 'RESEND_API_KEY')).toBe(FAKE)
+      expect(readDevVar(f, 'NO_ESTA')).toBeNull()
+      const cfg = config({ EMAIL_ASSET_BASE_URL: 'https://agentceo.io/email-assets/v1' }, f)
+      expect(cfg.errors).toEqual([])
+      expect(cfg.postalAddress).toBe(POSTAL)
+      expect(redact(`Bearer ${FAKE} y otra vez ${FAKE}`, FAKE)).toBe('Bearer *** y otra vez ***')
+      // Sin config, los errores nombran lo que falta, nunca la clave.
+      const bad = config({}, path.join(dir, 'no-existe'))
+      expect(bad.errors.join(' ')).toMatch(/EMAIL_ASSET_BASE_URL.*POSTAL_ADDRESS.*RESEND_API_KEY/)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+  it('arma EXACTAMENTE el correo pedido: waitlist-welcome.es, de info@ a ceo@, asunto de la Prueba 2', async () => {
+    const email = await buildTestEmail({ render: renderReal, byId, assetBase: 'https://agentceo.io/email-assets/v1', postalAddress: POSTAL, unsubscribeUrl: 'mailto:info@agentceo.io?subject=Baja' })
+    expect(email.from).toBe('Agent CEO <info@agentceo.io>')
+    expect(email.to).toEqual(['ceo@agentceo.io'])
+    expect(email.subject).toBe('[Prueba 2] Bienvenido a la lista de espera de Agent CEO')
+    expect(email.html).toContain('¡confirmado!')
+    expect(email.text.length).toBeGreaterThan(200)
+    expect(email.headers).toEqual({ 'List-Unsubscribe': '<mailto:info@agentceo.io?subject=Baja>' })
+    for (const src of imageSources(email.html)) expect(src).toMatch(/^https:\/\/agentceo\.io\/email-assets\/v1\/[a-z0-9-]+\.png$/)
+    expect(SEND.idempotencyKey).toBeTruthy()
+  })
+  it('no envía si una imagen no responde 200 image/png (lo que rompió la Prueba 1)', async () => {
+    const html = '<img src="https://a.test/ok.png"><img src="https://a.test/falta.png"><img src="/rel.png">'
+    const fake = async (u) => ({ status: u.endsWith('ok.png') ? 200 : 404, headers: new Headers({ 'content-type': u.endsWith('ok.png') ? 'image/png' : 'text/html' }) })
+    const p = await checkImages(html, fake)
+    expect(p).toHaveLength(2)
+    expect(p.join(' ')).toMatch(/falta\.png → 404/)
+    expect(p.join(' ')).toMatch(/rel\.png → no es https/)
+    expect(await checkImages('<img src="https://a.test/ok.png">', fake)).toEqual([])
+    // Un 404 que aun así dice image/png (página de error de algún CDN) tampoco pasa.
+    const liar = async () => ({ status: 404, headers: new Headers({ 'content-type': 'image/png' }) })
+    expect(await checkImages('<img src="https://a.test/ok.png">', liar)).toHaveLength(1)
   })
 })

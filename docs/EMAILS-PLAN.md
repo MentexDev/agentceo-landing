@@ -87,14 +87,16 @@ const { subject, preheader, html, text, headers } = await render('waitlist-confi
 
 **Detalles de `render`:**
 - Es **pura**: no envía, no toca la red ni el disco.
-- `opts.assetBase` cambia de dónde salen los PNG y las fuentes. Por defecto es `https://agentceo.io`; la galería usa `''`.
+- `opts.postalAddress` es **obligatoria** (sin ella, falla). `opts.assetBase` (`EMAIL_ASSET_BASE_URL`) es la base https de los PNG; por defecto `https://agentceo.io/email-assets/v1`. Solo la galería (`preview: true`) admite rutas relativas.
+- Avatares propios: `ceo.avatarUrl` y `agents[i].avatarUrl` (ver [`emails/README.md`](../emails/README.md)).
 - Los datos obligatorios de cada plantilla están en `required`. Los datos de ejemplo (ficticios) están en `sample(locale)`.
 
 **Comandos:**
-- `node emails/scripts/build.mjs` → HTML y texto estáticos en `emails/out/` (ignorado por git).
+- `POSTAL_ADDRESS="…" node emails/scripts/build.mjs` → HTML y texto estáticos en `emails/out/` (ignorado por git). **Falla sin `POSTAL_ADDRESS`**. `--gallery` genera solo la galería.
 - `node emails/scripts/serve.mjs` → galería en **http://127.0.0.1:3012/**. Tiene conmutadores de móvil, oscuro (Apple Mail) e invertido (Gmail/Outlook).
 - `node emails/scripts/screenshots.mjs` → `emails/screenshots/` y `overview.png`.
-- `node emails/scripts/assets.mjs` → regenera los PNG de la mascota en `public/brand/email/`.
+- `node emails/scripts/assets.mjs` → regenera los PNG 2× en `public/email-assets/v1/` (T54).
+- `node emails/scripts/send-test.mjs` → la prueba real con Resend (un correo; la ejecuta una persona). Ver [`emails/README.md`](../emails/README.md).
 
 **Diseño:**
 - Tablas, estilos en línea, ancho de 600 px y preheader en cada correo.
@@ -109,7 +111,7 @@ const { subject, preheader, html, text, headers } = await render('waitlist-confi
 
 ## 4. Lo que falta para enviar (fuera de este turno)
 
-1. **Dirección postal** para el pie. Hoy es el placeholder `{{POSTAL_ADDRESS}}`: CAN-SPAM exige una dirección física válida, y la del repo es la de la oficina registrada, que está vetada.
+1. **Dirección postal** para el pie. Es configuración (`POSTAL_ADDRESS`) y no vive en el repo. Sin ella, `render()` y el build de producción fallan (T54). CAN-SPAM exige una dirección física válida, y la del repo es la de la oficina registrada, que está vetada.
 2. **Worker:**
    - tokens de confirmación y `confirmed_at`;
    - endpoint de baja de un clic (POST, RFC 8058);
@@ -118,5 +120,5 @@ const { subject, preheader, html, text, headers } = await render('waitlist-confi
    - dominio verificado (SPF, DKIM y DMARC en `agentceo.io`);
    - clave como *secret* de wrangler, nunca en el repo;
    - remitente (`hola@` o `info@agentceo.io`).
-4. **Desplegar la landing** para que existan `https://agentceo.io/brand/email/*.png`. Hasta entonces, un correo real mostraría las imágenes rotas.
+4. **Desplegar la landing** para que existan `https://agentceo.io/email-assets/v1/*.png`. Medido el 2026-10-22, hoy dan 404. Esa fue la causa de la Prueba 1 rota: los PNG de `/brand/email/` nunca se publicaron. `send-test.mjs` ya no envía si alguna imagen no responde 200.
 5. **Probar en clientes reales** (Gmail web y app, Outlook escritorio, Apple Mail e iOS). Las capturas son de Chromium: el modo oscuro de Apple Mail se emuló con `prefers-color-scheme` y la inversión de Gmail se simuló con un filtro CSS. **No se midió en los clientes reales.**

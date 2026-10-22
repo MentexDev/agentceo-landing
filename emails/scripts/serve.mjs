@@ -1,6 +1,6 @@
 // Galería local de los correos: http://127.0.0.1:3012/
 //   node emails/scripts/build.mjs && node emails/scripts/serve.mjs     (o: npm run gallery -w emails)
-// Sirve emails/out/gallery y, para que los correos se vean con sus PNG y fuentes, /brand y /fonts de public/.
+// Sirve emails/out/gallery y, para que los correos se vean con sus PNG y fuentes, /email-assets y /fonts de public/.
 // Puerto: 3012 por defecto (EMAILS_PORT para otro). ⛔ Nunca 3000/4000/3100/4100/4101/5433/6380, y el 3011
 // es de la rama `nube` en esta Mac. Si el puerto está ocupado, FALLA (no salta a otro ni mata a nadie).
 import http from 'node:http'
@@ -19,7 +19,7 @@ const TYPES = { '.html': 'text/html; charset=utf-8', '.txt': 'text/plain; charse
 
 export function resolveFile(urlPath) {
   const p = decodeURIComponent(urlPath.split('?')[0])
-  const [base, rel] = /^\/(brand|fonts)\//.test(p) ? [PUBLIC, p] : [GALLERY, p === '/' ? '/index.html' : p]
+  const [base, rel] = /^\/(email-assets|fonts)\//.test(p) ? [PUBLIC, p] : [GALLERY, p === '/' ? '/index.html' : p]
   const file = path.resolve(base, `.${rel}`)
   // Sin salir de su carpeta: nada de ../../ hacia el resto del disco.
   return file.startsWith(base + path.sep) ? file : null

@@ -3,9 +3,10 @@
 // variables CSS. El único <style> es el de las fuentes, el móvil y el modo oscuro (Apple Mail / iOS / Outlook.com);
 // si un cliente lo ignora, el correo sigue legible porque todo lo básico va en línea.
 import { Body, Button, Column, Container, Head, Hr, Html, Img, Link, Preview, Row, Section, Text } from 'react-email'
-import { COLORS as C, FONTS as F, COMPANY, ROUTES } from './brand.js'
+import { COLORS as C, FONTS as F, COMPANY, ROUTES, EMAIL_ASSETS, POSTAL_PLACEHOLDER } from './brand.js'
 
-const asset = (ctx, p) => `${ctx.assetBase}${p}`
+const asset = (ctx, name) => `${ctx.assetBase}/${EMAIL_ASSETS[name].file}`
+const font = (ctx, p) => `${ctx.fontBase}${p}`
 
 // Fuentes de la landing (las mismas woff2 de public/fonts) + móvil + modo oscuro.
 // [data-ogsc] = Outlook.com en oscuro; el resto, prefers-color-scheme.
@@ -19,14 +20,15 @@ function styles(ctx) {
     .ac-gold{color:${C.gold2}!important}
     .ac-line{border-color:${C.nightLine}!important}
     .ac-btn{background:${C.gold2}!important;color:${C.ink}!important}
+    .ac-plate{background:${C.ink}!important}
     .ac-light{display:none!important}
     .ac-dark{display:block!important;max-height:none!important;overflow:visible!important}`
   const scoped = (sel) => dark.replace(/\n\s+\./g, `\n${sel} .`)
   return `
-  @font-face{font-family:'Instrument Serif';font-style:normal;font-weight:400;src:url(${asset(ctx, '/fonts/instrument-serif-latin-400-normal.woff2')}) format('woff2')}
-  @font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;src:url(${asset(ctx, '/fonts/instrument-serif-latin-400-italic.woff2')}) format('woff2')}
-  @font-face{font-family:Geist;font-style:normal;font-weight:100 900;src:url(${asset(ctx, '/fonts/geist-latin-wght-normal.woff2')}) format('woff2')}
-  @font-face{font-family:'Geist Mono';font-style:normal;font-weight:100 900;src:url(${asset(ctx, '/fonts/geist-mono-latin-wght-normal.woff2')}) format('woff2')}
+  @font-face{font-family:'Instrument Serif';font-style:normal;font-weight:400;src:url(${font(ctx, '/fonts/instrument-serif-latin-400-normal.woff2')}) format('woff2')}
+  @font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;src:url(${font(ctx, '/fonts/instrument-serif-latin-400-italic.woff2')}) format('woff2')}
+  @font-face{font-family:Geist;font-style:normal;font-weight:100 900;src:url(${font(ctx, '/fonts/geist-latin-wght-normal.woff2')}) format('woff2')}
+  @font-face{font-family:'Geist Mono';font-style:normal;font-weight:100 900;src:url(${font(ctx, '/fonts/geist-mono-latin-wght-normal.woff2')}) format('woff2')}
   :root{color-scheme:light dark;supported-color-schemes:light dark}
   a{color:inherit}
   @media (max-width:620px){
@@ -84,18 +86,38 @@ export function Header({ label, date }) {
   )
 }
 
-// La mascota: placa crema (y su gemela de noche, oculta salvo en modo oscuro). Siempre PNG.
-export function Mascot({ ctx, size = 64, tone = 'mascota', alt }) {
-  const a = alt ?? (ctx.locale === 'es' ? 'Tu CEO, la mascota de Agent CEO' : 'Your CEO, the Agent CEO mascot')
+// Un avatar (tu CEO o un agente) SIEMPRE dentro de una celda de tamaño fijo (width/height en atributo y en
+// estilo): con las imágenes bloqueadas, Gmail pinta el alt DENTRO de ese cuadrado en letra pequeña, sin
+// empujar la píldora de al lado ni romper la fila. La celda lleva el color de la placa como respaldo.
+// Por defecto, nuestros PNG 2× (con su gemelo de noche, oculto salvo en modo oscuro). Si llega
+// ceo.avatarUrl / agents[i].avatarUrl, se usa esa imagen (ya validada en render) y no hay gemelo.
+export function Avatar({ ctx, size = 64, who = 'ceo', index = 0, alt, align }) {
+  const es = ctx.locale === 'es'
+  const a = alt || (es ? 'Tu CEO' : 'Your CEO')
+  const name = who === 'agent' ? `agente-${(index % 4) + 1}` : 'ceo'
+  const custom = who === 'agent' ? ctx.avatars?.agents?.[index] : ctx.avatars?.ceo
+  const r = Math.round(size * 0.25)
+  const img = { display: 'block', width: size, height: size, border: 0, outline: 'none', textDecoration: 'none', borderRadius: r, fontFamily: F.sans, fontSize: 10, lineHeight: '12px', color: C.muted, objectFit: 'cover' }
   return (
-    <>
-      <Img className="ac-light" src={asset(ctx, `/brand/email/${tone}.png`)} width={size} height={size} alt={a} style={{ display: 'block', borderRadius: size * 0.25 }} />
-      <div className="ac-dark" style={{ display: 'none', maxHeight: 0, overflow: 'hidden', msoHide: 'all' }}>
-        <Img src={asset(ctx, '/brand/email/mascota-noche.png')} width={size} height={size} alt="" style={{ display: 'block', borderRadius: size * 0.25 }} />
-      </div>
-    </>
+    <table role="presentation" width={size} height={size} cellPadding="0" cellSpacing="0" border="0" align={align} style={{ width: size, height: size, borderCollapse: 'collapse', tableLayout: 'fixed', ...(align === 'center' ? { margin: '0 auto' } : {}) }}>
+      <tbody><tr>
+        <td className={custom ? undefined : 'ac-plate'} width={size} height={size} align="center" valign="middle" style={{ width: size, height: size, maxWidth: size, overflow: 'hidden', borderRadius: r, background: EMAIL_ASSETS[name].plate, textAlign: 'center', verticalAlign: 'middle', fontFamily: F.sans, fontSize: 10, lineHeight: '12px', color: C.muted, wordBreak: 'break-word' }}>
+          {custom ? (
+            <Img src={custom} width={size} height={size} alt={a} style={img} />
+          ) : (
+            <>
+              <Img className="ac-light" src={asset(ctx, name)} width={size} height={size} alt={a} style={img} />
+              <div className="ac-dark" style={{ display: 'none', maxHeight: 0, overflow: 'hidden', msoHide: 'all' }}>
+                <Img src={asset(ctx, 'ceo-noche')} width={size} height={size} alt={a} style={img} />
+              </div>
+            </>
+          )}
+        </td>
+      </tr></tbody>
+    </table>
   )
 }
+export const Mascot = (props) => <Avatar {...props} who="ceo" />
 
 // Portada: mascota + pegatina opcional + rótulo + titular (la palabra clave, en itálica) + entradilla.
 export function Hero({ ctx, eyebrow, sticker, title, lead, mascot = true }) {
@@ -103,7 +125,7 @@ export function Hero({ ctx, eyebrow, sticker, title, lead, mascot = true }) {
     <Section className="ac-pad" style={{ padding: '28px 40px 4px' }}>
       {mascot && (
         <Row>
-          <Column style={{ width: 72, verticalAlign: 'middle' }}><Mascot ctx={ctx} /></Column>
+          <Column width="80" style={{ width: 80, verticalAlign: 'middle' }}><Mascot ctx={ctx} /></Column>
           <Column style={{ verticalAlign: 'middle' }}>
             {sticker && (
               <span style={{ display: 'inline-block', padding: '6px 12px', borderRadius: 999, background: C.gold3, color: C.goldInk, fontFamily: F.serif, fontStyle: 'italic', fontSize: 20, lineHeight: '20px', transform: 'rotate(-3deg)' }}>{sticker}</span>
@@ -157,7 +179,7 @@ export function Bubble({ ctx, children }) {
   return (
     <Block style={{ paddingTop: 24 }}>
       <Row>
-        <Column style={{ width: 52, verticalAlign: 'top' }}><Mascot ctx={ctx} size={40} /></Column>
+        <Column width="52" style={{ width: 52, verticalAlign: 'top' }}><Mascot ctx={ctx} size={40} /></Column>
         <Column style={{ verticalAlign: 'top' }}>
           <div className="ac-tint" style={{ background: C.gold3, border: `1px solid ${C.gold3}`, borderRadius: '4px 16px 16px 16px', padding: '12px 16px' }}>
             <Text className="ac-tx" style={{ margin: 0, fontSize: 15, lineHeight: '1.55', color: C.ink }}>{children}</Text>
@@ -282,16 +304,16 @@ export function Meter({ pct, label, sub }) {
   )
 }
 
-// El equipo de IA en una fila: la mascota con su placa y el puesto debajo (texto vivo, se traduce).
+// El equipo de IA en una fila: el avatar de cada agente y el puesto debajo (texto vivo, se traduce).
+// El alt de cada avatar es el puesto: con imágenes bloqueadas, la fila sigue diciendo quién es quién.
 export function TeamRow({ ctx, title, members }) {
-  const tones = ['mascota', 'mascota-oro', 'mascota', 'mascota-oro']
   return (
     <Block style={{ paddingTop: 26 }}>
       {title && <Eyebrow>{title}</Eyebrow>}
       <Row style={{ marginTop: 12 }}>
         {members.slice(0, 4).map((m, i) => (
           <Column key={i} align="center" className="ac-half" style={{ width: '25%', verticalAlign: 'top', padding: '0 4px' }}>
-            <Mascot ctx={ctx} size={56} tone={tones[i % tones.length]} alt="" />
+            <Avatar ctx={ctx} size={56} who="agent" index={i} alt={m.name} align="center" />
             <Text className="ac-tx" style={{ margin: '8px 0 0', fontSize: 13, fontWeight: 600, lineHeight: '1.3', color: C.ink, textAlign: 'center' }}>{m.name}</Text>
             {m.does && <Text className="ac-muted" style={{ margin: '2px 0 0', fontSize: 12, lineHeight: '1.35', color: C.muted, textAlign: 'center' }}>{m.does}</Text>}
           </Column>
@@ -318,7 +340,7 @@ export function Signature({ ctx, line }) {
   return (
     <Block style={{ paddingTop: 30 }}>
       <Row>
-        <Column style={{ width: 52, verticalAlign: 'middle' }}><Mascot ctx={ctx} size={40} alt="" /></Column>
+        <Column width="52" style={{ width: 52, verticalAlign: 'middle' }}><Mascot ctx={ctx} size={40} /></Column>
         <Column style={{ verticalAlign: 'middle' }}>
           <Text className="ac-tx" style={{ ...SERIF_BOLD, margin: 0, fontSize: 22, lineHeight: '1.1', color: C.ink }}>{es ? 'Tu CEO' : 'Your CEO'}</Text>
           <Text className="ac-muted" style={{ margin: '2px 0 0', fontSize: 13, color: C.muted }}>{line || (es ? 'La IA de Agent CEO' : 'The Agent CEO AI')}</Text>
@@ -352,7 +374,7 @@ export function Footer({ ctx, kind, reason, unsubscribeUrl, preferencesUrl }) {
         </Text>
       )}
       <Text className="ac-muted" style={{ margin: '12px 0 0', fontSize: 12, lineHeight: '1.6', color: C.muted }}>
-        Agent CEO · {COMPANY.legalName} · {COMPANY.postalAddress}
+        Agent CEO · {COMPANY.legalName} · {ctx.postalAddress === POSTAL_PLACEHOLDER ? <span style={{ background: '#FFE08A', color: C.ink, padding: '0 4px' }}>{ctx.postalAddress}</span> : ctx.postalAddress}
         <br />
         <Link className="ac-muted" href={`mailto:${COMPANY.email}`} style={linkStyle}>{COMPANY.email}</Link>
         {' · '}

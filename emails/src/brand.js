@@ -29,14 +29,33 @@ export const FONTS = {
 
 export const SITE = 'https://agentceo.io'
 
+// Los PNG de correo viven en public/email-assets/v1/ (se publican con la landing). Carpeta VERSIONADA: si un
+// dibujo cambia, va a v2/ y los correos ya enviados siguen viendo el suyo. Gmail no pinta SVG ni rutas
+// relativas: en producción, SIEMPRE URL https absoluta. La base se cambia con EMAIL_ASSET_BASE_URL.
+export const EMAIL_ASSET_BASE = `${SITE}/email-assets/v1`
+
+// Cada PNG a 2× (retina) del tamaño MÁS GRANDE al que se pinta. px = lado del PNG; el test lo mide en el fichero.
+//   ceo: portada 64 px (burbuja y firma, 40)  ·  agente-N: la fila del equipo, 56 px
+export const EMAIL_ASSETS = {
+  ceo: { file: 'ceo.png', px: 128, plate: '#F4F2ED', svg: 'agentceo-mascota.svg' },
+  'ceo-noche': { file: 'ceo-noche.png', px: 128, plate: '#111113', svg: 'agentceo-mascota-clara.svg' },
+  'agente-1': { file: 'agente-1.png', px: 112, plate: '#EFE4C8', svg: 'agentceo-mascota.svg' },
+  'agente-2': { file: 'agente-2.png', px: 112, plate: '#F4F2ED', svg: 'agentceo-mascota.svg' },
+  'agente-3': { file: 'agente-3.png', px: 112, plate: '#D9B866', svg: 'agentceo-mascota.svg' },
+  'agente-4': { file: 'agente-4.png', px: 112, plate: '#E2DED4', svg: 'agentceo-mascota.svg' },
+}
+
+// Lo que una URL de imagen de correo tiene que cumplir (assets propios y avatares que llegan por datos).
+export const EMAIL_IMAGE_URL = /^https:\/\/[^\s"'<>]+\.(png|jpg|gif)$/i
+
 // Pie legal. ⛔ PROHIBIDO aquí cualquier dato del registro de la sociedad (número, fecha o estado
-// donde se registró): lo vigila emails/tests/legal.test.js. La dirección postal no está en el repo
-// (las páginas legales solo tienen la oficina registrada, que no sirve): placeholder honesto.
+// donde se registró): lo vigila emails/tests/legal.test.js. La dirección postal NO vive en el repo: es
+// configuración (POSTAL_ADDRESS) y render() falla sin ella. Solo la vista previa (galería) pinta este aviso.
 export const COMPANY = {
   legalName: 'Klinworks, LLC',
-  postalAddress: '{{POSTAL_ADDRESS}}',
   email: 'info@agentceo.io',
 }
+export const POSTAL_PLACEHOLDER = '[FALTA POSTAL_ADDRESS · dirección postal sin configurar]'
 
 export const ROUTES = {
   home: { es: '/', en: '/en/' },

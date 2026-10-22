@@ -8,8 +8,9 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "gallery": "node scripts/build.mjs && node scripts/serve.mjs",
-    "shots": "node scripts/build.mjs && node scripts/screenshots.mjs"
+    "gallery": "node scripts/build.mjs --gallery && node scripts/serve.mjs",
+    "shots": "node scripts/build.mjs --gallery && node scripts/screenshots.mjs",
+    "send-test": "node scripts/send-test.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.2"
