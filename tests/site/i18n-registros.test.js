@@ -69,17 +69,23 @@ describe('textos y contenido de cada idioma', () => {
   })
 })
 
-describe('islas: cada isla lleva los textos de TODOS los idiomas', () => {
+describe('islas: cada isla lleva los textos de TODOS los idiomas, sin imports por idioma', () => {
   const dir = new URL('../../src/sections/islands/', import.meta.url)
   const files = readdirSync(dir).filter((f) => /^I\d+\.jsx$/.test(f))
   it.each(files)('%s', (f) => {
     const src = readFileSync(new URL(f, dir), 'utf8')
-    const texts = /const TEXTS = \{([^}]*)\}/.exec(src)?.[1].split(',').map((s) => s.trim()).filter(Boolean)
-    const logic = /const LOGIC = \{([^}]*)\}/.exec(src)?.[1].split(',').map((s) => s.split(':')[0].trim()).filter(Boolean)
-    expect(texts?.sort(), 'TEXTS').toEqual([...LOCALES].sort())
-    expect(logic?.sort(), 'LOGIC').toEqual([...LOCALES].sort())
-    // Nada de ternarios por idioma: el mapa manda.
+    const S = /from '\.\.\/gen\/(S\d+)\.jsx'/.exec(src)[1]
+    // Los textos y la lógica salen de import.meta.glob (todos los idiomas): añadir uno no toca la isla.
+    expect(src).toContain(`import.meta.glob('../../i18n/sections/*.json', { eager: true, import: '${S}' })`)
+    expect(src).toContain("import.meta.glob('../../i18n/logic/*.js', { eager: true, import: 'default' })")
+    expect(src).not.toMatch(/i18n\/(sections|logic|ui)\/(es|en|pt)\./)
     expect(src).not.toMatch(/lang === '(es|en|pt)'/)
+  })
+  it.each(LOCALES)('%s: cada sección de las islas existe en su JSON', (l) => {
+    for (const f of files) {
+      const S = /from '\.\.\/gen\/(S\d+)\.jsx'/.exec(readFileSync(new URL(f, dir), 'utf8'))[1]
+      expect(SECTIONS[l][S], `${l}.${S}`).toBeTruthy()
+    }
   })
 })
 

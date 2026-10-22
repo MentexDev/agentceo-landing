@@ -95,9 +95,9 @@ test.describe('sin JavaScript', () => {
 })
 
 test('con motion reducido no hay animaciones en marcha', async ({ browser }) => {
-  const ctx = await browser.newContext({ reducedMotion: 'reduce' })
+  const ctx = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: 'es-ES', reducedMotion: 'reduce' })
   const page = await ctx.newPage()
-  await page.goto('http://127.0.0.1:8787/')
+  await page.goto('/')
   await page.waitForTimeout(500)
   const running = await page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running').length)
   expect(running).toBe(0)

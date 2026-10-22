@@ -17,7 +17,7 @@ const minimo = (page) => page.evaluate(async () => {
 })
 
 test('sin JS (HTML del servidor): el chat de la demo ya trae la conversación completa', async ({ browser }, info) => {
-  const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL: info.project.use.baseURL })
+  const ctx = await browser.newContext({ locale: 'es-ES', javaScriptEnabled: false, baseURL: info.project.use.baseURL })
   const page = await ctx.newPage()
   await page.goto('/')
   const demo = page.locator('[data-appdemo]')

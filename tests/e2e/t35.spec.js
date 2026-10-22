@@ -6,9 +6,9 @@ const movil = (info) => info.project.name.startsWith('movil')
 test.describe('1 · acta (S07): alineada con el título y entera en pantalla', () => {
   for (const [w, h] of [[1280, 800], [1440, 900]]) {
     test(`${w}×${h}`, async ({ browser }) => {
-      const ctx = await browser.newContext({ viewport: { width: w, height: h } })
+      const ctx = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: 'es-ES', viewport: { width: w, height: h } })
       const page = await ctx.newPage()
-      await page.goto('http://127.0.0.1:8787/')
+      await page.goto('/')
       await restCss(page)
       const r = await page.evaluate(() => {
         const card = document.querySelector('.minutes').parentElement, sec = card.closest('section')
@@ -28,9 +28,9 @@ test.describe('1 · acta (S07): alineada con el título y entera en pantalla', (
 
 test.describe('2 · S03 «Así se ve tu empresa por dentro» nunca se ve vacía', () => {
   test('el HTML del servidor ya trae conversación (sin JS)', async ({ browser }) => {
-    const ctx = await browser.newContext({ javaScriptEnabled: false })
+    const ctx = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: 'es-ES', javaScriptEnabled: false })
     const page = await ctx.newPage()
-    await page.goto('http://127.0.0.1:8787/')
+    await page.goto('/')
     await expect(page.locator('[data-appdemo] .ad-earlier')).toContainText('12 ventas')
     await ctx.close()
   })

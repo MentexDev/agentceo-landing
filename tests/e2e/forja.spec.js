@@ -30,9 +30,9 @@ async function abrir(page, url) {
 const vista = (sec) => sec.locator('[data-forja]').filter({ visible: true }).first()
 
 test('movimiento reducido: los 6 tipos muestran su producto real al instante (es)', async ({ browser }) => {
-  const ctx = await browser.newContext({ reducedMotion: 'reduce' })
+  const ctx = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: 'es-ES', reducedMotion: 'reduce' })
   const page = await ctx.newPage()
-  const sec = await abrir(page, 'http://127.0.0.1:8787/')
+  const sec = await abrir(page, '/')
   for (const [k, [tipo, textos]] of ES.entries()) {
     await sec.getByRole('button', { name: tipo, exact: true }).click()
     const v = vista(sec)
@@ -49,9 +49,9 @@ test('movimiento reducido: los 6 tipos muestran su producto real al instante (es
 })
 
 test('en inglés, el producto final habla inglés', async ({ browser }) => {
-  const ctx = await browser.newContext({ reducedMotion: 'reduce' })
+  const ctx = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: 'es-ES', reducedMotion: 'reduce' })
   const page = await ctx.newPage()
-  const sec = await abrir(page, 'http://127.0.0.1:8787/en/')
+  const sec = await abrir(page, '/en/')
   for (const [tipo, textos] of EN) {
     await sec.getByRole('button', { name: tipo, exact: true }).click()
     for (const t of textos) await expect(vista(sec)).toContainText(t)

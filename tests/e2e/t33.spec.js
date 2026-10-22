@@ -94,9 +94,9 @@ test.describe('5 · widget expandido por encima del header', () => {
 
   test('móvil en horizontal: la hoja cubre el header y se cierra', async ({ browser }, info) => {
     test.skip(!movil(info), 'caso móvil')
-    const ctx = await browser.newContext({ viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true })
+    const ctx = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: 'es-ES', viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true })
     const page = await ctx.newPage()
-    await page.goto('http://127.0.0.1:8787/')
+    await page.goto('/')
     await page.evaluate(() => scrollTo(0, 700))
     await page.locator('[data-chat-launch]').click()
     await expect(page.locator('#cw-panel')).toBeVisible()

@@ -92,9 +92,9 @@ test('todo carrusel automático de la portada lleva su botón de pausa', async (
 })
 
 test('motion reducido: sin autoplay, así que sin botón de pausa', async ({ browser }) => {
-  const ctx = await browser.newContext({ reducedMotion: 'reduce' })
+  const ctx = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: 'es-ES', reducedMotion: 'reduce' })
   const page = await ctx.newPage()
-  await page.goto('http://127.0.0.1:8787/')
+  await page.goto('/')
   await page.waitForFunction(() => [...document.styleSheets].some((s) => /\/_s\/rest\./.test(s.href || '')))
   await expect(page.locator('.hs-play').first()).toBeHidden()
   await ctx.close()

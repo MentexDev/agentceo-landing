@@ -4,16 +4,11 @@
 import S from '../gen/S13.jsx'
 import ForjaPreview from '../forja/ForjaPreview.jsx'
 import { useLanding } from '../store.js'
-import { S13 as es } from '../../i18n/sections/es.json'
-import { S13 as en } from '../../i18n/sections/en.json'
-import { S13 as pt } from '../../i18n/sections/pt.json'
-import logicEs from '../../i18n/logic/es.js'
-import logicEn from '../../i18n/logic/en.js'
-import logicPt from '../../i18n/logic/pt.js'
+import { byLang } from './textos.js'
 
-// Un idioma nuevo = una línea más en cada import y en estos dos mapas (lo vigila tests/site/i18n-registros.test.js).
-const TEXTS = { es, en, pt }
-const LOGIC = { es: logicEs, en: logicEn, pt: logicPt }
+// Todos los idiomas, sin tocar la isla al añadir uno (./textos.js · tests/site/i18n-registros.test.js).
+const TEXTS = byLang(import.meta.glob('../../i18n/sections/*.json', { eager: true, import: 'S13' }))
+const LOGIC = byLang(import.meta.glob('../../i18n/logic/*.js', { eager: true, import: 'default' }))
 
 export default function I13({ lang }) {
   const v = useLanding(LOGIC[lang] || LOGIC.es)

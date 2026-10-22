@@ -77,9 +77,9 @@ test('pausa: el recorrido automático avanza solo y el botón lo detiene', async
 })
 
 test('motion reducido: estados finales al instante y sin recorrido automático', async ({ browser }) => {
-  const ctx = await browser.newContext({ reducedMotion: 'reduce' })
+  const ctx = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: 'es-ES', reducedMotion: 'reduce' })
   const page = await ctx.newPage()
-  await page.goto('http://127.0.0.1:8787/')
+  await page.goto('/')
   const demo = page.locator('[data-appdemo]')
   await demo.evaluate((el) => el.scrollIntoView({ block: 'center' }))
   await expect(demo.locator('.ad-bubble-agent:not(.ad-earlier)')).toContainText('Necesita tu firma')

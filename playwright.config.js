@@ -8,7 +8,10 @@ export default defineConfig({
   fullyParallel: true,
   retries: 0,
   reporter: [['list']],
-  use: { baseURL: `http://127.0.0.1:${PORT}`, trace: 'retain-on-failure' },
+  // T62: «/» redirige según Accept-Language (worker/lib/locale.js). El navegador de la suite es el visitante de
+  // siempre, en español; Playwright por defecto manda en-US y la portada saltaría a /en/. Los tests de otros idiomas
+  // abren su propio contexto (tests/e2e/i18n-pt.spec.js).
+  use: { baseURL: `http://127.0.0.1:${PORT}`, trace: 'retain-on-failure', locale: 'es-ES' },
   projects: [
     { name: 'escritorio', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
     { name: 'movil-webkit', use: { ...devices['iPhone 15'] } },

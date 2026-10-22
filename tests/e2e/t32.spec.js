@@ -106,9 +106,9 @@ test.describe('7 · acta de la reunión', () => {
   })
 
   test('con motion reducido aparece sin animación', async ({ browser }) => {
-    const ctx = await browser.newContext({ reducedMotion: 'reduce' })
+    const ctx = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: 'es-ES', reducedMotion: 'reduce' })
     const page = await ctx.newPage()
-    await page.goto('http://127.0.0.1:8787/en/')
+    await page.goto('/en/')
     await page.waitForFunction(() => [...document.styleSheets].some((s) => /\/_s\/rest\./.test(s.href || '')))
     const rows = page.locator('.minutes-row')
     expect(await page.locator('.minutes-say').evaluateAll((els) => els.map((e) => getComputedStyle(e).animationName + '|' + getComputedStyle(e).opacity))).toEqual(Array(4).fill('none|1'))
