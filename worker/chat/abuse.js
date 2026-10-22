@@ -22,7 +22,8 @@
 import VERSION from '../generated/content-version.json' with { type: 'json' }
 export const CONTENT_VERSION = VERSION.version
 
-export const TURNSTILE_VERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+export { TURNSTILE_VERIFY } from '../lib/turnstile.js'
+import { siteverify } from '../lib/turnstile.js'
 
 // Clientes automáticos conocidos (no son navegadores de una persona).
 const TOOL_UA = /\b(curl|wget|python|httpie|go-http|java\/|okhttp|node-fetch|undici|axios|aiohttp|libwww|postman|insomnia|scrapy|headless|phantomjs|selenium|puppeteer|playwright|crawler|spider|bot\b|bot\/)/i
@@ -59,23 +60,13 @@ export function hasPII(text = '') {
 }
 
 /**
- * Verifica un token de Cloudflare Turnstile en el servidor (siteverify). `fetchImpl` se inyecta
- * en tests. Cualquier fallo (red, token vacío, respuesta rara) = NO verificado.
+ * Verifica un token de Cloudflare Turnstile en el servidor (siteverify, worker/lib/turnstile.js).
+ * `fetchImpl` se inyecta en tests. En el chat, cualquier fallo (red, token vacío, respuesta rara) = NO
+ * verificado: el chat cae al stub, que es gratis, así que aquí no hace falta abrir la mano.
  */
 export async function verifyTurnstile({ secret, token, ip, fetchImpl = fetch }) {
   if (!secret || !token || typeof token !== 'string' || token.length > 4096) return false
-  try {
-    const body = new FormData()
-    body.append('secret', secret)
-    body.append('response', token)
-    if (ip) body.append('remoteip', ip)
-    const r = await fetchImpl(TURNSTILE_VERIFY, { method: 'POST', body })
-    if (!r.ok) return false
-    const d = await r.json()
-    return d?.success === true
-  } catch {
-    return false
-  }
+  return (await siteverify({ secret, token, ip, fetchImpl })).ok
 }
 
 // Campos que PUEDEN ir a los logs: solo etiquetas de un conjunto cerrado. Nada de IP, texto,

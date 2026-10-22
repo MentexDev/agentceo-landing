@@ -24,6 +24,7 @@ import { respond, curatedFor } from '../respond.js'
 import { intentOf } from '../persona.js'
 import { today, hourOf, minuteOf, sessionKey } from '../guard.js'
 import { verifyTurnstile, counter, srcOf } from '../abuse.js'
+import { turnstileConfig } from '../../lib/turnstile.js'
 
 // Los límites viven en un módulo puro (sin runtime de Workers) para que también los lean las
 // evals en Node (scripts/chat-evals.mjs).
@@ -64,7 +65,7 @@ export function guardsFor(msg, env, { verifyFetch } = {}) {
   const cache = () => guardOf(env, 'cache')
   // La memoria de la sesión (dedupe, verificación) vive en su instancia; sin sesión, en la del usuario.
   const mem = async () => (msg.sessionId ? guardOf(env, await sessionKey(msg.sessionId)) : user())
-  const turnstileOn = Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY)
+  const turnstileOn = turnstileConfig(env).enabled
   return {
     liveIp: async () => (await user().bump(`live:${day}`, 1, turnstileOn ? LIMITS.livePerDay : LIMITS.livePerDayOpen)).allowed,
     reserve: (usd, cap) => budget().bump(`usd:${day}`, usd, cap),

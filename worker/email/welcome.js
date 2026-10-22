@@ -119,6 +119,23 @@ export async function enqueueWelcome(env, row, deps = {}) {
 }
 
 /**
+ * Deja la bienvenida RETENIDA (failed + motivo) sin enviarla: alta guardada pero no verificada (siteverify
+ * caído, T58). La UNIQUE impide que un reintento la mande sola; para enviarla luego, a mano:
+ *   UPDATE email_send_log SET status='pending', next_attempt_at=NULL, attempts=0 WHERE id=…
+ * @param {EmailEnv} env
+ * @param {{ email: string, locale?: string }} row
+ * @param {string} reason
+ */
+export async function holdWelcome(env, row, reason) {
+  if (!emailConfig(env).enabled || !env.DB || !row?.email) return { status: 'disabled' }
+  const ins = await env.DB.prepare(
+    `INSERT OR IGNORE INTO email_send_log (email, template, locale, status, last_error) VALUES (?, ?, ?, 'failed', ?)`,
+  ).bind(row.email, TEMPLATE, row.locale === 'en' ? 'en' : 'es', `held: ${reason}`.slice(0, 200)).run()
+  if ((ins.meta?.changes ?? 0) > 0) logEvent('warn', 'email.held', { template: TEMPLATE, to: maskEmail(row.email), reason })
+  return { status: 'held' }
+}
+
+/**
  * Reclama y entrega UNA fila del log. Nunca lanza: todo resultado queda en D1 y en el log.
  * @param {EmailEnv} env
  * @param {number} id

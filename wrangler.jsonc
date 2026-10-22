@@ -30,19 +30,22 @@
   // por IP y por sesión (ráfaga/hora/día), 500 caracteres, 12 turnos, 400 tokens de salida,
   // historial al modelo ≤ 4.000 caracteres, timeout 15 s. Cualquier fallo → stub.
   // CHAT_MODEL solo admite modelos con precio en worker/chat/live.js (PRICES); otro → stub.
-  // Turnstile (OPCIONAL, gratis; con él el cupo por IP sube a 25 y se exige persona verificada):
-  //   1. Dashboard de Cloudflare → Turnstile → Add widget (modo «Invisible» o «Managed»,
-  //      dominio agentceo.io) → da una SITE KEY (pública) y una SECRET KEY.
-  //   2. Añadir aquí en "vars": "TURNSTILE_SITE_KEY": "<site key>" (es pública: va al navegador).
+  // Turnstile (gratis) · T58: protege la LISTA DE ESPERA (token obligatorio antes de guardar y de
+  // mandar la bienvenida) y el chat (cupo live por IP de 25 en vez de 10, y persona verificada).
+  //   1. Dashboard de Cloudflare → Turnstile → Add widget: modo «Managed», hostnames agentceo.io
+  //      y www.agentceo.io → da una SITE KEY (pública) y una SECRET KEY. Pasos: docs/TURNSTILE.md.
+  //   2. Poner aquí abajo "TURNSTILE_SITE_KEY": "<site key>" (es pública: va dentro del HTML).
   //   3. `wrangler secret put TURNSTILE_SECRET_KEY` (secreta: nunca aquí ni en el repo).
-  // Sin las dos, la CSP no abre challenges.cloudflare.com y el widget no carga nada de terceros.
+  // Sin las DOS, todo sigue como antes: ni widget, ni token exigido, ni challenges.cloudflare.com en la CSP.
   "vars": {
     "CHAT_MODE": "live",
     "CHAT_MODEL": "google/gemini-2.5-flash-lite",
     "CHAT_DAILY_BUDGET_USD": "5",
     // Bienvenida por correo a la lista de espera (T57 · docs/EMAILS-ENVIO.md). ENCENDIDA el 2026-10-22 (T57b, OK de Diego) tras aplicar
     // la migración 0003 en producción y Diego/Luca la enciendan ("true"). Usa el secreto RESEND_API_KEY.
-    "WELCOME_EMAIL_ENABLED": "true"
+    "WELCOME_EMAIL_ENABLED": "true",
+    // Pública. Vacía = Turnstile apagado (ver arriba). Rellenarla SIN el secreto no activa nada.
+    "TURNSTILE_SITE_KEY": ""
   },
   // Barrido de correos pendientes (reintentos con backoff y bienvenidas que esperaban al paso 2 del modal).
   // Cron Triggers son gratis en el plan Free; con el flag apagado, el barrido no toca nada.

@@ -14,7 +14,8 @@ import { json } from './lib/http.js'
 import { str, cleanEmail, isBot } from './lib/validate.js'
 import { limited, foreignOrigin } from './lib/ratelimit.js'
 import { BUSINESS_TYPES, UTM_KEYS } from '../src/data/waitlist.js'
-import { enqueueWelcome } from './email/welcome.js'
+import { enqueueWelcome, holdWelcome } from './email/welcome.js'
+import { turnstileConfig, tokenFrom, siteverify } from './lib/turnstile.js'
 import { scrub, logEvent } from './email/mask.js'
 
 const LOCALES = ['es', 'en']
@@ -86,8 +87,8 @@ export async function saveSignup(db, row) {
  * La bienvenida por correo (T57), FUERA de la respuesta: ctx.waitUntil. Un fallo aquí jamás tumba el signup.
  * Con el flag WELCOME_EMAIL_ENABLED distinto de "true", enqueueWelcome no toca nada.
  */
-export function scheduleWelcome(env, ctx, row) {
-  const p = enqueueWelcome(env, row).catch((e) => logEvent('error', 'email.enqueue_failed', { error: scrub(e?.message || e, { secrets: [env.RESEND_API_KEY] }) }))
+export function scheduleWelcome(env, ctx, row, { hold = null } = {}) {
+  const p = (hold ? holdWelcome(env, row, hold) : enqueueWelcome(env, row)).catch((e) => logEvent('error', 'email.enqueue_failed', { error: scrub(e?.message || e, { secrets: [env.RESEND_API_KEY] }) }))
   if (ctx && typeof ctx.waitUntil === 'function') ctx.waitUntil(p)
   return p
 }
@@ -117,12 +118,32 @@ export async function handleWaitlist(request, env, ctx) {
   const row = toRow(body, request)
   if (!row.email) return reply(false, 'invalid_email', 400)
 
+  // Turnstile (T58), ANTES de guardar y de encolar el correo. Solo si están las dos claves.
+  //  · token ausente / falso / caducado / ya usado → 403 'verification_failed' (el front lo traduce).
+  //  · siteverify sin veredicto (red, timeout, 5xx, secreto mal puesto) → FAIL-OPEN DEGRADADO: se guarda el
+  //    alta (tráfico pagado: una caída de Cloudflare no puede costarnos leads reales), pero la bienvenida
+  //    queda RETENIDA, sin enviarse (un bot no verificado no estropea la reputación del dominio).
+  //    Ver docs/TURNSTILE.md.
+  let hold = null
+  const ts = turnstileConfig(env)
+  if (ts.enabled) {
+    const v = await siteverify({ secret: ts.secret, token: tokenFrom(body), ip: request.headers.get('cf-connecting-ip') })
+    if (!v.ok && v.reason === 'invalid') {
+      logEvent('info', 'waitlist.turnstile_rejected', { codes: v.codes.join(',') })
+      return reply(false, 'verification_failed', 403)
+    }
+    if (!v.ok) {
+      hold = `turnstile_unavailable:${v.codes.join(',')}`
+      logEvent('warn', 'waitlist.turnstile_unavailable', { codes: v.codes.join(',') })
+    }
+  }
+
   try {
     await saveSignup(env.DB, row)
   } catch {
     return reply(false, 'server_error', 500)
   }
   // El tipo de negocio guardado (el del paso 2, o el primero si ya estaba): el regalo del correo lo sigue.
-  scheduleWelcome(env, ctx, { email: row.email, locale: row.locale, business_type: row.business_type })
+  scheduleWelcome(env, ctx, { email: row.email, locale: row.locale, business_type: row.business_type }, { hold })
   return reply(true)
 }

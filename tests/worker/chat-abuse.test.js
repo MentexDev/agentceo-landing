@@ -7,6 +7,7 @@ import { handleChat, LIMITS } from '../../worker/chat/handler.js'
 import { runChannel } from '../../worker/chat/channels/index.js'
 import { ipKey, sessionKey, today, hourOf, minuteOf } from '../../worker/chat/guard.js'
 import { suspicion, verifyTurnstile, counter, normQ, hasPII } from '../../worker/chat/abuse.js'
+import { turnstileConfig } from '../../worker/lib/turnstile.js'
 import { maxTokensFor, budgetCap, respond } from '../../worker/chat/respond.js'
 
 const BROWSER = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36', 'accept-language': 'es-ES,es;q=0.9' }
@@ -287,7 +288,9 @@ describe('CSP y Turnstile', () => {
     expect(on.match(/https?:\/\/[^\s;']+/g)).toEqual(['https://challenges.cloudflare.com', 'https://challenges.cloudflare.com'])
   })
   it('la configuración desplegable no trae Turnstile: la portada sale con la CSP cerrada', async () => {
-    expect(env.TURNSTILE_SITE_KEY).toBeUndefined()
+    // T58: la site key existe como placeholder VACÍO en wrangler.jsonc; sin ella ni el secreto, apagado.
+    expect(env.TURNSTILE_SITE_KEY).toBe('')
     expect(env.TURNSTILE_SECRET_KEY).toBeUndefined()
+    expect(turnstileConfig(env).enabled).toBe(false)
   })
 })

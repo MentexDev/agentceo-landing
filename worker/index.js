@@ -12,6 +12,7 @@ import { handleLead } from './lead.js'
 import { handleChat } from './chat/handler.js'
 import { handleUnsubscribe } from './unsubscribe.js'
 import { sweepEmails } from './email/welcome.js'
+import { turnstileConfig } from './lib/turnstile.js'
 
 // Durable Object de los topes del widget (lo exige wrangler: se exporta desde el main).
 export { ChatGuard } from './chat/guard.js'
@@ -58,7 +59,13 @@ export default {
     const res = await env.ASSETS.fetch(request)
     const ct = res.headers.get('content-type') || ''
     if (!ct.includes('text/html')) return withCache(res, url.pathname)
-    return withSecurityHeaders(res, url.protocol === 'https:', { turnstile: Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY) })
+    // Turnstile (T58): la web es estática, así que la site key (pública) se inyecta aquí, en el <head>, solo
+    // cuando está activo. src/scripts/turnstile.js la lee; sin ella, la página no carga nada de terceros.
+    const ts = turnstileConfig(env)
+    const page = ts.enabled
+      ? new HTMLRewriter().on('head', { element: (el) => el.append(`<meta name="ac-turnstile" content="${ts.siteKey}">`, { html: true }) }).transform(res)
+      : res
+    return withSecurityHeaders(page, url.protocol === 'https:', { turnstile: ts.enabled })
   },
 
   // Cron Trigger (wrangler.jsonc → triggers.crons): reintentos y bienvenidas que esperaban al paso 2.
