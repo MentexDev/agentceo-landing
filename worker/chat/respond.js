@@ -92,7 +92,10 @@ export function curatedFor(p) {
 }
 
 // Filtro de SALIDA (T40 b): fragmentos del prompt de sistema que el modelo no puede repetir nunca.
-const ECHOES = [CANARY, ...promptEchoes([RULES.es, RULES.en])]
+// Lo público que el bot SÍ puede decir (T58b): una ventana del prompt hecha solo de este vocabulario no es fuga.
+export const SPEAKABLE = [...KB.es, ...KB.en].map((c) => `${c.title}. ${c.text}`)
+  .concat(ANSWERS.flatMap((a) => [a.a.es, a.a.en]), ['es', 'en'].flatMap((l) => ['join', 'fallback', 'greet', 'cap', 'globalCap'].map((k) => say(l, k) || '')))
+const ECHOES = [CANARY, ...promptEchoes([RULES.es, RULES.en], { speakable: SPEAKABLE })]
 /** ¿Esta respuesta (del modelo o de la caché) se puede mostrar? → null si sí; { kind, name } si no. */
 export const outputLeak = (text) => findOutputLeak(text, ECHOES)
 

@@ -141,11 +141,25 @@ const OUT_INTERNAL = [
   ['coste interno', /\$\s?0[.,]00\d|\bpor (cada )?mensaje (nos )?cuesta|\bper message (costs|is)\b|\bpresupuesto diario\b|\bdaily (budget|spend)\b/i],
 ]
 /** Fragmentos del prompt de sistema (canario y frases propias) que no pueden salir nunca. */
-export function promptEchoes(rules = []) {
+export function promptEchoes(rules = [], { speakable = [] } = {}) {
   const frags = new Set(['reglas inquebrantables', 'unbreakable rules', '<<<contexto', '<<<context', 'codigo interno', 'internal code'])
+  // T58b · FALSO POSITIVO en producción («Ok me quiero registrar amigo» → «Mis instrucciones internas no las
+  // comparto…»). La regla 7 ORDENA decir «invítalo a apuntarse a la lista de espera (abrimos por grupos)»; el
+  // modelo obedecía («Apúntate a la lista de espera: abrimos por grupos») y la ventana «a la lista de espera
+  // abrimos por» (todas palabras que la web dice en público) lo marcaba como eco del prompt.
+  // Ahora: ventanas de 7 palabras con PASO 1 (antes 3) y se descartan solo las que están hechas al 100 % de
+  // vocabulario público (`speakable`: base de conocimiento, respuestas curadas y textos de la persona).
+  // Propiedad (la prueba el test): TODO trozo de ≥7 palabras seguidas del prompt que lleve al menos una
+  // palabra propia del prompt salta. Antes solo se garantizaba desde 10. Lo que ya no salta es, por
+  // construcción, texto que el bot puede decir en público.
+  const pub = new Set(speakable.flatMap((t) => fold(t).replace(/[^\p{L}\p{N} ]/gu, ' ').split(/\s+/).filter(Boolean)))
   for (const r of rules) {
     const words = fold(r).replace(/[^\p{L}\p{N} ]/gu, ' ').split(/\s+/).filter(Boolean)
-    for (let i = 0; i + 7 <= words.length; i += 3) frags.add(words.slice(i, i + 7).join(' '))
+    for (let i = 0; i + 7 <= words.length; i++) {
+      const w = words.slice(i, i + 7)
+      if (pub.size && w.every((x) => pub.has(x))) continue
+      frags.add(w.join(' '))
+    }
   }
   return [...frags]
 }

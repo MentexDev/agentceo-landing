@@ -107,7 +107,10 @@ export function privateReply(text, pageLang = 'es', kind = privateKind(text) || 
 const INTENTS = [
   { id: 'human', re: /\b(eres|sos|es|hablo con|estoy hablando con|esto es)\b.*\b(humano|humana|persona|real|bot|robot|ia|maquina|chatbot)\b|\b(are you|am i (talking|chatting|speaking) (to|with)|is this|is it)\b.*\b(human|person|real|bot|robot|ai|machine|chatbot)\b|^(bot|humano|human|robot|chatbot)\??$/ },
   { id: 'contact', re: /\b(hablar|hablo|comunicarme) con (una |un |alguien|persona|humano|el equipo)|\b(contacto|contactar|soporte)\b|\b(talk|speak|chat) (to|with) (a |an |someone|somebody|person|human|real|the team)|\bcontact (you|us|support|the team)\b|^contact\??$|\bcustomer (support|service)\b|^support\??$/ },
-  { id: 'join', re: /\b(apuntarme|apuntar|unirme|inscribirme|registrarme|lista de espera|waitlist|sign ?up|join|register|quiero entrar|quiero acceso|get access|early access)\b/ },
+  // T58b: «Ok me quiero registrar amigo» no casaba (solo «registrarme») y acababa en el modelo. Ahora:
+  // registro EN PRIMERA PERSONA, con faltas comunes («registar», «inscrivir»), es/en. «¿Puedo registrar mis
+  // ventas?» o «¿cómo registro un pedido?» NO son esto: sin «me/nos» delante, el verbo no basta.
+  { id: 'join', re: /\b(apuntarme|apuntar|unirme|inscribirme|registrarme|lista de espera|waitlist|wait list|sign ?up|join|register|quiero entrar|quiero acceso|get access|early access)\b|\b(me|nos) (quiero |quisiera |gustaria |puedo |podria |voy a |deseo |dejas |dejan )?(registr|regist|inscrib|inscriv|apunt|anot|un)(ar|ir|o)\b|\b(registr|regist|inscrib|inscriv|apunt|anot)(arme|arnos|irme|ame|anos|eme)\b|\b(quiero|quisiera|deseo) (entrar|acceso|probar(lo)?|empezar|usarlo|mi lugar|un lugar|un cupo)\b|\b(sign (me )?up|count me in|i want in|enroll|let me in|get me in|how (do|can) i (join|sign up|register|get in|get started|start)|where (do|can) i (sign up|register|join))\b/ },
   { id: 'thanks', re: /^(muchas )?(gracias|grax|genial|perfecto|ok gracias|thanks|thank you|thx|great|perfect|cool)[!. ]*$/ },
 ]
 
