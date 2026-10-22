@@ -6,7 +6,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
 import { TEMPLATES, LOCALES, render as renderReal } from '../src/index.js'
-const render = (t, l, d) => renderReal(t, l, d, { postalAddress: 'Calle Ficticia 123, 00000 Ciudad de Prueba' })
+// Con la dirección POR DEFECTO (la que sale de verdad): el pie real también pasa por el vigilante.
+const render = (t, l, d) => renderReal(t, l, d)
 
 export const FORBIDDEN = [
   /delaware/i,

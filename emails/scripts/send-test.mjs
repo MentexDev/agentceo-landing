@@ -1,12 +1,13 @@
 // PRUEBA REAL de envío: UN correo, waitlist-welcome en español, a ceo@agentceo.io por Resend.
 // ⛔ Lo ejecuta una persona a mano, nunca un test ni un agente. No se cablea a nada.
 //
-//   EMAIL_ASSET_BASE_URL=https://agentceo.io/email-assets/v1 POSTAL_ADDRESS="…" node emails/scripts/send-test.mjs
+//   EMAIL_ASSET_BASE_URL=https://agentceo.io/email-assets/v1 node emails/scripts/send-test.mjs
 //   (añade --dry-run para hacerlo todo MENOS el envío)
 //
 // Qué hace, en orden, y se para en el primer fallo:
 //   1. Lee RESEND_API_KEY de .dev.vars (raíz del repo). La clave NUNCA se imprime: ni en errores.
-//   2. Exige EMAIL_ASSET_BASE_URL (https) y POSTAL_ADDRESS (entorno, o .dev.vars).
+//   2. Exige EMAIL_ASSET_BASE_URL (https). POSTAL_ADDRESS: entorno, o .dev.vars, o la de por defecto (brand.js);
+//      si está definida pero vacía, no envía.
 //   3. Pinta waitlist-welcome.es con los datos de ejemplo (ficticios) y el asunto de la prueba.
 //   4. Comprueba que CADA <img> del HTML es https, acaba en .png/.jpg/.gif y responde 200 con image/*.
 //      Si una sola falla, NO envía (la Prueba 1 llegó con imágenes rotas: los PNG no estaban publicados).
@@ -15,7 +16,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { EMAIL_IMAGE_URL } from '../src/brand.js'
+import { EMAIL_IMAGE_URL, DEFAULT_POSTAL_ADDRESS } from '../src/brand.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -28,12 +29,12 @@ export const SEND = {
   idempotencyKey: 'agentceo-prueba-2-waitlist-welcome-es',
 }
 
-/** Lee UNA variable de un fichero .dev.vars (KEY=valor, admite comillas). Devuelve null si no está. */
+/** Lee UNA variable de un fichero .dev.vars (KEY=valor, admite comillas). null si no está; '' si está vacía. */
 export function readDevVar(file, name) {
   if (!fs.existsSync(file)) return null
   for (const line of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
     const m = line.match(/^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/)
-    if (m && m[1] === name) return m[2].replace(/^(['"])(.*)\1$/, '$2').trim() || null
+    if (m && m[1] === name) return m[2].replace(/^(['"])(.*)\1$/, '$2').trim()
   }
   return null
 }
@@ -73,8 +74,8 @@ export function config(env = process.env, devVars = path.join(ROOT, '.dev.vars')
   const errors = []
   const assetBase = (env.EMAIL_ASSET_BASE_URL || '').trim()
   if (!/^https:\/\/\S+/.test(assetBase)) errors.push('EMAIL_ASSET_BASE_URL (https) — p. ej. https://agentceo.io/email-assets/v1, una vez publicada la landing')
-  const postalAddress = (env.POSTAL_ADDRESS || readDevVar(devVars, 'POSTAL_ADDRESS') || '').trim()
-  if (!postalAddress) errors.push('POSTAL_ADDRESS (en el entorno o en .dev.vars): el pie no sale sin dirección postal')
+  const postalAddress = (env.POSTAL_ADDRESS ?? readDevVar(devVars, 'POSTAL_ADDRESS') ?? DEFAULT_POSTAL_ADDRESS).trim()
+  if (!postalAddress) errors.push('POSTAL_ADDRESS está vacía: el pie no sale sin dirección postal (quítala para usar la de por defecto)')
   const apiKey = readDevVar(devVars, 'RESEND_API_KEY')
   if (!apiKey) errors.push('RESEND_API_KEY en .dev.vars')
   return { errors, assetBase, postalAddress, apiKey, unsubscribeUrl: env.UNSUBSCRIBE_URL || 'mailto:info@agentceo.io?subject=Baja', name: env.TEST_NAME || '' }

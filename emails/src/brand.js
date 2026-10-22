@@ -36,25 +36,33 @@ export const EMAIL_ASSET_BASE = `${SITE}/email-assets/v1`
 
 // Cada PNG a 2× (retina) del tamaño MÁS GRANDE al que se pinta. px = lado del PNG; el test lo mide en el fichero.
 //   ceo: portada 64 px (burbuja y firma, 40)  ·  agente-N: la fila del equipo, 56 px
+// dark = su gemelo de modo oscuro (placa oscura, mascota clara): cada avatar tiene el SUYO.
 export const EMAIL_ASSETS = {
-  ceo: { file: 'ceo.png', px: 128, plate: '#F4F2ED', svg: 'agentceo-mascota.svg' },
+  ceo: { file: 'ceo.png', px: 128, plate: '#F4F2ED', svg: 'agentceo-mascota.svg', dark: 'ceo-noche' },
   'ceo-noche': { file: 'ceo-noche.png', px: 128, plate: '#111113', svg: 'agentceo-mascota-clara.svg' },
-  'agente-1': { file: 'agente-1.png', px: 112, plate: '#EFE4C8', svg: 'agentceo-mascota.svg' },
-  'agente-2': { file: 'agente-2.png', px: 112, plate: '#F4F2ED', svg: 'agentceo-mascota.svg' },
-  'agente-3': { file: 'agente-3.png', px: 112, plate: '#D9B866', svg: 'agentceo-mascota.svg' },
-  'agente-4': { file: 'agente-4.png', px: 112, plate: '#E2DED4', svg: 'agentceo-mascota.svg' },
+  'agente-1': { file: 'agente-1.png', px: 112, plate: '#EFE4C8', svg: 'agentceo-mascota.svg', dark: 'agente-1-noche' },
+  'agente-2': { file: 'agente-2.png', px: 112, plate: '#F4F2ED', svg: 'agentceo-mascota.svg', dark: 'agente-2-noche' },
+  'agente-3': { file: 'agente-3.png', px: 112, plate: '#D9B866', svg: 'agentceo-mascota.svg', dark: 'agente-3-noche' },
+  'agente-4': { file: 'agente-4.png', px: 112, plate: '#E2DED4', svg: 'agentceo-mascota.svg', dark: 'agente-4-noche' },
+  'agente-1-noche': { file: 'agente-1-noche.png', px: 112, plate: '#4A3D22', svg: 'agentceo-mascota-clara.svg' },
+  'agente-2-noche': { file: 'agente-2-noche.png', px: 112, plate: '#2A2A2F', svg: 'agentceo-mascota-clara.svg' },
+  'agente-3-noche': { file: 'agente-3-noche.png', px: 112, plate: '#6B5420', svg: 'agentceo-mascota-clara.svg' },
+  'agente-4-noche': { file: 'agente-4-noche.png', px: 112, plate: '#3A3833', svg: 'agentceo-mascota-clara.svg' },
 }
 
 // Lo que una URL de imagen de correo tiene que cumplir (assets propios y avatares que llegan por datos).
 export const EMAIL_IMAGE_URL = /^https:\/\/[^\s"'<>]+\.(png|jpg|gif)$/i
 
 // Pie legal. ⛔ PROHIBIDO aquí cualquier dato del registro de la sociedad (número, fecha o estado
-// donde se registró): lo vigila emails/tests/legal.test.js. La dirección postal NO vive en el repo: es
-// configuración (POSTAL_ADDRESS) y render() falla sin ella. Solo la vista previa (galería) pinta este aviso.
+// donde se registró): lo vigila emails/tests/legal.test.js.
+// Dirección postal (CAN-SPAM): por defecto la de la oficina, la misma que ya publica la web (CompanyView,
+// jsonld.js). No es secreta (brief T54b). Se cambia con POSTAL_ADDRESS; vaciarla A PROPÓSITO hace fallar
+// render() y el build de producción. Solo la vista previa (galería) pinta este aviso en su lugar.
 export const COMPANY = {
   legalName: 'Klinworks, LLC',
   email: 'info@agentceo.io',
 }
+export const DEFAULT_POSTAL_ADDRESS = 'Klinworks, LLC · 131 Continental Dr, Suite 305, Newark, DE 19713, USA'
 export const POSTAL_PLACEHOLDER = '[FALTA POSTAL_ADDRESS · dirección postal sin configurar]'
 
 export const ROUTES = {

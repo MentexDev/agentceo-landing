@@ -2,7 +2,7 @@
 // Función pura: no envía, no lee red ni disco, no guarda nada. Lista para Resend el día que haga falta:
 //   resend.emails.send({ from, to, subject, html, text, headers })
 import { render as toHtml } from '@react-email/render'
-import { SITE, LOCALES, EMAIL_ASSET_BASE, EMAIL_IMAGE_URL, POSTAL_PLACEHOLDER } from './brand.js'
+import { SITE, LOCALES, EMAIL_ASSET_BASE, EMAIL_IMAGE_URL, POSTAL_PLACEHOLDER, DEFAULT_POSTAL_ADDRESS } from './brand.js'
 
 const trimSlash = (s) => String(s).replace(/\/+$/, '')
 
@@ -12,7 +12,8 @@ const trimSlash = (s) => String(s).replace(/\/+$/, '')
  * @param {object} data      los datos del destinatario (nunca se inventan: lo que falte, falla).
  *                           Opcionales en toda plantilla: ceo.avatarUrl y agents[i].avatarUrl (ver emails/README.md).
  * @param {object} [opts]
- * @param {string} [opts.postalAddress] OBLIGATORIA salvo en vista previa (CAN-SPAM): la de POSTAL_ADDRESS.
+ * @param {string} [opts.postalAddress] la del pie (CAN-SPAM). Sin pasarla, DEFAULT_POSTAL_ADDRESS; vacía a
+ *                                      propósito → falla (salvo en vista previa, que pinta el aviso).
  * @param {string} [opts.assetBase]     base de los PNG (EMAIL_ASSET_BASE_URL). En producción, https absoluta.
  * @param {string} [opts.fontBase]      de dónde salen las woff2 (por defecto, el sitio).
  * @param {boolean} [opts.preview]      galería local: admite rutas relativas y pinta el aviso de dirección.
@@ -26,8 +27,8 @@ export async function render(template, locale, data = {}, opts = {}) {
   if (missing.length) throw new Error(`render(${template.id}): faltan datos: ${missing.join(', ')}`)
 
   const preview = opts.preview === true
-  const postalAddress = String(opts.postalAddress ?? '').trim()
-  if (!postalAddress && !preview) throw new Error('render: falta la dirección postal (POSTAL_ADDRESS). Sin ella no se envía nada.')
+  const postalAddress = String(opts.postalAddress ?? DEFAULT_POSTAL_ADDRESS).trim()
+  if (!postalAddress && !preview) throw new Error('render: la dirección postal (POSTAL_ADDRESS) está vacía. Sin ella no se envía nada.')
 
   // Gmail no pinta rutas relativas ni locales: fuera de la galería, la base de los PNG es https o nada.
   const assetBase = trimSlash(opts.assetBase ?? EMAIL_ASSET_BASE)

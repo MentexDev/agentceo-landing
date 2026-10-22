@@ -87,12 +87,12 @@ const { subject, preheader, html, text, headers } = await render('waitlist-confi
 
 **Detalles de `render`:**
 - Es **pura**: no envía, no toca la red ni el disco.
-- `opts.postalAddress` es **obligatoria** (sin ella, falla). `opts.assetBase` (`EMAIL_ASSET_BASE_URL`) es la base https de los PNG; por defecto `https://agentceo.io/email-assets/v1`. Solo la galería (`preview: true`) admite rutas relativas.
+- `opts.postalAddress`: sin pasarla, la de por defecto (`DEFAULT_POSTAL_ADDRESS`, T54b). Vacía, falla. `opts.assetBase` (`EMAIL_ASSET_BASE_URL`) es la base https de los PNG; por defecto `https://agentceo.io/email-assets/v1`. Solo la galería (`preview: true`) admite rutas relativas.
 - Avatares propios: `ceo.avatarUrl` y `agents[i].avatarUrl` (ver [`emails/README.md`](../emails/README.md)).
 - Los datos obligatorios de cada plantilla están en `required`. Los datos de ejemplo (ficticios) están en `sample(locale)`.
 
 **Comandos:**
-- `POSTAL_ADDRESS="…" node emails/scripts/build.mjs` → HTML y texto estáticos en `emails/out/` (ignorado por git). **Falla sin `POSTAL_ADDRESS`**. `--gallery` genera solo la galería.
+- `node emails/scripts/build.mjs` → HTML y texto estáticos en `emails/out/` (ignorado por git). **Falla si `POSTAL_ADDRESS` está vacía**. `--gallery` genera solo la galería.
 - `node emails/scripts/serve.mjs` → galería en **http://127.0.0.1:3012/**. Tiene conmutadores de móvil, oscuro (Apple Mail) e invertido (Gmail/Outlook).
 - `node emails/scripts/screenshots.mjs` → `emails/screenshots/` y `overview.png`.
 - `node emails/scripts/assets.mjs` → regenera los PNG 2× en `public/email-assets/v1/` (T54).
@@ -111,7 +111,7 @@ const { subject, preheader, html, text, headers } = await render('waitlist-confi
 
 ## 4. Lo que falta para enviar (fuera de este turno)
 
-1. **Dirección postal** para el pie. Es configuración (`POSTAL_ADDRESS`) y no vive en el repo. Sin ella, `render()` y el build de producción fallan (T54). CAN-SPAM exige una dirección física válida, y la del repo es la de la oficina registrada, que está vetada.
+1. ~~**Dirección postal** para el pie.~~ Resuelto en T54b. Por defecto va «Klinworks, LLC · 131 Continental Dr, Suite 305, Newark, DE 19713, USA», la que ya publica la web, por decisión del brief de Luca. Se cambia con `POSTAL_ADDRESS`; si se vacía, `render()` y el build fallan.
 2. **Worker:**
    - tokens de confirmación y `confirmed_at`;
    - endpoint de baja de un clic (POST, RFC 8058);

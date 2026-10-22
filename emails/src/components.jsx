@@ -89,8 +89,9 @@ export function Header({ label, date }) {
 // Un avatar (tu CEO o un agente) SIEMPRE dentro de una celda de tamaño fijo (width/height en atributo y en
 // estilo): con las imágenes bloqueadas, Gmail pinta el alt DENTRO de ese cuadrado en letra pequeña, sin
 // empujar la píldora de al lado ni romper la fila. La celda lleva el color de la placa como respaldo.
-// Por defecto, nuestros PNG 2× (con su gemelo de noche, oculto salvo en modo oscuro). Si llega
-// ceo.avatarUrl / agents[i].avatarUrl, se usa esa imagen (ya validada en render) y no hay gemelo.
+// Por defecto, nuestros PNG 2× con SU gemelo de noche (ceo → ceo-noche, agente-N → agente-N-noche), oculto
+// salvo en modo oscuro. Si llega ceo.avatarUrl / agents[i].avatarUrl (ya validada en render), esa imagen
+// sustituye a LAS DOS: también en oscuro se ve la foto de la persona, no la mascota.
 export function Avatar({ ctx, size = 64, who = 'ceo', index = 0, alt, align }) {
   const es = ctx.locale === 'es'
   const a = alt || (es ? 'Tu CEO' : 'Your CEO')
@@ -102,16 +103,10 @@ export function Avatar({ ctx, size = 64, who = 'ceo', index = 0, alt, align }) {
     <table role="presentation" width={size} height={size} cellPadding="0" cellSpacing="0" border="0" align={align} style={{ width: size, height: size, borderCollapse: 'collapse', tableLayout: 'fixed', ...(align === 'center' ? { margin: '0 auto' } : {}) }}>
       <tbody><tr>
         <td className={custom ? undefined : 'ac-plate'} width={size} height={size} align="center" valign="middle" style={{ width: size, height: size, maxWidth: size, overflow: 'hidden', borderRadius: r, background: EMAIL_ASSETS[name].plate, textAlign: 'center', verticalAlign: 'middle', fontFamily: F.sans, fontSize: 10, lineHeight: '12px', color: C.muted, wordBreak: 'break-word' }}>
-          {custom ? (
-            <Img src={custom} width={size} height={size} alt={a} style={img} />
-          ) : (
-            <>
-              <Img className="ac-light" src={asset(ctx, name)} width={size} height={size} alt={a} style={img} />
-              <div className="ac-dark" style={{ display: 'none', maxHeight: 0, overflow: 'hidden', msoHide: 'all' }}>
-                <Img src={asset(ctx, 'ceo-noche')} width={size} height={size} alt={a} style={img} />
-              </div>
-            </>
-          )}
+          <Img className="ac-light" src={custom || asset(ctx, name)} width={size} height={size} alt={a} style={img} />
+          <div className="ac-dark" style={{ display: 'none', maxHeight: 0, overflow: 'hidden', msoHide: 'all' }}>
+            <Img className="ac-dark-img" src={custom || asset(ctx, EMAIL_ASSETS[name].dark)} width={size} height={size} alt={a} style={img} />
+          </div>
         </td>
       </tr></tbody>
     </table>
@@ -374,7 +369,7 @@ export function Footer({ ctx, kind, reason, unsubscribeUrl, preferencesUrl }) {
         </Text>
       )}
       <Text className="ac-muted" style={{ margin: '12px 0 0', fontSize: 12, lineHeight: '1.6', color: C.muted }}>
-        Agent CEO · {COMPANY.legalName} · {ctx.postalAddress === POSTAL_PLACEHOLDER ? <span style={{ background: '#FFE08A', color: C.ink, padding: '0 4px' }}>{ctx.postalAddress}</span> : ctx.postalAddress}
+        Agent CEO · {ctx.postalAddress.startsWith(COMPANY.legalName) ? '' : `${COMPANY.legalName} · `}{ctx.postalAddress === POSTAL_PLACEHOLDER ? <span style={{ background: '#FFE08A', color: C.ink, padding: '0 4px' }}>{ctx.postalAddress}</span> : ctx.postalAddress}
         <br />
         <Link className="ac-muted" href={`mailto:${COMPANY.email}`} style={linkStyle}>{COMPANY.email}</Link>
         {' · '}

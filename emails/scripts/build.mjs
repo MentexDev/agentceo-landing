@@ -1,8 +1,9 @@
 // Render ESTÁTICO de todas las plantillas × idiomas, con los datos de ejemplo (ficticios) de cada una.
-//   POSTAL_ADDRESS="…" node emails/scripts/build.mjs     → producción + galería (FALLA si falta POSTAL_ADDRESS)
-//   node emails/scripts/build.mjs --gallery              → solo la galería (aviso amarillo donde va la dirección)
+//   node emails/scripts/build.mjs             → producción + galería (FALLA si POSTAL_ADDRESS se vacía a propósito)
+//   node emails/scripts/build.mjs --gallery   → solo la galería (con POSTAL_ADDRESS vacía, aviso amarillo)
 // Configuración (variables de entorno):
-//   POSTAL_ADDRESS        dirección postal del pie (CAN-SPAM). Obligatoria para producción.
+//   POSTAL_ADDRESS        dirección postal del pie (CAN-SPAM). Sin definir → DEFAULT_POSTAL_ADDRESS (src/brand.js);
+//                         definida pero VACÍA → el build de producción falla.
 //   EMAIL_ASSET_BASE_URL  base https de los PNG (por defecto https://agentceo.io/email-assets/v1).
 //   EMAILS_OUT_DIR        carpeta de salida (por defecto emails/out; los tests usan una temporal).
 // Salidas (emails/out/, ignorado por git):
@@ -33,10 +34,11 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&
 
 async function main() {
   const galleryOnly = process.argv.includes('--gallery')
-  const postalAddress = (process.env.POSTAL_ADDRESS || '').trim()
+  // undefined = usa la de por defecto (render); '' = alguien la vació a propósito.
+  const postalAddress = process.env.POSTAL_ADDRESS === undefined ? undefined : process.env.POSTAL_ADDRESS.trim()
   const assetBase = process.env.EMAIL_ASSET_BASE_URL || undefined
-  if (!galleryOnly && !postalAddress) {
-    console.error('✗ Falta POSTAL_ADDRESS: el build de producción no sale sin dirección postal (CAN-SPAM).\n  Para ver solo la galería: node emails/scripts/build.mjs --gallery')
+  if (!galleryOnly && postalAddress === '') {
+    console.error('✗ POSTAL_ADDRESS está vacía: el build de producción no sale sin dirección postal (CAN-SPAM).\n  Quita la variable para usar la de por defecto, o para ver solo la galería: node emails/scripts/build.mjs --gallery')
     process.exit(1)
   }
   const { TEMPLATES, LOCALES, render } = await loadEmails()

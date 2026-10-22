@@ -6,10 +6,10 @@ import path from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
-import { EMAIL_ASSETS, POSTAL_PLACEHOLDER } from '../src/brand.js'
+import { EMAIL_ASSETS, POSTAL_PLACEHOLDER, DEFAULT_POSTAL_ADDRESS } from '../src/brand.js'
 import { SEND, readDevVar, redact, imageSources, checkImages, buildTestEmail, config } from '../scripts/send-test.mjs'
 import { TEMPLATES, LOCALES, render as renderReal, byId } from '../src/index.js'
-// Dirección postal FICTICIA solo para los tests (la real es configuración: POSTAL_ADDRESS).
+// Dirección postal FICTICIA para casi todos los tests (la de verdad: DEFAULT_POSTAL_ADDRESS / POSTAL_ADDRESS).
 const POSTAL = 'Calle Ficticia 123, 00000 Ciudad de Prueba'
 const BUILD = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../scripts/build.mjs')
 const render = (t, l, d, o) => renderReal(t, l, d, { postalAddress: POSTAL, ...o })
@@ -193,7 +193,7 @@ describe('imágenes que Gmail sí pinta (T54: la Prueba 1 llegó con las imágen
     // Celda de tamaño fijo: cada avatar va dentro de un <td width=N height=N> (con imágenes bloqueadas,
     // el alt se queda dentro del cuadrado en vez de desbordarse junto a la píldora).
     const cells = [...r.html.matchAll(/<td[^>]*\swidth="(\d+)"[^>]*\sheight="(\d+)"[^>]*>(?:(?!<\/td>)[\s\S])*?<img[^>]*\swidth="(\d+)"/g)]
-    expect(cells.length).toBe(imgs(r.html).filter((t) => !/ceo-noche/.test(t)).length)
+    expect(cells.length).toBe(imgs(r.html).filter((t) => !/ac-dark-img/.test(t)).length)
     for (const [, tw, th, iw] of cells) expect([tw, th]).toEqual([iw, iw])
   })
 
@@ -222,22 +222,45 @@ describe('imágenes que Gmail sí pinta (T54: la Prueba 1 llegó con las imágen
     }
   }, 60_000)
 
-  it('el build de producción FALLA sin POSTAL_ADDRESS (y no escribe nada)', () => {
+  const runBuild = (env) => {
     const out = fs.mkdtempSync(path.join(os.tmpdir(), 'emails-t54-'))
     try {
-      const { POSTAL_ADDRESS, ...env } = process.env
       let code = 0
       try { execFileSync(process.execPath, [BUILD], { env: { ...env, EMAILS_OUT_DIR: out }, stdio: 'pipe' }) } catch (e) { code = e.status }
-      expect(code).toBe(1)
-      expect(fs.readdirSync(out)).toEqual([])
+      const files = fs.readdirSync(out)
+      const welcome = files.includes('waitlist-welcome.es.html') ? fs.readFileSync(path.join(out, 'waitlist-welcome.es.html'), 'utf8') : ''
+      return { code, files, welcome }
     } finally {
       fs.rmSync(out, { recursive: true, force: true })
     }
-  })
+  }
 
-  it('render sin dirección postal → falla; la vista previa pinta el aviso claro', async () => {
-    await expect(renderReal('waitlist-confirm', 'es', byId('waitlist-confirm').sample('es'))).rejects.toThrow('POSTAL_ADDRESS')
-    const prev = await renderReal('waitlist-confirm', 'es', byId('waitlist-confirm').sample('es'), { preview: true, assetBase: '/email-assets/v1' })
+  it('sin POSTAL_ADDRESS, el build de producción usa la dirección por defecto', () => {
+    const { POSTAL_ADDRESS, ...env } = process.env
+    const { code, welcome } = runBuild(env)
+    expect(code).toBe(0)
+    expect(welcome).toContain('131 Continental Dr, Suite 305, Newark, DE 19713, USA')
+  }, 60_000)
+
+  it('POSTAL_ADDRESS vaciada a propósito → el build de producción FALLA (y no escribe nada)', () => {
+    for (const empty of ['', '   ']) {
+      const { code, files } = runBuild({ ...process.env, POSTAL_ADDRESS: empty })
+      expect(code).toBe(1)
+      expect(files).toEqual([])
+    }
+  }, 60_000)
+
+  it('render: por defecto, la dirección de la config; vacía → falla; la vista previa pinta el aviso claro', async () => {
+    const d = byId('waitlist-confirm').sample('es')
+    const def = await renderReal('waitlist-confirm', 'es', d)
+    expect(DEFAULT_POSTAL_ADDRESS).toBe('Klinworks, LLC · 131 Continental Dr, Suite 305, Newark, DE 19713, USA')
+    for (const s of [def.html, def.text]) {
+      expect(s).toContain('131 Continental Dr, Suite 305, Newark, DE 19713, USA')
+      // La razón social, una sola vez en el pie (la dirección ya la trae).
+      expect(s.match(/Klinworks, LLC/g)).toHaveLength(1)
+    }
+    for (const empty of ['', '  ']) await expect(renderReal('waitlist-confirm', 'es', d, { postalAddress: empty })).rejects.toThrow('POSTAL_ADDRESS')
+    const prev = await renderReal('waitlist-confirm', 'es', d, { preview: true, assetBase: '/email-assets/v1', postalAddress: '' })
     expect(prev.html).toContain(POSTAL_PLACEHOLDER)
   })
 
@@ -257,10 +280,11 @@ describe('avatares propios: ceo.avatarUrl y agents[].avatarUrl', () => {
     const d = byId(id).sample('es')
     const base = await render(id, 'es', d)
     const r = await render(id, 'es', { ...d, ceo: { avatarUrl: CEO }, agents: AG.map((avatarUrl) => ({ avatarUrl })) })
-    const ceoImgs = (base.html.match(/\/ceo\.png"/g) || []).length
+    const ceoImgs = (base.html.match(/\/ceo(-noche)?\.png"/g) || []).length
     expect(ceoImgs).toBeGreaterThan(0)
+    // La foto sustituye a la imagen clara Y a la oscura: ni rastro de la mascota del CEO.
     expect((r.html.match(new RegExp(`src="${CEO}"`, 'g')) || []).length).toBe(ceoImgs)
-    expect(r.html).not.toContain('/ceo.png"')
+    expect(r.html).not.toMatch(/\/ceo(-noche)?\.png"/)
   })
   it('la fila del equipo: override por posición, y la mascota por defecto donde no llega', async () => {
     const d = byId('waitlist-welcome').sample('es')
@@ -270,7 +294,22 @@ describe('avatares propios: ceo.avatarUrl y agents[].avatarUrl', () => {
     expect(r.html).toContain(`src="${AG[2]}"`)
     expect(r.html).toContain('/agente-4.png"')
     expect(r.html).not.toContain('/agente-1.png"')
+    // En oscuro también: el override reemplaza al gemelo de noche; los que no tienen foto usan el SUYO.
+    expect(r.html).not.toMatch(/\/agente-[13]-noche\.png"/)
+    expect(r.html).toContain('/agente-2-noche.png"')
+    expect(r.html).toContain('/agente-4-noche.png"')
+    expect((r.html.match(new RegExp(`src="${AG[0]}"`, 'g')) || []).length).toBe(2)
     expect(r.html).toMatch(new RegExp(`alt="Director General"[^>]*src="${AG[0]}"|src="${AG[0]}"[^>]*alt="Director General"`))
+  })
+  it.each(cases)('%s · %s: en oscuro, cada avatar lleva SU gemelo (ningún agente con ceo-noche)', async (id, l) => {
+    const r = await get(id, l)
+    const cells = [...r.html.matchAll(/<td class="ac-plate"[\s\S]*?<\/td>/g)].map((m) => [...m[0].matchAll(/src="[^"]*\/([a-z0-9-]+)\.png"/g)].map((x) => x[1]))
+    expect(cells.length).toBeGreaterThan(0)
+    for (const [light, dark] of cells) {
+      expect(EMAIL_ASSETS[light]?.dark, light).toBeTruthy()
+      expect(dark).toBe(EMAIL_ASSETS[light].dark)
+    }
+    if (/agente-1\.png/.test(r.html)) expect(cells.filter(([lt]) => lt.startsWith('agente')).map(([, dk]) => dk)).toEqual(['agente-1-noche', 'agente-2-noche', 'agente-3-noche', 'agente-4-noche'])
   })
   it('un avatar que Gmail no pintaría (http, SVG, relativo, con comillas) → falla en voz alta', async () => {
     const d = byId('waitlist-welcome').sample('es')
@@ -295,7 +334,12 @@ describe('send-test.mjs (sin enviar nada: solo sus piezas)', () => {
       expect(redact(`Bearer ${FAKE} y otra vez ${FAKE}`, FAKE)).toBe('Bearer *** y otra vez ***')
       // Sin config, los errores nombran lo que falta, nunca la clave.
       const bad = config({}, path.join(dir, 'no-existe'))
-      expect(bad.errors.join(' ')).toMatch(/EMAIL_ASSET_BASE_URL.*POSTAL_ADDRESS.*RESEND_API_KEY/)
+      expect(bad.errors.join(' ')).toMatch(/EMAIL_ASSET_BASE_URL.*RESEND_API_KEY/)
+      expect(bad.postalAddress).toBe(DEFAULT_POSTAL_ADDRESS)
+      // Vaciada a propósito (en el entorno o en .dev.vars) → no envía.
+      expect(config({ EMAIL_ASSET_BASE_URL: 'https://a.test/v1', POSTAL_ADDRESS: '' }, f).errors.join(' ')).toMatch(/POSTAL_ADDRESS está vacía/)
+      fs.writeFileSync(f, `RESEND_API_KEY=${FAKE}\nPOSTAL_ADDRESS=\n`)
+      expect(config({ EMAIL_ASSET_BASE_URL: 'https://a.test/v1' }, f).errors.join(' ')).toMatch(/POSTAL_ADDRESS está vacía/)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
