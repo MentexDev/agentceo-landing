@@ -163,6 +163,7 @@ async function run(mode, env) {
       p, mode, env, send, delay: 0, capTurns: 12,
       guards: {
         liveIp: async () => ++spent.liveIp <= 1000,
+        liveGlobal: async () => true,
         reserve: async (usd, cap) => (spent.usd + usd > cap ? { allowed: false } : ((spent.usd += usd), { allowed: true })),
         settle: async (d) => { spent.usd = Math.max(0, spent.usd + d) },
         // Las evals simulan a una persona ya verificada (Turnstile) y sin caché ni dedupe:
@@ -415,6 +416,7 @@ console.log('→ docs/EVALS-CHAT-T33.md')
   const cache = new Map()
   const guards = {
     liveIp: async () => true,
+    liveGlobal: async () => true,
     reserve: async () => ({ allowed: true }),
     settle: async () => {},
     human: async () => ({ ok: true }),

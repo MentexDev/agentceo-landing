@@ -8,6 +8,8 @@
 //
 // `guards` (los pone quien llama; si falta uno, gana la opción SEGURA = no gastar):
 //   liveIp()            → ¿le quedan respuestas live hoy a esta IP?               (bool)
+//   liveGlobal(cap)     → ¿quedan respuestas live HOY en total (todas las IP)?     (bool, atómico)
+//   liveGlobalRefund()  → devuelve la unidad si al final no se llamó al modelo     (void)
 //   reserve(usd, cap)   → reserva atómica de gasto contra el tope del día         ({ allowed })
 //   settle(deltaUsd)    → ajuste al coste real (o devolución)                     (void)
 //   dedupe(qk)          → ¿esta sesión/IP ya hizo esta misma pregunta hace poco?  (bool)
@@ -20,7 +22,8 @@
 // ORDEN de las capas (de la más barata a la que gasta):
 //   turnos → CURADA (chip o texto con alta confianza, T35: coste 0 en cualquier modo)
 //   → modo/clave/modelo con precio → intención o FAQ exacta (gratis) → señales de bot → pregunta repetida
-//   → caché → Turnstile → tope live por IP → reserva del tope global → modelo.
+//   → caché → Turnstile → tope live por IP → TOPE GLOBAL de respuestas (T58b) → reserva del tope
+//   de gasto → modelo.
 // ─────────────────────────────────────────────────────────────────────────────
 import { streamText } from './text.js'
 import { stubReply, exactFaq, KB, INDEX } from './stub.js'
@@ -31,6 +34,7 @@ import { stripInjection, findOutputLeak, promptEchoes } from './private.js'
 import { textKey, hasPII } from './abuse.js'
 import { matchCurated, curatedReply, chipIdsFor, langOf } from './curated.js'
 import { answerById } from '../../content/chat-answers.js'
+import { LIMITS } from './limits.js'
 
 // Salida máxima: 400 tokens es TECHO DURO. CHAT_MAX_TOKENS solo puede bajarlo.
 export const LIVE = { maxTokens: 400, timeoutMs: 15000 }
@@ -43,6 +47,14 @@ export const BUDGET_MAX_USD = 5
 export function budgetCap(env) {
   const v = Number(env.CHAT_DAILY_BUDGET_USD)
   return Number.isFinite(v) && v >= 0 && String(env.CHAT_DAILY_BUDGET_USD ?? '').trim() !== '' ? Math.min(BUDGET_MAX_USD, v) : BUDGET_MAX_USD
+}
+
+// Tope GLOBAL de respuestas live por día UTC (T58b). CHAT_DAILY_GLOBAL_CAP: entero ≥ 0 (0 = nada live);
+// ausente, vacío, negativo o no numérico → 2000 (como budgetCap: un valor raro nunca deja el tope abierto).
+export function globalLiveCap(env) {
+  const raw = String(env.CHAT_DAILY_GLOBAL_CAP ?? '').trim()
+  const v = Number(raw)
+  return raw !== '' && Number.isFinite(v) && v >= 0 ? Math.floor(v) : LIMITS.liveGlobalPerDay
 }
 
 async function sendStub(send, lang, userText, delay, fallback = null, extra = {}) {
@@ -89,6 +101,8 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
   const send = (ev, d) => rawSend(ev, ev === 'meta' && d?.chips && !d.chipIds ? { ...d, chipIds: chipIdsFor(d.chips) } : d)
   const g = {
     liveIp: guards.liveIp || no,
+    liveGlobal: guards.liveGlobal || no,
+    liveGlobalRefund: guards.liveGlobalRefund || (async () => {}),
     reserve: guards.reserve || (async () => ({ allowed: false })),
     settle: guards.settle || (async () => {}),
     dedupe: guards.dedupe || no,
@@ -206,6 +220,15 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
     return { path: 'stub', reason: 'ip_cap' }
   }
 
+  // TOPE GLOBAL del día (T58b): llegado a CHAT_DAILY_GLOBAL_CAP respuestas live entre TODAS las IP, el
+  // chat ya no llama al modelo: mensaje FIJO (es/en) que remite a info@agentceo.io. Las respuestas
+  // curadas, las del FAQ y la caché siguen funcionando: están antes y no gastan.
+  if (!(await g.liveGlobal(globalLiveCap(env)))) {
+    await send('meta', { mode: 'stub', kind: 'global_cap', fallback: 'global_cap', cta: null, chips: [], matched: null, sources: [] })
+    await streamText(send, say(p.lang, 'globalCap'), delay)
+    return { path: 'stub', reason: 'global_cap' }
+  }
+
   const L = INDEX[p.lang] ? p.lang : 'es'
   const system = systemPrompt(L, pickContext(INDEX[L], KB[L], p.userText))
   const history = historyForModel(p.history) // lo que viaja al modelo Y lo que se reserva
@@ -213,6 +236,7 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
   const est = estimateUSD(system, history, maxTokens, model)
   const cap = budgetCap(env)
   if (!(await g.reserve(est, cap)).allowed) {
+    await g.liveGlobalRefund() // no hubo respuesta live: la unidad del tope global se devuelve
     await sendStub(send, p.lang, p.userText, delay, 'budget')
     return { path: 'stub', reason: 'budget' }
   }
@@ -237,8 +261,10 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
   // Contabilidad: error HTTP sin texto → no factura, se devuelve la reserva; con consumo
   // conocido → coste real (el mayor entre tokens × precio y el que informa OpenRouter); corte de
   // red/tiempo o error a mitad sin consumo conocido → la reserva se queda (pesimista).
-  if (!r.ok && r.reason === 'http') await g.settle(-est)
-  else if (r.usage) await g.settle(r.cost - est)
+  if (!r.ok && r.reason === 'http') {
+    await g.settle(-est)
+    await g.liveGlobalRefund() // el proveedor no respondió: tampoco cuenta como respuesta live
+  } else if (r.usage) await g.settle(r.cost - est)
 
   if (!r.ok) {
     await sendStub(send, p.lang, p.userText, delay, r.reason)

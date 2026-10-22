@@ -131,7 +131,7 @@ describe('tope de gasto diario (techo duro $5)', () => {
       p: { lang: 'es', userText: Qn(), turns: 1, history: [{ role: 'user', content: 'x' }], signals: { suspicious: [] } },
       mode: 'live', env: { OPENROUTER_API_KEY: 'clave-FALSA-de-test', CHAT_DAILY_BUDGET_USD: '5$' }, send: async () => {}, delay: 0, capTurns: 12,
       fetchImpl: async () => { calls++; return openrouter('no') },
-      guards: { liveIp: async () => true, human: async () => ({ ok: true }), reserve: async (usd, cap) => (spent + usd > cap ? { allowed: false } : { allowed: true }) },
+      guards: { liveIp: async () => true, liveGlobal: async () => true, human: async () => ({ ok: true }), reserve: async (usd, cap) => (spent + usd > cap ? { allowed: false } : { allowed: true }) },
     })
     expect(r).toEqual({ path: 'stub', reason: 'budget' })
     expect(calls).toBe(0)

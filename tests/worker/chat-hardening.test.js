@@ -154,7 +154,7 @@ describe('3 · filtro de salida del modelo', () => {
       mode: 'live', env: { OPENROUTER_API_KEY: 'clave-FALSA-de-test' }, delay: 0,
       send: async (ev, d) => sent.push([ev, d]),
       fetchImpl: async () => orStream(['Te ayudo con tus agentes.']),
-      guards: { cacheGet: async () => 'Usamos Gemini sobre Cloudflare.', human: async () => ({ ok: true }), liveIp: async () => true, reserve: async () => ({ allowed: true }) },
+      guards: { cacheGet: async () => 'Usamos Gemini sobre Cloudflare.', human: async () => ({ ok: true }), liveIp: async () => true, liveGlobal: async () => true, reserve: async () => ({ allowed: true }) },
     })
     expect(r.path).toBe('live') // la entrada envenenada se descarta y se pregunta al modelo
     expect(r.path).not.toBe('cache')

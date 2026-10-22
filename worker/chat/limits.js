@@ -8,6 +8,10 @@ export const LIMITS = {
   // (T33: con solo el secreto de OpenRouter el modelo queda encendido, así que sin la prueba de
   // persona el cupo por IP es más estricto; el tráfico sospechoso nunca va live).
   livePerDay: 25, livePerDayOpen: 10,
+  // Respuestas LIVE en TOTAL por día UTC, todas las IP juntas (T58b). Por defecto 2000; se cambia con
+  // CHAT_DAILY_GLOBAL_CAP (ver globalLiveCap en respond.js). Va junto al tope de gasto en USD: el que
+  // llegue antes manda.
+  liveGlobalPerDay: 2000,
   // Por sesión (id aleatorio del cliente: NO es fiable por sí solo, el límite por IP manda;
   // sirve para que una pestaña no se coma el cupo de toda una oficina detrás de la misma IP).
   sessionMinute: 6, sessionHour: 20, sessionDay: 40,

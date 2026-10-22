@@ -29,6 +29,8 @@ const T = {
     // costes, inversores, métricas, datos personales…): negativa amable, sin datos.
     private: 'Eso prefiero no compartirlo por aquí 🙂. Lo legal de la empresa está en las [páginas legales](/legal/), y para cualquier otra cosa escríbenos a [info@agentceo.io](mailto:info@agentceo.io). ¿Te cuento cómo funciona Agent CEO?',
     cut: 'Se me cortó la respuesta, perdona. ¿Me lo repites?',
+    // T58b: tope GLOBAL de respuestas del día. Fijo: no llama al modelo.
+    globalCap: 'Hoy hablé con muchísima gente y llegué a mi límite de respuestas del día 😅. Escríbenos a [info@agentceo.io](mailto:info@agentceo.io) y te contesta una persona del equipo, o vuelve mañana y seguimos.',
     more: 'Más aquí',
     chipJoin: 'Unirme a la lista',
     chipHuman: '¿Eres una persona?',
@@ -45,6 +47,8 @@ const T = {
     guard: "I can't share that 🙂. Happy to tell you what Agent CEO does, what it costs or how to get on the waitlist.",
     private: "That's not something I share here 🙂. The company's legal details are in our [legal pages](/en/legal/), and for anything else, email [info@agentceo.io](mailto:info@agentceo.io). Want me to tell you how Agent CEO works?",
     cut: 'My answer got cut off, sorry. Could you ask again?',
+    // T58b: global daily cap on answers. Fixed text: never calls the model.
+    globalCap: "I've talked with a lot of people today and hit my answer limit for the day 😅. Email us at [info@agentceo.io](mailto:info@agentceo.io) and someone from the team will reply, or come back tomorrow and we'll pick it up.",
     more: 'More here',
     chipJoin: 'Join the waitlist',
     chipHuman: 'Are you a person?',

@@ -68,6 +68,11 @@ export function guardsFor(msg, env, { verifyFetch } = {}) {
   const turnstileOn = turnstileConfig(env).enabled
   return {
     liveIp: async () => (await user().bump(`live:${day}`, 1, turnstileOn ? LIMITS.livePerDay : LIMITS.livePerDayOpen)).allowed,
+    // Tope GLOBAL de respuestas live (T58b): en la MISMA instancia «budget» que ya cuenta el gasto del día
+    // (bump es atómico en el DO: N peticiones a la vez nunca pasan juntas el tope; clave por día UTC,
+    // los días viejos se borran solos). Sin recursos nuevos: el DO SQLite entra en el plan gratis.
+    liveGlobal: async (cap) => (await budget().bump(`glive:${day}`, 1, cap)).allowed,
+    liveGlobalRefund: async () => { await budget().adjust(`glive:${day}`, -1) },
     reserve: (usd, cap) => budget().bump(`usd:${day}`, usd, cap),
     settle: async (delta) => { if (delta) await budget().adjust(`usd:${day}`, delta) },
     dedupe: async (qk) => (await mem()).seen(`d:${qk}`, LIMITS.dedupeMs),
