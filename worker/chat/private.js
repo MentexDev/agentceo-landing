@@ -21,8 +21,12 @@ export const PRIVATE_PATTERNS = [
   ['expediente / file number', /\bexpediente\b|\bfile (number|no\.?|#)/i],
   ['agente u oficina registrada', /\bregistered (agent|office)\b|\bagente registrad[oa]\b|\boficina registrada\b|\bdomicilio (social|registral)\b/i],
   ['estado de constitución', /\bdelaware\b/i],
-  ['constitución de la sociedad', /\bconstitu(id[ao]s?|ci[oó]n|y[oó])\b|\bincorporat(ed|ion)\b|\bstate of (formation|incorporation)\b/i],
-  ['fecha de constitución', /\b20 de julio de 2026\b|\bjuly 20,? 2026\b/i],
+  ['constitución de la sociedad', /\bconstitu(id[ao]s?|ci[oó]n|y[oó])\b|\bconstitu[ií]d[ao]s?\b|\bconstitui[çc][ãa]o\b|\bincorporat(ed|ion)\b|\bstate of (formation|incorporation)\b/i],
+  // T62 · pt-BR: identificadores fiscales con su formato (CNPJ 00.000.000/0000-00, CPF 000.000.000-00).
+  ['CNPJ/CPF con cifras', /\b\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}\b|\b\d{3}\.\d{3}\.\d{3}-\d{2}\b/],
+  ['CNPJ', /\bCNPJ\b/i],
+  ['razón social / inscripción', /\braz[ãa]o social\b|\binscri[çc][ãa]o (estadual|municipal)\b|\bjunta comercial\b/i],
+  ['fecha de constitución', /\b20 de julio de 2026\b|\bjuly 20,? 2026\b|\b20 de julho de 2026\b/i],
   ['dirección registrada', /\bcontinental drive\b|\bnewark\b|\b19713\b/i],
   ['dirección postal', /\b\d{1,5} [A-Z][a-z]+ (Drive|Street|Avenue|Road|Boulevard|Lane|Way)\b|\bsuite \d+\b/],
 ]
@@ -56,13 +60,16 @@ const fold = (s = '') => String(s).toLowerCase().normalize('NFD').replace(/[̀-�
 const anyOf = (parts) => new RegExp(parts.join('|'))
 
 // Personas: fundador, dueño, equipo… (es/en/pt/fr/de/it).
-const WHO = '(fundador|fundadora|founder|co-?founder|dueno|duena|owner|ceo de (la empresa|klinworks)|diego|equipo|team|empleados|staff|fondateur|proprietaire|grunder|inhaber|fondatore|proprietario|dono|dona)'
+const WHO = '(fundador|fundadora|founder|co-?founder|dueno|duena|owner|ceo de (la empresa|klinworks)|diego|equipo|team|empleados|staff|fondateur|proprietaire|grunder|inhaber|fondatore|proprietario|dono|dona|equipe|time|funcionarios|socios)'
 const KIND_RE = {
   rules: anyOf([
     // pedir sus instrucciones / reglas / prompt (en cualquier forma: resumir, enumerar, repetir…)
     '(reglas|instrucciones|indicaciones|directrices|normas|rules|instructions|guidelines|directives|regles|consignes|regeln|anweisungen|regole|istruzioni|regras|instrucoes)[^.?!]{0,40}(te (dieron|han dado|dio|pusieron)|you (were|have been) given|given to you|que (tienes|sigues)|you follow|antes de (esta|la) conversacion|before (this|the) conversation|du system|de systeme|del sistema|do sistema|des systems)',
     '(resume|resumeme|enumera|lista|repite|muestrame|dime|summari[sz]e|list|repeat|show|print|reveal|resume|wiederhole|zeig|riassumi|mostra|repita)[^.?!]{0,30}(tus|your|tes|deine|le tue|suas) (reglas|instrucciones|rules|instructions|regles|consignes|regeln|anweisungen|regole|istruzioni|regras|instrucoes|prompt)',
-    'system ?prompt', 'prompt (de sistema|del sistema|interno|inicial|original)', '(tu|your|ton|dein|il tuo|seu) prompt', 'tus instrucciones', 'your (instructions|prompt)',
+    'system ?prompt', 'prompt (de sistema|del sistema|do sistema|interno|inicial|original)',
+    // T62 · pt-BR
+    '(mostre|mostra|me mostra|me diga|me diz|repita|repete|resuma|liste|lista|revele|me passa)[^.?!]{0,30}(suas|tuas|as suas|seu|o seu) (regras|instrucoes|prompt|diretrizes)', 'suas instrucoes', 'esqueca (suas|as|todas as) (regras|instrucoes)', 'modo (desenvolvedor|deus|sem restricoes)',
+    'repita (tudo )?(o que (esta|foi dito) )?(acima|antes)', 'palavra por palavra', '(agora voce e|voce agora e|a partir de agora voce e)', '(finja|faca de conta)[^.?!]{0,50}(sem|esqueca|ignore|ignora)[^.?!]{0,15}(regras|restricoes)', '(tu|your|ton|dein|il tuo|seu) prompt', 'tus instrucciones', 'your (instructions|prompt)',
     // marcadores de inyección
     '\\[\\s*(sistema|system|systeme|admin|developer|dev|root|instrucciones|instructions)\\b', '<\\s*/?\\s*(system|sistema|instructions?|review|prompt|admin)\\b',
     '(nuevas|new|nouvelles|neue|nuove|novas) (instrucciones|instructions|anweisungen|istruzioni|instrucoes)', 'ignor(a|e|ez|iere|are)[^.?!]{0,30}(anteriores|previous|prior|above|precedentes|vorherigen|precedenti|anteriores|todas|all)',
@@ -79,6 +86,8 @@ const KIND_RE = {
     `(whatsapp|telefono|celular|movil|numero|phone|cell|mobile|number|e-?mail|correo|direccion|address|casa|home|domicilio|instagram|linkedin|telegram|adresse|telefon|handy|indirizzo|cellulare|endereco|celular)[^.?!]{0,40}(personal|privad[oa]|private|perso)?[^.?!]{0,25}\\b(de|del|of|du|von|des|di|della|do|da)\\b[^.?!]{0,12}${WHO}`,
     `${WHO}[^.?!]{0,40}(whatsapp|telefono|celular|movil|phone|cell|mobile|correo personal|personal (e-?mail|email|number)|direccion|address|donde vive|where (does )?(he|she|they) live|vive|lives?|edad|age|familia|family|casa|home)`,
     '(whatsapp|telefono|phone|numero|number) (personal|privad[oa]|private)', 'donde vive', 'where does .{1,30} live',
+    // T62 · pt-BR
+    `(telefone|celular|zap|numero|e-?mail|endereco|casa|instagram)[^.?!]{0,40}(pessoal|particular|privado)?[^.?!]{0,25}\\b(do|da|dos|das)\\b[^.?!]{0,12}${WHO}`, `${WHO}[^.?!]{0,40}(telefone|celular|e-?mail pessoal|endereco|onde mora|mora|idade|familia|casa)`, '(telefone|numero|celular|zap) (pessoal|particular|privado)', 'onde (ele|ela|o fundador|a fundadora|o dono) mora',
     '(correo|e-?mail|telefono|phone|celular|numero) personal (de|del|of) (la |el |the )?ceo', "ceo'?s? (personal|private) (e-?mail|email|phone|number)",
   ]),
   internal: anyOf([
@@ -96,6 +105,11 @@ const KIND_RE = {
     'inversor', 'inversionista', 'investor', 'funding', 'ronda de', 'valuacion', 'valuation', 'facturacion', 'revenue', '\\bingresos\\b',
     'cuantos (usuarios|clientes|empleados) (tienen|hay|usan)', 'how many (users|customers|clients|employees) (do you have|have you got|are there|use (it|agent ceo|you))', '\\bmetricas\\b', '\\bmetrics\\b',
     'quien(es)? (trabaja|trabajan) (en|ahi)', 'who works (there|on|at)', 'equipo interno', 'internal team',
+    // T62 · pt-BR
+    'quanto[^.?!]{0,30}(custa|custam|gasta|gastam)[^.?!]{0,20}(pra voces|para voces|a voces|pra empresa|cada mensagem|cada resposta|o servidor|a ia)', '(custo|gasto|orcamento|limite)[^.?!]{0,25}(interno|diario|por (mensagem|resposta)|da (ia|api)|do chat)', 'custos? internos?',
+    '(qual|que) (modelo|llm|ia (voces )?usam)\\b(?! de (negocio|precos|assinatura|cobranca))', 'modelo de (ia|linguagem)', '(que|qual|quais) tecnologia', 'feito com o que',
+    '(qual|quem) (e|eh|sao) (o |os )?(seu|seus|teu|teus) (provedor|provedores|fornecedor|fornecedores)', '(que|qual|quais) (banco de dados|bancos de dados|hospedagem|servidor|servidores|nuvem) (voces )?(usam|utilizam|tem)', 'chave (de api|secreta)',
+    'investidor', 'investimento (que|da empresa|recebid)', 'rodada de', '\\bfaturamento\\b', '\\bfaturam\\b', 'receita (da empresa|anual|mensal|de voces)', 'quantos (usuarios|clientes|funcionarios) (voces )?(tem|ha|usam)', 'quem trabalha (ai|la|na empresa|com voces)', 'equipe interna',
   ]),
   legal: anyOf([
     'constitu(id[ao]|cion|yo|yeron|ir)', 'se fundo', 'fecha de (fundacion|creacion) de la (empresa|sociedad|compania)', 'expediente', 'numero de registro', 'registro mercantil',
@@ -110,6 +124,8 @@ const KIND_RE = {
     'handelsregister', 'registernummer', 'grundungsdatum', 'gegrundet', 'firmensitz', 'geschaftsadresse', 'steuernummer',
     'sede (legale|sociale)', 'numero di registrazione', 'registro delle imprese', 'data di (costituzione|fondazione)',
     'endereco (legal|da empresa|da sede)', 'numero de registro', 'data de (constituicao|fundacao)', 'sede social',
+    // T62 · pt-BR (cnpj ya está arriba, con nif/cif…)
+    'razao social', 'inscricao (estadual|municipal)', 'junta comercial', '\\bcpf\\b', 'onde (fica|esta|e) (a empresa|a sede|o escritorio|a klinworks|o agent ceo)', '(quando|onde) (a empresa|a klinworks|o agent ceo|voces) (foi|foram|se) (fundad|criad|registrad|constituid|aberta)', '(quando|onde) (foi|foram) (fundad|criad|registrad|constituid|aberta)[a-z]* (a empresa|a klinworks|o agent ceo|voces)', 'empresa (foi )?constituida', 'em que estado (foi|esta|e) (registrad|constituid)', '(a empresa|a klinworks|o agent ceo|voces) (foi |esta |foram |estao )?(registrad|constituid)[a-z]* (em|no|na)',
   ]),
 }
 
@@ -118,8 +134,8 @@ const KIND_RE = {
 // para mi app?», «¿cómo aumento mis ingresos?», «presupuesto diario para mis anuncios» son AYUDA de negocio.
 // SELF = se pregunta por nosotros · OWN = se pide consejo para lo suyo. Reglas/inyección y datos personales
 // de terceros NO se relajan.
-export const SELF_RE = /\b(klinworks|agent ?ceo|ustedes|vosotros|vuestr[oa]s?|tu empresa|su empresa|tu compania|your (company|business|startup|team|stack|model|provider|database|revenue|investors?|metrics)|you guys|y'?all|the company behind|la empresa (detras|que (esta|hay) detras|que (hace|desarrolla))|usas|usan|utilizas|utilizan|corres|funcionas|estas hech[oa]|estan hech[oa]s|you use|do you use|are you (built|made|running|powered)|you run on|is it built|esta hech[oa])\b/
-export const OWN_RE = /\b(mi|mis|mio|mia|nuestr[oa]s?|my|our|ours|como (hago|puedo|registro|constituyo|abro|creo|consigo|saco|obtengo|aumento|mejoro|elijo|calculo|mido|monto|armo|pongo)|how (do|can|should) (i|we)|should (i|we)|me (recomiendas|recomiendan|aconsejas|sugieres|conviene)|que me recomiendas|debo|deberia|conviene|para emprender|para un negocio|para una tienda|for a (small )?business|for my)\b/
+export const SELF_RE = /\b(klinworks|agent ?ceo|ustedes|vosotros|vuestr[oa]s?|tu empresa|su empresa|tu compania|your (company|business|startup|team|stack|model|provider|database|revenue|investors?|metrics)|you guys|y'?all|the company behind|la empresa (detras|que (esta|hay) detras|que (hace|desarrolla))|usas|usan|utilizas|utilizan|corres|funcionas|estas hech[oa]|estan hech[oa]s|you use|do you use|are you (built|made|running|powered)|you run on|is it built|esta hech[oa]|voces|vcs|sua empresa|a empresa de voces|empresa por tras|usam|utilizam|voce usa|vc usa|e feito|foi feito|esta feito|rodam|roda em)\b/
+export const OWN_RE = /\b(mi|mis|mio|mia|nuestr[oa]s?|my|our|ours|como (hago|puedo|registro|constituyo|abro|creo|consigo|saco|obtengo|aumento|mejoro|elijo|calculo|mido|monto|armo|pongo)|how (do|can|should) (i|we)|should (i|we)|me (recomiendas|recomiendan|aconsejas|sugieres|conviene)|que me recomiendas|debo|deberia|conviene|para emprender|para un negocio|para una tienda|for a (small )?business|for my|meu|minha|meus|minhas|nosso|nossa|nossos|nossas|como (faco|posso|registro|constituo|abro|crio|consigo|tiro|aumento|melhoro|escolho|calculo|meco|monto)|devo|deveria|me (recomenda|recomendam|aconselha|sugere|indica)|o que (voce )?me recomenda|pra (um|o meu|minha) negocio|para (um|o meu|minha) negocio|pra minha|para minha)\b/
 export const ownBusiness = (text = '') => { const s = fold(text); return OWN_RE.test(s) && !SELF_RE.test(s) }
 
 /** Tipo de pregunta reservada, o null. El orden importa: reglas/inyección > personal > interno > legal. */
@@ -161,15 +177,15 @@ export function stripInjection(text = '') {
 // texto habla de NOSOTROS: un consejo («muchos constituyen su LLC en Delaware y piden su EIN») no es una fuga.
 // Con los modelos y el stack igual: nombrar ChatGPT o Astro al comparar o aconsejar es normal; decir «funciono
 // con Gemini» o «este sitio está hecho con Astro», no.
-const SPECIFIC_LEGAL = new Set(['n.º de expediente concreto', 'número largo tipo registro (7+ cifras seguidas)', 'fecha de constitución', 'dirección registrada', 'dirección postal'])
-const OUT_SELF = /\b(klinworks|agent ?ceo|somos|estamos|tenemos (sede|oficina)|nuestra (sede|oficina|direccion)|nuestras oficinas|we are|we'?re|our (office|offices|hq|headquarters|address)|we are based|nuestra (empresa|sociedad|compania|llc)|nuestro (registro|ein)|our (company|llc|business|ein)|esta (empresa|compania|sociedad)|this company|la empresa (detras|que (desarrolla|hace|esta detras))|nos (constituimos|registramos|fundamos|incorporamos)|fuimos (constituid|registrad|fundad|cread)[a-z]*|we (were|are|got) (incorporated|registered|formed|founded)|we incorporated|se constituy[oó] (la empresa|la sociedad|klinworks)|la sociedad)\b/i
+const SPECIFIC_LEGAL = new Set(['n.º de expediente concreto', 'número largo tipo registro (7+ cifras seguidas)', 'fecha de constitución', 'dirección registrada', 'dirección postal', 'CNPJ/CPF con cifras'])
+const OUT_SELF = /\b(klinworks|agent ?ceo|somos|estamos|tenemos (sede|oficina)|nuestra (sede|oficina|direccion)|nuestras oficinas|we are|we'?re|our (office|offices|hq|headquarters|address)|we are based|nuestra (empresa|sociedad|compania|llc)|nuestro (registro|ein)|our (company|llc|business|ein)|esta (empresa|compania|sociedad)|this company|la empresa (detras|que (desarrolla|hace|esta detras))|nos (constituimos|registramos|fundamos|incorporamos)|fuimos (constituid|registrad|fundad|cread)[a-z]*|we (were|are|got) (incorporated|registered|formed|founded)|we incorporated|se constituy[oó] (la empresa|la sociedad|klinworks)|la sociedad|somos uma|nossa (sede|empresa|sociedade|razao social)|nosso (registro|cnpj|endereco)|fomos (constituid|registrad|fundad|criad)[a-z]*|nos (constituimos|registramos|fundamos)|a empresa (por tras|que desenvolve))\b/i
 const OUT_LEGAL = PRIVATE_PATTERNS.filter(([n]) => n !== 'constitución de la sociedad').map(([n, re]) => [n, re, SPECIFIC_LEGAL.has(n)])
-  .concat([['constitución de la empresa', /\b(se )?constitu(y[oó]|id[ao]|ci[oó]n) (en|el|de la (empresa|sociedad))\b|\bincorporated (in|on)\b|\bdate of incorporation\b/i, false]])
+  .concat([['constitución de la empresa', /\b(se )?constitu(y[oó]|id[ao]|ci[oó]n) (en|el|de la (empresa|sociedad))\b|\bconstitu[ií]d[ao] (em|no|na)\b|\bincorporated (in|on)\b|\bdate of incorporation\b/i, false]])
 const EIN_DIGITS = /\b\d{2}-\d{7}\b/
-const SELF_AI = /\b(uso|usamos|utilizo|utilizamos|funciono|funcionamos|estoy (hech[oa]|construid[oa]|basad[oa])|me (basa|impulsa|mueve)|soy (un modelo|una version)|corro (sobre|en)|i (use|run on|am (built|powered|based|running) on)|i'?m (built|powered|based|running) on|we (use|run on|are built on|are powered by)|powered by|built on|basad[oa] en|hech[oa] con|este (sitio|chat|asistente)|esta (web|pagina)|this (site|chat|assistant|website)|our (site|chat|stack|backend))\b/i
+const SELF_AI = /\b(uso|usamos|utilizo|utilizamos|funciono|funcionamos|estoy (hech[oa]|construid[oa]|basad[oa])|me (basa|impulsa|mueve)|soy (un modelo|una version)|corro (sobre|en)|i (use|run on|am (built|powered|based|running) on)|i'?m (built|powered|based|running) on|we (use|run on|are built on|are powered by)|powered by|built on|basad[oa] en|hech[oa] con|este (sitio|chat|asistente)|esta (web|pagina)|this (site|chat|assistant|website)|our (site|chat|stack|backend)|sou (feit[oa]|construid[oa]|baseado|baseada)|rodo (em|sobre)|este (site|assistente)|esta pagina|nosso (site|chat|stack|backend))\b/i
 // «Agent CEO / la plataforma / este chat» + un verbo de CONSTRUCCIÓN en la misma frase: «Agent CEO usa Gemini»,
 // «la plataforma corre sobre Cloudflare». Comparar («ChatGPT te responde; Agent CEO hace…») no es esto.
-const AGENT_BUILT = /\b(agent ?ceo|klinworks|la plataforma|el chat|este chat|este asistente|this assistant|the platform|this chat)\b[^.;!?]{0,40}\b(usa|utiliza|funciona con|funciona sobre|corre sobre|corre en|esta hech[oa] con|esta construid[oa]|se basa en|runs on|uses|is built|is powered|is made|built with|powered by)\b/i
+const AGENT_BUILT = /\b(agent ?ceo|klinworks|la plataforma|el chat|este chat|este asistente|this assistant|the platform|this chat)\b[^.;!?]{0,40}\b(usa|utiliza|funciona con|funciona sobre|corre sobre|corre en|esta hech[oa] con|esta construid[oa]|se basa en|runs on|uses|is built|is powered|is made|built with|powered by|roda em|roda sobre|e feito com|foi feito com|esta construid[oa]|se baseia em)\b/i
 const OUT_INTERNAL = [
   // Solo el nombre de nuestro proveedor de modelos es interno siempre; el resto, si se habla de NOSOTROS.
   ['modelo o proveedor', /\b(openrouter|vertex ai|google ai studio)\b/i, true],
@@ -183,7 +199,7 @@ const OUT_INTERNAL = [
 
 /** Fragmentos del prompt de sistema (canario y frases propias) que no pueden salir nunca. */
 export function promptEchoes(rules = [], { speakable = [] } = {}) {
-  const frags = new Set(['reglas inquebrantables', 'unbreakable rules', '<<<contexto', '<<<context', 'codigo interno', 'internal code'])
+  const frags = new Set(['reglas inquebrantables', 'unbreakable rules', 'regras inquebrantaveis', '<<<contexto', '<<<context', 'codigo interno', 'internal code'])
   // T58b · FALSO POSITIVO en producción («Ok me quiero registrar amigo» → «Mis instrucciones internas no las
   // comparto…»). La regla 7 ORDENA decir «invítalo a apuntarse a la lista de espera (abrimos por grupos)»; el
   // modelo obedecía («Apúntate a la lista de espera: abrimos por grupos») y la ventana «a la lista de espera
@@ -231,7 +247,7 @@ const STOP = {
   fr: /\b(le|la|les|est|quelle|quel|votre|vos|et|de|du|des|societe|adresse|numero|comment|pour)\b/g,
   de: /\b(der|die|das|und|ist|wie|lautet|ihre|ihr|ihren|von|mit|fur|was|welche)\b/g,
   it: /\b(il|lo|la|gli|qual|quale|e|di|della|del|vostra|vostro|come|per|che)\b/g,
-  pt: /\b(o|os|as|qual|e|de|da|do|sua|seu|voces|como|para|com|que)\b/g,
+  pt: /\b(o|os|as|qual|e|de|da|do|dos|das|sua|seu|voce|voces|vc|como|para|pra|com|que|nao|isso|um|uma|tem|quanto)\b/g,
 }
 /** Idioma más probable del texto entre es/en/fr/de/it/pt; si no está claro, `fallback`. */
 export function userLang(text = '', fallback = 'es') {

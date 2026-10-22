@@ -25,6 +25,7 @@
 //   → caché → Turnstile → tope live por IP → TOPE GLOBAL de respuestas (T58b) → reserva del tope
 //   de gasto → modelo.
 // ─────────────────────────────────────────────────────────────────────────────
+import { LOCALES } from '../../src/i18n/meta.js'
 import { streamText } from './text.js'
 import { stubReply, exactFaq, KB, INDEX } from './stub.js'
 import { ANSWERS } from '../../content/chat-answers.js'
@@ -94,9 +95,9 @@ export function curatedFor(p) {
 
 // Filtro de SALIDA (T40 b): fragmentos del prompt de sistema que el modelo no puede repetir nunca.
 // Lo público que el bot SÍ puede decir (T58b): una ventana del prompt hecha solo de este vocabulario no es fuga.
-export const SPEAKABLE = [...KB.es, ...KB.en].map((c) => `${c.title}. ${c.text}`)
-  .concat(ANSWERS.flatMap((a) => [a.a.es, a.a.en]), ['es', 'en'].flatMap((l) => ['join', 'fallback', 'greet', 'cap', 'globalCap'].map((k) => say(l, k) || '')))
-const ECHOES = [CANARY, ...promptEchoes([RULES.es, RULES.en], { speakable: SPEAKABLE })]
+export const SPEAKABLE = LOCALES.flatMap((l) => (KB[l] || []).map((c) => `${c.title}. ${c.text}`))
+  .concat(ANSWERS.flatMap((a) => LOCALES.map((l) => a.a[l] || '')), LOCALES.flatMap((l) => ['join', 'fallback', 'greet', 'cap', 'globalCap'].map((k) => say(l, k) || '')))
+const ECHOES = [CANARY, ...promptEchoes(LOCALES.map((l) => RULES[l]).filter(Boolean), { speakable: SPEAKABLE })]
 /** ¿Esta respuesta (del modelo o de la caché) se puede mostrar? → null si sí; { kind, name } si no. */
 export const outputLeak = (text) => findOutputLeak(text, ECHOES)
 
@@ -301,7 +302,7 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
   }
   // Herramientas que pidió el modelo (validadas: solo listas cerradas). La tarjeta de la lista va en la meta
   // (el panel la pinta con el mismo componente de siempre); enlaces y contacto, al final del texto.
-  const L2 = p.lang === 'en' ? 'en' : 'es'
+  const L2 = LOCALES.includes(p.lang) ? p.lang : 'es'
   const tl = applyTools(r.toolCalls, L2, r.text || '')
   const body = r.text || (tl.cta ? say(L2, 'join') : '')
   const finalText = [body, ...tl.append].filter(Boolean).join(body ? '\n\n' : ' · ')

@@ -25,14 +25,16 @@ export const ANSWERS = [
     id: 'precio',
     ref: 'faq:precio',
     cta: 'waitlist',
-    keys: ['precio', 'cuesta', 'cuanto', 'vale', 'cobran', 'pagar', 'gratis', 'cost', 'price', 'pricing', 'free', 'pay'],
+    keys: ['precio', 'cuesta', 'cuanto', 'vale', 'cobran', 'pagar', 'gratis', 'cost', 'price', 'pricing', 'free', 'pay', 'preco', 'precos', 'custa', 'quanto', 'cobram', 'valor'],
     ask: {
       es: ['¿Cuánto cuesta?', '¿Cuánto cuesta Agent CEO?', '¿Qué precio tiene?', '¿Cuánto vale?', '¿Es gratis?', '¿Cuánto cobran?', 'precios', '¿Cuánto hay que pagar?', '¿Cuál es el costo?', 'tarifas'],
       en: ['How much does it cost?', 'How much is Agent CEO?', "What's the price?", 'Is it free?', 'pricing', 'How much do I pay?', 'What does it cost?'],
+      pt: ['Quanto custa?', 'Quanto custa o Agent CEO?', 'Qual é o preço?', 'É grátis?', 'Quanto vocês cobram?', 'preços', 'Quanto eu tenho que pagar?', 'e gratis?'],
     },
     a: {
       es: `¡Buena pregunta! Arranque es gratis: ${n(P.arranque.credits, 'es')} créditos por semana, 1 usuario y sin tarjeta. Cuando crezcas: Impulso ($${P.impulso.price} al mes), Motor ($${P.motor.price}) e Imperio ($${P.imperio.price}). Todos con agentes sin límite. ¿Te guardo un sitio en la lista?`,
       en: `Good question! Arranque is free: ${n(P.arranque.credits, 'en')} credits a week, 1 user, no card. As you grow: Impulso ($${P.impulso.price}/month), Motor ($${P.motor.price}) and Imperio ($${P.imperio.price}). Every plan has unlimited agents. Want me to save you a spot on the waitlist?`,
+      pt: `Boa pergunta! O Arranque é grátis: ${n(P.arranque.credits, 'pt')} créditos por semana, 1 usuário e sem cartão. Quando você crescer: Impulso ($${P.impulso.price} por mês), Motor ($${P.motor.price}) e Imperio ($${P.imperio.price}). Todos com agentes ilimitados. Quer que eu guarde um lugar pra você na lista?`,
     },
   },
   {
@@ -40,80 +42,92 @@ export const ANSWERS = [
     ref: 'pricing',
     cta: 'waitlist',
     // (`plan`/`planes` no sirven de ancla: search.js los traduce a «precio» y empatarían con esa ficha.)
-    keys: ['impulso', 'motor', 'imperio', 'arranque', 'incluye', 'diferencia', 'equipo grande', 'personas', 'usuarios', 'includes', 'difference', 'team', 'people', 'users', 'seats'],
+    keys: ['impulso', 'motor', 'imperio', 'arranque', 'incluye', 'diferencia', 'equipo grande', 'personas', 'usuarios', 'includes', 'difference', 'team', 'people', 'users', 'seats', 'inclui', 'diferenca', 'equipe grande', 'pessoas', 'vem no'],
     ask: {
       es: ['¿Qué incluye cada plan?', '¿Qué incluye el plan Impulso?', '¿Qué diferencia hay entre los planes?', '¿Hay un plan para un equipo grande?', '¿Cuántas personas pueden entrar?', '¿Cuántos usuarios incluye?', 'comparar planes', '¿Qué trae el plan Motor?', '¿Qué es el plan Imperio?'],
       en: ['What does each plan include?', "What's in the Impulso plan?", "What's the difference between the plans?", 'Is there a plan for a big team?', 'How many people can use it?', 'How many users are included?', 'compare plans'],
+      pt: ['O que cada plano inclui?', 'O que vem no plano Impulso?', 'Qual a diferença entre os planos?', 'Tem plano para uma equipe grande?', 'Quantas pessoas podem usar?', 'Quantos usuários estão incluídos?', 'comparar planos', 'o que tem no plano Motor?'],
     },
     a: {
       es: `Así quedan: Arranque $0 (${n(P.arranque.credits, 'es')} créditos/semana, 1 usuario) · Impulso $${P.impulso.price}/mes (${n(P.impulso.credits, 'es')}, hasta ${P.impulso.seats} personas) · Motor $${P.motor.price} (${n(P.motor.credits, 'es')}, hasta ${P.motor.seats}) · Imperio $${P.imperio.price} (${n(P.imperio.credits, 'es')}, personas sin límite). Agentes sin límite en todos.`,
       en: `Here's the lineup: Arranque $0 (${n(P.arranque.credits, 'en')} credits/week, 1 user) · Impulso $${P.impulso.price}/month (${n(P.impulso.credits, 'en')}, up to ${P.impulso.seats} people) · Motor $${P.motor.price} (${n(P.motor.credits, 'en')}, up to ${P.motor.seats}) · Imperio $${P.imperio.price} (${n(P.imperio.credits, 'en')}, unlimited people). Unlimited agents on all of them.`,
+      pt: `Fica assim: Arranque $0 (${n(P.arranque.credits, 'pt')} créditos/semana, 1 usuário) · Impulso $${P.impulso.price}/mês (${n(P.impulso.credits, 'pt')}, até ${P.impulso.seats} pessoas) · Motor $${P.motor.price} (${n(P.motor.credits, 'pt')}, até ${P.motor.seats}) · Imperio $${P.imperio.price} (${n(P.imperio.credits, 'pt')}, pessoas ilimitadas). Agentes ilimitados em todos.`,
     },
   },
   {
     id: 'paquetes',
     ref: 'pricing',
-    keys: ['paquete', 'paquetes', 'creditos', 'chispa', 'envion', 'turbina', 'reserva', 'pack', 'packs', 'credits', 'top up', 'recargar', 'mas creditos'],
+    keys: ['paquete', 'paquetes', 'creditos', 'chispa', 'envion', 'turbina', 'reserva', 'pack', 'packs', 'credits', 'top up', 'recargar', 'mas creditos', 'pacote', 'pacotes', 'recarregar', 'recarga'],
     ask: {
       es: ['¿Tienen paquetes de créditos?', '¿Puedo comprar más créditos?', '¿Qué pasa si me quedo sin créditos?', 'paquetes de créditos', '¿Cuánto cuestan los créditos extra?', 'recargar créditos'],
       en: ['Do you have credit packs?', 'Can I buy more credits?', 'What if I run out of credits?', 'credit packs', 'How much are extra credits?', 'top up credits'],
+      pt: ['Vocês têm pacotes de créditos?', 'Posso comprar mais créditos?', 'E se meus créditos acabarem?', 'pacotes de créditos', 'Quanto custam os créditos extras?', 'recarregar créditos', 'da pra comprar mais creditos?'],
     },
     a: {
       es: `¡Claro! Si una semana necesitas más: Chispa (${n(K.chispa.credits, 'es')} créditos, $${K.chispa.price}), Envión (${n(K.envion.credits, 'es')}, $${K.envion.price}), Turbina (${n(K.turbina.credits, 'es')}, $${K.turbina.price}) y Reserva (${n(K.reserva.credits, 'es')}, $${K.reserva.price}, no caduca). Pago único, sin cobros automáticos por exceso.`,
       en: `Sure! If you need more in a given week: Chispa (${n(K.chispa.credits, 'en')} credits, $${K.chispa.price}), Envión (${n(K.envion.credits, 'en')}, $${K.envion.price}), Turbina (${n(K.turbina.credits, 'en')}, $${K.turbina.price}) and Reserva (${n(K.reserva.credits, 'en')}, $${K.reserva.price}, never expires). One-off payment, no automatic overage charges.`,
+      pt: `Claro! Se numa semana você precisar de mais: Chispa (${n(K.chispa.credits, 'pt')} créditos, $${K.chispa.price}), Envión (${n(K.envion.credits, 'pt')}, $${K.envion.price}), Turbina (${n(K.turbina.credits, 'pt')}, $${K.turbina.price}) e Reserva (${n(K.reserva.credits, 'pt')}, $${K.reserva.price}, não expira). Pagamento único, sem cobranças automáticas por excesso.`,
     },
   },
   {
     id: 'cuando',
     ref: 'faq:cuando',
     cta: 'waitlist',
-    keys: ['cuando', 'abre', 'abren', 'lanzan', 'disponible', 'lanzamiento', 'when', 'open', 'opens', 'launch', 'available'],
+    keys: ['cuando', 'abre', 'abren', 'lanzan', 'disponible', 'lanzamiento', 'when', 'open', 'opens', 'launch', 'available', 'quando', 'lancam', 'lanca', 'lancamento', 'disponivel', 'comecar'],
     ask: {
       es: ['¿Cuándo abre?', '¿Cuándo abren?', '¿Cuándo lo lanzan?', '¿Cuándo está disponible?', '¿Ya se puede usar?', '¿Cuándo puedo empezar?'],
       en: ['When does it open?', 'When do you launch?', 'When is it available?', 'Can I use it yet?', 'When can I start?'],
+      pt: ['Quando abre?', 'Quando vocês lançam?', 'Quando vai estar disponível?', 'Já dá pra usar?', 'Quando posso começar?', 'quando lanca?'],
     },
     a: {
       es: 'Estamos abriendo por grupos, y quien se apunta antes, entra antes. Deja tu correo en la lista y te escribimos cuando sea tu turno. 🙌',
       en: "We're opening in waves, and whoever signs up first gets in first. Drop your email on the waitlist and we'll write when it's your turn. 🙌",
+      pt: 'Estamos abrindo por grupos, e quem entra na lista antes, entra antes. Deixe seu e-mail na lista e a gente te escreve quando for a sua vez. 🙌',
     },
   },
   {
     id: 'programar',
     ref: 'faq:programar',
-    keys: ['programar', 'codigo', 'tecnologia', 'tecnico', 'coding', 'code', 'technical', 'technology', 'programmer', 'developer'],
+    keys: ['programar', 'codigo', 'tecnologia', 'tecnico', 'coding', 'code', 'technical', 'technology', 'programmer', 'developer', 'dificil', 'conhecimento'],
     ask: {
       es: ['¿Tengo que saber de tecnología o programar?', '¿Necesito saber programar?', '¿Hace falta saber de código?', '¿Es difícil de usar?', '¿Necesito conocimientos técnicos?'],
       en: ['Do I need to know about technology or coding?', 'Do I need to know how to code?', 'Do I need technical skills?', 'Is it hard to use?'],
+      pt: ['Preciso entender de tecnologia ou programar?', 'Preciso saber programar?', 'Tem que saber de código?', 'É difícil de usar?', 'Preciso de conhecimento técnico?', 'precisa saber programar?'],
     },
     a: {
       es: 'Para nada. Le escribes como le escribirías a alguien de tu equipo: sin código ni prompts raros. Si sabes mandar un WhatsApp, ya sabes usarlo.',
       en: "Not at all. You write to it the way you'd write to someone on your team: no code, no weird prompts. If you can send a WhatsApp message, you can use it.",
+      pt: 'Nada disso. Você escreve como escreveria pra alguém da sua equipe: sem código nem prompts estranhos. Se você sabe mandar um WhatsApp, já sabe usar.',
     },
   },
   {
     id: 'whatsapp',
     ref: 'faq:whatsapp',
-    keys: ['whatsapp'],
+    keys: ['whatsapp', 'zap'],
     ask: {
       es: ['¿Funciona con WhatsApp?', '¿Responde a mis clientes por WhatsApp?', '¿Puede vender por WhatsApp?', '¿Se conecta a WhatsApp?', 'WhatsApp'],
       en: ['Does it work with WhatsApp?', 'Does it answer my customers on WhatsApp?', 'Can it sell on WhatsApp?', 'Does it connect to WhatsApp?'],
+      pt: ['Funciona com WhatsApp?', 'Responde meus clientes no WhatsApp?', 'Dá pra vender pelo WhatsApp?', 'Conecta com o WhatsApp?', 'WhatsApp', 'funciona no zap?'],
     },
     a: {
       es: '¡Sí! El Vendedor de WhatsApp responde a tus clientes a cualquier hora, con el tono de tu marca, y cierra ventas. Se conecta por código QR o con el número oficial, y todas las conversaciones quedan en una sola bandeja.',
       en: "Yes! The WhatsApp seller answers your customers any time, in your brand's voice, and closes sales. It connects via QR code or the official number, and every conversation lives in a single inbox.",
+      pt: 'Sim! O Vendedor de WhatsApp responde seus clientes a qualquer hora, com o tom da sua marca, e fecha vendas. Ele se conecta por QR code ou pelo número oficial, e todas as conversas ficam numa caixa de entrada só.',
     },
   },
   {
     id: 'solos',
     ref: 'faq:solos',
-    keys: ['permiso', 'avisar', 'avisarme', 'solos', 'aprobar', 'gastar', 'dinero', 'asking', 'permission', 'approve', 'spend', 'money', 'without'],
+    keys: ['permiso', 'avisar', 'avisarme', 'solos', 'aprobar', 'gastar', 'dinero', 'asking', 'permission', 'approve', 'spend', 'money', 'without', 'permissao', 'sozinhos', 'aprovacao', 'dinheiro'],
     ask: {
       es: ['¿Hacen cosas sin avisarme?', '¿Puede gastar dinero sin mi permiso?', '¿Me piden permiso?', '¿Actúan solos?', '¿Necesitan mi aprobación?'],
       en: ['Do they do things without telling me?', 'Will it do things without asking me?', 'Can it spend money without my permission?', 'Do I have to approve things?'],
+      pt: ['Eles fazem coisas sem me avisar?', 'Pode gastar dinheiro sem minha permissão?', 'Eles pedem permissão?', 'Agem sozinhos?', 'Precisam da minha aprovação?', 'faz coisa sem me avisar?'],
     },
     a: {
       es: 'Solo lo que tú les permitas. En lo rutinario avanzan solos; lo importante, como gastar dinero, te lo preguntan siempre y lo apruebas con un botón. Una acción sin permiso se bloquea.',
       en: 'Only what you allow. They handle routine work on their own; anything important, like spending money, they always ask you first and you approve with one tap. An action without permission is blocked.',
+      pt: 'Só o que você permitir. No dia a dia eles avançam sozinhos; o importante, como gastar dinheiro, eles sempre te perguntam e você aprova com um botão. Uma ação sem permissão é bloqueada.',
     },
   },
   {
@@ -124,14 +138,16 @@ export const ANSWERS = [
     // Anclas de PROPIEDAD solamente: «privacidad», «información», «safe», «data»… se pliegan en el
     // término «datos» (search.js), que es ancla de «proteccion»; con las dos, «Is my data secure?»
     // empataba y no respondía ninguna (medido en T40c).
-    keys: ['mios', 'mias', 'mio', 'mine', 'dueno', 'dueña', 'owns', 'owner'],
+    keys: ['mios', 'mias', 'mio', 'mine', 'dueno', 'dueña', 'owns', 'owner', 'dono', 'dona', 'sao meus', 'de quem sao'],
     ask: {
       es: ['¿Qué hacen con mi información?', '¿Mis datos son míos?', '¿De quién son mis datos?', '¿Qué hacen con mis datos?'],
       en: ['What do you do with my information?', 'Is my data mine?', 'Who owns my data?', 'What do you do with my data?'],
+      pt: ['O que vocês fazem com minhas informações?', 'Meus dados são meus?', 'De quem são meus dados?', 'O que vocês fazem com meus dados?', 'os dados sao meus?'],
     },
     a: {
       es: 'Tu información es tuya. Cada empresa está aislada de las demás, tú decides qué conectas y lo desconectas cuando quieras. Y puedes exportarla o pedir que la borremos.',
       en: "Your information is yours. Each company is isolated from the others, you decide what you connect and you can disconnect it whenever you want. You can also export it or ask us to delete it.",
+      pt: 'Suas informações são suas. Cada empresa fica isolada das outras, você decide o que conecta e desconecta quando quiser. E pode exportá-las ou pedir que a gente apague.',
     },
   },
   {
@@ -141,66 +157,76 @@ export const ANSWERS = [
     // contenido) y §10 (aviso de brecha en 72 h). Enlaza la página.
     id: 'proteccion',
     ref: 'legal:seguridad',
-    keys: ['protegidos', 'protegidas', 'proteccion', 'protegen', 'protege', 'proteger', 'cifrado', 'cifrados', 'cifran', 'encriptado', 'brecha', 'seguro', 'seguros', 'segura', 'seguras', 'seguridad', 'protected', 'protect', 'protection', 'encrypted', 'encryption', 'breach', 'safe', 'secure', 'security'],
+    keys: ['protegidos', 'protegidas', 'proteccion', 'protegen', 'protege', 'proteger', 'cifrado', 'cifrados', 'cifran', 'encriptado', 'brecha', 'seguro', 'seguros', 'segura', 'seguras', 'seguridad', 'protected', 'protect', 'protection', 'encrypted', 'encryption', 'breach', 'safe', 'secure', 'security', 'protecao', 'criptografado', 'criptografados', 'criptografia', 'vazamento', 'seguranca'],
     ask: {
       es: ['¿Qué tan protegidos están mis datos?', '¿Cómo protegen mis datos?', '¿Mis datos van cifrados?', '¿Qué pasa si hay una brecha de seguridad?', '¿Qué protección tienen mis datos?', '¿Mis datos están seguros?', '¿Están seguros mis datos?', '¿Es seguro?', '¿Protegen mi información?', 'Mis datos que tanto se protegen?'],
       en: ['How protected is my data?', 'How do you protect my data?', 'Is my data encrypted?', 'What happens if there is a data breach?', 'Is my data safe?', 'How safe is my data?', 'Is it secure?', 'Is my information secure?', 'How do you protect my information?'],
+      pt: ['Quão protegidos estão meus dados?', 'Como vocês protegem meus dados?', 'Meus dados são criptografados?', 'O que acontece se houver um vazamento de dados?', 'Meus dados estão seguros?', 'É seguro?', 'Vocês protegem minhas informações?', 'meus dados tao seguros?'],
     },
     a: {
       es: 'Muy en serio 🔒 Todo viaja y se guarda cifrado, cada empresa está aislada en dos capas y las claves de tus integraciones se cifran aparte. No entrenamos IA con tu contenido y, si hubiera una brecha, te avisamos en 72 h. [Política de seguridad](/legal/seguridad)',
       en: "Seriously 🔒 Everything is encrypted in transit and at rest, each company is isolated in two layers, and your integration keys are encrypted separately. We don't train AI on your content, and if there's a breach, we tell you within 72 h. [Security Policy](/en/legal/security)",
+      pt: 'Levamos isso muito a sério 🔒 Tudo trafega e fica guardado criptografado, cada empresa é isolada em duas camadas e as chaves das suas integrações são criptografadas à parte. Não treinamos IA com o seu conteúdo e, se houver um vazamento, avisamos você em 72 h. [Política de segurança](/pt/legal/seguranca)',
     },
   },
   {
     id: 'datos-ia',
     ref: 'faq:datos-ia',
-    keys: ['entrenar', 'entrenan', 'entrenamiento', 'train', 'training', 'trained', 'aprenden'],
+    keys: ['entrenar', 'entrenan', 'entrenamiento', 'train', 'training', 'trained', 'aprenden', 'treinar', 'treinam', 'treina', 'treinamento'],
     ask: {
       es: ['¿Usan mis datos para entrenar modelos de IA?', '¿Entrenan la IA con mis datos?', '¿Mi información entrena modelos?'],
       en: ['Do you use my data to train AI models?', 'Do you train AI on my data?', 'Is my content used for training?'],
+      pt: ['Vocês usam meus dados para treinar modelos de IA?', 'Vocês treinam a IA com meus dados?', 'Minhas informações treinam modelos?', 'usam meus dados pra treinar ia?'],
     },
     a: {
       es: 'No. No entrenamos modelos con tu contenido, ni propios ni de terceros, y los contratos con los proveedores de modelos les prohíben usarlo para entrenar.',
       en: "No. We don't train models on your content, neither our own nor third-party ones, and our contracts with model providers forbid them from using it for training.",
+      pt: 'Não. Não treinamos modelos com o seu conteúdo, nem próprios nem de terceiros, e os contratos com os provedores de modelos proíbem que eles o usem para treinamento.',
     },
   },
   {
     id: 'varios-negocios',
     ref: 'faq:varios-negocios',
-    keys: ['varios', 'negocios', 'marcas', 'empresas', 'several', 'multiple', 'businesses', 'brands', 'companies'],
+    keys: ['varios', 'negocios', 'marcas', 'empresas', 'several', 'multiple', 'businesses', 'brands', 'companies', 'varias'],
     ask: {
       es: ['¿Puedo manejar varios negocios?', '¿Sirve para varias marcas?', '¿Puedo tener varias empresas?'],
       en: ['Can I run several businesses?', 'Does it work for multiple brands?', 'Can I have several companies?'],
+      pt: ['Posso gerenciar vários negócios?', 'Serve para várias marcas?', 'Posso ter várias empresas?', 'da pra ter varios negocios?'],
     },
     a: {
       es: '¡Sí! Puedes llevar varios negocios a la vez, cada uno con sus datos aparte, y la pantalla principal te los resume todos.',
       en: 'Yes! You can run several businesses at once, each with its own data kept apart, and the main screen sums them all up for you.',
+      pt: 'Sim! Você pode cuidar de vários negócios ao mesmo tempo, cada um com seus dados separados, e a tela principal resume todos pra você.',
     },
   },
   {
     id: 'que-es',
     ref: 'faq:que-es',
-    keys: ['que es', 'quien', 'detras', 'klinworks', 'what is', 'who', 'behind', 'hace'],
+    keys: ['que es', 'quien', 'detras', 'klinworks', 'what is', 'who', 'behind', 'hace', 'o que e', 'quem', 'por tras'],
     ask: {
       es: ['¿Qué es Agent CEO?', '¿Qué es Agent CEO y quién está detrás?', '¿Qué hace Agent CEO?', '¿Quién está detrás?', '¿De qué se trata?'],
       en: ['What is Agent CEO?', 'What is Agent CEO and who is behind it?', 'What does Agent CEO do?', "Who's behind it?"],
+      pt: ['O que é o Agent CEO?', 'O que é o Agent CEO e quem está por trás?', 'O que o Agent CEO faz?', 'Quem está por trás?', 'Do que se trata?', 'o que e agent ceo?'],
     },
     a: {
       es: 'Es tu equipo de empleados de IA: venden por WhatsApp, cuidan tu tienda y crean tu contenido, y en lo importante te piden permiso. La desarrolla Klinworks, LLC.',
       en: "It's your team of AI employees: they sell on WhatsApp, look after your store and create your content, and they ask your permission for anything important. It's built by Klinworks, LLC.",
+      pt: 'É a sua equipe de funcionários de IA: vendem pelo WhatsApp, cuidam da sua loja e criam seu conteúdo, e no que é importante pedem sua permissão. Quem desenvolve é a Klinworks, LLC.',
     },
   },
   {
     id: 'herramientas',
     ref: 'faq:herramientas',
-    keys: ['herramientas', 'conecta', 'conectan', 'integraciones', 'integra', 'tools', 'connect', 'connects', 'integrations', 'gmail', 'drive', 'hubspot apps'],
+    keys: ['herramientas', 'conecta', 'conectan', 'integraciones', 'integra', 'tools', 'connect', 'connects', 'integrations', 'gmail', 'drive', 'hubspot apps', 'ferramentas', 'integracoes'],
     ask: {
       es: ['¿Con qué herramientas se conecta?', '¿A qué herramientas se conecta?', '¿Qué integraciones tiene?', '¿Con qué apps funciona?'],
       en: ['Which tools does it connect to?', 'What integrations does it have?', 'What apps does it work with?'],
+      pt: ['Com quais ferramentas se conecta?', 'A quais ferramentas ele se conecta?', 'Quais integrações tem?', 'Funciona com quais apps?', 'integra com o que?'],
     },
     a: {
       es: 'Con más de 70 que seguro ya usas: Shopify, WooCommerce, MercadoLibre, Amazon, Gmail, Google Drive y Sheets, WhatsApp, TikTok y muchas más. Tus agentes trabajan directamente en ellas.',
       en: 'With 70+ tools you probably already use: Shopify, WooCommerce, MercadoLibre, Amazon, Gmail, Google Drive and Sheets, WhatsApp, TikTok and many more. Your agents work right inside them.',
+      pt: 'Com mais de 70 que você provavelmente já usa: Shopify, WooCommerce, MercadoLibre, Amazon, Gmail, Google Drive e Sheets, WhatsApp, TikTok e muitas mais. Seus agentes trabalham direto nelas.',
     },
   },
   {
@@ -210,49 +236,57 @@ export const ANSWERS = [
     ask: {
       es: ['¿Sirve con mi tienda Shopify?', '¿Funciona con Shopify?', '¿Se conecta a Shopify?'],
       en: ['Does it work with my Shopify store?', 'Does it work with Shopify?', 'Does it connect to Shopify?'],
+      pt: ['Serve com minha loja Shopify?', 'Funciona com Shopify?', 'Conecta com a Shopify?'],
     },
     a: {
       es: '¡Sí! Conectas tu tienda Shopify y tu equipo vigila pedidos, carritos abandonados y stock por ti.',
       en: 'Yes! You connect your Shopify store and your team keeps an eye on orders, abandoned carts and stock for you.',
+      pt: 'Sim! Você conecta sua loja Shopify e sua equipe acompanha pedidos, carrinhos abandonados e estoque por você.',
     },
   },
   {
     id: 'web',
     ref: 'faq:web',
-    keys: ['web', 'pagina', 'sitio', 'app', 'aplicacion', 'landing', 'tienda online', 'website', 'site', 'online store', 'construir', 'crear', 'build'],
+    keys: ['web', 'pagina', 'sitio', 'app', 'aplicacion', 'landing', 'tienda online', 'website', 'site', 'online store', 'construir', 'crear', 'build', 'loja online', 'criar', 'aplicativo'],
     ask: {
       es: ['¿Puede crearme una web o una app?', '¿Me pueden construir una tienda online?', '¿Hacen páginas web?', '¿Me crea una app?', '¿Puede hacerme una landing?'],
       en: ['Can it build me a website or an app?', 'Can it build me an online store?', 'Do you make websites?', 'Can it make me an app?', 'Can it build a landing page?'],
+      pt: ['Pode criar um site ou um app pra mim?', 'Vocês constroem uma loja online?', 'Vocês fazem sites?', 'Cria um app pra mim?', 'Pode fazer uma landing page?', 'faz site?'],
     },
     a: {
       es: '¡Sí! Webs, landings, tiendas online, apps y herramientas internas. La describes en el chat, la ves en vista previa y se publica en tu GitHub y tu Vercel: el código es tuyo.',
       en: "Yes! Websites, landing pages, online stores, apps and internal tools. You describe it in the chat, see it in preview and it's published to your own GitHub and Vercel: the code is yours.",
+      pt: 'Sim! Sites, landing pages, lojas online, apps e ferramentas internas. Você descreve no chat, vê a prévia e publica no seu GitHub e na sua Vercel: o código é seu.',
     },
   },
   {
     id: 'agente',
     ref: 'faq:agente',
-    keys: ['agente', 'agentes', 'empleado', 'agent', 'agents', 'employee'],
+    keys: ['agente', 'agentes', 'empleado', 'agent', 'agents', 'employee', 'funcionario'],
     ask: {
       es: ['¿Qué es un agente?', '¿Qué es un empleado digital?', '¿Qué hace un agente?'],
       en: ['What is an agent?', 'What is a digital employee?', 'What does an agent do?'],
+      pt: ['O que é um agente?', 'O que é um funcionário digital?', 'O que um agente faz?'],
     },
     a: {
       es: 'Es un empleado digital con un trabajo concreto, como responder mensajes o revisar el inventario. No te sugiere qué hacer: lo hace, directamente en tus herramientas.',
       en: "It's a digital employee with a specific job, like answering messages or checking inventory. It doesn't suggest what to do: it does it, right inside your tools.",
+      pt: 'É um funcionário digital com um trabalho específico, como responder mensagens ou revisar o estoque. Ele não sugere o que fazer: ele faz, direto nas suas ferramentas.',
     },
   },
   {
     id: 'reembolso',
     ref: 'legal:reembolsos',
-    keys: ['reembolso', 'reembolsos', 'devolucion', 'devuelven', 'refund', 'refunds', 'money back'],
+    keys: ['reembolso', 'reembolsos', 'devolucion', 'devuelven', 'refund', 'refunds', 'money back', 'devolvem', 'devolucao', 'dinheiro de volta'],
     ask: {
       es: ['¿Puedo pedir un reembolso?', '¿Cómo pido un reembolso?', '¿Me devuelven el dinero?', 'reembolsos'],
       en: ['Can I get a refund?', 'How do I get a refund?', 'Do you give refunds?', 'refunds'],
+      pt: ['Posso pedir reembolso?', 'Como peço um reembolso?', 'Vocês devolvem o dinheiro?', 'reembolsos', 'tem reembolso?'],
     },
     a: {
       es: 'Sí: en tu primera suscripción, dentro de 7 días si usaste menos del 10 % de los créditos; los paquetes Chispa, Envión y Turbina, en 14 días si no los usaste; y siempre por errores de facturación.',
       en: 'Yes: on your first subscription, within 7 days if you used less than 10% of the credits; Chispa, Envión and Turbina packs within 14 days if unused; and always for billing errors.',
+      pt: 'Sim: na sua primeira assinatura, em até 7 dias se você usou menos de 10 % dos créditos; os pacotes Chispa, Envión e Turbina, em até 14 dias se não foram usados; e sempre por erros de cobrança.',
     },
   },
 ]

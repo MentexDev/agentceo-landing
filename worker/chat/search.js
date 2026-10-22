@@ -9,7 +9,9 @@ const STOP = new Set((
   // español
   'a al algo alguna alguno algun ante antes como con contra cual cuales de del desde donde dos el ella ellos en entre era es esa ese eso esta este esto estos fue ha hay la las le les lo los mas me mi mis muy ni no nos o os otra otro para pero poco por porque que quien se ser si sin sobre su sus te ti tu tus un una uno unos y ya yo usted ustedes puedo puede pueden tengo tiene tienen hace hacen quiero saber decir dime explicame cuentame hola oye necesito necesita nada usar uso algo cosa cosas va van estar ser sera hago hacer quedo pasa ' +
   // inglés
-  'a an and are as at be but by can could do does for from had has have how i if in into is it its me my of on or our so than that the their them then there these they this to us was we were what when where which will with would you your tell please hey need needs use using thing things'
+  'a an and are as at be but by can could do does for from had has have how i if in into is it its me my of on or our so than that the their them then there these they this to us was we were what when where which will with would you your tell please hey need needs use using thing things ' +
+  // portugués (T62): solo las que no son ya del español
+  'ao aos as da das do dos eu ele ela eles elas isso isto aquilo um uma uns umas meu minha meus minhas seu sua seus suas nosso nossa voce voces vc vcs tem tenho temos pode podem posso quero queria saber dizer diga me conta oi ola preciso nao sim pra pro pela pelo pelos pelas com na nas numa num ja so mais muito muita tambem qual quais onde quando porque ser estar sao esta estao era foi fazer faz faco ter vai vao coisa coisas usar uso'
 ).split(' '))
 
 // Sinónimos → término canónico (la pregunta del usuario rara vez usa las palabras del FAQ).
@@ -35,6 +37,21 @@ const SYN = {
   atasca: 'atasca', atascado: 'atasca', falla: 'atasca', error: 'atasca', stuck: 'atasca', fails: 'atasca', breaks: 'atasca',
   gusta: 'rechazar', rechazar: 'rechazar', cambios: 'rechazar', corregir: 'rechazar', like: 'rechazar', reject: 'rechazar', changes: 'rechazar',
   quien: 'klinworks', detras: 'klinworks', compania: 'klinworks', behind: 'klinworks', company: 'klinworks', klinworks: 'klinworks', who: 'klinworks',
+  // portugués (T62) → los mismos términos canónicos
+  custa: 'precio', custam: 'precio', custo: 'precio', quanto: 'precio', preco: 'precio', valor: 'precio', valores: 'precio', plano: 'precio', planos: 'precio', mensalidade: 'precio', assinatura: 'precio', cobram: 'precio', gratuita: 'precio',
+  programacao: 'tecnologia', tecnica: 'tecnologia', programador: 'tecnologia', desenvolvedor: 'tecnologia',
+  seguranca: 'datos', privacidade: 'datos', informacao: 'datos', informacoes: 'datos', dados: 'datos',
+  aprendem: 'entrenamiento', treinar: 'entrenamiento', treinam: 'entrenamiento', treinamento: 'entrenamiento',
+  abrem: 'lanzamiento', lancam: 'lanzamiento', lancamento: 'lanzamiento', disponivel: 'lanzamiento', comecar: 'lanzamiento', comeca: 'lanzamiento',
+  respondem: 'responder', atende: 'responder', atendem: 'responder',
+  zap: 'whatsapp', loja: 'tienda', lojas: 'tienda', aplicativo: 'web',
+  agente: 'agente', funcionario: 'agente', funcionarios: 'agente',
+  dinheiro: 'dinero',
+  sozinho: 'permiso', sozinhos: 'permiso', avisar: 'permiso', permissao: 'permiso',
+  ferramentas: 'conectar', integracoes: 'conectar', integracao: 'conectar', conectam: 'conectar', integram: 'conectar',
+  trava: 'atasca', travado: 'atasca', travar: 'atasca', falha: 'atasca', erro: 'atasca',
+  gostar: 'rechazar', gosto: 'rechazar', rejeitar: 'rechazar', mudancas: 'rechazar',
+  quem: 'klinworks', tras: 'klinworks',
 }
 
 /** Normaliza: minúsculas, sin acentos, sin puntuación. */

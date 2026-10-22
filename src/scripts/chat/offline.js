@@ -8,6 +8,7 @@
 import { matchCurated } from '../../../worker/chat/match.js'
 import { answerById } from '../../../content/chat-answers.js'
 import { intentOf, say, privateReply } from '../../../worker/chat/persona.js'
+import { LOCALES } from '../../i18n/meta.js'
 
 /** ¿Es un saludo (con o sin cortesía: «hola amigo», «hi there»)? */
 export const isGreeting = (text) => intentOf(text) === 'greet'
@@ -18,7 +19,7 @@ export const isGreeting = (text) => intentOf(text) === 'greet'
  * `generic` = no hay ficha: el texto lo pone el panel (S.offlineGeneric, con enlaces a la web).
  */
 export function offlineReply(text, lang, chip = null) {
-  const L = lang === 'en' ? 'en' : 'es'
+  const L = LOCALES.includes(lang) ? lang : 'es'
   const intent = intentOf(text)
   // Negativa de datos privados por TIPO e idioma (T40b), igual que en el Worker.
   if (intent === 'private') return { text: privateReply(text, L).text, kind: 'intent:private', cta: null }

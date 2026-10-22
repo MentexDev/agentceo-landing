@@ -5,6 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { ANSWERS } from '../../content/chat-answers.js'
 import { tokens, norm } from './search.js'
+import { LOCALES } from '../../src/i18n/meta.js'
 
 /** Texto normalizado: minúsculas, sin tildes ni signos, espacios simples. */
 export function normQ(text = '') {
@@ -20,11 +21,15 @@ export const MAX_TERMS = 6
 const FILLER = new Set(('esta estan estara estaria sirve sirven servir usarlo usarla usar uso sale salir llevar venden vender exactamente realmente bien mucho ' +
   'much many per own its get back really exactly actually just still yet please porfa favor ' +
   // T40c: «Mis datos que tanto se protegen?» (la pregunta exacta de Diego) no casaba por «tanto».
-  'tanto tan tanta muy bastante so much how well').split(' '))
+  'tanto tan tanta muy bastante so much how well ' +
+  // T62 · pt
+  'servem usa-lo usar uso fica ficar mesmo realmente muito bem favor quanto tao').split(' '))
 // Frases que equivalen a un término (antes de tokenizar).
 const PHRASES = [
   [/\bagent ?ceo\b/g, ' agentceo '], [/\bhow much\b/g, ' precio '], [/\b(al|por|a|per|each|a) (mes|month)\b/g, ' precio '],
   [/\bmoney back\b/g, ' reembolso '], [/\bdevolver el dinero|devuelven el dinero\b/g, ' reembolso '],
+  // T62 · pt
+  [/\b(por|ao|no) mes\b/g, ' precio '], [/\bdinheiro de volta|devolvem o dinheiro|devolver o dinheiro\b/g, ' reembolso '],
 ]
 const terms = (text) => {
   let q = ` ${normQ(text)} `
@@ -33,24 +38,28 @@ const terms = (text) => {
 }
 
 // Lo que NUNCA se responde con una ficha curada (aunque contenga «precio» o «datos»).
-const DENY = /\b(ignor\w*|instrucciones|instructions|prompt|system prompt|prompt de sistema|reglas ocultas|hidden rules|tus reglas|your rules|jailbreak|modo desarrollador|developer mode|you are now|ahora eres|a partir de ahora eres|now you are|traduc\w*|translat\w*|repite|repeat|roadmap|hoja de ruta|api key|apikey|clave de api|password|contrasena|lista de clientes|clientes que (ya )?usan|customer list|customers who|correos de|base de datos|database|modelo de ia|ai model|which model|que modelo|chatgpt|openai|hubspot|zapier|competencia|competid\w*|competitor\w*|mejor que|better than|peor que|worse than|versus|vs|estafa|scam|descuento|discount|cupon|coupon|codigo promo|promo code|cuant[oa]s (usuarios|clientes|empleados|personas) (tienen|hay|usan)|how many (users|customers|clients|employees) (do you|have|use)|ganan|facturan|facturacion de la empresa|revenue|ingresos|inversores|investors)\b/
+const DENY = /\b(ignor\w*|instrucciones|instructions|prompt|system prompt|prompt de sistema|reglas ocultas|hidden rules|tus reglas|your rules|jailbreak|modo desarrollador|developer mode|you are now|ahora eres|a partir de ahora eres|now you are|traduc\w*|translat\w*|repite|repeat|roadmap|hoja de ruta|api key|apikey|clave de api|password|contrasena|lista de clientes|clientes que (ya )?usan|customer list|customers who|correos de|base de datos|database|modelo de ia|ai model|which model|que modelo|chatgpt|openai|hubspot|zapier|competencia|competid\w*|competitor\w*|mejor que|better than|peor que|worse than|versus|vs|estafa|scam|descuento|discount|cupon|coupon|codigo promo|promo code|cuant[oa]s (usuarios|clientes|empleados|personas) (tienen|hay|usan)|how many (users|customers|clients|employees) (do you|have|use)|ganan|facturan|facturacion de la empresa|revenue|ingresos|inversores|investors|instrucoes|regras ocultas|suas regras|agora voce e|traduz\w*|repita|senha|chave de api|lista de clientes|banco de dados|modelo de ia|qual modelo|concorrencia|concorrente\w*|melhor que|pior que|golpe|cupom|codigo promocional|quantos (usuarios|clientes|funcionarios) (voces )?(tem|ha|usam)|faturamento|faturam|receita|investidores)\b/
 
 const ES = /\b(el|la|los|las|que|para|con|tu|tus|es|una|puedo|tengo|cuanto|como|donde|cuando|hay|mis|mi)\b/g
 const EN = /\b(the|you|your|and|to|is|with|can|for|it|are|do|does|how|what|when|my|i)\b/g
+// T62 · solo palabras que NO son también del español («que», «para», «como» no distinguen).
+const PT = /\b(voce|voces|vc|vcs|um|uma|do|da|dos|das|meu|minha|meus|minhas|seu|sua|tem|posso|quanto|onde|isso|pra|com|nao|sao|esta|estao|ao|ja|tambem|quais|qual)\b/g
 
 /** Idioma de la pregunta: el que tenga claramente más palabras vacías; si no, el de la página. */
 export function langOf(text, fallback = 'es') {
   const s = norm(text)
-  const es = (s.match(ES) || []).length, en = (s.match(EN) || []).length
+  const es = (s.match(ES) || []).length, en = (s.match(EN) || []).length, pt = (s.match(PT) || []).length
+  // pt primero: comparte palabras con el español, así que ES cuenta algo en casi toda pregunta en portugués.
+  if (pt >= 2 && pt > es && pt > en) return 'pt'
   if (en >= 2 && en > es * 2) return 'en'
-  if (es >= 2 && es > en * 2) return 'es'
-  return fallback === 'en' ? 'en' : 'es'
+  if (es >= 2 && es > en * 2 && es > pt) return 'es'
+  return LOCALES.includes(fallback) ? fallback : 'es'
 }
 
 // Índice: por respuesta, el vocabulario (términos de todas sus formas de preguntar, en ambos
 // idiomas, + anclas) y las anclas (palabras sueltas → término canónico; frases → texto normalizado).
 const IDX = ANSWERS.map((e) => {
-  const forms = [...e.ask.es, ...e.ask.en]
+  const forms = LOCALES.flatMap((l) => e.ask[l] || [])
   const exact = new Set(forms.map(normQ))
   const vocab = new Set(forms.flatMap((f) => terms(f)))
   const anchorTerms = new Set(), anchorPhrases = []

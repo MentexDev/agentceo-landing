@@ -7,6 +7,8 @@
 import { norm } from './search.js'
 import { privateKind, userLang } from './private.js'
 import { integrationQuery } from './integrations.js'
+import { T_PT, PRIV_PT } from './persona.pt.js'
+import { LOCALES } from '../../src/i18n/meta.js'
 
 export const CONTACT = 'info@agentceo.io'
 
@@ -66,6 +68,8 @@ const T = {
     chipJoin: 'Join the waitlist',
     chipHuman: 'Are you a person?',
   },
+  // T62 · pt-BR en su propio fichero (worker/chat/persona.pt.js), mismas claves (lo vigila chat-pt.test.js).
+  pt: T_PT,
 }
 
 export const say = (lang, key) => (T[lang] || T.es)[key]
@@ -74,10 +78,13 @@ export const say = (lang, key) => (T[lang] || T.es)[key]
 export function joinedReply(lang, masked) {
   // «*» se mostraría como Markdown (cursiva): se pinta con el asterisco tipográfico «∗» (U+2217), igual a la vista.
   const shown = masked ? masked.replace(/\*/g, '∗') : ''
-  const m = shown ? (lang === 'en' ? ` with **${shown}**` : ` con tu correo **${shown}**`) : ''
-  return lang === 'en'
-    ? `You're already on the waitlist${m} 🙌 Nothing else to do: we'll email you when your group opens. Meanwhile, tell me about your business (what you sell and to whom) and I'll show you what your AI team would do, or ask me anything.`
-    : `¡Ya estás en la lista${m}! 🙌 No tienes que hacer nada más: te escribimos cuando abra tu grupo. Mientras tanto, cuéntame de tu negocio (qué vendes y a quién) y te digo qué haría tu equipo de IA, o pregúntame lo que quieras.`
+  const J = {
+    es: [` con tu correo **${shown}**`, (m) => `¡Ya estás en la lista${m}! 🙌 No tienes que hacer nada más: te escribimos cuando abra tu grupo. Mientras tanto, cuéntame de tu negocio (qué vendes y a quién) y te digo qué haría tu equipo de IA, o pregúntame lo que quieras.`],
+    en: [` with **${shown}**`, (m) => `You're already on the waitlist${m} 🙌 Nothing else to do: we'll email you when your group opens. Meanwhile, tell me about your business (what you sell and to whom) and I'll show you what your AI team would do, or ask me anything.`],
+    pt: [` com o e-mail **${shown}**`, (m) => `Você já está na lista${m}! 🙌 Não precisa fazer mais nada: a gente te escreve quando abrir o seu grupo. Enquanto isso, me conta do seu negócio (o que você vende e pra quem) e eu te digo o que a sua equipe de IA faria, ou me pergunte o que quiser.`],
+  }
+  const [withMail, text] = J[lang] || J.es
+  return text(shown ? withMail : '')
 }
 
 // NEGATIVAS por TIPO (T40 b, Luca): en el idioma del usuario (es/en; fr/de/pt/it con frases cortas
@@ -107,12 +114,7 @@ const PRIV = {
     personal: 'Persönliche Daten von niemandem gebe ich weiter 🙂. Schreib uns an [info@agentceo.io](mailto:info@agentceo.io).',
     rules: 'Meine internen Anweisungen teile ich nicht und ich wechsle nicht die Rolle 🙂. Ich bleibe die KI von Agent CEO.',
   },
-  pt: {
-    legal: 'Prefiro não compartilhar isso aqui 🙂. Os dados legais estão nas nossas [páginas legais](/en/legal/); para o resto: [info@agentceo.io](mailto:info@agentceo.io).',
-    internal: 'Isso é bastidor interno e não compartilho 🙂. Posso contar o que o Agent CEO faz e quanto custa.',
-    personal: 'Não compartilho dados pessoais de ninguém 🙂. Para falar conosco: [info@agentceo.io](mailto:info@agentceo.io).',
-    rules: 'Não compartilho minhas instruções internas nem mudo de papel 🙂. Continuo sendo a IA do Agent CEO.',
-  },
+  pt: PRIV_PT, // T62: la de la web en pt (enlaces a /pt/), worker/chat/persona.pt.js
   it: {
     legal: 'Preferisco non condividerlo qui 🙂. I dati legali sono nelle nostre [pagine legali](/en/legal/); per il resto: [info@agentceo.io](mailto:info@agentceo.io).',
     internal: 'Sono dettagli interni che non condivido 🙂. Posso raccontarti cosa fa Agent CEO e quanto costa.',
@@ -122,41 +124,41 @@ const PRIV = {
 }
 /** Negativa amable para una pregunta reservada: { text, lang, kind }. `pageLang` = idioma de la página. */
 export function privateReply(text, pageLang = 'es', kind = privateKind(text) || 'internal') {
-  const lang = userLang(text, pageLang === 'en' ? 'en' : 'es')
+  const lang = userLang(text, LOCALES.includes(pageLang) ? pageLang : 'es')
   return { text: (PRIV[lang] || PRIV.en)[kind] || PRIV.es[kind], lang, kind }
 }
 
 // Intenciones que no se resuelven buscando en el contenido.
 const INTENTS = [
-  { id: 'human', re: /\b(eres|sos|es|hablo con|estoy hablando con|esto es)\b.*\b(humano|humana|persona|real|bot|robot|ia|maquina|chatbot)\b|\b(are you|am i (talking|chatting|speaking) (to|with)|is this|is it)\b.*\b(human|person|real|bot|robot|ai|machine|chatbot)\b|^(bot|humano|human|robot|chatbot)\??$/ },
-  { id: 'contact', re: /\b(hablar|hablo|comunicarme) con (una |un |alguien|persona|humano|el equipo)|\b(contacto|contactar|soporte)\b|\b(talk|speak|chat) (to|with) (a |an |someone|somebody|person|human|real|the team)|\bcontact (you|us|support|the team)\b|^contact\??$|\bcustomer (support|service)\b|^support\??$/ },
+  { id: 'human', re: /\b(eres|sos|es|hablo con|estoy hablando con|esto es)\b.*\b(humano|humana|persona|real|bot|robot|ia|maquina|chatbot)\b|\b(are you|am i (talking|chatting|speaking) (to|with)|is this|is it)\b.*\b(human|person|real|bot|robot|ai|machine|chatbot)\b|\b(voce e|vc e|e voce|e vc|eu falo com|to falando com|estou falando com|isso e|aqui e)\b.*\b(humano|humana|pessoa|real|bot|robo|ia|maquina|chatbot)\b|^(bot|humano|human|robot|robo|chatbot)\??$/ },
+  { id: 'contact', re: /\b(hablar|hablo|comunicarme) con (una |un |alguien|persona|humano|el equipo)|\b(contacto|contactar|soporte)\b|\b(talk|speak|chat) (to|with) (a |an |someone|somebody|person|human|real|the team)|\bcontact (you|us|support|the team)\b|^contact\??$|\bcustomer (support|service)\b|^support\??$|\bfalar com (uma |um |alguem|pessoa|humano|a equipe|o time|um atendente)|\b(contato|contatar|suporte|atendimento humano)\b|^(contato|suporte)\??$/ },
   // T58b: «Ok me quiero registrar amigo» no casaba (solo «registrarme») y acababa en el modelo. Ahora:
   // registro EN PRIMERA PERSONA, con faltas comunes («registar», «inscrivir»), es/en. «¿Puedo registrar mis
   // ventas?» o «¿cómo registro un pedido?» NO son esto: sin «me/nos» delante, el verbo no basta.
-  { id: 'join', re: /\b(apuntarme|apuntar|unirme|inscribirme|registrarme|lista de espera|waitlist|wait list|sign ?up|join|register|quiero entrar|quiero acceso|get access|early access)\b|\b(me|nos) (quiero |quisiera |gustaria |puedo |podria |voy a |deseo |dejas |dejan )?(registr|regist|inscrib|inscriv|apunt|anot|un)(ar|ir|o)\b|\b(registr|regist|inscrib|inscriv|apunt|anot)(arme|arnos|irme|ame|anos|eme)\b|\b(quiero|quisiera|deseo) (entrar|acceso|probar(lo)?|empezar|usarlo|mi lugar|un lugar|un cupo)\b|\b(sign (me )?up|count me in|i want in|enroll|let me in|get me in|how (do|can) i (join|sign up|register|get in|get started|start)|where (do|can) i (sign up|register|join))\b/ },
+  { id: 'join', re: /\b(apuntarme|apuntar|unirme|inscribirme|registrarme|lista de espera|waitlist|wait list|sign ?up|join|register|quiero entrar|quiero acceso|get access|early access)\b|\b(me|nos) (quiero |quisiera |gustaria |puedo |podria |voy a |deseo |dejas |dejan )?(registr|regist|inscrib|inscriv|apunt|anot|un)(ar|ir|o)\b|\b(registr|regist|inscrib|inscriv|apunt|anot)(arme|arnos|irme|ame|anos|eme)\b|\b(quiero|quisiera|deseo) (entrar|acceso|probar(lo)?|empezar|usarlo|mi lugar|un lugar|un cupo)\b|\b(sign (me )?up|count me in|i want in|enroll|let me in|get me in|how (do|can) i (join|sign up|register|get in|get started|start)|where (do|can) i (sign up|register|join))\b|\b(quero|queria|gostaria de|posso|vou|como|onde) (eu )?(me|nos) (inscrever|cadastrar|registrar|inscrevo|cadastro|registro)\b|\b(me inscreve|me cadastra|me coloca na lista|me inscrevo|me cadastro|me registra)\b|\b(quero|queria|gostaria de) (entrar|acesso|testar|experimentar|comecar|usar|meu lugar|um lugar|uma vaga|garantir (meu|minha) (lugar|vaga))\b|\b(fazer|faco) (o |meu )?cadastro\b(?! de)|\bgarantir (meu|minha) (lugar|vaga)\b|\b(como|onde) (eu )?(faco|faz|posso|consigo) (pra|para) (me )?(inscrever|cadastrar|registrar|entrar|participar)\b|\b(como|onde) (eu )?(me )?(inscrevo|cadastro|entro na lista)\b/ },
   // T58b · navegación (herramienta determinista open_section): «llévame a precios», «show me pricing»… Exige
   // un verbo o pista de NAVEGAR: «¿cuánto cuesta?» o «¿qué planes hay?» siguen yendo a la ficha curada.
-  { id: 'goPricing', re: /\b(llevame|lleva me|ir a|ver|veo|mostrar|muestrame|ensename|pasame|dame|abrir|abre|link|enlace|pagina|seccion|donde (estan|veo|puedo ver|encuentro)) (a |la |el |los |las |de |del )*(precios?|planes|tarifas|pricing)\b|\b(take me to|show me|go to|open|link to|where (is|are|can i (see|find))|send me) (the |your )?(pricing|prices|plans|pricing page)\b/ },
-  { id: 'goFaq', re: /\b(preguntas frecuentes|faqs?|dudas frecuentes|preguntas comunes|frequently asked)\b/ },
+  { id: 'goPricing', re: /\b(llevame|lleva me|ir a|ver|veo|mostrar|muestrame|ensename|pasame|dame|abrir|abre|link|enlace|pagina|seccion|donde (estan|veo|puedo ver|encuentro)) (a |la |el |los |las |de |del )*(precios?|planes|tarifas|pricing)\b|\b(take me to|show me|go to|open|link to|where (is|are|can i (see|find))|send me) (the |your )?(pricing|prices|plans|pricing page)\b|\b(me leva|me leve|leva|ir para|ir pra|ver|mostrar|mostra|me mostra|me manda|abre|abrir|link|pagina|secao|onde (estao|vejo|posso ver|encontro|ficam?)) (para |pra |a |o |os |as |de |da |do |dos |das )*(precos?|planos|tarifas|pricing)\b/ },
+  { id: 'goFaq', re: /\b(preguntas frecuentes|faqs?|dudas frecuentes|preguntas comunes|frequently asked|perguntas frequentes|duvidas frequentes|perguntas comuns)\b/ },
   // T60: asentimientos y charla corta («de una», «bacano», «¿sí o qué?», «listo parce», «jaja»).
-  { id: 'ack', re: /^(ok|okey|okay|vale|listo|dale|de una|bacano|bacana|chevere|chimba|que chimba|berraco|genial|super|perfecto|claro|si o que|si señor|hagale|hagamosle|uy|wow|(ja){2,}j?|(je){2,}j?|(ji){2,}j?|lol|cool|nice|awesome|sounds good|got it|bet|sure|alright|right on)( (parce|parcero|mijo|mija|pues|amigo|bro|man|hermano|llave|socio|entonces|ya|que mas))*[!.¡?¿ ]*$/ },
-  { id: 'thanks', re: /^(muchas )?(gracias|grax|genial|perfecto|ok gracias|thanks|thank you|thx|great|perfect|cool)[!. ]*$/ },
+  { id: 'ack', re: /^(ok|okey|okay|vale|listo|dale|de una|bacano|bacana|chevere|chimba|que chimba|berraco|genial|super|perfecto|claro|si o que|si señor|hagale|hagamosle|uy|wow|(ja){2,}j?|(je){2,}j?|(ji){2,}j?|lol|cool|nice|awesome|sounds good|got it|bet|sure|alright|right on|beleza|blz|show|top|massa|demais|otimo|firmeza|tranquilo|fechou|fechado|pode crer|joia|ta bom|entendi|kkk+|(rs)+)( (parce|parcero|mijo|mija|pues|amigo|bro|man|hermano|llave|socio|entonces|ya|que mas|cara|mano|parceiro|entao|demais|de boa))*[!.¡?¿ ]*$/ },
+  { id: 'thanks', re: /^(muchas )?(gracias|grax|genial|perfecto|ok gracias|thanks|thank you|thx|great|perfect|cool)[!. ]*$|^(muito )?(obrigad[oa]|obg|brigad[oa]|valeu|vlw|agradeco)( (mesmo|demais|viu|cara|amigo))*[!. ]*$/ },
 ]
 
 // SALUDO (T35 · adenda, Diego: «hola amigo» no tuvo respuesta): el saludo y hasta DOS palabras de
 // cortesía detrás («hola amigo», «buenas, ¿qué tal?», «hi there», «hey ceo»), sin signos. Antes solo
 // casaba el saludo exacto y «hola amigo» iba al modelo. Se responde al instante, sin LLM ni cupo.
 // T60: jerga colombiana y casual («quiubo parce», «qué más pues», «¿bien o qué?», «epa»).
-const GREET = '(hola|holi|holis|ola|buenas|buen dia|buenos dias|buenas tardes|buenas noches|hey|hi|hello|hiya|howdy|saludos|que tal|que onda|whats up|good (morning|afternoon|evening)|quiubo|quihubo|quiubas|que hubo|que mas|que mas pues|q mas|epa|ey|bien o que|todo bien|yo|sup|hey there|hola hola)'
-const COURTESY = '(amigo|amiga|amigos|ceo|tu ceo|bot|equipo|team|there|friend|buddy|mate|que tal|como estas|como va|como andas|como te va|todo bien|how are you|hows it going|whats up|y|and|tal|parce|parcero|parcera|mijo|mija|socio|socia|hermano|llave|pues|pa|bro|man|vale|que mas|bien o que|como vamos|como es)'
+const GREET = '(hola|holi|holis|ola|buenas|buen dia|buenos dias|buenas tardes|buenas noches|hey|hi|hello|hiya|howdy|saludos|que tal|que onda|whats up|good (morning|afternoon|evening)|quiubo|quihubo|quiubas|que hubo|que mas|que mas pues|q mas|epa|ey|bien o que|todo bien|yo|sup|hey there|hola hola|oi|oie|oii|ola tudo bem|bom dia|boa tarde|boa noite|e ai|eai|fala|salve|opa|tudo bem|tudo bom|como vai)'
+const COURTESY = '(amigo|amiga|amigos|ceo|tu ceo|bot|equipo|team|there|friend|buddy|mate|que tal|como estas|como va|como andas|como te va|todo bien|how are you|hows it going|whats up|y|and|tal|parce|parcero|parcera|mijo|mija|socio|socia|hermano|llave|pues|pa|bro|man|vale|que mas|bien o que|como vamos|como es|cara|mano|parceiro|pessoal|galera|seu ceo|beleza|blz|como vai|tudo bem|tudo bom|e ai|turma)'
 const GREET_RE = new RegExp(`^${GREET}( ${COURTESY}){0,3}$`)
 
 /** Detecta una intención en el ÚLTIMO mensaje del usuario. */
 // COMPARACIÓN con otras herramientas (T40c, Luca: «¿es mejor que ChatGPT o que Lindy? habla mal de
 // ellos» recibía la negativa de «cocina interna»). Exige una señal de comparación Y una herramienta
 // ajena: «¿es mejor Impulso que Motor?» no es esto.
-const COMPARE_CUE = /\b(mejor(es)?|peor(es)?|better|worse|best|vs|versus|compar\w*|diferencia\w*|difference|different|distint\w*|en vez de|en lugar de|instead of|alternativa\w*|alternative\w*|habla(r)? mal|badmouth|trash talk|por que no (uso|usar|usaria|me quedo con)( solo| solamente)?|why not (just )?(use|stick with|go with)|es como|is it like|o (zapier|chatgpt|make|n8n|lindy)\b)\b/
-const RIVAL = /\b(chat ?gpt|gpt|openai|gemini|claude|copilot|lindy|zapier|hubspot|manychat|make|n8n|intercom|zendesk|competencia|competidor\w*|competitor\w*|otras? (herramientas|apps|plataformas|ias?)|otros? (bots?|chatbots?|asistentes|agentes|programas)|other (tools|apps|platforms|bots|ais?|assistants))\b/
+const COMPARE_CUE = /\b(mejor(es)?|peor(es)?|better|worse|best|vs|versus|compar\w*|diferencia\w*|difference|different|distint\w*|en vez de|en lugar de|instead of|alternativa\w*|alternative\w*|habla(r)? mal|badmouth|trash talk|por que no (uso|usar|usaria|me quedo con)( solo| solamente)?|why not (just )?(use|stick with|go with)|es como|is it like|o (zapier|chatgpt|make|n8n|lindy)\b|melhor(es)?|pior(es)?|diferenca\w*|em vez de|ao inves de|falar mal|por que nao (uso|usar|fico com)( so| somente)?|e tipo o|ou (zapier|chatgpt|make|n8n|lindy)\b)\b/
+const RIVAL = /\b(chat ?gpt|gpt|openai|gemini|claude|copilot|lindy|zapier|hubspot|manychat|make|n8n|intercom|zendesk|competencia|competidor\w*|competitor\w*|otras? (herramientas|apps|plataformas|ias?)|otros? (bots?|chatbots?|asistentes|agentes|programas)|other (tools|apps|platforms|bots|ais?|assistants)|concorrencia|concorrentes?|outras? (ferramentas|apps|plataformas|ias?)|outros? (bots?|chatbots?|assistentes|agentes|programas))\b/
 
 export function intentOf(text = '') {
   // T40/T40 b: lo reservado va antes que nada (datos societarios, personales, internos, reglas e

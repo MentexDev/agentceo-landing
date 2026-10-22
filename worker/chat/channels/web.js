@@ -11,6 +11,7 @@ import { sseStream, sseHeaders } from '../sse.js'
 import { ipKey } from '../guard.js'
 import { suspicion } from '../abuse.js'
 import { LIMITS } from './index.js'
+import { normLocale } from '../../lib/locale.js'
 
 const SID = /^[A-Za-z0-9_-]{16,64}$/
 const MASKED = /^[a-z0-9]\*{3}@[a-z0-9]?\*{3}(\.[a-z0-9-]{1,12}){0,3}$/i
@@ -18,7 +19,8 @@ const MASKED = /^[a-z0-9]\*{3}@[a-z0-9]?\*{3}(\.[a-z0-9-]{1,12}){0,3}$/i
 /** Valida y normaliza el cuerpo del widget. Devuelve { lang, history, userText, turns } o { error }. */
 export function parseChat(body) {
   if (!body || typeof body !== 'object' || !Array.isArray(body.messages)) return { error: 'invalid_body' }
-  const lang = body.locale === 'en' ? 'en' : 'es'
+  // T62: cualquier idioma de LOCALES ('pt', y también 'pt-BR' = el lang del <html>); si no, es.
+  const lang = normLocale(body.locale) || 'es'
   // Turnos contados ANTES de recortar. Ojo: el historial lo envía el cliente, así que esto es
   // un tope de experiencia/tamaño; los límites que protegen de verdad son los del servidor.
   const turns = body.messages.filter((m) => m?.role === 'user').length

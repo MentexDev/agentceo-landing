@@ -8,7 +8,7 @@
 //                                 (userKey = hash: nunca el identificador en claro)
 //   parse(input, env)          → { msg } | { error, status, headers? }
 //      msg = MENSAJE NORMALIZADO:
-//        { channel, sessionId|null, userKey, lang: 'es'|'en', userText, turns, chip?: id curado,
+//        { channel, sessionId|null, userKey, lang: 'es'|'en'|'pt' (LOCALES), userText, turns, chip?: id curado,
 //          history: [{ role: 'user'|'assistant', content }],
 //          signals: { ip?, ua?, acceptLanguage?, turnstileToken?, suspicious: [] } }
 //   open(env)                  → { send(evento, datos), close(), response, delay }

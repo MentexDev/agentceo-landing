@@ -26,7 +26,7 @@ import { UMBRAL, MAX_TERMS, langOf, matchCurated } from './match.js'
 export { UMBRAL, MAX_TERMS, langOf, matchCurated }
 
 const byKb = (lang, id) => KB[lang]?.find((c) => c.id === id)
-const CHIP_JOIN = { es: 'Unirme a la lista', en: 'Join the waitlist' }
+const CHIP_JOIN = { es: 'Unirme a la lista', en: 'Join the waitlist', pt: 'Entrar na lista' }
 // Sugerencias tras una curada: dos relacionadas (las siguientes de la lista) + unirse a la lista.
 const RELATED = { precio: ['planes', 'paquetes'], planes: ['paquetes', 'cuando'], paquetes: ['planes', 'reembolso'], cuando: ['precio', 'que-es'], 'que-es': ['precio', 'whatsapp'] }
 
@@ -45,7 +45,7 @@ export function chipIdsFor(chips = []) {
 /** { text, meta } de una respuesta curada. */
 export function curatedReply(id, lang) {
   const e = answerById(id)
-  const L = lang === 'en' ? 'en' : 'es'
+  const L = e.a[lang] ? lang : 'es'
   const ref = byKb(L, e.ref)
   const related = (RELATED[e.id] || ['precio', 'cuando']).filter((x) => x !== e.id).slice(0, 2).map((x) => questionOf(x, L))
   const chips = [...related, CHIP_JOIN[L]]

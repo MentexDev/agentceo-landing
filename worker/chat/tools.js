@@ -10,11 +10,11 @@
 
 // Rutas públicas (las de src/i18n/rutas.js; un test las compara).
 export const SECTIONS = {
-  pricing: { es: '/precios/', en: '/en/pricing/', label: { es: 'ver precios', en: 'see pricing' } },
-  faq: { es: '/#faq', en: '/en/#faq', label: { es: 'ver preguntas frecuentes', en: 'see the FAQ' } },
-  blog: { es: '/blog/', en: '/en/blog/', label: { es: 'ir al blog', en: 'go to the blog' } },
-  resources: { es: '/recursos/', en: '/en/resources/', label: { es: 'ver recursos', en: 'see resources' } },
-  home: { es: '/', en: '/en/', label: { es: 'ir al inicio', en: 'go to the home page' } },
+  pricing: { es: '/precios/', en: '/en/pricing/', pt: '/pt/precos/', label: { es: 'ver precios', en: 'see pricing', pt: 'ver preços' } },
+  faq: { es: '/#faq', en: '/en/#faq', pt: '/pt/#faq', label: { es: 'ver preguntas frecuentes', en: 'see the FAQ', pt: 'ver perguntas frequentes' } },
+  blog: { es: '/blog/', en: '/en/blog/', pt: '/pt/blog/', label: { es: 'ir al blog', en: 'go to the blog', pt: 'ir para o blog' } },
+  resources: { es: '/recursos/', en: '/en/resources/', pt: '/pt/recursos/', label: { es: 'ver recursos', en: 'see resources', pt: 'ver recursos' } },
+  home: { es: '/', en: '/en/', pt: '/pt/', label: { es: 'ir al inicio', en: 'go to the home page', pt: 'ir para o início' } },
 }
 
 /** Esquema OpenAI/OpenRouter de las herramientas que ve el modelo. */
@@ -31,12 +31,12 @@ export const CONTACT_EMAIL = 'info@agentceo.io'
 /**
  * Valida y aplica las llamadas del modelo. Ignora lo desconocido o mal formado. Como mucho 3.
  * @param {{ name: string, args?: string }[]} calls
- * @param {'es'|'en'} lang
+ * @param {string} lang  idioma del sitio (es/en/pt…)
  * @param {string} text  la respuesta del modelo (ya filtrada)
  * @returns {{ cta: 'waitlist'|null, append: string[], used: string[] }}
  */
 export function applyTools(calls = [], lang = 'es', text = '') {
-  const L = lang === 'en' ? 'en' : 'es'
+  const L = SECTIONS.home[lang] ? lang : 'es'
   const out = { cta: null, append: [], used: [] }
   for (const c of calls.slice(0, 3)) {
     if (!c || !NAMES.has(c.name)) continue

@@ -8,12 +8,12 @@ import { integrationQuery, integrationReply } from './integrations.js'
 import { makeIndex, search, confident } from './search.js'
 import { intentOf, say, privateReply } from './persona.js'
 
-export const INDEX = { es: makeIndex(KB.es), en: makeIndex(KB.en) }
+export const INDEX = Object.fromEntries(Object.keys(KB).map((l) => [l, makeIndex(KB[l])]))
 // T60: la búsqueda del STUB no mira las listas de integraciones (las responde integrations.js de forma
 // determinista) ni la KB pública (duplica las FAQ de la web con otros ids); son contexto para el MODELO
 // (pickContext usa INDEX, completo).
 export const stubSearchable = (chunks) => chunks.filter((c) => c.kind !== 'integracion' && c.kind !== 'kb')
-export const SEARCH = { es: makeIndex(stubSearchable(KB.es)), en: makeIndex(stubSearchable(KB.en)) }
+export const SEARCH = Object.fromEntries(Object.keys(KB).map((l) => [l, makeIndex(stubSearchable(KB[l]))]))
 // Sugerencias por defecto (las preguntas más útiles para decidir apuntarse).
 const DEFAULT_CHIPS = ['faq:precio', 'faq:cuando', 'faq:whatsapp', 'faq:solos']
 
