@@ -1,4 +1,4 @@
-# KB pública curada del chat · BORRADOR (T58b)
+# KB pública curada del chat · BORRADOR (T58b · revisado en T59-KB)
 
 > **Estado: borrador. NO está cableado al chat.**
 > - El chat sigue leyendo `worker/generated/knowledge.json`; ver la sección 5 de `/tmp/luca_t58_report.md`.
@@ -7,7 +7,8 @@
 **Convención**
 - Lo que **está publicado en la landing** va sin marca, con la fuente entre corchetes cortos: `[web: …]`.
 - Lo que **no está en la landing** sale del producto y va con **[VERIFICAR]**. Viene del repo `CRM-AI`, leído en solo lectura: rama `origin/b3-negocio`, último commit `006ca367b` del 2026-10-18. Es la instantánea local, sin `fetch`; fuente principal `docs/brain/agent-ceo-producto.md`.
-- ⚠️ marca una **contradicción** entre la landing y el producto (resumen en la §15).
+- **La landing es la fuente de verdad de las capacidades** (decisión de Diego, T59). La app no se lanza hasta que todo lo prometido esté construido, así que todo lo que promete la web se describe aquí como capacidad del producto.
+- Los detalles que solo están en el producto se añaden como **complemento**, nunca para negar la web, y conservan **[VERIFICAR]** porque la web no los promete.
 
 **Excluido siempre**
 - Cualquier dato societario o registral de la empresa: la lista exacta es la de `worker/chat/private.js` (T40).
@@ -31,7 +32,7 @@
 12. [Glosario](#12-glosario--glossary)
 13. [Preguntas frecuentes (34 es + 34 en)](#13-preguntas-frecuentes--faq)
 14. [Contacto](#14-contacto--contact)
-15. [Contradicciones landing ↔ producto (para Diego)](#15-contradicciones-landing--producto-para-diego)
+15. [Nota interna: landing ↔ producto (resuelto)](#15-nota-interna-landing--producto-resuelto)
 16. [Qué se excluyó y por qué](#16-qué-se-excluyó-y-por-qué)
 
 ---
@@ -56,14 +57,14 @@
 1. **Una charla corta.** Le cuentas tu negocio, o tu idea si empiezas desde cero, y te arma el equipo. Si ya tienes web, la revisa mientras habláis. [web: «¿Cómo se empieza?»]
 2. **Tu equipo trabaja.** Responde clientes, vigila la tienda, prepara contenido y te avisa de lo que necesita tu firma. [web]
 3. **Tú apruebas lo importante.** Si algo cuesta dinero o no se puede deshacer, el agente te pregunta primero, y lo apruebas desde el celular con un botón. [web: «¿Cómo funcionan las aprobaciones?»]
-4. **Reunión diaria.** Cada mañana el equipo se reúne solo y tú lees el resumen: qué hicieron, qué sigue y qué espera tu aprobación. A las 7:00 tienes tu reporte de ventas. [web: «Reunión diaria»] ⚠️ Ver §15: la reunión y el «acta».
+4. **Reunión diaria y acta de la mañana.** Tu equipo trabaja también de noche. Cada mañana se reúne solo y tú lees el acta: qué hicieron, qué sigue y qué espera tu aprobación. A las 7:00 tienes tu reporte de ventas. Tus reuniones también pueden quedar grabadas y resumidas. [web: «Reunión diaria»]
 5. **Cada tarea, con su entregable.** Las puedes lanzar ya, dejar guardadas o programar cada día, semana o mes, a la hora local de tu negocio. **[VERIFICAR]**
 
 **EN**
 1. **A short chat.** Tell it about your business, or your idea if you're starting from scratch, and it builds your team. If you already have a website, it reviews it while you talk. [web]
 2. **Your team gets to work.** It answers customers, watches your store, prepares content and flags what needs your sign-off. [web]
 3. **You approve what matters.** Anything that costs money or can't be undone, the agent asks first, and you approve from your phone with one tap. [web]
-4. **Daily meeting.** Every morning the team meets on its own and you read the summary: what they did, what's next and what's waiting for your approval. At 7:00 you get your sales report. [web] ⚠️ See §15.
+4. **Daily meeting and morning minutes.** Your team works overnight too. Every morning it meets on its own and you read the minutes: what they did, what's next and what's waiting for your approval. At 7:00 you get your sales report. Your own meetings can be recorded and summarized too. [web]
 5. **Every task comes with a deliverable.** You can run it now, save it for later or schedule it daily, weekly or monthly, on your business's local time. **[VERIFY]**
 
 ## 3. El equipo: agentes y roles · The team: agents and roles
@@ -79,18 +80,10 @@
 - Y también diseñador, realizador de video, contador, analista de tendencias, constructor de apps y más.
 - Puedes **crear el tuyo**. **No hay límite de agentes** en ningún plan.
 
-**ES · cómo lo organiza el producto** **[VERIFICAR]** ⚠️ Los nombres no coinciden con la web (§15).
-- Tu empresa nace con un **CEO Global** y siete responsables:
-  - **Constructor**: apps, webs y tiendas.
-  - **Responsable de tienda**: catálogo, inventario, pedidos y escaparate.
-  - **Diseñador**: identidad visual, piezas gráficas y fotos de producto.
-  - **Realizador de vídeo**: guion, planos, montaje.
-  - **Responsable de contenido**: textos, campañas de correo, ganchos.
-  - **Responsable de clientes**: relación con clientes, seguimiento de ventas.
-  - **Responsable de operaciones**: agenda, documentos y automatizaciones.
-- Cada agente tiene una **ficha** (de qué se encarga y qué no lleva) y responde a un responsable directo.
+**ES · complementos del producto** **[VERIFICAR]**
+- Cada agente tiene una **ficha**: de qué se encarga y qué no lleva.
 - Puedes **cambiarle el nombre** a cualquier agente.
-- Si ningún puesto encaja, el CEO propone uno a medida, y toda contratación pasa por tu aprobación.
+- Cuando hace falta un puesto nuevo, tu Director General lo propone, y toda contratación pasa por tu aprobación.
 
 **EN · published on the site** [web]
 - **CEO** (coordinates everyone).
@@ -103,10 +96,10 @@
 - Plus designer, video maker, accountant, trend analyst, app builder and more.
 - You can **create your own**. **Unlimited agents** on every plan.
 
-**EN · how the product organizes it** **[VERIFY]**
-- A **Global CEO** plus seven leads: Builder, Store lead, Designer, Video maker, Content lead, Customer lead and Operations lead.
-- Every agent has a **profile card** and reports to a direct lead. You can rename any agent.
-- New roles are proposed by the CEO and need your approval.
+**EN · product complements** **[VERIFY]**
+- Every agent has a **profile card** with what it handles and what it doesn't.
+- You can **rename** any agent.
+- When a new role is needed, your CEO proposes it, and every hire needs your approval.
 
 ## 4. Funciones · Features
 
@@ -114,10 +107,10 @@
 - **Venta por WhatsApp:**
   - responde con el tono de tu marca, cierra la venta y vigila pedidos, carritos y stock;
   - se conecta por código QR o con el número oficial;
-  - todas las conversaciones quedan en una sola bandeja.
-  - ⚠️ Ver §15.
+  - todas las conversaciones quedan en una sola bandeja;
+  - cada cliente avanza paso a paso hasta pagar.
 - **Aprobaciones desde el celular,** con un botón.
-- **Reunión diaria y reporte de ventas** a las 7:00.
+- **Reunión diaria con su acta** y reporte de ventas a las 7:00.
 - **26 automatizaciones listas,** que se encienden con un botón: resumen de ventas cada mañana, carritos abandonados, bienvenida a clientes nuevos, preparar cada reunión, aviso de inventario bajo, el contenido de la semana, cobros y reportes, entre otras.
 - **Estudio creativo:**
   - fotos y portadas realistas (13 estilos);
@@ -153,10 +146,10 @@
 - **WhatsApp selling:**
   - answers in your brand's voice, closes the sale and watches orders, carts and stock;
   - connects via QR code or the official number;
-  - every conversation lives in a single inbox.
-  - ⚠️ See §15.
+  - every conversation lives in a single inbox;
+  - each customer moves step by step to payment.
 - **Approvals** from your phone with one tap.
-- **Daily meeting** and a 7:00 sales report.
+- **Daily meeting with its minutes** and a 7:00 sales report.
 - **26 ready-made automations**, switched on with one tap.
 - **Creative studio:**
   - realistic photos (13 styles), animated videos and reels;
@@ -188,34 +181,27 @@
 - Tus agentes trabajan **directamente** en ellas: no te devuelven texto para que lo pegues tú.
 - **Shopify:** conectas tu tienda y vigila pedidos, carritos abandonados y stock.
 
-**ES · del producto** **[VERIFICAR]** ⚠️
+**ES · complementos del producto** **[VERIFICAR]**
 - Formas de conectar:
   - **con un clic**, autorizando en la página del proveedor; se guarda un permiso revocable, no tu contraseña;
   - **con una clave**;
-  - **con tu propio servidor de herramientas** o **cualquier API**;
+  - **con cualquier API**;
   - **entrando con tu sesión** en sitios sin conexión oficial.
-- Conectores con nombre en el producto: Shopify, Google Calendar, Google Drive, Correo, Meta Ads.
-- ⚠️ El catálogo interno lista muchos más, pero la mayoría figuran «sin verificar». **No anunciar otra cifra que la de la web.**
-- ⚠️ **Canales en el producto:**
-  - **Telegram:** activo.
-  - **WhatsApp:** figura como **pendiente** (verificación de Meta / número propio).
-  - **Slack y correo como canal:** pendientes.
 
 **EN · published** [web]
 - **70+ tools**: stores, marketplaces, invoicing, CRMs, Google apps and channels (WhatsApp, Telegram, TikTok, YouTube).
 - Agents work right inside them.
 - **Shopify:** connect your store and it watches orders, abandoned carts and stock.
 
-**EN · from the product** **[VERIFY]** ⚠️
-- One-click connections (revocable permission, never your password), API keys, any API, or signing in with your own session.
-- ⚠️ In the product, WhatsApp, Slack and email-as-channel are **pending**; Telegram is live.
+**EN · product complements** **[VERIFY]**
+- One-click connections (a revocable permission, never your password), API keys, any API, or signing in with your own session.
 
 ## 6. Casos de uso por tipo de negocio · Use cases by business type
 
 > **Fuentes**
 > - La web no tiene una página por sector. Lo marcado `[web]` es una función publicada aplicada al sector.
 > - Los ejemplos de la portada (p. ej. «ropa cómoda para mujeres») son **inventados** y así se dicen.
-> - **[VERIFICAR]**: no hay casos por sector en el producto.
+> - **[VERIFICAR]** marca lo que la web no dice para ese sector (ni la web ni el producto tienen casos por sector).
 
 | Tipo | ES | EN |
 |---|---|---|
@@ -289,7 +275,6 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 - Packs: Chispa, Envión, Turbina and Reserva (never expires).
 - No automatic overage charges.
 - **Refunds:** first subscription within 7 days if you used under 10% of the credits; packs within 14 days if unused; billing errors always.
-- **[VERIFICAR] / [VERIFY]:** en el producto, el vídeo es solo de los planes de pago. Confirmar antes de decirlo.
 
 ## 9. Seguridad, privacidad y control · Security, privacy and control
 
@@ -297,7 +282,7 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 - **Nada importante pasa sin ti:**
   - lo que cuesta dinero o no se puede deshacer te lo preguntan siempre;
   - una acción sin permiso asignado se bloquea por defecto.
-- **La confianza va paso a paso:** cuando una tarea sale bien 3 veces, puede hacerla sola. ⚠️ Ver §15.
+- **La confianza va paso a paso:** cuando una tarea sale bien 3 veces, puede hacerla sola. Lo que cuesta dinero te lo pregunta siempre.
 - **Tus datos son tuyos:**
   - cada empresa está aislada;
   - tú decides qué conectas y lo desconectas cuando quieras;
@@ -306,8 +291,8 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 - **Cifrado:** todo viaja y se guarda cifrado, y las claves de tus integraciones se cifran aparte. Si hubiera una brecha, te avisamos en 72 h. [web: chat curado «proteccion» → Política de seguridad]
 - **Clonarte** solo con tu permiso, y lo puedes retirar.
 
-**ES · del producto** **[VERIFICAR]**
-- **Tres modos de autonomía por agente:**
+**ES · complementos del producto** **[VERIFICAR]** (se suman a lo anterior; no lo sustituyen)
+- **Tres modos de autonomía por agente,** además de la confianza paso a paso:
   - **Manual**, el de serie: apruebas cada acción.
   - **Auto:** actúa solo en lo cotidiano.
   - **Piloto automático:** solo te consulta lo que necesita un paso tuyo.
@@ -326,8 +311,8 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 - **Encryption** in transit and at rest, and breach notice within 72 h.
 - **Self-cloning** only with your permission.
 
-**EN · from the product** **[VERIFY]**
-- Manual / Auto / Autopilot modes.
+**EN · product complements** **[VERIFY]** (on top of the above, not instead of it)
+- Manual / Auto / Autopilot modes per agent, alongside step-by-step trust.
 - Actions that always need sign-off.
 - Agents never see your credentials.
 - Spending caps per agent and 80% / 95% balance alerts.
@@ -341,7 +326,7 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 - **Con Agent CEO:** el equipo trabaja también de noche y a las 7:00 tienes tu reporte. [web]
 - **Contratar persona a persona** frente a tener un equipo desde el primer minuto, con alguien a quien encargarle cada cosa. **[VERIFICAR]**
 - **Encargar fuera una web o una app** frente a describirla en el chat, verla en vista previa y que el código sea tuyo. [web]
-- **Productora para contenido** frente a reels con guion, música y edición, sin equipo de producción. [web: estudio] / **[VERIFICAR]**
+- **Productora para contenido** frente a reels con guion, música y edición, sin equipo de producción. [web: estudio]
 - **Lo que no cambia:** tu criterio. «Automatiza la ejecución, conserva la decisión.» [web: blog]
 
 **EN**
@@ -349,7 +334,7 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 - **With Agent CEO:** the team works overnight and your report is ready at 7:00. [web]
 - A full team from minute one instead of hiring one by one. **[VERIFY]**
 - Describe a website or app instead of outsourcing it, and the code is yours. [web]
-- Reels with script, music and editing without a production crew. [web] / **[VERIFY]**
+- Reels with script, music and editing without a production crew. [web]
 - Your judgment stays yours: "automate the execution, keep the decision". [web: blog]
 
 ## 11. Objeciones frecuentes · Common objections
@@ -373,12 +358,12 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 | Créditos | Lo que consumen los agentes al trabajar; se renuevan cada lunes. [web] | What agents use as they work; renewed every Monday. [web] |
 | Paquete de créditos | Créditos extra de pago único (Chispa, Envión, Turbina, Reserva). [web] | One-off extra credits. [web] |
 | Aprobación | Botón para dar el visto bueno a algo que cuesta dinero o no se deshace. [web] | One-tap sign-off on money or irreversible actions. [web] |
-| Reunión diaria | El equipo se reúne solo cada mañana y tú lees el resumen. [web] ⚠️ §15 | The team meets every morning; you read the summary. [web] |
+| Reunión diaria · acta | El equipo se reúne solo cada mañana y tú lees el acta; a las 7:00, el reporte de ventas. [web] | The team meets every morning; you read the minutes; sales report at 7:00. [web] |
 | Automatización | Tarea que se repite sola; hay 26 listas. [web] | A task that runs itself; 26 ready-made. [web] |
 | Estudio | Donde se crean fotos, videos y diseños. [web] | Where photos, videos and designs are made. [web] |
 | Cerebro | Lo que el equipo sabe de tu negocio. [web] | What the team knows about your business. [web] |
 | Lista de espera | Abrimos por grupos; los primeros entran primero. [web] | We open in waves; first in line gets in first. [web] |
-| CEO Global | El agente que dirige y reparte el trabajo. **[VERIFICAR]** | The agent that leads and assigns work. **[VERIFY]** |
+| Director General (tu CEO) | El agente que coordina a todo el equipo. [web] | The agent that coordinates the whole team. [web] |
 | Ficha | De qué se encarga cada agente y qué no lleva. **[VERIFICAR]** | Each agent's remit. **[VERIFY]** |
 | Modo de autonomía | Manual, Auto o Piloto automático. **[VERIFICAR]** | Manual, Auto or Autopilot. **[VERIFY]** |
 | Forja | Donde se construyen webs, tiendas y apps. [web: FAQ] | Where websites, stores and apps are built. [web] |
@@ -392,7 +377,7 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 2. **¿Qué es un agente?** Un empleado digital con un trabajo concreto, que actúa en tus herramientas en vez de solo sugerir. [web]
 3. **¿Tengo que saber programar?** No. Le escribes como a una persona de tu equipo. [web]
 4. **¿Hacen cosas sin avisarme?** Solo lo que tú permitas. Lo que cuesta dinero te lo preguntan siempre. [web]
-5. **¿Funciona con WhatsApp?** Sí, según la web: responde a cualquier hora, cierra ventas y se conecta por QR o con el número oficial. [web] ⚠️ §15
+5. **¿Funciona con WhatsApp?** Sí: responde a cualquier hora con el tono de tu marca, cierra ventas y se conecta por código QR o con el número oficial de WhatsApp. [web]
 6. **¿Sirve con mi tienda Shopify?** Sí. Vigila pedidos, carritos abandonados y stock. [web]
 7. **¿A qué herramientas se conecta?** A más de 70: Shopify, WooCommerce, MercadoLibre, Amazon, Gmail, Drive, Sheets, WhatsApp, TikTok y más. [web]
 8. **¿Puede crearme una web o una app?** Sí: webs, landings, tiendas, apps y herramientas internas, publicadas en tu GitHub y tu Vercel. [web]
@@ -413,9 +398,9 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 23. **¿Cuándo abre?** Por grupos. Apúntate a la lista y te escribimos. [web]
 24. **¿Cómo me apunto?** Deja tu correo en la web o en el chat. [web]
 25. **¿Puedo darme de baja de los correos?** Sí, desde cualquier correo, con un clic. [web]
-26. **¿Hace fotos y videos?** Sí: fotos en 13 estilos, videos y reels, y más de 192 plantillas. [web]
+26. **¿Hace fotos y videos?** Sí: fotos y portadas en 13 estilos, videos animados y reels con guion, música y edición, y más de 192 plantillas de diseño. [web]
 27. **¿Puede hablar con mi cara y mi voz?** Solo con tu permiso, y lo puedes retirar. [web]
-28. **¿Qué es la reunión diaria?** Cada mañana el equipo se reúne y tú lees qué hicieron, qué sigue y qué espera tu aprobación. [web]
+28. **¿Qué es la reunión diaria?** Cada mañana el equipo se reúne solo y tú lees el acta: qué hicieron, qué sigue y qué espera tu aprobación. A las 7:00 tienes tu reporte de ventas. [web]
 29. **¿Cuántas automatizaciones hay?** 26 listas para encender con un botón. [web]
 30. **¿Puedo tener varias marcas?** Sí, cada una con su equipo y su tope de gasto. [web]
 31. **¿Puedo cambiarle el nombre a un agente?** Sí. **[VERIFICAR]**
@@ -428,7 +413,7 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 2. **What's an agent?** A digital employee with a specific job that acts inside your tools. [web]
 3. **Do I need to code?** No. Write to it like you'd write to a teammate. [web]
 4. **Do they act without telling me?** Only what you allow. Spending money always needs your OK. [web]
-5. **Does it work with WhatsApp?** Yes, per the site: any time, closes sales, connects by QR or the official number. [web] ⚠️ §15
+5. **Does it work with WhatsApp?** Yes: it answers any time in your brand's voice, closes sales and connects via QR code or the official WhatsApp number. [web]
 6. **Does it work with my Shopify store?** Yes: orders, abandoned carts and stock. [web]
 7. **What tools does it connect to?** 70+, including Shopify, WooCommerce, MercadoLibre, Amazon, Gmail, Drive, Sheets, WhatsApp and TikTok. [web]
 8. **Can it build me a website or an app?** Yes, published to your own GitHub and Vercel. [web]
@@ -451,7 +436,7 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 25. **Can I unsubscribe?** Yes, from any email, in one click. [web]
 26. **Does it make photos and videos?** Yes: 13 photo styles, videos, reels and 192+ templates. [web]
 27. **Can it speak with my face and voice?** Only with your permission, and you can withdraw it. [web]
-28. **What's the daily meeting?** Every morning the team meets and you read what they did, what's next and what needs your approval. [web]
+28. **What's the daily meeting?** Every morning the team meets on its own and you read the minutes: what they did, what's next and what needs your approval. Your sales report is ready at 7:00. [web]
 29. **How many automations are there?** 26, switched on with one tap. [web]
 30. **Can I have several brands?** Yes, each with its own team and spending cap. [web]
 31. **Can I rename an agent?** Yes. **[VERIFY]**
@@ -464,23 +449,23 @@ Solo lo publicado. Precios en USD. [web: /precios/ · `content/precios.js`]
 - **ES:** para hablar con una persona, escribe a **info@agentceo.io**. El asistente de la web es una IA y lo dice siempre. [web]
 - **EN:** to talk to a person, email **info@agentceo.io**. The website assistant is an AI and always says so. [web]
 
-## 15. Contradicciones landing ↔ producto (para Diego)
+## 15. Nota interna: landing ↔ producto (resuelto)
 
-Hay que resolverlas **antes de cablear** esta KB y antes de pagar anuncios que las prometan:
-
-| Tema | La web dice | El producto (`origin/b3-negocio`) dice |
-|---|---|---|
-| **WhatsApp** | Funciona: QR o número oficial, bandeja única. | Las dos vías, **pendientes** (verificación de Meta / número propio sin construir). Telegram es el canal activo. Slack y correo como canal, pendientes. |
-| **Puestos del equipo** | Director General, Vendedor de WhatsApp, Encargado de inventario, Creador de contenido, Experto en publicidad, Atención al cliente, Jefe de producción… | CEO Global + Constructor, Responsable de tienda, Diseñador, Realizador de vídeo, Responsable de contenido, Responsable de clientes, Responsable de operaciones. Las plantillas antiguas (Vendedor WhatsApp, Inventarista…) ya no están en el catálogo. |
-| **Autonomía** | «Cuando una tarea sale bien 3 veces, puede hacerla sola.» | Modos **Manual** (de serie), **Auto** y **Piloto automático**, elegidos por ti. No aparece la regla de las 3 veces. |
-| **Reunión diaria y «acta»** | «Lees el acta», a las 7:00. | La reunión se convoca sola las mañanas laborables, **solo si hay algo que tratar**. «Acta» no es un término del producto, y la transcripción de reuniones «no es un acta». No consta la hora de las 7:00. |
-| **Integraciones** | Más de 70. | 5 conectores con nombre. El catálogo técnico es mayor, pero en su mayoría está «sin verificar». |
-| **Vídeo en el plan gratis** | Sin restricción publicada. | El vídeo es de los planes de pago. |
+> **Resuelto en T59 (decisión de Diego): manda la landing.** La app no se lanza hasta que esté construido todo lo que promete la web. Por eso esta KB describe como capacidades del producto:
+> - WhatsApp por QR o con el número oficial;
+> - más de 70 integraciones;
+> - los puestos de la web;
+> - «a las 3 veces la hace sola»;
+> - el acta de la mañana con el reporte de las 7:00;
+> - el vídeo.
+>
+> Los detalles del producto que no contradicen la web van como complementos con [VERIFICAR]. *(Nota para el equipo; no se cablea al chat.)*
 
 ## 16. Qué se excluyó y por qué
 
 - **Cualquier dato societario o registral** (la lista exacta está en `worker/chat/private.js`). Lo exige el brief, y el chat ya los bloquea (T40).
 - **Infraestructura, proveedores, modelos de IA,** el selector interno de modelo, bases de datos, nombres de servicios: van contra las reglas del chat («cocina interna»).
+- **Todo lo del producto que contradice la web** (canales pendientes, otros nombres de puestos, catálogo de conectores, restricciones de plan): manda la landing (T59).
 - **Precios, topes y nombres de plan del producto que no coinciden con la web:** solo vale lo publicado.
 - **Fechas de roadmap, funciones experimentales o sin lanzar** y conteos medidos en producción.
 - **Plantillas de clientes concretos, auditorías y documentos internos de estrategia.**
