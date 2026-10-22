@@ -45,7 +45,9 @@ test('hero → éxito real en D1 con atribución → paso 2 (negocio) → dentro
   await page.reload()
   await expect(page.locator('form[data-source="hero"] [data-wl-ok]')).toContainText('Ya estás en la lista')
   const stored = await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }))
-  expect(stored).not.toContain('@')
+  // T60: se guarda el correo ENMASCARADO (e***@e***.com) para «ya estás en la lista con …»; nunca el entero.
+  expect(stored).not.toContain(email)
+  expect(stored.match(/[^"\\]*@[^"\\]*/g) || []).toEqual(['e***@e***.com'])
 })
 
 test('CTA del header abre el modal; Escape lo cierra y el foco vuelve', async ({ page, isMobile }) => {
