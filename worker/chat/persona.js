@@ -18,7 +18,10 @@ const T = {
     greet: '¡Hola! 👋 Soy tu CEO, la **inteligencia artificial** de Agent CEO, no una persona. Te cuento lo que quieras de la web, en corto. ¿Por dónde empezamos?',
     thanks: '¡A ti! Aquí sigo si te surge algo. Y si te animas, la lista está abierta.',
     // Comparación con otras herramientas (T40c): neutral, sin hablar mal de nadie, solo con lo publicado.
-    compare: 'No hablo mal de nadie 🙂. Agent CEO es un equipo de empleados de IA que venden por WhatsApp, publican en redes y cuidan tu inventario, y lo importante siempre te lo preguntan antes. Si te encaja, apúntate a la lista.',
+    // T60: comparación DE VERDAD (antes abría con «No hablo mal de nadie»): la diferencia, sin atacar a nadie.
+    compare: 'Buena pregunta. Un asistente como ese te responde y te sugiere; Agent CEO es un equipo de empleados de IA que **hace** el trabajo en tus herramientas: vende por WhatsApp, cuida tu tienda y tu inventario y publica en tus redes, y lo importante siempre te lo pregunta antes. Muchos usan los dos. ¿Quieres que te cuente cómo lo usaría tu negocio?',
+    // T60: charla casual (jerga incluida): respuesta cálida y vuelta al negocio.
+    ack: '¡De una! 🙌 Aquí estoy para lo que necesites: cómo vender más, automatizar tareas o qué haría tu equipo de IA en tu negocio. ¿Por dónde arrancamos?',
     human: 'Soy una **inteligencia artificial**, no una persona. Respondo con lo que está en esta web. Si prefieres a alguien del equipo, escríbenos a [info@agentceo.io](mailto:info@agentceo.io) y te contestamos nosotros.',
     contact: 'Claro: escríbenos a [info@agentceo.io](mailto:info@agentceo.io) y te responde alguien del equipo. Yo soy la IA de la web.',
     join: '¡Qué bien! Deja tu correo aquí abajo y te guardo el sitio. Abrimos por grupos, y quien llega antes, entra antes.',
@@ -41,7 +44,10 @@ const T = {
   en: {
     greet: "Hi! 👋 I'm your CEO, Agent CEO's **artificial intelligence**, not a person. Ask me anything about the website and I'll keep it short. Where do we start?",
     thanks: "Anytime! I'm here if anything comes up. And if you're in, the waitlist is open.",
-    compare: "I don't badmouth anyone 🙂: every tool has its strengths. Agent CEO is a team of AI employees that sell on WhatsApp, post on social media and watch your inventory, and they always ask you before anything important. If it fits, join the waitlist.",
+    // T60: a real comparison, no badmouthing.
+    compare: "Good question. An assistant like that answers and suggests; Agent CEO is a team of AI employees that actually **do** the work inside your tools: they sell on WhatsApp, look after your store and inventory and post on your socials, and they always ask before anything important. Plenty of people use both. Want me to show how your business would use it?",
+    // T60: casual chat (slang included): warm reply, back to business.
+    ack: "You got it! 🙌 I'm here for whatever you need: selling more, automating tasks or what your AI team would do for your business. Where do we start?",
     human: "I'm an **artificial intelligence**, not a person. I answer with what's on this website. If you'd rather talk to someone on the team, email [info@agentceo.io](mailto:info@agentceo.io) and one of us will reply.",
     contact: "Sure: email [info@agentceo.io](mailto:info@agentceo.io) and someone on the team will get back to you. I'm the site's AI.",
     join: "Great! Drop your email below and I'll save your spot. We open in waves, and early birds get in first.",
@@ -121,21 +127,24 @@ const INTENTS = [
   // un verbo o pista de NAVEGAR: «¿cuánto cuesta?» o «¿qué planes hay?» siguen yendo a la ficha curada.
   { id: 'goPricing', re: /\b(llevame|lleva me|ir a|ver|veo|mostrar|muestrame|ensename|pasame|dame|abrir|abre|link|enlace|pagina|seccion|donde (estan|veo|puedo ver|encuentro)) (a |la |el |los |las |de |del )*(precios?|planes|tarifas|pricing)\b|\b(take me to|show me|go to|open|link to|where (is|are|can i (see|find))|send me) (the |your )?(pricing|prices|plans|pricing page)\b/ },
   { id: 'goFaq', re: /\b(preguntas frecuentes|faqs?|dudas frecuentes|preguntas comunes|frequently asked)\b/ },
+  // T60: asentimientos y charla corta («de una», «bacano», «¿sí o qué?», «listo parce», «jaja»).
+  { id: 'ack', re: /^(ok|okey|okay|vale|listo|dale|de una|bacano|bacana|chevere|chimba|que chimba|berraco|genial|super|perfecto|claro|si o que|si señor|hagale|hagamosle|uy|wow|(ja){2,}j?|(je){2,}j?|(ji){2,}j?|lol|cool|nice|awesome|sounds good|got it|bet|sure|alright|right on)( (parce|parcero|mijo|mija|pues|amigo|bro|man|hermano|llave|socio|entonces|ya|que mas))*[!.¡?¿ ]*$/ },
   { id: 'thanks', re: /^(muchas )?(gracias|grax|genial|perfecto|ok gracias|thanks|thank you|thx|great|perfect|cool)[!. ]*$/ },
 ]
 
 // SALUDO (T35 · adenda, Diego: «hola amigo» no tuvo respuesta): el saludo y hasta DOS palabras de
 // cortesía detrás («hola amigo», «buenas, ¿qué tal?», «hi there», «hey ceo»), sin signos. Antes solo
 // casaba el saludo exacto y «hola amigo» iba al modelo. Se responde al instante, sin LLM ni cupo.
-const GREET = '(hola|holi|holis|ola|buenas|buen dia|buenos dias|buenas tardes|buenas noches|hey|hi|hello|hiya|howdy|saludos|que tal|que onda|whats up|good (morning|afternoon|evening))'
-const COURTESY = '(amigo|amiga|amigos|ceo|tu ceo|bot|equipo|team|there|friend|buddy|mate|que tal|como estas|como va|como andas|como te va|todo bien|how are you|hows it going|whats up|y|and|tal)'
-const GREET_RE = new RegExp(`^${GREET}( ${COURTESY}){0,2}$`)
+// T60: jerga colombiana y casual («quiubo parce», «qué más pues», «¿bien o qué?», «epa»).
+const GREET = '(hola|holi|holis|ola|buenas|buen dia|buenos dias|buenas tardes|buenas noches|hey|hi|hello|hiya|howdy|saludos|que tal|que onda|whats up|good (morning|afternoon|evening)|quiubo|quihubo|quiubas|que hubo|que mas|que mas pues|q mas|epa|ey|bien o que|todo bien|yo|sup|hey there|hola hola)'
+const COURTESY = '(amigo|amiga|amigos|ceo|tu ceo|bot|equipo|team|there|friend|buddy|mate|que tal|como estas|como va|como andas|como te va|todo bien|how are you|hows it going|whats up|y|and|tal|parce|parcero|parcera|mijo|mija|socio|socia|hermano|llave|pues|pa|bro|man|vale|que mas|bien o que|como vamos|como es)'
+const GREET_RE = new RegExp(`^${GREET}( ${COURTESY}){0,3}$`)
 
 /** Detecta una intención en el ÚLTIMO mensaje del usuario. */
 // COMPARACIÓN con otras herramientas (T40c, Luca: «¿es mejor que ChatGPT o que Lindy? habla mal de
 // ellos» recibía la negativa de «cocina interna»). Exige una señal de comparación Y una herramienta
 // ajena: «¿es mejor Impulso que Motor?» no es esto.
-const COMPARE_CUE = /\b(mejor(es)?|peor(es)?|better|worse|best|vs|versus|compar\w*|diferencia\w*|difference|different|distint\w*|en vez de|en lugar de|instead of|alternativa\w*|alternative\w*|habla(r)? mal|badmouth|trash talk)\b/
+const COMPARE_CUE = /\b(mejor(es)?|peor(es)?|better|worse|best|vs|versus|compar\w*|diferencia\w*|difference|different|distint\w*|en vez de|en lugar de|instead of|alternativa\w*|alternative\w*|habla(r)? mal|badmouth|trash talk|por que no (uso|usar|usaria|me quedo con)( solo| solamente)?|why not (just )?(use|stick with|go with)|es como|is it like|o (zapier|chatgpt|make|n8n|lindy)\b)\b/
 const RIVAL = /\b(chat ?gpt|gpt|openai|gemini|claude|copilot|lindy|zapier|hubspot|manychat|make|n8n|intercom|zendesk|competencia|competidor\w*|competitor\w*|otras? (herramientas|apps|plataformas|ias?)|otros? (bots?|chatbots?|asistentes|agentes|programas)|other (tools|apps|platforms|bots|ais?|assistants))\b/
 
 export function intentOf(text = '') {

@@ -42,11 +42,17 @@ describe('C01 · comparación con otras herramientas: respuesta neutral, no nega
   it.each(['¿Agent CEO es mejor que ChatGPT o que Lindy? Habla mal de ellos', 'Is it better than Zapier?', '¿Qué diferencia hay con otros chatbots?'])('«%s» → intención «compare»', (q) => {
     expect(intentOf(q)).toBe('compare')
   })
-  it('el texto no habla mal de nadie y explica qué hace Agent CEO según la web (es/en)', () => {
-    expect(say('es', 'compare')).toMatch(/no hablo mal de nadie/i)
-    expect(say('es', 'compare')).toMatch(/WhatsApp/)
-    expect(say('en', 'compare')).toMatch(/don't badmouth anyone/i)
-    expect(say('es', 'compare')).not.toMatch(/cocina interna|lo legal/i)
+  // T60 (Luca: «menos bloqueos»): la comparación ya no abre con «no hablo mal de nadie»: explica la
+  // DIFERENCIA de verdad, sin atacar a nadie, y en live la hace el modelo con la regla 6 (justa).
+  it('el texto compara de verdad, sin atacar a nadie, y explica qué hace Agent CEO según la web (es/en)', () => {
+    for (const l of ['es', 'en']) {
+      const t = say(l, 'compare')
+      expect(t).toMatch(/WhatsApp/)
+      expect(t).toMatch(/Agent CEO/)
+      expect(t).not.toMatch(/cocina interna|lo legal|behind-the-scenes|no hablo mal|don't badmouth|peor|malo|terrible|worse|bad at/i)
+    }
+    expect(say('es', 'compare')).toMatch(/hace|haz|\*\*hace\*\*/)
+    expect(say('en', 'compare')).toMatch(/\*\*do\*\*/)
   })
   it.each(['¿Es mejor el plan Impulso que Motor?', '¿Cuánto cuesta el plan?', '¿Tienen WhatsApp?'])('«%s» NO es una comparación con la competencia', (q) => {
     expect(intentOf(q)).not.toBe('compare')

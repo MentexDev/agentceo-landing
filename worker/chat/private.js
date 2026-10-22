@@ -113,10 +113,23 @@ const KIND_RE = {
   ]),
 }
 
+// T60 · MENOS BLOQUEOS. «Interno» y «legal» solo cuando se pregunta por Agent CEO / Klinworks / «ustedes»,
+// no por el negocio de quien escribe: «¿cómo constituyo MI empresa en Delaware?», «¿qué stack me recomiendas
+// para mi app?», «¿cómo aumento mis ingresos?», «presupuesto diario para mis anuncios» son AYUDA de negocio.
+// SELF = se pregunta por nosotros · OWN = se pide consejo para lo suyo. Reglas/inyección y datos personales
+// de terceros NO se relajan.
+export const SELF_RE = /\b(klinworks|agent ?ceo|ustedes|vosotros|vuestr[oa]s?|tu empresa|su empresa|tu compania|your (company|business|startup|team|stack|model|provider|database|revenue|investors?|metrics)|you guys|y'?all|the company behind|la empresa (detras|que (esta|hay) detras|que (hace|desarrolla))|usas|usan|utilizas|utilizan|corres|funcionas|estas hech[oa]|estan hech[oa]s|you use|do you use|are you (built|made|running|powered)|you run on|is it built|esta hech[oa])\b/
+export const OWN_RE = /\b(mi|mis|mio|mia|nuestr[oa]s?|my|our|ours|como (hago|puedo|registro|constituyo|abro|creo|consigo|saco|obtengo|aumento|mejoro|elijo|calculo|mido|monto|armo|pongo)|how (do|can|should) (i|we)|should (i|we)|me (recomiendas|recomiendan|aconsejas|sugieres|conviene)|que me recomiendas|debo|deberia|conviene|para emprender|para un negocio|para una tienda|for a (small )?business|for my)\b/
+export const ownBusiness = (text = '') => { const s = fold(text); return OWN_RE.test(s) && !SELF_RE.test(s) }
+
 /** Tipo de pregunta reservada, o null. El orden importa: reglas/inyección > personal > interno > legal. */
 export function privateKind(text = '') {
   const s = fold(text)
-  for (const k of ['rules', 'personal', 'internal', 'legal']) if (KIND_RE[k].test(s)) return k
+  for (const k of ['rules', 'personal', 'internal', 'legal']) {
+    if (!KIND_RE[k].test(s)) continue
+    if ((k === 'internal' || k === 'legal') && OWN_RE.test(s) && !SELF_RE.test(s)) continue // consejo para SU negocio
+    return k
+  }
   return null
 }
 
@@ -142,15 +155,32 @@ export function stripInjection(text = '') {
 // (una respuesta legítima puede decir «se incorpora a tu WhatsApp»).
 // (Se excluye SOLO «constitución de la sociedad», que casa con «incorporated» suelto; filtrar por un
 // trozo del nombre dejó fuera a «estado de constitución» = Delaware: lo cazó el test de caché.)
-const OUT_LEGAL = PRIVATE_PATTERNS.filter(([n]) => n !== 'constitución de la sociedad').concat([
-  ['constitución de la empresa', /\b(se )?constitu(y[oó]|id[ao]|ci[oó]n) (en|el|de la (empresa|sociedad))\b|\bincorporated (in|on)\b|\bdate of incorporation\b/i],
-])
+// T60 · El filtro de SALIDA, acotado igual. Los IDENTIFICADORES concretos de la empresa saltan siempre: el
+// número de expediente, la fecha, un EIN con sus cifras, la dirección registrada, cualquier número de 7+
+// cifras. Lo GENÉRICO (Delaware, constituir/incorporar, EIN como palabra, agente registrado) solo salta si el
+// texto habla de NOSOTROS: un consejo («muchos constituyen su LLC en Delaware y piden su EIN») no es una fuga.
+// Con los modelos y el stack igual: nombrar ChatGPT o Astro al comparar o aconsejar es normal; decir «funciono
+// con Gemini» o «este sitio está hecho con Astro», no.
+const SPECIFIC_LEGAL = new Set(['n.º de expediente concreto', 'número largo tipo registro (7+ cifras seguidas)', 'fecha de constitución', 'dirección registrada', 'dirección postal'])
+const OUT_SELF = /\b(klinworks|agent ?ceo|somos|estamos|tenemos (sede|oficina)|nuestra (sede|oficina|direccion)|nuestras oficinas|we are|we'?re|our (office|offices|hq|headquarters|address)|we are based|nuestra (empresa|sociedad|compania|llc)|nuestro (registro|ein)|our (company|llc|business|ein)|esta (empresa|compania|sociedad)|this company|la empresa (detras|que (desarrolla|hace|esta detras))|nos (constituimos|registramos|fundamos|incorporamos)|fuimos (constituid|registrad|fundad|cread)[a-z]*|we (were|are|got) (incorporated|registered|formed|founded)|we incorporated|se constituy[oó] (la empresa|la sociedad|klinworks)|la sociedad)\b/i
+const OUT_LEGAL = PRIVATE_PATTERNS.filter(([n]) => n !== 'constitución de la sociedad').map(([n, re]) => [n, re, SPECIFIC_LEGAL.has(n)])
+  .concat([['constitución de la empresa', /\b(se )?constitu(y[oó]|id[ao]|ci[oó]n) (en|el|de la (empresa|sociedad))\b|\bincorporated (in|on)\b|\bdate of incorporation\b/i, false]])
+const EIN_DIGITS = /\b\d{2}-\d{7}\b/
+const SELF_AI = /\b(uso|usamos|utilizo|utilizamos|funciono|funcionamos|estoy (hech[oa]|construid[oa]|basad[oa])|me (basa|impulsa|mueve)|soy (un modelo|una version)|corro (sobre|en)|i (use|run on|am (built|powered|based|running) on)|i'?m (built|powered|based|running) on|we (use|run on|are built on|are powered by)|powered by|built on|basad[oa] en|hech[oa] con|este (sitio|chat|asistente)|esta (web|pagina)|this (site|chat|assistant|website)|our (site|chat|stack|backend))\b/i
+// «Agent CEO / la plataforma / este chat» + un verbo de CONSTRUCCIÓN en la misma frase: «Agent CEO usa Gemini»,
+// «la plataforma corre sobre Cloudflare». Comparar («ChatGPT te responde; Agent CEO hace…») no es esto.
+const AGENT_BUILT = /\b(agent ?ceo|klinworks|la plataforma|el chat|este chat|este asistente|this assistant|the platform|this chat)\b[^.;!?]{0,40}\b(usa|utiliza|funciona con|funciona sobre|corre sobre|corre en|esta hech[oa] con|esta construid[oa]|se basa en|runs on|uses|is built|is powered|is made|built with|powered by)\b/i
 const OUT_INTERNAL = [
-  ['modelo o proveedor', /\b(gemini|openrouter|openai|gpt-?\d|chatgpt|anthropic|claude|llama|mistral|vertex ai|google ai studio)\b/i],
-  ['clave', /\bsk-(or-)?[a-z0-9-]{6,}/i],
-  ['stack interno', /\b(cloudflare|wrangler|workerd|durable objects?|cloudflare workers?|astro|preact|\bD1\b)\b/],
-  ['coste interno', /\$\s?0[.,]00\d|\bpor (cada )?mensaje (nos )?cuesta|\bper message (costs|is)\b|\bpresupuesto diario\b|\bdaily (budget|spend)\b/i],
+  // Solo el nombre de nuestro proveedor de modelos es interno siempre; el resto, si se habla de NOSOTROS.
+  ['modelo o proveedor', /\b(openrouter|vertex ai|google ai studio)\b/i, true],
+  ['modelo o proveedor', /\b(gemini|openai|gpt-?\d|chatgpt|anthropic|claude|llama|mistral)\b/i, false],
+  ['clave', /\bsk-(or-)?[a-z0-9-]{6,}/i, true],
+  // T60: con /i (antes «Astro» con mayúscula se escapaba); D1 aparte, solo en mayúsculas.
+  ['stack interno', /\b(cloudflare|wrangler|workerd|durable objects?|cloudflare workers?|astro|preact)\b/i, false],
+  ['stack interno', /\bD1\b/, false],
+  ['coste interno', /\$\s?0[.,]00\d|\bpor (cada )?mensaje (nos )?cuesta|\bper message (costs|is)\b|\bpresupuesto diario (del chat|de la ia|nuestro)\b|\bdaily (budget|spend) (of|for) (the|this) chat\b/i, true],
 ]
+
 /** Fragmentos del prompt de sistema (canario y frases propias) que no pueden salir nunca. */
 export function promptEchoes(rules = [], { speakable = [] } = {}) {
   const frags = new Set(['reglas inquebrantables', 'unbreakable rules', '<<<contexto', '<<<context', 'codigo interno', 'internal code'])
@@ -180,8 +210,17 @@ export function promptEchoes(rules = [], { speakable = [] } = {}) {
 export function findOutputLeak(text = '', echoes = []) {
   const s = String(text), f = fold(s).replace(/[^\p{L}\p{N}<> -]/gu, ' ').replace(/\s+/g, ' ')
   for (const e of echoes) if (e && f.includes(fold(e))) return { kind: 'rules', name: 'eco del prompt' }
-  for (const [name, re] of OUT_INTERNAL) if (re.test(s)) return { kind: 'internal', name }
-  for (const [name, re] of OUT_LEGAL) if (re.test(s)) return { kind: 'legal', name }
+  // Lo genérico se juzga FRASE A FRASE: salta si el término sensible y la referencia a NOSOTROS van en la misma
+  // frase («Klinworks se constituyó en Delaware», «Somos de Delaware», «funciono con Gemini»). Un consejo con
+  // Delaware en una frase y «con Agent CEO…» en otra no es una fuga.
+  const sentences = s.split(/(?<=[.!?¡¿\n])\s+|\n+/).filter(Boolean)
+  for (const [name, re, always] of OUT_INTERNAL) {
+    if (always ? re.test(s) : sentences.some((x) => re.test(x) && (SELF_AI.test(fold(x)) || AGENT_BUILT.test(fold(x))))) return { kind: 'internal', name }
+  }
+  if (EIN_DIGITS.test(s)) return { kind: 'legal', name: 'EIN' }
+  for (const [name, re, always] of OUT_LEGAL) {
+    if (always ? re.test(s) : sentences.some((x) => re.test(x) && OUT_SELF.test(fold(x)))) return { kind: 'legal', name }
+  }
   return null
 }
 

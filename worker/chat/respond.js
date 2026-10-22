@@ -173,7 +173,9 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
 
   // Intención clara o clic en una pregunta del FAQ → la respuesta exacta del sitio, gratis.
   const stub = stubReply(p.lang, p.userText)
-  if (stub.meta.kind.startsWith('intent:') || stub.meta.matched?.title?.toLowerCase() === p.userText.toLowerCase()) {
+  // T60: las comparaciones con otras herramientas las hace el MODELO en live (regla 6: justas, sin atacar a
+  // nadie, con el contexto de Agent CEO); en stub sale la respuesta fija de comparación.
+  if ((stub.meta.kind.startsWith('intent:') && stub.meta.kind !== 'intent:compare') || stub.meta.matched?.title?.toLowerCase() === p.userText.toLowerCase()) {
     await send('meta', stub.meta)
     await streamText(send, stub.text, delay)
     return { path: 'stub', reason: 'exact' }
