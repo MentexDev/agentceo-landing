@@ -29,25 +29,29 @@ export const FONTS = {
 
 export const SITE = 'https://agentceo.io'
 
-// Los PNG de correo viven en public/email-assets/v1/ (se publican con la landing). Carpeta VERSIONADA: si un
-// dibujo cambia, va a v2/ y los correos ya enviados siguen viendo el suyo. Gmail no pinta SVG ni rutas
-// relativas: en producción, SIEMPRE URL https absoluta. La base se cambia con EMAIL_ASSET_BASE_URL.
-export const EMAIL_ASSET_BASE = `${SITE}/email-assets/v1`
+// Los PNG de correo viven en public/email-assets/<versión>/ (se publican con la landing). Carpeta VERSIONADA: si
+// un dibujo cambia, va a una carpeta nueva y los correos ya enviados siguen viendo el suyo. Gmail no pinta SVG ni
+// rutas relativas: en producción, SIEMPRE URL https absoluta. La base se cambia con EMAIL_ASSET_BASE_URL.
+//   v1 (T54) · los 4 agentes eran la misma mascota con otro fondo. INTACTA para los correos ya enviados.
+//   v2 (T60b) · cada agente con su cara y su accesorio (emails/src/agent-art.js). Default de los renders nuevos.
+export const EMAIL_ASSET_VERSION = 'v2'
+export const EMAIL_ASSET_BASE = `${SITE}/email-assets/${EMAIL_ASSET_VERSION}`
 
 // Cada PNG a 2× (retina) del tamaño MÁS GRANDE al que se pinta. px = lado del PNG; el test lo mide en el fichero.
 //   ceo: portada 64 px (burbuja y firma, 40)  ·  agente-N: la fila del equipo, 56 px
-// dark = su gemelo de modo oscuro (placa oscura, mascota clara): cada avatar tiene el SUYO.
+// dark = su gemelo de modo oscuro (placa oscura, dibujo claro): cada avatar tiene el SUYO.
+// svg = fichero de public/brand (la mascota) · agent = dibujo propio de agent-art.js (+ mode light/dark).
 export const EMAIL_ASSETS = {
   ceo: { file: 'ceo.png', px: 128, plate: '#F4F2ED', svg: 'agentceo-mascota.svg', dark: 'ceo-noche' },
   'ceo-noche': { file: 'ceo-noche.png', px: 128, plate: '#111113', svg: 'agentceo-mascota-clara.svg' },
-  'agente-1': { file: 'agente-1.png', px: 112, plate: '#EFE4C8', svg: 'agentceo-mascota.svg', dark: 'agente-1-noche' },
-  'agente-2': { file: 'agente-2.png', px: 112, plate: '#F4F2ED', svg: 'agentceo-mascota.svg', dark: 'agente-2-noche' },
-  'agente-3': { file: 'agente-3.png', px: 112, plate: '#D9B866', svg: 'agentceo-mascota.svg', dark: 'agente-3-noche' },
-  'agente-4': { file: 'agente-4.png', px: 112, plate: '#E2DED4', svg: 'agentceo-mascota.svg', dark: 'agente-4-noche' },
-  'agente-1-noche': { file: 'agente-1-noche.png', px: 112, plate: '#4A3D22', svg: 'agentceo-mascota-clara.svg' },
-  'agente-2-noche': { file: 'agente-2-noche.png', px: 112, plate: '#2A2A2F', svg: 'agentceo-mascota-clara.svg' },
-  'agente-3-noche': { file: 'agente-3-noche.png', px: 112, plate: '#6B5420', svg: 'agentceo-mascota-clara.svg' },
-  'agente-4-noche': { file: 'agente-4-noche.png', px: 112, plate: '#3A3833', svg: 'agentceo-mascota-clara.svg' },
+  'agente-1': { file: 'agente-1.png', px: 112, plate: '#EFE4C8', agent: 'director', mode: 'light', dark: 'agente-1-noche' },
+  'agente-2': { file: 'agente-2.png', px: 112, plate: '#F4F2ED', agent: 'vendedor', mode: 'light', dark: 'agente-2-noche' },
+  'agente-3': { file: 'agente-3.png', px: 112, plate: '#E8DCC0', agent: 'inventario', mode: 'light', dark: 'agente-3-noche' },
+  'agente-4': { file: 'agente-4.png', px: 112, plate: '#E2DED4', agent: 'creador', mode: 'light', dark: 'agente-4-noche' },
+  'agente-1-noche': { file: 'agente-1-noche.png', px: 112, plate: '#4A3D22', agent: 'director', mode: 'dark' },
+  'agente-2-noche': { file: 'agente-2-noche.png', px: 112, plate: '#2A2A2F', agent: 'vendedor', mode: 'dark' },
+  'agente-3-noche': { file: 'agente-3-noche.png', px: 112, plate: '#3D3420', agent: 'inventario', mode: 'dark' },
+  'agente-4-noche': { file: 'agente-4-noche.png', px: 112, plate: '#3A3833', agent: 'creador', mode: 'dark' },
 }
 
 // Lo que una URL de imagen de correo tiene que cumplir (assets propios y avatares que llegan por datos).

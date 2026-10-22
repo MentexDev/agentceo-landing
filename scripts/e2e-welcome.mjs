@@ -118,7 +118,7 @@ async function mockRun() {
     check('es: fila en email_send_log con status sent', rowA?.status === 'sent' && /^re_mock_/.test(rowA.resend_id), JSON.stringify(rowA))
     const ca = to(a)[0]
     check('es: asunto y texto en español, regalo de moda', /Ya tienes tu lugar/.test(ca?.subject) && /asesora de estilo/.test(ca?.text), ca?.subject)
-    check('es: mascota por defecto con URL https absoluta', ca?.html.includes('https://agentceo.io/email-assets/v1/ceo.png'))
+    check('es: mascota por defecto con URL https absoluta', ca?.html.includes('https://agentceo.io/email-assets/v2/ceo.png'))
     check('la clave viaja como Bearer (no se imprime)', ca?.bearer === true)
     check('List-Unsubscribe one-click', /^<https?:\/\/[^>]+\/api\/unsubscribe\?t=[a-f0-9]{48}>$/.test(ca?.headers['List-Unsubscribe'] || '') && ca?.headers['List-Unsubscribe-Post'] === 'List-Unsubscribe=One-Click')
 

@@ -1,7 +1,7 @@
 // PRUEBA REAL de envío: UN correo, waitlist-welcome en español, a ceo@agentceo.io por Resend.
 // ⛔ Lo ejecuta una persona a mano, nunca un test ni un agente. No se cablea a nada.
 //
-//   node emails/scripts/send-test.mjs     (EMAIL_ASSET_BASE_URL por defecto: https://agentceo.io/email-assets/v1)
+//   node emails/scripts/send-test.mjs     (EMAIL_ASSET_BASE_URL por defecto: https://agentceo.io/email-assets/v2)
 //   (añade --dry-run para hacerlo todo MENOS el envío)
 //
 // Qué hace, en orden, y se para en el primer fallo:

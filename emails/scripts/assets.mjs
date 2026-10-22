@@ -1,5 +1,6 @@
-// Genera los PNG de correo (Gmail y Outlook no pintan SVG): public/email-assets/v1/*.png, a 2× (retina).
-// Fuente: public/brand/agentceo-mascota{,-clara}.svg. El registro (nombre, lado en px, placa) es EMAIL_ASSETS
+// Genera los PNG de correo (Gmail y Outlook no pintan SVG): public/email-assets/<EMAIL_ASSET_VERSION>/*.png, a 2×
+// (retina). Fuentes: public/brand/agentceo-mascota{,-clara}.svg (tu CEO) y emails/src/agent-art.js (los 4 agentes,
+// T60b). ⛔ No regenera v1: esa carpeta queda intacta para los correos ya enviados. El registro (nombre, lado en px, placa) es EMAIL_ASSETS
 // de src/brand.js: el test comprueba que cada fichero existe y mide exactamente eso.
 // Cada PNG lleva su PROPIA placa opaca con esquinas redondeadas: si Gmail u Outlook invierten los colores
 // del correo, la mascota no queda «tinta sobre tinta», porque las imágenes no se invierten y la placa viaja con ella.
@@ -8,18 +9,20 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Resvg } from '@resvg/resvg-js'
-import { EMAIL_ASSETS } from '../src/brand.js'
+import { EMAIL_ASSETS, EMAIL_ASSET_VERSION } from '../src/brand.js'
+import { agentSvg } from '../src/agent-art.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-export const ASSET_DIR = path.join(ROOT, 'public/email-assets/v1')
+export const ASSET_DIR = path.join(ROOT, `public/email-assets/${EMAIL_ASSET_VERSION}`)
+if (EMAIL_ASSET_VERSION === 'v1') throw new Error('assets.mjs: v1 está congelada (correos ya enviados); usa una versión nueva')
 const inner = (file) => fs.readFileSync(path.join(ROOT, 'public/brand', file), 'utf8').trim().replace(/^<svg[^>]*>|<\/svg>$/g, '').replace(/<title>.*?<\/title>/, '')
 
 fs.mkdirSync(ASSET_DIR, { recursive: true })
-for (const { file, px, plate, svg } of Object.values(EMAIL_ASSETS)) {
+for (const { file, px, plate, svg, agent, mode } of Object.values(EMAIL_ASSETS)) {
   // Placa 120×120 con la mascota (100×118) centrada y algo reducida.
   const doc = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="${px}" height="${px}">
     <rect width="120" height="120" rx="30" fill="${plate}"/>
-    <g transform="translate(17 10) scale(0.86)">${inner(svg)}</g></svg>`
+    <g transform="translate(17 10) scale(0.86)">${agent ? agentSvg(agent, mode) : inner(svg)}</g></svg>`
   const png = new Resvg(doc, { fitTo: { mode: 'width', value: px } }).render().asPng()
   fs.writeFileSync(path.join(ASSET_DIR, file), png)
   console.log(`${file}`, `${px}×${px}`, png.length, 'B')

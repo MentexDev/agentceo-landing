@@ -20,7 +20,8 @@ export const INLINE_TRIES = 3 // intentos HTTP dentro de una misma entrega (ante
 export const STUCK_MINUTES = 10 // un «sending» más viejo que esto se considera huérfano
 export const SWEEP_BATCH = 25
 const DEFAULT_SITE = 'https://agentceo.io'
-const DEFAULT_ASSETS = 'https://agentceo.io/email-assets/v1'
+// T60b: v2 (cada agente con su cara). v1 sigue publicada para los correos ya enviados.
+const DEFAULT_ASSETS = 'https://agentceo.io/email-assets/v2'
 const DEFAULT_FROM = 'Agent CEO <info@agentceo.io>'
 const DEFAULT_DELAY_S = 120
 

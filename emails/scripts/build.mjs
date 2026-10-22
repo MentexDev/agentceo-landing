@@ -4,7 +4,7 @@
 // Configuración (variables de entorno):
 //   POSTAL_ADDRESS        dirección postal del pie (CAN-SPAM). Sin definir → DEFAULT_POSTAL_ADDRESS (src/brand.js);
 //                         definida pero VACÍA → el build de producción falla.
-//   EMAIL_ASSET_BASE_URL  base https de los PNG (por defecto https://agentceo.io/email-assets/v1).
+//   EMAIL_ASSET_BASE_URL  base https de los PNG (por defecto https://agentceo.io/email-assets/v2).
 //   EMAILS_OUT_DIR        carpeta de salida (por defecto emails/out; los tests usan una temporal).
 // Salidas (emails/out/, ignorado por git):
 //   out/<id>.<locale>.html|.txt   → listas para un proveedor (PNG con URL https absoluta)
@@ -51,7 +51,7 @@ async function main() {
     const row = { id: t.id, phase: t.phase, kind: t.kind, tone: t.tone, title: t.title, when: t.when, locales: {} }
     for (const locale of LOCALES) {
       const data = t.sample(locale)
-      const prev = await render(t, locale, data, { preview: true, assetBase: '/email-assets/v1', fontBase: '', postalAddress })
+      const prev = await render(t, locale, data, { preview: true, assetBase: '/email-assets/v2', fontBase: '', postalAddress })
       const prod = galleryOnly ? prev : await render(t, locale, data, { assetBase, postalAddress })
       const txt = (r) => `${locale === 'es' ? 'Asunto' : 'Subject'}: ${r.subject}\n\n${r.text}\n`
       if (!galleryOnly) {

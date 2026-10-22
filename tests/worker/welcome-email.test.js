@@ -195,8 +195,8 @@ describe('idioma y contenido', () => {
     expect(body.headers['List-Unsubscribe-Post']).toBe('List-Unsubscribe=One-Click')
     // Mascota por defecto, PNG https absolutos, nada sin rellenar.
     const imgs = [...body.html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((m) => m[1])
-    expect(imgs).toContain('https://agentceo.io/email-assets/v1/ceo.png')
-    for (const src of imgs) expect(src).toMatch(/^https:\/\/agentceo\.io\/email-assets\/v1\/[a-z0-9-]+\.png$/)
+    expect(imgs).toContain('https://agentceo.io/email-assets/v2/ceo.png')
+    for (const src of imgs) expect(src).toMatch(/^https:\/\/agentceo\.io\/email-assets\/v2\/[a-z0-9-]+\.png$/)
     expect(JSON.stringify(body)).not.toMatch(/zzac[a-z]+zz/)
     expect(body.html).toContain('131 Continental Dr, Suite 305, Newark, DE 19713, USA')
   })
@@ -256,7 +256,7 @@ describe('bajas, configuración y privacidad', () => {
     expect(emailConfig({ RESEND_API_URL: 'https://evil.test/emails' }).apiUrl).toBe('https://api.resend.com/emails')
     expect(emailConfig({ RESEND_API_URL: 'http://evil.test/' }).apiUrl).toBe('https://api.resend.com/emails')
     expect(emailConfig({ RESEND_API_URL: 'http://127.0.0.1:8798/emails' }).apiUrl).toBe('http://127.0.0.1:8798/emails')
-    expect(emailConfig({ EMAIL_ASSET_BASE_URL: 'http://x.test/v1' }).assetBase).toBe('https://agentceo.io/email-assets/v1')
+    expect(emailConfig({ EMAIL_ASSET_BASE_URL: 'http://x.test/v2' }).assetBase).toBe('https://agentceo.io/email-assets/v2')
   })
   it('logs: ni el correo completo ni la clave', async () => {
     const lines = []
@@ -279,20 +279,20 @@ describe('bajas, configuración y privacidad', () => {
 
 describe('relleno del pre-render', () => {
   it('el nombre se escapa en el HTML y no rompe el asunto', () => {
-    const m = fillTemplate({ locale: 'es', name: 'Ana "la" O\'Neil & co', unsubscribeUrl: 'https://agentceo.io/api/unsubscribe?t=x', assetBase: 'https://agentceo.io/email-assets/v1', now: T0 })
+    const m = fillTemplate({ locale: 'es', name: 'Ana "la" O\'Neil & co', unsubscribeUrl: 'https://agentceo.io/api/unsubscribe?t=x', assetBase: 'https://agentceo.io/email-assets/v2', now: T0 })
     expect(m.html).toContain('Ana &quot;la&quot; O&#x27;Neil &amp; co')
     expect(m.subject.startsWith('Ana "la" O\'Neil & co, ')).toBe(true)
   })
   it('un «nombre» con enlace, correo o HTML se ignora (nadie usa la bienvenida para hacer spam)', () => {
     for (const bad of ['Gana $$$ en spam.ru', 'visita https://x.test', 'www.casino.co', 'a@b.co', '<b>hola</b>', 'x/y']) expect(displayName(bad), bad).toBe('')
     expect(displayName('  Ana   María \n')).toBe('Ana María')
-    const m = fillTemplate({ locale: 'es', name: 'visita https://spam.test', unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v1', now: T0 })
+    const m = fillTemplate({ locale: 'es', name: 'visita https://spam.test', unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v2', now: T0 })
     expect(m.subject).toBe('Ya tienes tu lugar en Agent CEO 🎉')
     expect(m.html).not.toContain('spam.test')
   })
   it('la fecha de la cabecera es la del envío, en su idioma', () => {
-    const es = fillTemplate({ locale: 'es', unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v1', now: T0 })
-    const en = fillTemplate({ locale: 'en', unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v1', now: T0 })
+    const es = fillTemplate({ locale: 'es', unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v2', now: T0 })
+    const en = fillTemplate({ locale: 'en', unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v2', now: T0 })
     expect(es.html).toMatch(/22 de oct/)
     expect(en.html).toMatch(/Oct 22/)
   })

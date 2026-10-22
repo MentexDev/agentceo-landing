@@ -6,11 +6,13 @@ import path from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
-import { EMAIL_ASSETS, POSTAL_PLACEHOLDER, DEFAULT_POSTAL_ADDRESS } from '../src/brand.js'
+import { EMAIL_ASSETS, POSTAL_PLACEHOLDER, DEFAULT_POSTAL_ADDRESS, EMAIL_ASSET_BASE } from '../src/brand.js'
+import { createHash } from 'node:crypto'
 import { SEND, readDevVar, redact, imageSources, checkImages, buildTestEmail, config } from '../scripts/send-test.mjs'
 import { TEMPLATES, LOCALES, render as renderReal, byId } from '../src/index.js'
 // Dirección postal FICTICIA para casi todos los tests (la de verdad: DEFAULT_POSTAL_ADDRESS / POSTAL_ADDRESS).
 const POSTAL = 'Calle Ficticia 123, 00000 Ciudad de Prueba'
+const V1_HASHES = {"agente-1-noche.png": "cc1025206e71", "agente-1.png": "3c1dcbd73490", "agente-2-noche.png": "03b15da11cc3", "agente-2.png": "934b4687d9d9", "agente-3-noche.png": "9c184cb1e236", "agente-3.png": "d217dc3b35da", "agente-4-noche.png": "4d50668efee7", "agente-4.png": "05ec8ffef549", "ceo-noche.png": "af9040eb97dc", "ceo.png": "57db73931c91"}
 const BUILD = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../scripts/build.mjs')
 const render = (t, l, d, o) => renderReal(t, l, d, { postalAddress: POSTAL, ...o })
 import { BUSINESS_PROMPTS } from '../src/gifts.js'
@@ -66,7 +68,7 @@ describe.each(cases)('%s · %s', (id, l) => {
     expect(r.html).toContain('<meta name="color-scheme" content="light dark"')
     const imgs = [...r.html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((m) => m[1])
     expect(imgs.length).toBeGreaterThan(0)
-    for (const src of imgs) expect(src).toMatch(/^https:\/\/agentceo\.io\/email-assets\/v1\/[a-z0-9-]+\.png$/)
+    for (const src of imgs) expect(src).toMatch(/^https:\/\/agentceo\.io\/email-assets\/v2\/[a-z0-9-]+\.png$/)
     expect(r.html).not.toMatch(/<svg|\.svg"/)
     expect(Buffer.byteLength(r.html)).toBeLessThan(102_000)
     expect(r.html).toContain(`lang="${l}"`)
@@ -166,12 +168,27 @@ describe('regalos y precios reales', () => {
 })
 
 describe('imágenes que Gmail sí pinta (T54: la Prueba 1 llegó con las imágenes rotas)', () => {
-  const ASSET_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../public/email-assets/v1')
+  const ASSET_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../public/email-assets/v2')
   const pngSide = (file) => { const b = fs.readFileSync(file); return [b.readUInt32BE(16), b.readUInt32BE(20)] }
   const imgs = (html) => [...html.matchAll(/<img\b[^>]*>/g)].map((m) => m[0])
   const attr = (tag, a) => tag.match(new RegExp(`\\s${a}="([^"]*)"`))?.[1]
 
-  it('cada PNG del registro existe en public/email-assets/v1 y mide 2× su tamaño mayor en pantalla', () => {
+  it('T60b · v1 queda CONGELADA (correos ya enviados): sus 10 PNG siguen ahí, idénticos a los de T54b', () => {
+    const v1 = path.resolve(ASSET_DIR, '../v1')
+    const files = fs.readdirSync(v1).sort()
+    expect(files).toEqual(Object.values(EMAIL_ASSETS).map((a) => a.file).sort())
+    // Huella de T54b (commit 4852607): si alguien regenera v1, el test se pone rojo.
+    const sha = (f) => createHash('sha256').update(fs.readFileSync(path.join(v1, f))).digest('hex').slice(0, 12)
+    expect(Object.fromEntries(files.map((f) => [f, sha(f)]))).toEqual(V1_HASHES)
+  })
+  it('T60b · en v2 los 4 agentes son DIBUJOS distintos (no la misma cara con otro fondo)', () => {
+    const px = (f) => fs.readFileSync(path.join(ASSET_DIR, f))
+    const agents = [1, 2, 3, 4].map((n) => px(`agente-${n}.png`).toString('base64'))
+    expect(new Set(agents).size).toBe(4)
+    expect(Object.values(EMAIL_ASSETS).filter((a) => a.agent).map((a) => a.agent).sort()).toEqual(['creador', 'creador', 'director', 'director', 'inventario', 'inventario', 'vendedor', 'vendedor'])
+    expect(EMAIL_ASSET_BASE).toBe('https://agentceo.io/email-assets/v2')
+  })
+  it('cada PNG del registro existe en public/email-assets/v2 y mide 2× su tamaño mayor en pantalla', () => {
     for (const { file, px } of Object.values(EMAIL_ASSETS)) {
       const f = path.join(ASSET_DIR, file)
       expect(fs.existsSync(f), file).toBe(true)
@@ -260,7 +277,7 @@ describe('imágenes que Gmail sí pinta (T54: la Prueba 1 llegó con las imágen
       expect(s.match(/Klinworks, LLC/g)).toHaveLength(1)
     }
     for (const empty of ['', '  ']) await expect(renderReal('waitlist-confirm', 'es', d, { postalAddress: empty })).rejects.toThrow('POSTAL_ADDRESS')
-    const prev = await renderReal('waitlist-confirm', 'es', d, { preview: true, assetBase: '/email-assets/v1', postalAddress: '' })
+    const prev = await renderReal('waitlist-confirm', 'es', d, { preview: true, assetBase: '/email-assets/v2', postalAddress: '' })
     expect(prev.html).toContain(POSTAL_PLACEHOLDER)
   })
 
@@ -268,7 +285,7 @@ describe('imágenes que Gmail sí pinta (T54: la Prueba 1 llegó con las imágen
     const d = byId('waitlist-welcome').sample('es')
     const r = await render('waitlist-welcome', 'es', d, { assetBase: 'https://cdn.ejemplo.test/correo/v1/' })
     for (const [, src] of r.html.matchAll(/<img[^>]+src="([^"]+)"/g)) expect(src).toMatch(/^https:\/\/cdn\.ejemplo\.test\/correo\/v1\/[a-z0-9-]+\.png$/)
-    for (const bad of ['', '/email-assets/v1', 'http://agentceo.io/email-assets/v1', '//agentceo.io/x'])
+    for (const bad of ['', '/email-assets/v2', 'http://agentceo.io/email-assets/v2', '//agentceo.io/x'])
       await expect(render('waitlist-welcome', 'es', d, { assetBase: bad })).rejects.toThrow('https')
   })
 })
@@ -328,7 +345,7 @@ describe('send-test.mjs (sin enviar nada: solo sus piezas)', () => {
       fs.writeFileSync(f, `OTRA=1\nRESEND_API_KEY="${FAKE}"\nPOSTAL_ADDRESS=${POSTAL}\n`)
       expect(readDevVar(f, 'RESEND_API_KEY')).toBe(FAKE)
       expect(readDevVar(f, 'NO_ESTA')).toBeNull()
-      const cfg = config({ EMAIL_ASSET_BASE_URL: 'https://agentceo.io/email-assets/v1' }, f)
+      const cfg = config({ EMAIL_ASSET_BASE_URL: 'https://agentceo.io/email-assets/v2' }, f)
       expect(cfg.errors).toEqual([])
       expect(cfg.postalAddress).toBe(POSTAL)
       expect(redact(`Bearer ${FAKE} y otra vez ${FAKE}`, FAKE)).toBe('Bearer *** y otra vez ***')
@@ -337,7 +354,7 @@ describe('send-test.mjs (sin enviar nada: solo sus piezas)', () => {
       expect(bad.errors.join(' ')).toMatch(/RESEND_API_KEY/)
       expect(bad.errors.join(' ')).not.toMatch(/EMAIL_ASSET_BASE_URL/)
       // T57: la base de los PNG, por defecto la de producción; una no https, error.
-      expect(bad.assetBase).toBe('https://agentceo.io/email-assets/v1')
+      expect(bad.assetBase).toBe('https://agentceo.io/email-assets/v2')
       expect(config({ EMAIL_ASSET_BASE_URL: 'http://agentceo.io/x' }, f).errors.join(' ')).toMatch(/EMAIL_ASSET_BASE_URL debe ser https/)
       expect(bad.postalAddress).toBe(DEFAULT_POSTAL_ADDRESS)
       // Vaciada a propósito (en el entorno o en .dev.vars) → no envía.
@@ -349,14 +366,14 @@ describe('send-test.mjs (sin enviar nada: solo sus piezas)', () => {
     }
   })
   it('arma EXACTAMENTE el correo pedido: waitlist-welcome.es, de info@ a ceo@, asunto de la Prueba 2', async () => {
-    const email = await buildTestEmail({ render: renderReal, byId, assetBase: 'https://agentceo.io/email-assets/v1', postalAddress: POSTAL, unsubscribeUrl: 'mailto:info@agentceo.io?subject=Baja' })
+    const email = await buildTestEmail({ render: renderReal, byId, assetBase: 'https://agentceo.io/email-assets/v2', postalAddress: POSTAL, unsubscribeUrl: 'mailto:info@agentceo.io?subject=Baja' })
     expect(email.from).toBe('Agent CEO <info@agentceo.io>')
     expect(email.to).toEqual(['ceo@agentceo.io'])
     expect(email.subject).toBe('[Prueba 2] Bienvenido a la lista de espera de Agent CEO')
     expect(email.html).toContain('¡confirmado!')
     expect(email.text.length).toBeGreaterThan(200)
     expect(email.headers).toEqual({ 'List-Unsubscribe': '<mailto:info@agentceo.io?subject=Baja>' })
-    for (const src of imageSources(email.html)) expect(src).toMatch(/^https:\/\/agentceo\.io\/email-assets\/v1\/[a-z0-9-]+\.png$/)
+    for (const src of imageSources(email.html)) expect(src).toMatch(/^https:\/\/agentceo\.io\/email-assets\/v2\/[a-z0-9-]+\.png$/)
     expect(SEND.idempotencyKey).toBeTruthy()
   })
   it('no envía si una imagen no responde 200 image/png (lo que rompió la Prueba 1)', async () => {
