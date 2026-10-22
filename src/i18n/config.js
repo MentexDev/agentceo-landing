@@ -7,12 +7,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import es from './ui/es.js'
 import en from './ui/en.js'
+import pt from './ui/pt.js'
 
 // Idiomas y metadatos: src/i18n/meta.js (registro ligero, también para el navegador y Node).
 import { DEFAULT_LOCALE, LOCALES, LOCALE_META, prefix, asLocale } from './meta.js'
 export { DEFAULT_LOCALE, LOCALES, LOCALE_META, prefix, asLocale }
 
-const DICTS = { es, en }
+const DICTS = { es, en, pt }
 
 /** Devuelve el diccionario completo (para pasar a islas un subárbol). */
 export function dict(lang) {

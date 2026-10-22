@@ -2,7 +2,7 @@
 // <head> SEO de TODA página: title, description, canonical, hreflang (+x-default),
 // Open Graph / Twitter, iconos, precarga de fuentes y JSON-LD.
 // canonical y hreflang SIEMPRE absolutos sobre https://agentceo.io.
-import { LOCALE_META, DEFAULT_LOCALE } from '../i18n/config.js'
+import { LOCALE_META, DEFAULT_LOCALE, prefix } from '../i18n/config.js'
 import { jsonForScript } from '../lib/escape.js'
 import { ogPathFor } from '../lib/og.js'
 interface Props {
@@ -21,7 +21,7 @@ const { lang, title, path, alternates, ogType = 'website', jsonLd = null, noinde
 const clip = (s: string, n = 160) => (s.length <= n ? s : `${s.slice(0, n - 1).replace(/[\s,;:—-]+\S*$/, '')}…`)
 const description = clip(Astro.props.description)
 // OG 1200×630 propia de cada página (src/lib/og.js); las noindex usan la de su portada.
-const ogImage = Astro.props.ogImage ?? (noindex ? ogPathFor(lang === 'es' ? '/' : `/${lang}/`) : ogPathFor(path))
+const ogImage = Astro.props.ogImage ?? (noindex ? ogPathFor(`${prefix(lang)}/`) : ogPathFor(path))
 const ORIGIN = 'https://agentceo.io'
 const abs = (p: string) => new URL(p, ORIGIN).href
 const canonical = abs(path)

@@ -4,13 +4,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { allStaticRoutes, alternatesFor, RUTAS, href, hasRoute } from '../i18n/rutas.js'
 import { allContentRoutes, section, itemUrl, KINDS } from './content.js'
-import { LOCALE_META, t, LOCALES } from '../i18n/config.js'
+import { LOCALE_META, t, LOCALES, DEFAULT_LOCALE, prefix } from '../i18n/config.js'
+import { SECTIONS } from '../i18n/sections.js'
+import { contentOf } from '../../content/locales.js'
 import { FAQ } from '../../content/faq.js'
 import { ORIGIN } from './jsonld.js'
-import homeEs from '../i18n/sections/es.json'
-import homeEn from '../i18n/sections/en.json'
-import * as PRECIOS from '../../content/precios.js'
-import * as PRECIOS_EN from '../../content/en/precios.js'
 
 const abs = (p) => new URL(p, ORIGIN).href
 const xml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -34,7 +32,7 @@ export function sitemapXml() {
   const urls = sitemapEntries().map((e) => {
     const alts = e.alternates.length > 1
       ? [...e.alternates.map((a) => `    <xhtml:link rel="alternate" hreflang="${LOCALE_META[a.lang].bcp47}" href="${xml(abs(a.url))}"/>`),
-        `    <xhtml:link rel="alternate" hreflang="x-default" href="${xml(abs((e.alternates.find((a) => a.lang === 'es') || e.alternates[0]).url))}"/>`].join('\n')
+        `    <xhtml:link rel="alternate" hreflang="x-default" href="${xml(abs((e.alternates.find((a) => a.lang === DEFAULT_LOCALE) || e.alternates[0]).url))}"/>`].join('\n')
       : ''
     return `  <url>\n    <loc>${xml(abs(e.url))}</loc>\n    <lastmod>${e.lastmod}</lastmod>${alts ? `\n${alts}` : ''}\n  </url>`
   })
@@ -61,15 +59,11 @@ export function robotsTxt() {
 }
 
 // ── llms.txt (https://llmstxt.org): índice para LLM, factual y citable ───────
-const L = {
-  es: { pages: 'Páginas principales', faq: 'Preguntas frecuentes', content: 'Contenido', legal: 'Legal', other: 'Otros idiomas', full: 'Texto completo del sitio para modelos de lenguaje' },
-  en: { pages: 'Main pages', faq: 'Frequently asked questions', content: 'Content', legal: 'Legal', other: 'Other languages', full: 'Full site text for language models' },
-}
 const PAGE_IDS = ['home', 'precios', 'empresa', 'contacto', 'prensa', 'recursos', 'blog', 'noticias']
 const PAGE_LABEL = { home: 'site.name', precios: 'nav.precios', empresa: 'footer.sobre', contacto: 'footer.contacto', prensa: 'footer.prensa', recursos: 'nav.recursos', blog: 'nav.blog', noticias: 'nav.noticias' }
 
 export function llmsTxt(lang) {
-  const tr = L[lang]
+  const tr = t(lang, 'gen.llms')
   const line = (url, title, desc) => `- [${title}](${abs(url)})${desc ? `: ${desc}` : ''}`
   const pages = PAGE_IDS.filter((id) => hasRoute(id, lang)).map((id) => line(href(id, lang), t(lang, PAGE_LABEL[id])))
   const faq = FAQ.filter((f) => f.q[lang]).map((f) => `- **${f.q[lang]}** ${f.a[lang]}`)
@@ -80,7 +74,7 @@ export function llmsTxt(lang) {
     for (const it of s.ITEMS) content.push(line(itemUrl(k, lang, it.slug), it.title, it.excerpt))
   }
   const legal = Object.keys(RUTAS).filter((id) => id.startsWith('legal:') && hasRoute(id, lang)).map((id) => line(href(id, lang), RUTAS[id].label[lang]))
-  const others = LOCALES.filter((l) => l !== lang).map((l) => line(l === 'es' ? '/llms.txt' : `/${l}/llms.txt`, LOCALE_META[l].name))
+  const others = LOCALES.filter((l) => l !== lang).map((l) => line(`${prefix(l)}/llms.txt`, LOCALE_META[l].name))
   return [
     `# Agent CEO`,
     '',
@@ -93,7 +87,7 @@ export function llmsTxt(lang) {
     ...(content.length ? [`## ${tr.content}`, ...content, ''] : []),
     ...(legal.length ? [`## ${tr.legal}`, ...legal, ''] : []),
     `## Optional`,
-    line(lang === 'es' ? '/llms-full.txt' : `/${lang}/llms-full.txt`, tr.full),
+    line(`${prefix(lang)}/llms-full.txt`, tr.full),
     ...others,
     '',
   ].join('\n')
@@ -101,18 +95,18 @@ export function llmsTxt(lang) {
 
 /** Texto de la portada (los fragmentos de cada sección, en orden, forman sus frases). */
 function homeText(lang) {
-  const d = lang === 'es' ? homeEs : homeEn
+  const d = SECTIONS[lang]
   return Object.values(d).map((sec) => Object.values(sec).join('').replace(/\s+/g, ' ').trim())
 }
 
 /** Texto plano completo (entidad, FAQ, portada, precios, contenido). */
 export function llmsFullTxt(lang, extra = []) {
-  const parts = [llmsTxt(lang), '---', '', `# ${lang === 'es' ? 'Portada' : 'Home page'} (${abs(href('home', lang))})`, '', ...homeText(lang).map((p) => `${p}\n`), '']
+  const parts = [llmsTxt(lang), '---', '', `# ${t(lang, 'gen.llms.home')} (${abs(href('home', lang))})`, '', ...homeText(lang).map((p) => `${p}\n`), '']
   {
-    const P = lang === 'en' ? PRECIOS_EN : PRECIOS
-    const W = lang === 'en' ? { mo: 'mo', cw: 'credits per week', un: 'unlimited people', pp: 'person(s)', all: 'All plans', pk: 'Pack', cr: 'credits for', ne: '(never expires)', cur: 'Prices in USD.' } : { mo: 'mes', cw: 'créditos por semana', un: 'personas sin límite', pp: 'persona(s)', all: 'Todos los planes', pk: 'Paquete', cr: 'créditos por', ne: '(no caduca)', cur: 'Precios en USD.' }
+    const P = contentOf(lang, 'precios')
+    const W = t(lang, 'gen.price')
     parts.push(`# ${P.META.title} (${abs(href('precios', lang))})`, '', P.META.sub, '')
-    for (const p of P.PLANS) parts.push(`- ${p.name}: $${p.price}/${W.mo} · ${p.credits} ${W.cw} · ${p.seats === null ? W.un : `${p.seats} ${W.pp}`}`)
+    for (const p of P.PLANS) parts.push(`- ${p.name}: $${p.price}/${W.moShort} · ${p.credits} ${W.cw} · ${p.seats === null ? W.un : `${p.seats} ${W.pp}`}`)
     parts.push(`- ${W.all}: ${P.ALL_PLANS.join('; ')}`)
     for (const k of P.PACKS) parts.push(`- ${W.pk} ${k.name}: ${k.credits} ${W.cr} $${k.price}${k.noExpiry ? ` ${W.ne}` : ''}`)
     parts.push('', W.cur, '')

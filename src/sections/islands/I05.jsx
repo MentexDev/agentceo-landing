@@ -5,10 +5,16 @@ import S from '../gen/S05.jsx'
 import { useLanding } from '../store.js'
 import { S05 as es } from '../../i18n/sections/es.json'
 import { S05 as en } from '../../i18n/sections/en.json'
-import uiEs from '../../i18n/ui/es.js'
-import uiEn from '../../i18n/ui/en.js'
+import { S05 as pt } from '../../i18n/sections/pt.json'
+import logicEs from '../../i18n/logic/es.js'
+import logicEn from '../../i18n/logic/en.js'
+import logicPt from '../../i18n/logic/pt.js'
+
+// Un idioma nuevo = una línea más en cada import y en estos dos mapas (lo vigila tests/site/i18n-registros.test.js).
+const TEXTS = { es, en, pt }
+const LOGIC = { es: logicEs, en: logicEn, pt: logicPt }
 
 export default function I05({ lang }) {
-  const v = useLanding(lang === 'en' ? uiEn.logic : uiEs.logic)
-  return <S v={v} t={lang === 'en' ? en : es} />
+  const v = useLanding(LOGIC[lang] || LOGIC.es)
+  return <S v={v} t={TEXTS[lang] || TEXTS.es} />
 }

@@ -61,6 +61,9 @@
 .prose li::marker { color: var(--gold-ink); }
 .prose blockquote { margin: 1.4em 0; padding: 18px 22px; border-left: 3px solid var(--gold); background: var(--paper); border-radius: 0 14px 14px 0; font-family: var(--serif); font-size: 22px; line-height: 1.4; }
 .prose blockquote cite { display: block; margin-top: 8px; font-family: var(--sans); font-style: normal; font-size: 14px; color: var(--muted); }
+/* En los legales la cita es una NOTA (honestidad, traducción en revisión), no una frase destacada: texto normal. */
+.legal-body blockquote { font-family: var(--sans); font-size: 16px; line-height: 1.6; padding: 14px 18px; }
+.legal-body blockquote p { margin: 0; }
 .prose a { color: var(--gold-ink); text-underline-offset: 3px; }
 .prose code { font-family: var(--mono); font-size: .9em; background: var(--gold-3); padding: 1px 5px; border-radius: 5px; }
 .back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--muted); text-decoration: none; font-size: 15px; }

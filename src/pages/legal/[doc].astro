@@ -1,8 +1,9 @@
 ---
 import LegalView from '../../views/LegalView.astro'
 import { legalDocs } from '../../lib/legal.js'
+import { DEFAULT_LOCALE } from '../../i18n/meta.js'
 export function getStaticPaths() {
-  return legalDocs().filter((d) => d.lang === 'es').map((doc) => ({ params: { doc: doc.slug }, props: { doc } }))
+  return legalDocs().filter((d) => d.lang === DEFAULT_LOCALE).map((doc) => ({ params: { doc: doc.slug }, props: { doc } }))
 }
 const { doc } = Astro.props
 ---

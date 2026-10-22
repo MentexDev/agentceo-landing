@@ -9,6 +9,7 @@
 //   el control pasa a la persona. Con «reducir movimiento»: estados finales, sin animar.
 // ─────────────────────────────────────────────────────────────────────────────
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { LOCALE_META } from '../../i18n/meta.js'
 import {
   SquarePen, Network, ListTodo, CircleCheck, Library, Workflow, Building2, MessageSquare, LayoutDashboard,
   Contact, Sparkles, Briefcase, Activity, Headset, Megaphone, ShoppingCart, Calculator, Package, Truck,
@@ -288,18 +289,18 @@ function finalOf(v, T) {
 }
 
 export default function AppDemo({ lang = 'es' }) {
-  const T = DICT[lang]
-  const locale = lang === 'es' ? 'es-CO' : 'en-US'
+  const T = DICT[lang] || DICT.es
+  const locale = (LOCALE_META[lang] || LOCALE_META.es).numberLocale
   const nf = (n, d = 0) => new Intl.NumberFormat(locale, { maximumFractionDigits: d, minimumFractionDigits: d }).format(n)
   const cop = (n) => `COP ${nf(n)}`
-  const copM = (n) => (lang === 'es' ? `COP ${nf(n, 1)} M` : `COP ${nf(n, 1)}M`)
+  const copM = (n) => `COP ${nf(n, 1)}${T.mUnit}`
 
   const [view, setView] = useState('chat')
   const [playing, setPlaying] = useState(true)
   const [visible, setVisible] = useState(false)
   const [reduce, setReduce] = useState(false)
   const [brandOpen, setBrandOpen] = useState(false)
-  const [s, setS] = useState(() => finalOf('chat', DICT[lang])) // estado de la escena actual: arranca POBLADO
+  const [s, setS] = useState(() => finalOf('chat', T)) // estado de la escena actual: arranca POBLADO
   // `settled`: la vista se muestra en su estado final sin animar (SSR, hidratación y primera vista).
   const [settled, setSettled] = useState(true)
   const mounted = useRef(false)

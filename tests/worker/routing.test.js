@@ -71,4 +71,56 @@ describe('enrutado', () => {
     expect(r.status).toBe(404)
     expect(await r.text()).toContain('<html lang="es"')
   })
+
+  // ── T62 · autodetección del idioma en la raíz (worker/lib/locale.js) ───────────────────────────────
+  const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36'
+  const root = (headers, path = '/') => get(path, { headers: { 'user-agent': UA, ...headers } })
+
+  it('navegador en portugués llega a «/» → 302 a /pt/ conservando la query, con Vary y sin caché', async () => {
+    const r = await root({ 'accept-language': 'pt-BR,pt;q=0.9,en;q=0.8' }, '/?utm_source=x')
+    expect(r.status).toBe(302)
+    expect(r.headers.get('location')).toBe('https://agentceo.io/pt/?utm_source=x')
+    expect(r.headers.get('vary')).toContain('Accept-Language')
+    expect(r.headers.get('cache-control')).toContain('no-store')
+  })
+
+  it('navegador en inglés → /en/; en español → «/» sin redirigir (y con Vary)', async () => {
+    expect((await root({ 'accept-language': 'en-GB,en;q=0.9' })).headers.get('location')).toBe('https://agentceo.io/en/')
+    const es = await root({ 'accept-language': 'es-CO,es;q=0.9,en;q=0.8' })
+    expect(es.status).toBe(200)
+    expect(es.headers.get('vary')).toContain('Accept-Language')
+  })
+
+  it('respeta la elección: cookie lang=es no redirige; cookie lang=pt lleva a /pt/ aunque el navegador diga inglés', async () => {
+    expect((await root({ 'accept-language': 'pt-BR', cookie: 'consent=v1.f1.a0.d0; lang=es' })).status).toBe(200)
+    expect((await root({ 'accept-language': 'en-US', cookie: 'lang=pt' })).headers.get('location')).toBe('https://agentceo.io/pt/')
+  })
+
+  it('respeta la elección SIN cookie: quien ya navega por el sitio y pulsa «Español» se queda en «/»', async () => {
+    expect((await root({ 'accept-language': 'pt-BR', 'sec-fetch-site': 'same-origin' })).status).toBe(200)
+    expect((await root({ 'accept-language': 'pt-BR', referer: 'https://agentceo.io/pt/precos/' })).status).toBe(200)
+    // Desde fuera (Google) sí se detecta.
+    expect((await root({ 'accept-language': 'pt-BR', 'sec-fetch-site': 'cross-site', referer: 'https://www.google.com/' })).status).toBe(302)
+  })
+
+  it('SEO: bots y peticiones sin Accept-Language reciben «/» (nunca una redirección)', async () => {
+    expect((await get('/')).status).toBe(200)
+    // Aunque Cloudflare diga Brasil: sin Accept-Language no se redirige (así rastrea Google).
+    expect((await get('/', { cf: { country: 'BR' }, headers: { 'user-agent': UA } })).status).toBe(200)
+    expect((await get('/', { headers: { 'accept-language': 'pt-BR', 'user-agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' } })).status).toBe(200)
+  })
+
+  it('solo la raíz: /precios/ con navegador en portugués no se toca', async () => {
+    expect((await root({ 'accept-language': 'pt-BR' }, '/precios/')).status).toBe(200)
+  })
+
+  it('país como pista: sin idioma nuestro en el navegador, Portugal → pt; otro idioma sin país nuestro → en', async () => {
+    const { detectLocale } = await import('../../worker/lib/locale.js')
+    expect(detectLocale({ acceptLanguage: 'fr-FR,fr;q=0.9', country: 'PT' })).toBe('pt')
+    expect(detectLocale({ acceptLanguage: 'de-DE', country: 'DE' })).toBe('en')
+    expect(detectLocale({ acceptLanguage: 'de;q=1,es;q=0.5' })).toBe('es')
+    expect(detectLocale({ acceptLanguage: 'en;q=0.4,pt-PT;q=0.8' })).toBe('pt')
+    expect(detectLocale({ acceptLanguage: '', country: 'BR' })).toBe('pt')
+    expect(detectLocale({ acceptLanguage: '', country: 'CO' })).toBeNull()
+  })
 })

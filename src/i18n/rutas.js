@@ -9,25 +9,25 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { LOCALES, prefix } from './meta.js'
 
-/** id → { es, en }: rutas estáticas (las de contenido se generan desde content/). */
+/** id → { <lang>: url }: rutas estáticas (las de contenido se generan desde content/). */
 export const RUTAS = {
-  home: { es: '/', en: '/en/' },
+  home: { es: '/', en: '/en/', pt: '/pt/' },
   // noindex: páginas de servicio (no van al sitemap ni llevan canonical).
-  gracias: { es: '/gracias/', en: '/en/thanks/', noindex: true },
+  gracias: { es: '/gracias/', en: '/en/thanks/', pt: '/pt/obrigado/', noindex: true },
   // Contenido editorial e institucional en los dos idiomas (FASE 6).
-  noticias: { es: '/noticias/', en: '/en/news/' },
-  blog: { es: '/blog/', en: '/en/blog/' },
-  recursos: { es: '/recursos/', en: '/en/resources/' },
-  precios: { es: '/precios/', en: '/en/pricing/' },
-  empresa: { es: '/empresa/', en: '/en/company/' },
-  contacto: { es: '/contacto/', en: '/en/contact/' },
-  prensa: { es: '/prensa/', en: '/en/press/' },
-  'no-vender': { es: '/no-vender-ni-compartir/', en: '/en/do-not-sell-or-share/' },
+  noticias: { es: '/noticias/', en: '/en/news/', pt: '/pt/noticias/' },
+  blog: { es: '/blog/', en: '/en/blog/', pt: '/pt/blog/' },
+  recursos: { es: '/recursos/', en: '/en/resources/', pt: '/pt/recursos/' },
+  precios: { es: '/precios/', en: '/en/pricing/', pt: '/pt/precos/' },
+  empresa: { es: '/empresa/', en: '/en/company/', pt: '/pt/empresa/' },
+  contacto: { es: '/contacto/', en: '/en/contact/', pt: '/pt/contato/' },
+  prensa: { es: '/prensa/', en: '/en/press/', pt: '/pt/imprensa/' },
+  'no-vender': { es: '/no-vender-ni-compartir/', en: '/en/do-not-sell-or-share/', pt: '/pt/nao-vender-nem-compartilhar/' },
   // Índice de los documentos legales (T35 · adenda, punto 4: «Ver todo» del footer).
-  legal: { es: '/legal/', en: '/en/legal/' },
+  legal: { es: '/legal/', en: '/en/legal/', pt: '/pt/legal/' },
 }
 
-// Documentos legales: rutas generadas desde el frontmatter de content/legal/{es,en}/*.md
+// Documentos legales: rutas generadas desde el frontmatter de content/legal/<lang>/*.md
 // (id, slug, titulo). Un documento sin traducir no tiene ruta en ese idioma.
 import { legalDocs } from '../lib/legal.js'
 for (const d of legalDocs()) {

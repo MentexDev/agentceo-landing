@@ -10,7 +10,7 @@ import { Resvg } from '@resvg/resvg-js'
 import { decompress } from 'wawoff2'
 import { allStaticRoutes, RUTAS } from '../i18n/rutas.js'
 import { section, itemUrl, KINDS } from './content.js'
-import { t } from '../i18n/config.js'
+import { t, LOCALES } from '../i18n/config.js'
 
 // Titular en Instrument Serif (T35) con el mismo trazo que la web (tokens.css: --serif-stroke).
 const FONTS = ['public/fonts/geist-latin-wght-normal', 'public/fonts/geist-mono-latin-wght-normal', 'public/fonts/instrument-serif-latin-400-normal']
@@ -103,7 +103,7 @@ export function ogPages() {
     if (r.noindex) continue
     out.push({ path: ogPathFor(r.url), ...label(r.id, r.lang) })
   }
-  for (const kind of KINDS) for (const lang of ['es', 'en']) {
+  for (const kind of KINDS) for (const lang of LOCALES) {
     const s = section(kind, lang)
     if (!s) continue
     for (const it of s.ITEMS) out.push({ path: ogPathFor(itemUrl(kind, lang, it.slug)), title: it.title, eyebrow: `Agent CEO · ${s.META.eyebrow}` })

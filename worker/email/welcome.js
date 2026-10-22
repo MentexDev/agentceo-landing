@@ -13,22 +13,14 @@
 import { fillTemplate } from './fill.js'
 import { sendEmail, RESEND_API_URL } from './resend.js'
 import { maskEmail, scrub, logEvent } from './mask.js'
+import { signupLocale } from '../lib/locale.js'
 
 export const TEMPLATE = 'waitlist-welcome'
 
-// T60b · Idioma del CORREO. La landing solo existe en es/en; el portugués llega por el navegador o el país:
-//   · Accept-Language cuyo primer idioma sea pt (pt-BR, pt-PT…) → pt;
-//   · país de Cloudflare (request.cf.country) lusófono → pt;
-//   · si no, el idioma de la página (es/en). Así un visitante de Brasil en la página en español recibe la
-//     bienvenida en portugués, y el resto, en el idioma en que se apuntó.
-const PT_COUNTRIES = new Set(['BR', 'PT', 'AO', 'MZ', 'CV', 'GW', 'ST', 'TL'])
-export function emailLocale(request, pageLocale = 'es') {
-  const al = String(request?.headers?.get('accept-language') || '').trim().toLowerCase()
-  const first = al.split(',')[0]?.split(';')[0]?.trim() || ''
-  if (first === 'pt' || first.startsWith('pt-')) return 'pt'
-  if (PT_COUNTRIES.has(String(request?.cf?.country || '').toUpperCase())) return 'pt'
-  return pageLocale === 'en' ? 'en' : 'es'
-}
+// Idioma del CORREO (T62): el de la PÁGINA donde la persona se apuntó (/pt/ → pt). El navegador
+// (Accept-Language) y el país (request.cf.country) solo cuentan si la página no lo dice. Ver worker/lib/locale.js.
+// (T60b elegía pt por navegador/país aunque la página fuera es/en: entonces no había landing en pt.)
+export const emailLocale = (request, pageLocale) => signupLocale(request, pageLocale)
 export const MAX_ATTEMPTS = 8
 export const INLINE_TRIES = 3 // intentos HTTP dentro de una misma entrega (antes de dejarlo al barrido)
 export const STUCK_MINUTES = 10 // un «sending» más viejo que esto se considera huérfano

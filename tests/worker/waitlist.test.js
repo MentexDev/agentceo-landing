@@ -65,6 +65,13 @@ describe('POST /api/waitlist · JSON', () => {
     expect((await row('idioma@example.com')).locale).toBe('es')
   })
 
+  it('T62 · se apunta desde /pt/ → locale pt (también si llega «pt-BR», el lang del <html>)', async () => {
+    await post('/api/waitlist', { email: 'pt1@example.com', locale: 'pt' })
+    await post('/api/waitlist', { email: 'pt2@example.com', locale: 'pt-BR' })
+    expect((await row('pt1@example.com')).locale).toBe('pt')
+    expect((await row('pt2@example.com')).locale).toBe('pt')
+  })
+
   it('rechaza un correo inválido con 400 y código, sin guardar', async () => {
     const r = await post('/api/waitlist', { email: 'no-es-correo' })
     expect(r.status).toBe(400)
@@ -121,6 +128,12 @@ describe('POST /api/waitlist · formulario sin JS', () => {
     expect(r.status).toBe(303)
     expect(r.headers.get('location')).toBe('https://agentceo.io/en/thanks/')
     expect(await count('signups', 'form@example.com')).toBe(1)
+  })
+
+  it('T62 · desde /pt/ → 303 a /pt/obrigado/', async () => {
+    const r = await postForm({ email: 'formpt@example.com', locale: 'pt', source: 'hero' })
+    expect(r.status).toBe(303)
+    expect(r.headers.get('location')).toBe('https://agentceo.io/pt/obrigado/')
   })
 
   it('correo inválido → 303 a /gracias/#error', async () => {

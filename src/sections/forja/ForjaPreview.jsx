@@ -147,7 +147,7 @@ const VIEWS = [Landing, Site, Store, App, Mobile, Tool]
 
 /** Vista previa del tipo `kind` (0–5) en `lang`. `deal`: «¡Nueva oferta!» del diccionario de S13. */
 export default function ForjaPreview({ kind, lang, deal }) {
-  const T = FORJA[lang === 'en' ? 'en' : 'es']
+  const T = FORJA[lang] || FORJA.es
   const View = VIEWS[kind] || Landing
   return (
     <div class="fj-wrap" role="img" aria-label={T.alt[kind] || T.alt[0]} data-forja={kind}>

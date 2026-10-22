@@ -13,10 +13,15 @@ import * as noticiasEn from './en/noticias.js'
 import * as blogEn from './en/blog.js'
 import * as recursosEn from './en/recursos.js'
 import * as preciosEn from './en/precios.js'
+import * as noticiasPt from './pt/noticias.js'
+import * as blogPt from './pt/blog.js'
+import * as recursosPt from './pt/recursos.js'
+import * as preciosPt from './pt/precios.js'
 
 export const CONTENT = {
   es: { noticias: noticiasEs, blog: blogEs, recursos: recursosEs, precios: preciosEs },
   en: { noticias: noticiasEn, blog: blogEn, recursos: recursosEn, precios: preciosEn },
+  pt: { noticias: noticiasPt, blog: blogPt, recursos: recursosPt, precios: preciosPt },
 }
 
 /** El módulo de contenido `kind` en `lang`, o null si ese idioma no lo tiene. */

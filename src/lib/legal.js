@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// DOCUMENTOS LEGALES · content/legal/{es,en}/*.md → páginas /legal/<slug> y /en/legal/<slug>.
+// DOCUMENTOS LEGALES · content/legal/<lang>/*.md → páginas /legal/<slug>, /en/legal/<slug>, /pt/legal/<slug>…
 // Conversor portado de design/legacy/build-legal.mjs (v2.0, 2026-08-11): escapa ANTES de
 // interpretar el markdown, solo enlaces con esquema seguro, tablas envueltas para móvil.
 // Añadidos de la v2: ids en los h2 (índice), marcas [PENDIENTE …] visibles y bloques de
@@ -10,6 +10,7 @@ import { inlineMd, esc } from './escape.js'
 import { slugify } from './slug.js'
 import { SUBPROCESSORS } from '../../content/subprocesadores.js'
 import { STORAGE } from '../data/storage.js'
+import { t } from '../i18n/config.js'
 
 import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
@@ -56,12 +57,10 @@ function table(head, rows) {
 /** Bloques de datos compartidos (marcadores en el markdown). */
 function dataBlock(name, lang) {
   if (name === 'subprocesadores') {
-    const H = lang === 'en' ? ['Provider', 'Purpose', 'Data location'] : ['Proveedor', 'Para qué', 'Dónde trata los datos']
-    return table(H, SUBPROCESSORS.map((s) => [`**${s.name}**`, s.purpose[lang], s.location[lang]]))
+    return table(t(lang, 'gen.subHead'), SUBPROCESSORS.map((s) => [`**${s.name}**`, s.purpose[lang], s.location[lang]]))
   }
   if (name === 'almacenamiento') {
-    const H = lang === 'en' ? ['Name', 'Type', 'Purpose', 'Duration', 'Category'] : ['Nombre', 'Tipo', 'Para qué', 'Duración', 'Categoría']
-    return table(H, STORAGE.map((s) => [`\`${s.name}\``, s.type[lang], s.purpose[lang], s.duration[lang], s.category[lang]]))
+    return table(t(lang, 'gen.storageHead'), STORAGE.map((s) => [`\`${s.name}\``, s.type[lang], s.purpose[lang], s.duration[lang], s.category[lang]]))
   }
   throw new Error(`[legal] bloque de datos desconocido: {{${name}}}`)
 }
@@ -110,12 +109,20 @@ export function renderLegal(body, lang) {
       }
     }
     if (/^\s*([-*]|\d+\.)\s+/.test(line)) continue
+    // Cita («> …»): la nota de honestidad de Seguridad y la de traducción en revisión (T62). Antes salía
+    // como párrafo con un «&gt;» literal delante.
+    if (/^\s*>/.test(line)) {
+      const q = []
+      while (i < L.length && /^\s*>/.test(L[i])) { q.push(L[i].replace(/^\s*>\s?/, '').trim()); i++ }
+      out.push(`<blockquote><p>${inline(q.join(' ').trim())}</p></blockquote>`)
+      continue
+    }
     const chunk = []
-    while (i < L.length && L[i].trim() && !/^#{1,4}\s/.test(L[i]) && !/^\s*([-*]|\d+\.)\s+/.test(L[i]) && !L[i].trim().startsWith('|') && !/^\{\{\w+\}\}$/.test(L[i].trim()) && !/^(-{3,})$/.test(L[i].trim())) {
+    while (i < L.length && L[i].trim() && !/^\s*>/.test(L[i]) && !/^#{1,4}\s/.test(L[i]) && !/^\s*([-*]|\d+\.)\s+/.test(L[i]) && !L[i].trim().startsWith('|') && !/^\{\{\w+\}\}$/.test(L[i].trim()) && !/^(-{3,})$/.test(L[i].trim())) {
       chunk.push(L[i].trim()); i++
     }
     const text = chunk.join(' ')
-    if (/^\*\*(Última actualización|Last updated):/.test(text)) continue // la fecha la pinta la plantilla
+    if (/^\*\*(Última actualización|Last updated|Última atualização):/.test(text)) continue // la fecha la pinta la plantilla
     out.push(`<p>${inline(text)}</p>`)
   }
   return { html: out.join('\n'), toc }

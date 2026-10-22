@@ -6,12 +6,18 @@ import ForjaPreview from '../forja/ForjaPreview.jsx'
 import { useLanding } from '../store.js'
 import { S13 as es } from '../../i18n/sections/es.json'
 import { S13 as en } from '../../i18n/sections/en.json'
-import uiEs from '../../i18n/ui/es.js'
-import uiEn from '../../i18n/ui/en.js'
+import { S13 as pt } from '../../i18n/sections/pt.json'
+import logicEs from '../../i18n/logic/es.js'
+import logicEn from '../../i18n/logic/en.js'
+import logicPt from '../../i18n/logic/pt.js'
+
+// Un idioma nuevo = una línea más en cada import y en estos dos mapas (lo vigila tests/site/i18n-registros.test.js).
+const TEXTS = { es, en, pt }
+const LOGIC = { es: logicEs, en: logicEn, pt: logicPt }
 
 export default function I13({ lang }) {
-  const v = useLanding(lang === 'en' ? uiEn.logic : uiEs.logic)
-  const t = lang === 'en' ? en : es
+  const v = useLanding(LOGIC[lang] || LOGIC.es)
+  const t = TEXTS[lang] || TEXTS.es
   // Vista previa REAL de lo que construye la Forja (T35 adenda, punto 3), en el hueco que abre el
   // compilador en S13 (children(k)). «¡Nueva oferta!» (t.k51) es el aviso de la app móvil.
   return <S v={v} t={t}>{(k) => <ForjaPreview kind={k} lang={lang} deal={t.k51} />}</S>

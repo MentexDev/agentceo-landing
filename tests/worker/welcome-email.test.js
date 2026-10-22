@@ -390,15 +390,19 @@ describe('T60b/c · posición real, ideas, CTA e idioma pt', () => {
     expect(m.text).toContain('#reunion')
     expect(m.text).not.toMatch(/Ver cómo trabaja tu equipo|See how your team works|Prompt listo para copiar/)
   })
-  it('idioma del correo: pt por navegador o país; si no, el de la página', () => {
+  it('idioma del correo (T62): MANDA la página donde se apuntó; navegador y país solo de reserva', () => {
     const rq = (al, country) => { const r = new Request('https://agentceo.io/api/waitlist', { headers: al ? { 'accept-language': al } : {} }); return country ? { headers: r.headers, cf: { country } } : r }
-    expect(emailLocale(rq('pt-BR,pt;q=0.9'), 'es')).toBe('pt')
-    expect(emailLocale(rq('pt'), 'en')).toBe('pt')
-    expect(emailLocale(rq('es-CO', 'BR'), 'es')).toBe('pt')
-    expect(emailLocale(rq('en-US', 'PT'), 'en')).toBe('pt')
-    expect(emailLocale(rq('es-CO', 'CO'), 'es')).toBe('es')
-    expect(emailLocale(rq('fr-FR', 'FR'), 'en')).toBe('en')
-    expect(emailLocale(rq('', ''), 'es')).toBe('es')
+    // La página manda, aunque el navegador o el país digan otra cosa.
+    expect(emailLocale(rq('pt-BR,pt;q=0.9', 'BR'), 'es')).toBe('es')
+    expect(emailLocale(rq('es-CO', 'CO'), 'pt')).toBe('pt')
+    expect(emailLocale(rq('pt-BR'), 'pt-BR')).toBe('pt') // <html lang="pt-BR"> también vale
+    expect(emailLocale(rq('es-CO'), 'en')).toBe('en')
+    // Sin idioma de página (o uno que no existe): navegador → país → es.
+    expect(emailLocale(rq('pt-BR,pt;q=0.9'), undefined)).toBe('pt')
+    expect(emailLocale(rq('es-CO', 'BR'), '')).toBe('es') // el navegador pide español: gana al país
+    expect(emailLocale(rq('', 'BR'), 'xx')).toBe('pt')
+    expect(emailLocale(rq('fr-FR', 'FR'), null)).toBe('en')
+    expect(emailLocale(rq('', ''), null)).toBe('es')
   })
   it('una bienvenida en pt sale en portugués de punta a punta', async () => {
     const email = mail('pt')

@@ -7,13 +7,8 @@
 // Las noticias NO entran: hablan de terceros y el widget responde sobre Agent CEO.
 // ─────────────────────────────────────────────────────────────────────────────
 import { FAQ } from '../../content/faq.js'
-import * as PRECIOS from '../../content/precios.js'
-import * as BLOG from '../../content/blog.js'
-import * as RECURSOS from '../../content/recursos.js'
-import * as PRECIOS_EN from '../../content/en/precios.js'
-import * as BLOG_EN from '../../content/en/blog.js'
-import * as RECURSOS_EN from '../../content/en/recursos.js'
-import { t } from '../i18n/config.js'
+import { contentOf } from '../../content/locales.js'
+import { t, LOCALES, LOCALE_META } from '../i18n/config.js'
 import { RUTAS } from '../i18n/rutas.js'
 import { legalDocs } from './legal.js'
 import { ENTITY } from '../../content/chat-knowledge.js'
@@ -30,7 +25,7 @@ function bodyText(blocks = []) {
 }
 
 /** Fragmentos extra que otras fases registran (secciones de la home, legales…). */
-const extra = { es: [], en: [] }
+const extra = Object.fromEntries(LOCALES.map((l) => [l, []]))
 export function registerChunks(lang, chunks) {
   extra[lang].push(...chunks)
 }
@@ -55,14 +50,12 @@ export function buildKnowledge(lang) {
   }
   // Precios, blog y recursos en el idioma de la página (las noticias no entran: hablan de terceros).
   {
-    const P = lang === 'en' ? PRECIOS_EN : PRECIOS
-    const B = lang === 'en' ? BLOG_EN : BLOG
-    const R = lang === 'en' ? RECURSOS_EN : RECURSOS
-    const base = { blog: lang === 'en' ? '/en/blog/' : '/blog/', rec: lang === 'en' ? '/en/resources/' : '/recursos/' }
-    const L = lang === 'en'
-      ? { mo: 'a month', cw: 'credits per week', un: 'unlimited people', u1: 'user', un2: 'people', all: 'All plans', packs: 'Credit packs (one-time)', ne: '(never expires)', cur: 'Prices in USD.', fl: 'en-US' }
-      : { mo: 'al mes', cw: 'créditos por semana', un: 'personas sin límite', u1: 'usuario', un2: 'personas', all: 'Todos los planes', packs: 'Paquetes de créditos (pago único)', ne: '(no caduca)', cur: 'Precios en USD.', fl: 'es-ES' }
-    const fmt = (n) => n.toLocaleString(L.fl)
+    const P = contentOf(lang, 'precios')
+    const B = contentOf(lang, 'blog') || { ITEMS: [] }
+    const R = contentOf(lang, 'recursos') || { ITEMS: [] }
+    const base = { blog: `${RUTAS.blog?.[lang] || ''}`, rec: `${RUTAS.recursos?.[lang] || ''}` }
+    const L = t(lang, 'gen.price')
+    const fmt = (n) => n.toLocaleString(LOCALE_META[lang].dateLocale)
     const plans = P.PLANS.map((p) => `${p.name}: $${p.price} ${L.mo}, ${fmt(p.credits)} ${L.cw}, ${p.seats === null ? L.un : `${p.seats} ${p.seats === 1 ? L.u1 : L.un2}`}.`).join(' ')
     const packs = P.PACKS.map((k) => `${k.name}: ${fmt(k.credits)} → $${k.price}${k.noExpiry ? ` ${L.ne}` : ''}`).join('; ')
     const purl = routeUrl('precios', lang) || `${home}#faq`

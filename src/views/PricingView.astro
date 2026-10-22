@@ -6,15 +6,14 @@ import Base from '../layouts/Base.astro'
 import PageHead from '../components/page/PageHead.astro'
 import WaitlistForm from '../components/waitlist/WaitlistForm.astro'
 import '../styles/pages.css'
-import * as PES from '../../content/precios.js'
-import * as PEN from '../../content/en/precios.js'
+import { contentOf } from '../../content/locales.js'
 import { t, LOCALE_META } from '../i18n/config.js'
 import { href, alternatesFor } from '../i18n/rutas.js'
 import { breadcrumbs, ORIGIN, ORG_ID } from '../lib/jsonld.js'
 import { inlineBold } from '../lib/escape.js'
 interface Props { lang: string }
 const { lang } = Astro.props
-const P = lang === 'en' ? PEN : PES
+const P = contentOf(lang, 'precios')
 const tr = (k: string) => t(lang, `precios.${k}`)
 const num = new Intl.NumberFormat(LOCALE_META[lang].dateLocale)
 const money = (n: number) => (n === 0 ? '$0' : `$${num.format(n)}`)

@@ -1,4 +1,6 @@
 // UI dictionary · English. Must mirror every key in es.js (tests/site/i18n.test.js).
+import logic from '../logic/en.js'
+
 export default {
   site: {
     name: 'Agent CEO',
@@ -212,34 +214,7 @@ export default {
   home: {
     faq: { eyebrow: 'Questions', h2a: 'Ask ', h2b: 'your CEO.', more: 'More details →' },
   },
-  logic: {
-    // S05 expert lines (T32): one list per card, in section order
-    // (inventory, content, WhatsApp, ads, customer care, production).
-    agentLines: [
-      ["Hi, boss! I've counted the whole stockroom.", 'Only 4 black T-shirts left in size M. Shall I order 40 more?', 'Mugs sell twice as much on Fridays. Already factored in.', 'Nothing sells out without me warning you first.'],
-      ["Hi, boss! Friday's post is ready.", 'I have three reel ideas for this week. Want to see them?', 'Caption written, photo and time picked. It just needs your yes.', 'Your account now posts every day without you thinking about it.'],
-      ['Hi, boss! Laura is asking if we have size S.', "It's 2 a.m. and I just closed a sale.", 'I reply in seconds, with your catalog and your prices.', 'If a customer gets upset, I hand them to you right away.'],
-      ['Hi, boss! I compared two ads this morning.', 'Ad B brings more customers for the same money.', 'Raise the budget? I never spend a cent without your sign-off.', "I paused the ad that wasn't working. It's in your summary."],
-      ["Hi, boss! I closed Andrew's complaint.", 'I swapped a size and the customer left happy.', 'Infinite patience, even at 11 p.m.', 'Questions that keep coming up, I now answer on my own.'],
-      ['Hi, boss! Three orders came in today.', 'Order 1042 just shipped. I am letting the customer know.', 'If an order runs late, you know before the customer does.', 'Every order, from checkout to doorstep, under control.'],
-    ],
-    ceo: ["Hi! I'm your CEO. Tap me.", 'I organize the team for you.', 'Anything important, I always ask you.', 'My teammates are down below. Scroll!', 'Again? That tickles.'],
-    req: ['Order 40 black T-shirts', 'Raise the ad budget', "Publish this week's posts"],
-    approved: 'Approved',
-    notNow: 'Not now',
-    lockIdle: "No matter how well it does, this doesn't change.",
-    lockTried: 'It will never do this on its own. It will always ask you.',
-    trustDone: '3 of 3 done right, no surprises',
-    trustStep: '{n} of 3 · still asks you',
-    autoOn: 'On · your agents are already doing it',
-    meter0: 'Switch one on to start',
-    meterAll: 'Everything on autopilot!',
-    meterSome: 'Your team already handles this',
-    moreOpen: 'Show less',
-    moreClosed: 'And many more  +',
-    clonOn: 'Permission on. You can remove it whenever you want.',
-    clonOff: 'Permission removed. Your spokesperson no longer uses your face or voice.',
-  },
+  logic,
   jsonld: { freeOffer: 'Free Arranque plan (300 credits per week, no card); paid plans from $29 a month.' },
   pages: {
     all: 'All',
@@ -382,6 +357,13 @@ export default {
     more: 'More details in the',
     california: 'Notice for California residents',
     prefs: 'Cookie preferences',
+  },
+  // Text of GENERATED output (legal tables, /llms*.txt, chat knowledge): no per-language ternaries (T62).
+  gen: {
+    subHead: ['Provider', 'Purpose', 'Data location'],
+    storageHead: ['Name', 'Type', 'Purpose', 'Duration', 'Category'],
+    llms: { pages: 'Main pages', faq: 'Frequently asked questions', content: 'Content', legal: 'Legal', other: 'Other languages', full: 'Full site text for language models', home: 'Home page', date: 'Date' },
+    price: { mo: 'a month', moShort: 'mo', cw: 'credits per week', un: 'unlimited people', u1: 'user', un2: 'people', pp: 'person(s)', all: 'All plans', pk: 'Pack', packs: 'Credit packs (one-time)', cr: 'credits for', ne: '(never expires)', cur: 'Prices in USD.' },
   },
   draft: {
     banner: 'DRAFT — requires attorney review. This text is not final.',

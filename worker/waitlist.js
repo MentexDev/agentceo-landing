@@ -15,11 +15,12 @@ import { str, cleanEmail, isBot } from './lib/validate.js'
 import { limited, foreignOrigin } from './lib/ratelimit.js'
 import { BUSINESS_TYPES, UTM_KEYS } from '../src/data/waitlist.js'
 import { enqueueWelcome, holdWelcome, emailLocale } from './email/welcome.js'
+import { signupLocale } from './lib/locale.js'
 import { turnstileConfig, tokenFrom, siteverify } from './lib/turnstile.js'
 import { scrub, logEvent } from './email/mask.js'
 
-const LOCALES = ['es', 'en']
-const THANKS = { es: '/gracias/', en: '/en/thanks/' }
+// Página de gracias por idioma (= RUTAS.gracias de src/i18n/rutas.js; tests/site/i18n-registros.test.js lo exige).
+const THANKS = { es: '/gracias/', en: '/en/thanks/', pt: '/pt/obrigado/' }
 // Un humano no rellena y envía un formulario en menos de esto (ms desde que se pintó).
 const MIN_HUMAN_MS = 1200
 
@@ -40,7 +41,7 @@ async function readBody(request) {
 
 /** Normaliza el cuerpo a una fila. Exportado para los tests. */
 export function toRow(body, request) {
-  const locale = LOCALES.includes(body.locale) ? body.locale : 'es'
+  const locale = signupLocale(request, body.locale)
   const business = BUSINESS_TYPES.includes(body.business) ? body.business : null
   const row = {
     email: cleanEmail(body.email),
@@ -98,7 +99,7 @@ export async function handleWaitlist(request, env, ctx) {
   const parsed = await readBody(request)
   const isForm = parsed?.isForm ?? false
   const body = parsed?.body ?? {}
-  const locale = LOCALES.includes(body.locale) ? body.locale : 'es'
+  const locale = signupLocale(request, body.locale)
 
   // Respuesta según el canal: JSON para fetch, 303 para el formulario sin JS.
   const reply = (ok, error, status) =>
@@ -144,7 +145,7 @@ export async function handleWaitlist(request, env, ctx) {
     return reply(false, 'server_error', 500)
   }
   // El tipo de negocio guardado (el del paso 2, o el primero si ya estaba): el regalo del correo lo sigue.
-  // T60b: el idioma del correo puede ser pt (navegador o país) aunque la página sea es/en: emailLocale().
+  // T62: el idioma del correo es el de la página donde se apuntó (row.locale); navegador/país solo de reserva.
   scheduleWelcome(env, ctx, { email: row.email, locale: emailLocale(request, row.locale), business_type: row.business_type }, { hold })
   return reply(true)
 }

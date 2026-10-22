@@ -104,6 +104,7 @@ const es = {
   clientsKpis: ['Clientes', 'Nuevos · 30 días', 'Contactables', 'Sin clasificar'],
   clientsCols: ['Cliente', 'Tipo', 'Email', 'Creado por'],
   clientTypes: { frecuente: 'Frecuente', nueva: 'Nueva', mayorista: 'Mayorista' },
+  mUnit: ' M', // «COP 4,2 M» · en «COP 4.2M» · pt «COP 4,2 mi»
 }
 
 const en = {
@@ -191,9 +192,99 @@ const en = {
   clientsKpis: ['Customers', 'New · 30 days', 'Reachable', 'Unclassified'],
   clientsCols: ['Customer', 'Type', 'Email', 'Created by'],
   clientTypes: { frecuente: 'Repeat', nueva: 'New', mayorista: 'Wholesale' },
+  mUnit: 'M',
 }
 
-export const DICT = { es, en }
+const pt = {
+  eyebrow: 'Por dentro',
+  h2a: 'É assim que ',
+  h2b: 'a sua empresa fica por dentro.',
+  sub: 'Este é o app de verdade. Toque no menu e explore.',
+  note: 'Demonstração com dados inventados de uma marca de exemplo.',
+  demoLabel: 'Demonstração do app Agent CEO',
+  tabsLabel: 'Telas do app',
+  tabs: { chat: 'Converse com seu CEO', aprobaciones: 'Aprovações', biblioteca: 'Biblioteca', panel: 'Centro de comando', ventas: 'Vendas', clientes: 'Clientes' },
+  play: 'Reproduzir o tour',
+  pause: 'Pausar o tour',
+  sideLabel: 'Barra lateral',
+  trabajo: 'Trabalho',
+  empresa: 'Empresa',
+  trabajoTitle: 'Trabalho · seus agentes e suas conversas',
+  empresaTitle: 'Empresa · como vai o seu negócio',
+  search: 'Buscar em todo o negócio',
+  nav: { nueva: 'Nova tarefa', agentes: 'Agentes', tareas: 'Tarefas', aprobaciones: 'Aprovações', biblioteca: 'Biblioteca', automatizaciones: 'Automações', empresa: 'Empresa', avanzado: 'AVANÇADO' },
+  agentsHead: 'AGENTES',
+  agents: ['CEO Global', 'Guardião do Estoque', 'Criador de Conteúdo', 'Vendedor de WhatsApp'],
+  empresaNav: { panel: 'Centro de comando', equipo: 'Equipe', marcas: 'Marcas', portafolio: 'Portfólio', salud: 'Saúde', atencion: 'Atendimento', marketing: 'Marketing', ventas: 'Vendas', clientes: 'Clientes', finanzas: 'Finanças', inventario: 'Estoque', envios: 'Envios' },
+  user: { name: 'Valentina M.', role: 'Dona', status: 'Online', initials: 'VM' },
+  company: { name: 'Casa Lúa', plan: 'Plano Impulso' },
+  brand: { general: 'Geral', generalFoot: 'a empresa', items: ['Lúa', 'Lúa Casa'], nueva: '+ Nova marca', current: 'Lúa' },
+  ceo: 'CEO Global',
+  you: 'Você',
+  earlierDay: 'Ontem',
+  earlier: 'Bom dia, Valentina ☀️ Ontem fechamos **12 vendas** pelo WhatsApp e o post de terça alcançou **3.400 pessoas**. Hoje estou com os pijamas novos; qualquer coisa importante, pergunto a você antes.',
+  userMsg: 'Como estamos nesta semana? Deixe pronto o post dos pijamas novos.',
+  thinking: ['Entendendo o que você pediu…', 'Revisando o resultado…', 'Quase pronto…'],
+  steps: [
+    { fam: 'datos', run: 'Revisando as vendas da semana', done: 'Revisou as vendas da semana', cost: 2 },
+    { fam: 'web', run: 'Pesquisando na web', done: 'Pesquisou na web', cost: 3 },
+    { fam: 'imagen', run: 'Gerando uma imagem', done: 'Gerou uma imagem', cost: 12 },
+  ],
+  stepsHead: 'Trabalho do agente',
+  stepsLive: 'Pensando no próximo passo…',
+  stepsWriting: 'Escrevendo a resposta…',
+  stepsDone: '{n} passos · {s} s',
+  credits: '−{n} créditos',
+  reply: '**Estamos bem:** 38 pedidos nesta semana, 12% a mais que na anterior, e COP 4,2 mi faturados.\n- Os pijamas de algodão são os mais vendidos.\n- Deixei o post pronto na Biblioteca. **Falta a sua assinatura** para publicar.',
+  composer: 'Escreva para o CEO Global…',
+  send: 'Enviar (Enter)',
+  attach: 'Anexar',
+  chips: ['O que está funcionando nas redes?', 'O que vamos publicar nesta semana?'],
+  apTitle: 'Esperando a sua assinatura',
+  apSub: 'O que seus agentes deixaram pronto e não executam sem você.',
+  apPending: '{n} pendentes',
+  apRows: [
+    { glyph: 'crown', title: 'Publicar o post dos pijamas de algodão', who: 'CEO Global · de uma tarefa em andamento', risk: 'Reversível', riskTone: 'ok', kind: 'Post', act: 'Assinar', when: 'há 2 min' },
+    { glyph: 'sparkles', title: 'Pedir 40 camisetas pretas ao fornecedor', who: 'Guardião do Estoque · de uma tarefa em andamento', risk: 'Movimenta dinheiro', riskTone: 'warn', noUndo: 'Sem volta', kind: 'Gasto', amount: 'COP 1.120.000', act: 'Revisar', when: 'há 14 min' },
+    { glyph: 'bot', title: 'Responder à cliente sobre a devolução', who: 'Vendedor de WhatsApp · sem tarefa', risk: 'Sem risco', riskTone: 'ok', kind: 'Entrega', act: 'Aceitar', alt: 'Descartar', when: 'há 31 min' },
+  ],
+  signed: 'Assinado',
+  undo: 'Desfazer',
+  libTitle: 'A biblioteca',
+  libSub: 'Tudo o que a sua empresa produziu, em um só lugar.',
+  libKpis: ['Total de arquivos', 'Nesta semana', 'Última atividade', 'Armazenamento'],
+  libNew: '+{n} novos',
+  libLast: 'há 1 min',
+  libStorage: '1,4 GB',
+  libSearch: 'Buscar por título ou conteúdo…',
+  libCards: [
+    { kind: 'Imagem', tone: 'pink', title: 'Post · Pijamas de algodão', who: 'Criador de Conteúdo', fresh: true },
+    { kind: 'Planilha', tone: 'emerald', title: 'Relatório semanal de vendas', who: 'CEO Global' },
+    { kind: 'E-mail', tone: 'violet', title: 'Carrinhos abandonados · outubro', who: 'Vendedor de WhatsApp' },
+    { kind: 'Apresentação', tone: 'amber', title: 'Catálogo da temporada', who: 'Criador de Conteúdo' },
+    { kind: 'Documento', tone: 'sky', title: 'Roteiro do reel de lançamento', who: 'Criador de Conteúdo' },
+    { kind: 'Vídeo', tone: 'rose', title: 'Lookbook em 30 segundos', who: 'Criador de Conteúdo' },
+  ],
+  cmdTitle: 'Centro de comando',
+  cmd: {
+    ventas: { t: 'Vendas · 14 dias', a: 'pedidos confirmados', b: 'faturado', act: 'Ver os {n}' },
+    clientes: { t: 'Clientes', a: 'clientes', b: 'novos · 30 dias', meta: 'crescendo' },
+    caja: { t: 'Caixa', a: 'entrou este mês', b: 'saiu este mês', c: 'a receber' },
+    productos: { t: 'Seus produtos', a: 'em uso', b: 'publicados', c: 'em construção' },
+  },
+  salesTitle: 'Todas as vendas',
+  salesKpis: ['Vendido', 'Pedidos', 'Ticket médio', 'Não pago'],
+  salesCols: ['Pedido', 'Cliente', 'Origem', 'Total', 'Pagamento', 'Entrega'],
+  paid: 'Pago', pending: 'Não pago', toShip: 'A enviar', shipped: 'Enviado',
+  clientsTitle: 'Clientes',
+  clientsKpis: ['Clientes', 'Novos · 30 dias', 'Contactáveis', 'Sem classificar'],
+  clientsCols: ['Cliente', 'Tipo', 'E-mail', 'Criado por'],
+  clientTypes: { frecuente: 'Frequente', nueva: 'Nova', mayorista: 'Atacado' },
+  mUnit: ' mi',
+}
+
+// Idioma nuevo: su diccionario aquí con las MISMAS claves (tests/site/i18n-registros.test.js exige la paridad).
+export const DICT = { es, en, pt }
 
 // Datos de ejemplo (inventados). Pedidos y clientas con nombre + inicial y correos @example.com.
 export const ORDERS = [

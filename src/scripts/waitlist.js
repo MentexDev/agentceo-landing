@@ -200,7 +200,7 @@ function bindModal() {
     setBusy(biz, true)
     let r
     try {
-      r = await send({ email: lastEmail, business, locale: document.documentElement.lang, source: modal.dataset.source || 'modal', t: Math.round(performance.now() - t0) }, lastForm)
+      r = await send({ email: lastEmail, business, locale: document.documentElement.lang.split('-')[0], source: modal.dataset.source || 'modal', t: Math.round(performance.now() - t0) }, lastForm)
     } catch {
       r = { ok: false, error: 'network' }
     }

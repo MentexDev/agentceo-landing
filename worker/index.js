@@ -13,6 +13,7 @@ import { handleChat } from './chat/handler.js'
 import { handleUnsubscribe } from './unsubscribe.js'
 import { sweepEmails } from './email/welcome.js'
 import { turnstileConfig } from './lib/turnstile.js'
+import { localeRedirect } from './lib/locale.js'
 
 // Durable Object de los topes del widget (lo exige wrangler: se exporta desde el main).
 export { ChatGuard } from './chat/guard.js'
@@ -55,6 +56,10 @@ export default {
       return json({ ok: false, error: 'Método no permitido' }, 405, { allow: 'POST' })
     }
 
+    // T62 · «/» sin idioma elegido → el del navegador (/en/, /pt/). Reglas y excepciones: worker/lib/locale.js.
+    const toLocale = localeRedirect(request, url)
+    if (toLocale) return toLocale
+
     // Todo lo demás → los assets estáticos (con cabeceras de seguridad en el HTML).
     const res = await env.ASSETS.fetch(request)
     const ct = res.headers.get('content-type') || ''
@@ -65,7 +70,10 @@ export default {
     const page = ts.enabled
       ? new HTMLRewriter().on('head', { element: (el) => el.append(`<meta name="ac-turnstile" content="${ts.siteKey}">`, { html: true }) }).transform(res)
       : res
-    return withSecurityHeaders(page, url.protocol === 'https:', { turnstile: ts.enabled })
+    const out = withSecurityHeaders(page, url.protocol === 'https:', { turnstile: ts.enabled })
+    // La raíz depende del idioma y de la cookie (puede redirigir): ninguna caché debe mezclar respuestas.
+    if (url.pathname === '/') out.headers.append('vary', 'Accept-Language, Cookie')
+    return out
   },
 
   // Cron Trigger (wrangler.jsonc → triggers.crons): reintentos y bienvenidas que esperaban al paso 2.
