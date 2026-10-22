@@ -15,7 +15,9 @@ export default defineConfig({
     { name: 'movil-chromium', use: { ...devices['Pixel 7'] } },
   ],
   webServer: {
-    command: `npm run db:local && WRANGLER_SEND_METRICS=false npx wrangler dev --local --port ${PORT} --ip 127.0.0.1`,
+    // WELCOME_EMAIL_ENABLED:false (T58): wrangler.jsonc lo trae en "true" desde T57b y .dev.vars tiene la clave
+    // real de Resend: sin esto, cada alta de la suite mandaría un correo REAL a un @example.com.
+    command: `npm run db:local && WRANGLER_SEND_METRICS=false npx wrangler dev --local --port ${PORT} --ip 127.0.0.1 --var WELCOME_EMAIL_ENABLED:false`,
     url: `http://127.0.0.1:${PORT}/`,
     reuseExistingServer: true,
     timeout: 120_000,
