@@ -288,8 +288,8 @@ describe('CSP y Turnstile', () => {
     expect(on.match(/https?:\/\/[^\s;']+/g)).toEqual(['https://challenges.cloudflare.com', 'https://challenges.cloudflare.com'])
   })
   it('la configuración desplegable no trae Turnstile: la portada sale con la CSP cerrada', async () => {
-    // T58: la site key existe como placeholder VACÍO en wrangler.jsonc; sin ella ni el secreto, apagado.
-    expect(env.TURNSTILE_SITE_KEY).toBe('')
+    // T58: la site key REAL (pública) está en wrangler.jsonc; sin el secreto, apagado y CSP cerrada.
+    expect(env.TURNSTILE_SITE_KEY).toBe('0x4AAAAAAFhJ06Nhr0kRGswq')
     expect(env.TURNSTILE_SECRET_KEY).toBeUndefined()
     expect(turnstileConfig(env).enabled).toBe(false)
   })

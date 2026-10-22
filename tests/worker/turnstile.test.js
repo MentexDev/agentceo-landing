@@ -85,7 +85,9 @@ describe('siteverify (worker/lib/turnstile.js)', () => {
     expect(turnstileConfig({ TURNSTILE_SECRET_KEY: SECRET_PASS }).enabled).toBe(false)
     expect(turnstileConfig({ TURNSTILE_SITE_KEY: '"><script>', TURNSTILE_SECRET_KEY: SECRET_PASS }).enabled).toBe(false)
     expect(turnstileConfig({ TURNSTILE_SITE_KEY: SITE_PASS, TURNSTILE_SECRET_KEY: SECRET_PASS }).enabled).toBe(true)
-    expect(env.TURNSTILE_SITE_KEY).toBe('') // wrangler.jsonc: placeholder vacío hasta tener la real
+    // wrangler.jsonc: la site key REAL (pública) sin el secreto → apagado. Así se puede desplegar antes.
+    expect(env.TURNSTILE_SITE_KEY).toBe('0x4AAAAAAFhJ06Nhr0kRGswq')
+    expect(turnstileConfig(env).enabled).toBe(false)
   })
   it('el token llega como turnstile (fetch) o cf-turnstile-response (formulario)', () => {
     expect(tokenFrom({ turnstile: ' a ' })).toBe('a')
