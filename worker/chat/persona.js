@@ -70,6 +70,16 @@ const T = {
 
 export const say = (lang, key) => (T[lang] || T.es)[key]
 
+/** T60 · Ya apuntado: «ya estás en la lista con j***@…» (el correo llega enmascarado y validado) + siguientes pasos. */
+export function joinedReply(lang, masked) {
+  // «*» se mostraría como Markdown (cursiva): se pinta con el asterisco tipográfico «∗» (U+2217), igual a la vista.
+  const shown = masked ? masked.replace(/\*/g, '∗') : ''
+  const m = shown ? (lang === 'en' ? ` with **${shown}**` : ` con tu correo **${shown}**`) : ''
+  return lang === 'en'
+    ? `You're already on the waitlist${m} 🙌 Nothing else to do: we'll email you when your group opens. Meanwhile, tell me about your business (what you sell and to whom) and I'll show you what your AI team would do, or ask me anything.`
+    : `¡Ya estás en la lista${m}! 🙌 No tienes que hacer nada más: te escribimos cuando abra tu grupo. Mientras tanto, cuéntame de tu negocio (qué vendes y a quién) y te digo qué haría tu equipo de IA, o pregúntame lo que quieras.`
+}
+
 // NEGATIVAS por TIPO (T40 b, Luca): en el idioma del usuario (es/en; fr/de/pt/it con frases cortas
 // propias). Nunca «lo legal de la empresa» ante una pregunta técnica o de costes.
 const PRIV = {

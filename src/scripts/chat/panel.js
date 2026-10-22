@@ -8,6 +8,9 @@
 import { renderMd } from './md.js'
 import { track } from '../track.js'
 import { enhanceForm } from '../waitlist.js'
+import { signupState } from '../signup-memory.js'
+// T60: contexto «ya se apuntó» para /api/chat (el servidor lo valida y solo lo usa para no volver a pedir el correo).
+const signupContext = () => { const s = signupState(); return s.signedUp ? { signedUp: true, ...(s.masked ? { signedUpEmail: s.masked } : {}) } : {} }
 import { ls } from '../storage.js'
 import { offlineReply, isGreeting } from './offline.js'
 
@@ -91,7 +94,8 @@ export function initPanel(root) {
 
   // ── Pintado ─────────────────────────────────────────────────────────────
   const scroll = () => { log.scrollTop = log.scrollHeight }
-  const joined = () => ls.get('ac_wl') === '1'
+  // T60: quien ya se apuntó (bandera + correo enmascarado): nunca la tarjeta, y el servidor lo sabe.
+  const joined = () => signupState().signedUp
 
   function bubble(role, html) {
     const el = document.createElement('div')
@@ -194,7 +198,7 @@ export function initPanel(root) {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         signal: ac.signal,
-        body: JSON.stringify({ locale: lang, page: location.pathname, session: sid, ...(chip ? { chip } : {}), ...(tsToken ? { turnstile: tsToken } : {}), messages: msgs.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({ locale: lang, page: location.pathname, session: sid, ...(chip ? { chip } : {}), ...(tsToken ? { turnstile: tsToken } : {}), ...signupContext(), messages: msgs.map(({ role, content }) => ({ role, content })) }),
       })
       if (!res.ok || !res.body) {
         let code = ''

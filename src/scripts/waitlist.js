@@ -11,8 +11,9 @@ import { captureAttribution, getAttribution } from './attribution.js'
 import { track } from './track.js'
 import { ls, ss } from './storage.js'
 import { initTurnstile, prime, tokenFor, consume } from './turnstile.js'
+import { rememberSignup, signupState } from './signup-memory.js'
+import { maskEmail } from '../../worker/email/mask.js'
 
-const JOINED = 'ac_wl'          // localStorage: '1' si ya se apuntó (sin el correo)
 const STICKY_OFF = 'ac_sticky'  // sessionStorage: CTA fijo cerrado en esta sesión
 const EXIT_SHOWN = 'ac_exit'    // sessionStorage: exit-intent ya mostrado
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
@@ -23,7 +24,8 @@ let lastEmail = '' // en memoria: solo para el paso 2 del modal de ESTA página
 let lastForm = null // el formulario del paso 1: su widget de Turnstile da el token del paso 2
 let modal = null
 
-const joined = () => ls.get(JOINED) === '1'
+// T60: bandera + correo enmascarado (localStorage y cookie propia), ver signup-memory.js.
+const joined = () => signupState().signedUp
 
 /**
  * Envía a /api/waitlist. `form` es el formulario cuyo widget de Turnstile pone el token (si está activo):
@@ -69,7 +71,7 @@ function markDone(form, text) {
 }
 
 function onJoined(email, source) {
-  ls.set(JOINED, '1')
+  rememberSignup(email)
   lastEmail = email
   hideSticky()
   // Los demás formularios de la página pasan a «ya estás en la lista».
@@ -115,6 +117,11 @@ function bindForm(form) {
       t: Math.round(performance.now() - t0),
     }
     track('wl_submit', { source })
+    // T60: ¿ya se había apuntado desde ESTE navegador con este mismo correo? El servidor responde igual exista o
+    // no el correo (sin enumeración: nadie puede averiguar si un correo ajeno está en la lista); el «ya
+    // estabas» solo lo sabe el navegador de la propia persona.
+    const before = signupState()
+    const again = before.signedUp && before.masked && before.masked === maskEmail(email)
     setBusy(form, true)
     let r
     try {
@@ -131,6 +138,7 @@ function bindForm(form) {
     }
     onJoined(email, source)
     lastForm = form
+    if (again) { markDone(form, msgs.already); form.dispatchEvent(new CustomEvent('wl:joined', { bubbles: true, detail: { source, again: true } })); return }
     form.dispatchEvent(new CustomEvent('wl:joined', { bubbles: true, detail: { source } }))
     if (form.hasAttribute('data-no-modal')) {
       markDone(form, msgs.success)

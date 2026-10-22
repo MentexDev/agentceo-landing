@@ -29,7 +29,7 @@ import { streamText } from './text.js'
 import { stubReply, exactFaq, KB, INDEX } from './stub.js'
 import { ANSWERS } from '../../content/chat-answers.js'
 import { liveReply, pickContext, systemPrompt, estimateUSD, historyForModel, priceFor, DEFAULT_MODEL, RULES, CANARY } from './live.js'
-import { say, intentOf, privateReply } from './persona.js'
+import { say, intentOf, privateReply, joinedReply } from './persona.js'
 import { stripInjection, findOutputLeak, promptEchoes } from './private.js'
 import { textKey, hasPII } from './abuse.js'
 import { matchCurated, curatedReply, chipIdsFor, langOf } from './curated.js'
@@ -102,7 +102,12 @@ export const outputLeak = (text) => findOutputLeak(text, ECHOES)
 
 export async function respond({ p, mode, env, guards = {}, send: rawSend, delay = 18, fetchImpl, capTurns }) {
   // Toda meta con chips lleva sus ids curados (el cliente los devuelve en `chip` al pulsarlos).
-  const send = (ev, d) => rawSend(ev, ev === 'meta' && d?.chips && !d.chipIds ? { ...d, chipIds: chipIdsFor(d.chips) } : d)
+  // T60: quien ya se apuntó NUNCA vuelve a ver la tarjeta de la lista (cta waitlist fuera, venga de donde venga).
+  const send = (ev, d) => {
+    let m = ev === 'meta' && d?.chips && !d.chipIds ? { ...d, chipIds: chipIdsFor(d.chips) } : d
+    if (ev === 'meta' && p.signedUp && m?.cta === 'waitlist') m = { ...m, cta: null }
+    return rawSend(ev, m)
+  }
   const g = {
     liveIp: guards.liveIp || no,
     liveGlobal: guards.liveGlobal || no,
@@ -113,6 +118,13 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
     cacheGet: guards.cacheGet || none,
     cachePut: guards.cachePut || (async () => {}),
     human: guards.human || (async () => ({ ok: false, reason: 'no_turnstile' })),
+  }
+
+  // T60: ya apuntado + intención de registrarse → «ya estás en la lista con j***@…» y los siguientes pasos.
+  if (p.signedUp && intentOf(p.userText) === 'join') {
+    await send('meta', { mode: 'stub', kind: 'intent:joined', cta: null, chips: [], matched: null, sources: [] })
+    await streamText(send, joinedReply(p.lang, p.signedUpEmail), delay)
+    return { path: 'stub', reason: 'already_joined' }
   }
 
   if (p.turns > capTurns) {

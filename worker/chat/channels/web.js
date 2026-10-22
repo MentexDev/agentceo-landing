@@ -13,6 +13,7 @@ import { suspicion } from '../abuse.js'
 import { LIMITS } from './index.js'
 
 const SID = /^[A-Za-z0-9_-]{16,64}$/
+const MASKED = /^[a-z0-9]\*{3}@[a-z0-9]?\*{3}(\.[a-z0-9-]{1,12}){0,3}$/i
 
 /** Valida y normaliza el cuerpo del widget. Devuelve { lang, history, userText, turns } o { error }. */
 export function parseChat(body) {
@@ -62,6 +63,11 @@ export const web = {
         chip: typeof body.chip === 'string' && /^[a-z0-9-]{1,40}$/.test(body.chip) ? body.chip : null,
         userKey: who.userKey,
         ...p,
+        // T60: «ya me apunté» que manda el navegador. NO se confía en él para nada sensible: solo evita volver a
+        // pedir el correo. El correo llega ENMASCARADO y solo se acepta con esa forma (se le devuelve a la misma
+        // persona; nunca revela nada de otros).
+        signedUp: body.signedUp === true,
+        signedUpEmail: body.signedUp === true && typeof body.signedUpEmail === 'string' && MASKED.test(body.signedUpEmail) ? body.signedUpEmail : null,
         signals: {
           ip: who.ip,
           ua,

@@ -36,6 +36,7 @@ export function writeConsent({ f, a, d }) {
       for (const k of Object.keys(sessionStorage)) if (k.startsWith('ac_')) sessionStorage.removeItem(k)
     } catch {}
     document.cookie = `lang=; Path=/; Max-Age=0; SameSite=Lax${secure}`
+    document.cookie = `ac_wl=; Path=/; Max-Age=0; SameSite=Lax${secure}` // T60: «ya me apunté» (funcional)
   }
   window.dispatchEvent(new CustomEvent('ac:consent', { detail: v }))
   return v
