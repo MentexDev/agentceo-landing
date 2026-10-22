@@ -16,7 +16,8 @@ import { PLANS, PACKS } from './precios.js'
 
 const plan = (id) => PLANS.find((p) => p.id === id)
 const pack = (id) => PACKS.find((p) => p.id === id)
-const n = (v, lang) => v.toLocaleString(lang === 'en' ? 'en-US' : 'es-ES')
+const NUM = { en: 'en-US', pt: 'pt-BR' } // es: es-ES («2300», como siempre); pt-BR: «2.300»
+const n = (v, lang) => v.toLocaleString(NUM[lang] || 'es-ES')
 const P = { arranque: plan('arranque'), impulso: plan('impulso'), motor: plan('motor'), imperio: plan('imperio') }
 const K = { chispa: pack('chispa'), envion: pack('envion'), turbina: pack('turbina'), reserva: pack('reserva') }
 

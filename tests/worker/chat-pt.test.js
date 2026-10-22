@@ -56,7 +56,7 @@ describe('intenciones pt', () => {
     greet: ['oi', 'olá', 'oi, tudo bem?', 'bom dia', 'e aí cara', 'opa, tudo bom?'],
     thanks: ['obrigado!', 'valeu', 'muito obrigada', 'brigado'],
     ack: ['beleza', 'show', 'fechou', 'kkkk', 'pode crer'],
-    join: ['quero me inscrever', 'como faço pra me cadastrar?', 'me coloca na lista', 'quero garantir minha vaga', 'quero entrar'],
+    join: ['Entrar na lista', 'quero me inscrever', 'como faço pra me cadastrar?', 'me coloca na lista', 'quero garantir minha vaga', 'quero entrar'],
     human: ['você é humano?', 'vc é uma pessoa?', 'to falando com um robô?'],
     contact: ['quero falar com alguém da equipe', 'preciso de suporte', 'contato'],
     goPricing: ['me mostra os preços', 'onde vejo os planos?'],
@@ -83,6 +83,10 @@ describe('fichas curadas y KB en pt', () => {
       expect(a.a.pt, a.id).toBeTruthy()
       expect(a.a.pt.match(/\$\d[\d.,]*/g) || [], a.id).toEqual(a.a.en.match(/\$\d[\d.,]*/g) || [])
     }
+  })
+  it('cifras en formato brasileño (2.300, 40.000)', () => {
+    expect(ANSWERS.find((a) => a.id === 'planes').a.pt).toMatch(/2\.300/)
+    expect(ANSWERS.find((a) => a.id === 'planes').a.es).toMatch(/2300/) // es no cambia
   })
   it('cada forma pt de preguntar casa EXACTA con su ficha (el índice incluye ask.pt)', () => {
     for (const a of ANSWERS) for (const q of a.ask.pt) expect(matchCurated(q), `${a.id}: ${q}`).toMatchObject({ id: a.id, how: 'exact' })
