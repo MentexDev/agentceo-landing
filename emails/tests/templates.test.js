@@ -334,7 +334,11 @@ describe('send-test.mjs (sin enviar nada: solo sus piezas)', () => {
       expect(redact(`Bearer ${FAKE} y otra vez ${FAKE}`, FAKE)).toBe('Bearer *** y otra vez ***')
       // Sin config, los errores nombran lo que falta, nunca la clave.
       const bad = config({}, path.join(dir, 'no-existe'))
-      expect(bad.errors.join(' ')).toMatch(/EMAIL_ASSET_BASE_URL.*RESEND_API_KEY/)
+      expect(bad.errors.join(' ')).toMatch(/RESEND_API_KEY/)
+      expect(bad.errors.join(' ')).not.toMatch(/EMAIL_ASSET_BASE_URL/)
+      // T57: la base de los PNG, por defecto la de producción; una no https, error.
+      expect(bad.assetBase).toBe('https://agentceo.io/email-assets/v1')
+      expect(config({ EMAIL_ASSET_BASE_URL: 'http://agentceo.io/x' }, f).errors.join(' ')).toMatch(/EMAIL_ASSET_BASE_URL debe ser https/)
       expect(bad.postalAddress).toBe(DEFAULT_POSTAL_ADDRESS)
       // Vaciada a propósito (en el entorno o en .dev.vars) → no envía.
       expect(config({ EMAIL_ASSET_BASE_URL: 'https://a.test/v1', POSTAL_ADDRESS: '' }, f).errors.join(' ')).toMatch(/POSTAL_ADDRESS está vacía/)

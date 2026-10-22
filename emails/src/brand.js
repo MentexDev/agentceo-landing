@@ -56,7 +56,7 @@ export const EMAIL_IMAGE_URL = /^https:\/\/[^\s"'<>]+\.(png|jpg|gif)$/i
 // Pie legal. ⛔ PROHIBIDO aquí cualquier dato del registro de la sociedad (número, fecha o estado
 // donde se registró): lo vigila emails/tests/legal.test.js.
 // Dirección postal (CAN-SPAM): por defecto la de la oficina, la misma que ya publica la web (CompanyView,
-// jsonld.js). No es secreta (brief T54b). Se cambia con POSTAL_ADDRESS; vaciarla A PROPÓSITO hace fallar
+// jsonld.js). No es secreta (brief T54b) y Diego la aprobó para el pie (T57, cierra la pregunta de T54b). Se cambia con POSTAL_ADDRESS; vaciarla A PROPÓSITO hace fallar
 // render() y el build de producción. Solo la vista previa (galería) pinta este aviso en su lugar.
 export const COMPANY = {
   legalName: 'Klinworks, LLC',

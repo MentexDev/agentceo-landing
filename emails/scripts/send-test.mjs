@@ -1,12 +1,12 @@
 // PRUEBA REAL de envío: UN correo, waitlist-welcome en español, a ceo@agentceo.io por Resend.
 // ⛔ Lo ejecuta una persona a mano, nunca un test ni un agente. No se cablea a nada.
 //
-//   EMAIL_ASSET_BASE_URL=https://agentceo.io/email-assets/v1 node emails/scripts/send-test.mjs
+//   node emails/scripts/send-test.mjs     (EMAIL_ASSET_BASE_URL por defecto: https://agentceo.io/email-assets/v1)
 //   (añade --dry-run para hacerlo todo MENOS el envío)
 //
 // Qué hace, en orden, y se para en el primer fallo:
 //   1. Lee RESEND_API_KEY de .dev.vars (raíz del repo). La clave NUNCA se imprime: ni en errores.
-//   2. Exige EMAIL_ASSET_BASE_URL (https). POSTAL_ADDRESS: entorno, o .dev.vars, o la de por defecto (brand.js);
+//   2. EMAIL_ASSET_BASE_URL (https; por defecto la de producción, EMAIL_ASSET_BASE). POSTAL_ADDRESS: entorno, o .dev.vars, o la de por defecto (brand.js);
 //      si está definida pero vacía, no envía.
 //   3. Pinta waitlist-welcome.es con los datos de ejemplo (ficticios) y el asunto de la prueba.
 //   4. Comprueba que CADA <img> del HTML es https, acaba en .png/.jpg/.gif y responde 200 con image/*.
@@ -16,7 +16,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { EMAIL_IMAGE_URL, DEFAULT_POSTAL_ADDRESS } from '../src/brand.js'
+import { EMAIL_IMAGE_URL, DEFAULT_POSTAL_ADDRESS, EMAIL_ASSET_BASE } from '../src/brand.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -72,8 +72,8 @@ export async function buildTestEmail({ render, byId, assetBase, postalAddress, u
 
 export function config(env = process.env, devVars = path.join(ROOT, '.dev.vars')) {
   const errors = []
-  const assetBase = (env.EMAIL_ASSET_BASE_URL || '').trim()
-  if (!/^https:\/\/\S+/.test(assetBase)) errors.push('EMAIL_ASSET_BASE_URL (https) — p. ej. https://agentceo.io/email-assets/v1, una vez publicada la landing')
+  const assetBase = (env.EMAIL_ASSET_BASE_URL || EMAIL_ASSET_BASE).trim()
+  if (!/^https:\/\/\S+/.test(assetBase)) errors.push(`EMAIL_ASSET_BASE_URL debe ser https (llegó «${assetBase}»)`)
   const postalAddress = (env.POSTAL_ADDRESS ?? readDevVar(devVars, 'POSTAL_ADDRESS') ?? DEFAULT_POSTAL_ADDRESS).trim()
   if (!postalAddress) errors.push('POSTAL_ADDRESS está vacía: el pie no sale sin dirección postal (quítala para usar la de por defecto)')
   const apiKey = readDevVar(devVars, 'RESEND_API_KEY')

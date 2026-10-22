@@ -11,8 +11,8 @@
     "evals:chat": "node scripts/chat-evals.mjs",
     "test:e2e": "playwright test",
     "check": "npm run build && npm test",
-    "prebuild": "node scripts/build-knowledge.mjs && node scripts/build-rest-css.mjs",
-    "pretest": "node scripts/build-knowledge.mjs && node scripts/build-rest-css.mjs",
+    "prebuild": "node scripts/build-knowledge.mjs && node scripts/build-rest-css.mjs && node emails/scripts/worker-templates.mjs",
+    "pretest": "node scripts/build-knowledge.mjs && node scripts/build-rest-css.mjs && node emails/scripts/worker-templates.mjs",
     "deploy": "npm run build && WRANGLER_SEND_METRICS=false wrangler deploy"
   },
   "dependencies": {

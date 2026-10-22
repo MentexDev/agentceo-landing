@@ -102,11 +102,13 @@ export const waitlistWelcome = {
       reason: 'You got this email because you confirmed your spot on the Agent CEO waitlist.',
     }),
   },
+  // d.gift y d.dateLabel: los usa el pre-render del Worker (emails/scripts/worker-templates.mjs), que deja
+  // marcas en su lugar y las rellena al enviar. Sin ellos, el regalo sale del negocio y la fecha de sentAt.
   Email: ({ c, d, ctx }) => {
-    const gift = businessPrompt(ctx.locale, d.business)
+    const gift = d.gift || businessPrompt(ctx.locale, d.business)
     return (
       <Layout ctx={ctx} preheader={c.preheader}>
-        <Header label={c.label} date={fmtShort(ctx.locale, d.sentAt)} />
+        <Header label={c.label} date={d.dateLabel ?? fmtShort(ctx.locale, d.sentAt)} />
         <Hero ctx={ctx} sticker={c.sticker} title={c.title} lead={c.lead} />
         {d.position ? <Stat label={c.statLabel} value={`#${num(ctx.locale, d.position)}`} /> : null}
         <TeamRow ctx={ctx} title={c.team} members={TEAM[ctx.locale]} />
