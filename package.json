@@ -10,6 +10,7 @@
     "test": "vitest run",
     "evals:chat": "node scripts/chat-evals.mjs",
     "test:e2e": "playwright test",
+    "test:e2e:welcome": "node scripts/e2e-welcome.mjs",
     "check": "npm run build && npm test",
     "prebuild": "node scripts/build-knowledge.mjs && node scripts/build-rest-css.mjs && node emails/scripts/worker-templates.mjs",
     "pretest": "node scripts/build-knowledge.mjs && node scripts/build-rest-css.mjs && node emails/scripts/worker-templates.mjs",
