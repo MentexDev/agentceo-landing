@@ -22,6 +22,9 @@ const T = {
     human: 'Soy una **inteligencia artificial**, no una persona. Respondo con lo que está en esta web. Si prefieres a alguien del equipo, escríbenos a [info@agentceo.io](mailto:info@agentceo.io) y te contestamos nosotros.',
     contact: 'Claro: escríbenos a [info@agentceo.io](mailto:info@agentceo.io) y te responde alguien del equipo. Yo soy la IA de la web.',
     join: '¡Qué bien! Deja tu correo aquí abajo y te guardo el sitio. Abrimos por grupos, y quien llega antes, entra antes.',
+    // T58b · herramientas deterministas de navegación (sin modelo).
+    goPricing: 'Aquí tienes los planes y precios: [ver precios](/precios/). Arranque es gratis y sin tarjeta; si quieres, te guardo un sitio en la lista.',
+    goFaq: 'Las preguntas frecuentes están aquí: [ver preguntas frecuentes](/#faq). Y si no encuentras algo, pregúntamelo a mí.',
     fallback: 'Eso no lo tengo en la web y prefiero no inventarme nada. ¿Te ayudo con otra cosa? También puedes escribirnos a [info@agentceo.io](mailto:info@agentceo.io) o apuntarte a la lista y te contamos más.',
     cap: 'Llevamos un buen rato, ¡gracias por la charla! Para seguir, apúntate a la lista y te escribimos cuando abra tu grupo, o escríbenos a [info@agentceo.io](mailto:info@agentceo.io).',
     guard: 'Eso no lo puedo compartir 🙂. Lo que sí te cuento encantado: qué hace Agent CEO, cuánto cuesta o cómo entrar en la lista.',
@@ -42,6 +45,9 @@ const T = {
     human: "I'm an **artificial intelligence**, not a person. I answer with what's on this website. If you'd rather talk to someone on the team, email [info@agentceo.io](mailto:info@agentceo.io) and one of us will reply.",
     contact: "Sure: email [info@agentceo.io](mailto:info@agentceo.io) and someone on the team will get back to you. I'm the site's AI.",
     join: "Great! Drop your email below and I'll save your spot. We open in waves, and early birds get in first.",
+    // T58b · deterministic navigation tools (no model).
+    goPricing: "Here are the plans and prices: [see pricing](/en/pricing/). Arranque is free, no card needed; want me to save you a spot on the waitlist?",
+    goFaq: "The FAQ is right here: [see the FAQ](/en/#faq). And if you can't find something, just ask me.",
     fallback: "That's not on the website, and I'd rather not make anything up. Can I help with something else? You can also email [info@agentceo.io](mailto:info@agentceo.io) or join the waitlist and we'll tell you more.",
     cap: "We've been at it a while, thanks for the chat! To keep going, join the waitlist and we'll write when your wave opens, or email [info@agentceo.io](mailto:info@agentceo.io).",
     guard: "I can't share that 🙂. Happy to tell you what Agent CEO does, what it costs or how to get on the waitlist.",
@@ -111,6 +117,10 @@ const INTENTS = [
   // registro EN PRIMERA PERSONA, con faltas comunes («registar», «inscrivir»), es/en. «¿Puedo registrar mis
   // ventas?» o «¿cómo registro un pedido?» NO son esto: sin «me/nos» delante, el verbo no basta.
   { id: 'join', re: /\b(apuntarme|apuntar|unirme|inscribirme|registrarme|lista de espera|waitlist|wait list|sign ?up|join|register|quiero entrar|quiero acceso|get access|early access)\b|\b(me|nos) (quiero |quisiera |gustaria |puedo |podria |voy a |deseo |dejas |dejan )?(registr|regist|inscrib|inscriv|apunt|anot|un)(ar|ir|o)\b|\b(registr|regist|inscrib|inscriv|apunt|anot)(arme|arnos|irme|ame|anos|eme)\b|\b(quiero|quisiera|deseo) (entrar|acceso|probar(lo)?|empezar|usarlo|mi lugar|un lugar|un cupo)\b|\b(sign (me )?up|count me in|i want in|enroll|let me in|get me in|how (do|can) i (join|sign up|register|get in|get started|start)|where (do|can) i (sign up|register|join))\b/ },
+  // T58b · navegación (herramienta determinista open_section): «llévame a precios», «show me pricing»… Exige
+  // un verbo o pista de NAVEGAR: «¿cuánto cuesta?» o «¿qué planes hay?» siguen yendo a la ficha curada.
+  { id: 'goPricing', re: /\b(llevame|lleva me|ir a|ver|veo|mostrar|muestrame|ensename|pasame|dame|abrir|abre|link|enlace|pagina|seccion|donde (estan|veo|puedo ver|encuentro)) (a |la |el |los |las |de |del )*(precios?|planes|tarifas|pricing)\b|\b(take me to|show me|go to|open|link to|where (is|are|can i (see|find))|send me) (the |your )?(pricing|prices|plans|pricing page)\b/ },
+  { id: 'goFaq', re: /\b(preguntas frecuentes|faqs?|dudas frecuentes|preguntas comunes|frequently asked)\b/ },
   { id: 'thanks', re: /^(muchas )?(gracias|grax|genial|perfecto|ok gracias|thanks|thank you|thx|great|perfect|cool)[!. ]*$/ },
 ]
 

@@ -152,10 +152,11 @@ const leaked = (s) => { const l = s.toLowerCase(); return LEAK.some((m) => l.inc
  *   ok=true con reason 'leak' → filtraba el prompt: se corta y se responde con la negativa.
  * `cost` = settledUSD(usage) si OpenRouter informó el consumo; si no, 0 (y la reserva se queda).
  */
-export async function liveReply({ system, history, apiKey, model = DEFAULT_MODEL, fetchImpl = fetch, onDelta, maxTokens = 400, timeoutMs = 15000 }) {
+export async function liveReply({ system, history, apiKey, model = DEFAULT_MODEL, fetchImpl = fetch, onDelta, maxTokens = 400, timeoutMs = 15000, tools = null }) {
   const ac = new AbortController()
   const timer = setTimeout(() => ac.abort(), timeoutMs)
   let text = '', usage = null, reason = null, status = 0
+  const calls = [] // T58b: llamadas a herramientas (function calling), acumuladas por índice
   try {
     let res
     try {
@@ -175,6 +176,7 @@ export async function liveReply({ system, history, apiKey, model = DEFAULT_MODEL
           max_tokens: maxTokens,
           temperature: 0.3,
           usage: { include: true },
+          ...(tools ? { tools, tool_choice: 'auto' } : {}),
         }),
       })
     } catch {
@@ -205,6 +207,12 @@ export async function liveReply({ system, history, apiKey, model = DEFAULT_MODEL
           try { j = JSON.parse(data) } catch { continue }
           if (j.usage) usage = j.usage
           if (j.error) { reason = 'provider'; done = true; break } // error a mitad del stream
+          for (const tc of j.choices?.[0]?.delta?.tool_calls || []) {
+            const k = tc.index ?? 0
+            calls[k] ||= { name: '', args: '' }
+            if (tc.function?.name) calls[k].name += tc.function.name
+            if (tc.function?.arguments) calls[k].args += tc.function.arguments
+          }
           const t = j.choices?.[0]?.delta?.content || ''
           if (!t) continue
           if (leaked(text + t)) { reason = 'leak'; ac.abort(); done = true; break }
@@ -221,6 +229,7 @@ export async function liveReply({ system, history, apiKey, model = DEFAULT_MODEL
     clearTimeout(timer)
   }
   const cost = usage ? settledUSD(usage, model) : 0
-  if (!text && reason !== 'leak') return { ok: false, text, usage, cost, status, reason: reason || 'empty' }
-  return { ok: true, text, usage, cost, status, reason }
+  const toolCalls = calls.filter((c) => c?.name).map((c) => ({ name: c.name.slice(0, 40), args: c.args.slice(0, 200) }))
+  if (!text && !toolCalls.length && reason !== 'leak') return { ok: false, text, usage, cost, status, reason: reason || 'empty', toolCalls }
+  return { ok: true, text, usage, cost, status, reason, toolCalls }
 }

@@ -35,6 +35,7 @@ import { textKey, hasPII } from './abuse.js'
 import { matchCurated, curatedReply, chipIdsFor, langOf } from './curated.js'
 import { answerById } from '../../content/chat-answers.js'
 import { LIMITS } from './limits.js'
+import { TOOLS, TOOLS_JSON, applyTools } from './tools.js'
 
 // Salida máxima: 400 tokens es TECHO DURO. CHAT_MAX_TOKENS solo puede bajarlo.
 export const LIVE = { maxTokens: 400, timeoutMs: 15000 }
@@ -236,7 +237,9 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
   const system = systemPrompt(L, pickContext(INDEX[L], KB[L], p.userText))
   const history = historyForModel(p.history) // lo que viaja al modelo Y lo que se reserva
   const maxTokens = maxTokensFor(env)
-  const est = estimateUSD(system, history, maxTokens, model)
+  // T58b: herramientas para el modelo (CHAT_TOOLS=off las apaga). Su esquema cuenta en la reserva de gasto.
+  const tools = env.CHAT_TOOLS === 'off' ? null : TOOLS
+  const est = estimateUSD(tools ? `${system}${TOOLS_JSON}` : system, history, maxTokens, model)
   const cap = budgetCap(env)
   if (!(await g.reserve(est, cap)).allowed) {
     await g.liveGlobalRefund() // no hubo respuesta live: la unidad del tope global se devuelve
@@ -259,6 +262,7 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
     maxTokens,
     timeoutMs: Number(env.CHAT_LIVE_TIMEOUT_MS || LIVE.timeoutMs),
     onDelta: async () => {}, // bufferizado: se emite abajo, tras el filtro
+    tools,
   })
 
   // Contabilidad: error HTTP sin texto → no factura, se devuelve la reserva; con consumo
@@ -281,8 +285,15 @@ export async function respond({ p, mode, env, guards = {}, send: rawSend, delay 
     await streamText(send, privateReply(p.userText, p.lang, leak.kind).text, delay)
     return { path: 'live', reason: 'filtered', filtered: leak.kind, cost: r.cost }
   }
-  await send('meta', liveMeta)
-  await streamText(send, r.text, delay)
+  // Herramientas que pidió el modelo (validadas: solo listas cerradas). La tarjeta de la lista va en la meta
+  // (el panel la pinta con el mismo componente de siempre); enlaces y contacto, al final del texto.
+  const L2 = p.lang === 'en' ? 'en' : 'es'
+  const tl = applyTools(r.toolCalls, L2, r.text || '')
+  const body = r.text || (tl.cta ? say(L2, 'join') : '')
+  const finalText = [body, ...tl.append].filter(Boolean).join(body ? '\n\n' : ' · ')
+  await send('meta', { ...liveMeta, ...(tl.cta ? { cta: tl.cta } : {}), ...(tl.used.length ? { tools: tl.used } : {}) })
+  await streamText(send, finalText, delay)
+  if (tl.used.length) return { path: 'live', reason: r.reason || undefined, cost: r.cost, tools: tl.used }
   if (r.reason) {
     await streamText(send, `…\n\n${say(p.lang, 'cut')}`, delay)
     return { path: 'live', reason: r.reason, cost: r.cost }
