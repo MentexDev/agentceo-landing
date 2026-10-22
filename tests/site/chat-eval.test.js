@@ -93,7 +93,7 @@ export function decide(lang, q) {
   const intent = intentOf(q)
   if (intent) return `intent:${intent}`
   // T60: como el stub, sin las listas de integraciones (worker/chat/stub.js · stubSearchable).
-  const [top] = search(makeIndex(KB[lang].filter((c) => c.kind !== 'integracion')), q)
+  const [top] = search(makeIndex(KB[lang].filter((c) => c.kind !== 'integracion' && c.kind !== 'kb')), q)
   return confident(top) ? top.chunk.id : 'fallback'
 }
 

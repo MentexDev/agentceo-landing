@@ -12,6 +12,7 @@ import { LOCALES } from '../src/i18n/config.js'
 import { curatedChunks } from '../content/chat-knowledge.js'
 import { ANSWERS } from '../content/chat-answers.js'
 import { integrationChunks } from '../content/integraciones.js'
+import { kbChunks } from '../src/lib/kb-publica.js'
 import { contentVersion } from '../worker/chat/version.js'
 import { RULES } from '../worker/chat/live.js'
 import { findPrivate } from '../worker/chat/private.js'
@@ -22,7 +23,8 @@ mkdirSync(out, { recursive: true })
 // documentos legales conservan los suyos: el cambio se hace SOLO en lo que lee el chat.
 const chatContact = (c) => ({ ...c, text: c.text.replaceAll('info@klinworks.com', 'info@agentceo.io'), title: c.title.replaceAll('info@klinworks.com', 'info@agentceo.io') })
 // T60: + las integraciones (content/integraciones.js), un fragmento por categoría.
-const data = Object.fromEntries(LOCALES.map((l) => [l, [...buildKnowledge(l), ...curatedChunks(l), ...integrationChunks(l)].map(chatContact)]))
+// T60: + la KB pública curada (docs/kb-publica-borrador.md, sin lo marcado [VERIFICAR]/[VERIFY] ni la nota interna).
+const data = Object.fromEntries(LOCALES.map((l) => [l, [...buildKnowledge(l), ...curatedChunks(l), ...integrationChunks(l), ...kbChunks(l)].map(chatContact)]))
 // T40 · RED DE SEGURIDAD: si un dato societario/registral (constitución, expediente, oficina
 // registrada, EIN, direcciones…) se cuela en lo que lee o dice el chat, el build FALLA aquí.
 const leaks = []
