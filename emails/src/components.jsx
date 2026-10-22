@@ -4,6 +4,7 @@
 // si un cliente lo ignora, el correo sigue legible porque todo lo básico va en línea.
 import { Body, Button, Column, Container, Head, Hr, Html, Img, Link, Preview, Row, Section, Text } from 'react-email'
 import { COLORS as C, FONTS as F, COMPANY, ROUTES, EMAIL_ASSETS, POSTAL_PLACEHOLDER } from './brand.js'
+import { tr } from './format.js'
 
 const asset = (ctx, name) => `${ctx.assetBase}/${EMAIL_ASSETS[name].file}`
 const font = (ctx, p) => `${ctx.fontBase}${p}`
@@ -93,8 +94,7 @@ export function Header({ label, date }) {
 // salvo en modo oscuro. Si llega ceo.avatarUrl / agents[i].avatarUrl (ya validada en render), esa imagen
 // sustituye a LAS DOS: también en oscuro se ve la foto de la persona, no la mascota.
 export function Avatar({ ctx, size = 64, who = 'ceo', index = 0, alt, align }) {
-  const es = ctx.locale === 'es'
-  const a = alt || (es ? 'Tu CEO' : 'Your CEO')
+  const a = alt || tr(ctx.locale, 'Tu CEO', 'Your CEO', 'Seu CEO')
   const name = who === 'agent' ? `agente-${(index % 4) + 1}` : 'ceo'
   const custom = who === 'agent' ? ctx.avatars?.agents?.[index] : ctx.avatars?.ceo
   const r = Math.round(size * 0.25)
@@ -163,7 +163,7 @@ export function CTA({ href, children, note }) {
 export function LinkFallback({ ctx, href }) {
   return (
     <Block style={{ paddingTop: 8 }}>
-      <P muted style={{ fontSize: 13, margin: 0 }}>{ctx.locale === 'es' ? '¿No funciona el botón? Copia este enlace:' : "Button not working? Copy this link:"}</P>
+      <P muted style={{ fontSize: 13, margin: 0 }}>{tr(ctx.locale, '¿No funciona el botón? Copia este enlace:', 'Button not working? Copy this link:', 'O botão não funciona? Copie este link:')}</P>
       <Text className="ac-gold" style={{ margin: '4px 0 0', fontFamily: F.mono, fontSize: 12, lineHeight: '1.5', color: C.goldInk, wordBreak: 'break-all' }}>{href}</Text>
     </Block>
   )
@@ -190,11 +190,33 @@ export function PromptCard({ ctx, title, prompt, hint }) {
   return (
     <Block style={{ paddingTop: 26 }}>
       <div className="ac-card" style={{ border: `1.5px dashed ${C.gold}`, borderRadius: 16, padding: '18px 20px', background: '#FFFFFF' }}>
-        <Eyebrow>{ctx.locale === 'es' ? '🎁 Prompt listo para copiar' : '🎁 Ready-to-copy prompt'}</Eyebrow>
+        <Eyebrow>{tr(ctx.locale, '🎁 Prompt listo para copiar', '🎁 Ready-to-copy prompt', '🎁 Prompt pronto para copiar')}</Eyebrow>
         {title && <Text className="ac-tx" style={{ ...SERIF_BOLD, margin: '8px 0 0', fontSize: 24, lineHeight: '1.15', color: C.ink }}>{title}</Text>}
         <Text className="ac-tx" style={{ margin: '12px 0 0', fontFamily: F.mono, fontSize: 13.5, lineHeight: '1.65', color: C.ink, whiteSpace: 'pre-wrap' }}>{prompt}</Text>
         {hint && <P muted style={{ fontSize: 13, marginTop: 12 }}>{hint}</P>}
       </div>
+    </Block>
+  )
+}
+
+// T60c · Las IDEAS de prompts de la bienvenida (sustituye al «muro» de un solo prompt). Deja claro que son
+// para el asistente de IA que la persona YA usa (todavía no puede entrar a Agent CEO), 2-3 ideas cortas con su
+// «para qué sirve», y aparte qué hará su equipo cuando entre. Texto real (no imagen): se puede seleccionar.
+export function GiftIdeas({ ctx, copy, ideas }) {
+  return (
+    <Block style={{ paddingTop: 26 }}>
+      <div className="ac-card" style={{ border: `1.5px dashed ${C.gold}`, borderRadius: 16, padding: '18px 20px', background: '#FFFFFF' }}>
+        <Eyebrow>{copy.eyebrow}</Eyebrow>
+        <Text className="ac-tx" style={{ ...SERIF_BOLD, margin: '8px 0 0', fontSize: 24, lineHeight: '1.15', color: C.ink }}>{copy.title}</Text>
+        <P style={{ fontSize: 14, marginTop: 10 }}>{copy.intro}</P>
+        {ideas.map((it, i) => (
+          <div key={i} className="ac-line" style={{ borderTop: `1px solid ${C.line}`, marginTop: 14, paddingTop: 12 }}>
+            <Text className="ac-tx" style={{ margin: 0, fontFamily: F.mono, fontSize: 13.5, lineHeight: '1.6', color: C.ink, whiteSpace: 'pre-wrap' }}>{it.prompt}</Text>
+            <Text className="ac-gold" style={{ margin: '6px 0 0', fontSize: 13, lineHeight: '1.5', color: C.goldInk }}><strong>{copy.use}:</strong> {it.use}</Text>
+          </div>
+        ))}
+      </div>
+      <P muted style={{ fontSize: 13, marginTop: 12 }}>{copy.after}</P>
     </Block>
   )
 }
@@ -204,7 +226,7 @@ export function Tip({ ctx, title, children }) {
   return (
     <Block style={{ paddingTop: 26 }}>
       <div className="ac-line" style={{ borderLeft: `3px solid ${C.gold}`, padding: '2px 0 2px 16px' }}>
-        <Eyebrow>{ctx.locale === 'es' ? '💡 Tip' : '💡 Tip'}{title ? ` · ${title}` : ''}</Eyebrow>
+        <Eyebrow>{tr(ctx.locale, '💡 Tip', '💡 Tip', '💡 Dica')}{title ? ` · ${title}` : ''}</Eyebrow>
         <P style={{ marginTop: 6, fontSize: 15 }}>{children}</P>
       </div>
     </Block>
@@ -331,14 +353,13 @@ export function Note({ children, tone = 'calm' }) {
 
 // Firma: siempre «Tu CEO». Honesto: es la IA de Agent CEO, no una persona.
 export function Signature({ ctx, line }) {
-  const es = ctx.locale === 'es'
   return (
     <Block style={{ paddingTop: 30 }}>
       <Row>
         <Column width="52" style={{ width: 52, verticalAlign: 'middle' }}><Mascot ctx={ctx} size={40} /></Column>
         <Column style={{ verticalAlign: 'middle' }}>
-          <Text className="ac-tx" style={{ ...SERIF_BOLD, margin: 0, fontSize: 22, lineHeight: '1.1', color: C.ink }}>{es ? 'Tu CEO' : 'Your CEO'}</Text>
-          <Text className="ac-muted" style={{ margin: '2px 0 0', fontSize: 13, color: C.muted }}>{line || (es ? 'La IA de Agent CEO' : 'The Agent CEO AI')}</Text>
+          <Text className="ac-tx" style={{ ...SERIF_BOLD, margin: 0, fontSize: 22, lineHeight: '1.1', color: C.ink }}>{tr(ctx.locale, 'Tu CEO', 'Your CEO', 'Seu CEO')}</Text>
+          <Text className="ac-muted" style={{ margin: '2px 0 0', fontSize: 13, color: C.muted }}>{line || tr(ctx.locale, 'La IA de Agent CEO', 'The Agent CEO AI', 'A IA do Agent CEO')}</Text>
         </Column>
       </Row>
     </Block>
@@ -350,7 +371,7 @@ export function Signature({ ctx, line }) {
  * Marketing: enlace de baja. Servicio: explica por qué llega y que no se puede apagar (o dónde ajustar avisos).
  */
 export function Footer({ ctx, kind, reason, unsubscribeUrl, preferencesUrl }) {
-  const es = ctx.locale === 'es'
+  const t = (es, en, pt) => tr(ctx.locale, es, en, pt)
   const linkStyle = { color: C.muted, textDecoration: 'underline' }
   return (
     <Section className="ac-pad" style={{ padding: '30px 40px 34px' }}>
@@ -358,14 +379,14 @@ export function Footer({ ctx, kind, reason, unsubscribeUrl, preferencesUrl }) {
       {reason && <Text className="ac-muted" style={{ margin: 0, fontSize: 12, lineHeight: '1.6', color: C.muted }}>{reason}</Text>}
       {kind === 'marketing' ? (
         <Text className="ac-muted" style={{ margin: '8px 0 0', fontSize: 12, lineHeight: '1.6', color: C.muted }}>
-          {preferencesUrl && <><Link className="ac-muted" href={preferencesUrl} style={linkStyle}>{es ? 'Elegir qué correos recibes' : 'Choose which emails you get'}</Link>{' · '}</>}
-          <Link className="ac-muted" href={unsubscribeUrl} style={linkStyle} data-unsubscribe="">{es ? 'Darme de baja' : 'Unsubscribe'}</Link>
-          {es ? ' (un clic, sin iniciar sesión).' : ' (one click, no sign-in).'}
+          {preferencesUrl && <><Link className="ac-muted" href={preferencesUrl} style={linkStyle}>{t('Elegir qué correos recibes', 'Choose which emails you get', 'Escolher quais e-mails você recebe')}</Link>{' · '}</>}
+          <Link className="ac-muted" href={unsubscribeUrl} style={linkStyle} data-unsubscribe="">{t('Darme de baja', 'Unsubscribe', 'Cancelar inscrição')}</Link>
+          {t(' (un clic, sin iniciar sesión).', ' (one click, no sign-in).', ' (um clique, sem fazer login).')}
         </Text>
       ) : (
         <Text className="ac-muted" style={{ margin: '8px 0 0', fontSize: 12, lineHeight: '1.6', color: C.muted }}>
-          {es ? 'Es un correo de servicio sobre tu cuenta: no lleva publicidad.' : "This is a service email about your account: no ads inside."}
-          {preferencesUrl && <>{' '}<Link className="ac-muted" href={preferencesUrl} style={linkStyle}>{es ? 'Ajustar tus avisos' : 'Adjust your notifications'}</Link>.</>}
+          {t('Es un correo de servicio sobre tu cuenta: no lleva publicidad.', 'This is a service email about your account: no ads inside.', 'Este é um e-mail de serviço sobre sua conta: não tem publicidade.')}
+          {preferencesUrl && <>{' '}<Link className="ac-muted" href={preferencesUrl} style={linkStyle}>{t('Ajustar tus avisos', 'Adjust your notifications', 'Ajustar seus avisos')}</Link>.</>}
         </Text>
       )}
       <Text className="ac-muted" style={{ margin: '12px 0 0', fontSize: 12, lineHeight: '1.6', color: C.muted }}>
@@ -373,7 +394,7 @@ export function Footer({ ctx, kind, reason, unsubscribeUrl, preferencesUrl }) {
         <br />
         <Link className="ac-muted" href={`mailto:${COMPANY.email}`} style={linkStyle}>{COMPANY.email}</Link>
         {' · '}
-        <Link className="ac-muted" href={`${ctx.site}${ROUTES.privacy[ctx.locale]}`} style={linkStyle}>{es ? 'Privacidad' : 'Privacy'}</Link>
+        <Link className="ac-muted" href={`${ctx.site}${ROUTES.privacy[ctx.locale]}`} style={linkStyle}>{t('Privacidad', 'Privacy', 'Privacidade')}</Link>
       </Text>
     </Section>
   )

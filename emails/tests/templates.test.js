@@ -15,7 +15,7 @@ const POSTAL = 'Calle Ficticia 123, 00000 Ciudad de Prueba'
 const V1_HASHES = {"agente-1-noche.png": "cc1025206e71", "agente-1.png": "3c1dcbd73490", "agente-2-noche.png": "03b15da11cc3", "agente-2.png": "934b4687d9d9", "agente-3-noche.png": "9c184cb1e236", "agente-3.png": "d217dc3b35da", "agente-4-noche.png": "4d50668efee7", "agente-4.png": "05ec8ffef549", "ceo-noche.png": "af9040eb97dc", "ceo.png": "57db73931c91"}
 const BUILD = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../scripts/build.mjs')
 const render = (t, l, d, o) => renderReal(t, l, d, { postalAddress: POSTAL, ...o })
-import { BUSINESS_PROMPTS } from '../src/gifts.js'
+import { BUSINESS_IDEAS } from '../src/gifts.js'
 import { BUSINESS_TYPES } from '../../src/data/waitlist.js'
 import { PACKS } from '../../content/precios.js'
 
@@ -142,15 +142,22 @@ describe('datos que faltan o que vienen mal', () => {
 })
 
 describe('regalos y precios reales', () => {
-  it('hay un prompt para cada tipo de negocio de la lista, en los dos idiomas', () => {
-    for (const l of LOCALES) for (const b of BUSINESS_TYPES) expect(BUSINESS_PROMPTS[l][b]?.prompt?.length).toBeGreaterThan(80)
+  // T60c: el regalo son IDEAS (3 por negocio, cada una con su «para qué sirve»), para el asistente que ya usan.
+  it('hay 3 ideas con «para qué sirve» para cada tipo de negocio de la lista, en los 3 idiomas', () => {
+    for (const l of LOCALES) for (const b of BUSINESS_TYPES) {
+      expect(BUSINESS_IDEAS[l][b], `${l}/${b}`).toHaveLength(3)
+      for (const it of BUSINESS_IDEAS[l][b]) { expect(it.prompt.length).toBeGreaterThan(40); expect(it.prompt.length).toBeLessThan(220); expect(it.use.length).toBeGreaterThan(10) }
+    }
   })
-  it('el regalo de la bienvenida sigue el negocio que eligió', async () => {
+  it('el regalo de la bienvenida sigue el negocio que eligió (y explica que es para el asistente que ya usa)', async () => {
     const base = byId('waitlist-welcome').sample('es')
     const moda = await render('waitlist-welcome', 'es', { ...base, business: 'moda' })
-    expect(moda.text).toContain(BUSINESS_PROMPTS.es.moda.prompt.slice(0, 40))
+    for (const it of BUSINESS_IDEAS.es.moda) expect(moda.text).toContain(it.prompt.slice(0, 40))
+    expect(moda.text).toContain('Ideas de prompts listas para copiar')
+    expect(moda.text).toContain('ChatGPT, Gemini o el asistente de IA que ya uses')
+    expect(moda.text).toContain('Cuando entres a Agent CEO, tu equipo hará esto solo')
     const raro = await render('waitlist-welcome', 'es', { ...base, business: 'inventado' })
-    expect(raro.text).toContain(BUSINESS_PROMPTS.es.tienda.prompt.slice(0, 40))
+    expect(raro.text).toContain(BUSINESS_IDEAS.es.tienda[0].prompt.slice(0, 40))
   })
   it('los paquetes de créditos salen de content/precios.js (nada escrito a mano)', async () => {
     const r = await get('credits-out', 'es')

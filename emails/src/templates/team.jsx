@@ -1,11 +1,11 @@
 // FASE B · el equipo de IA: primer equipo creado y el acta de la reunión diaria (S07 de la landing).
 import { Layout, Header, Hero, Em, P, Block, Eyebrow, CTA, Bubble, PromptCard, Steps, Numbers, TeamRow, Signature, Footer } from '../components.jsx'
-import { fmtShort, fmtDate, lead } from '../format.js'
+import { fmtShort, fmtDate, lead, tr } from '../format.js'
 import { TEAM } from '../gifts.js'
 import { COLORS as C, FONTS as F } from '../brand.js'
 import { Text } from 'react-email'
 
-const sampleName = (locale) => (locale === 'es' ? 'Ana' : 'Sam')
+const sampleName = (locale) => tr(locale, 'Ana', 'Sam', 'Ana')
 
 // ── B4 · Tu equipo está listo (primer equipo / agente creado) ───────────────────────────────────────
 export const teamReady = {
@@ -13,7 +13,7 @@ export const teamReady = {
   phase: 'B',
   kind: 'transactional',
   tone: 'celebración',
-  title: { es: 'Tu primer equipo está listo', en: 'Your first team is ready' },
+  title: { es: 'Tu primer equipo está listo', en: 'Your first team is ready', pt: 'Sua primeira equipe está pronta' },
   when: 'Cuando el CEO termina de armar el primer equipo (o se crea el primer agente propio). Una vez.',
   required: ['appUrl'],
   sample: (locale) => ({ name: sampleName(locale), appUrl: 'https://app.agentceo.io/equipo', agents: TEAM[locale], firstReport: '7:00', sentAt: '2026-11-17T16:40:00Z' }),
@@ -47,6 +47,21 @@ export const teamReady = {
       giftHint: 'Paste it into the team chat. If you like the reply, they keep it as a template.',
       cta: 'Give them their first task',
       reason: 'You got this email because your Agent CEO team just got ready.',
+    }),
+    pt: (d) => ({
+      subject: lead(d.name, 'Sua equipe de IA está completa 🎉'),
+      preheader: `Amanhã às ${d.firstReport ?? '7:00'} chega a primeira ata. E aqui vai a primeira tarefa deles.`,
+      label: 'Sua equipe',
+      sticker: 'mãos à obra!',
+      title: <>Sua equipe, <Em>pronta para trabalhar.</Em></>,
+      lead: 'Seu pessoal já está a postos. Cada um sabe o que faz e, o mais importante, sempre te perguntam antes de gastar ou publicar.',
+      team: 'Quem são',
+      bubble: `Amanhã às ${d.firstReport ?? '7:00'} te mando a ata da primeira reunião: o que fizemos, o que vem agora e o que espera o seu OK.`,
+      giftTitle: 'A primeira tarefa deles',
+      gift: 'Vendedor: escreva a resposta que você daria a um cliente que pergunta se a gente entrega em outra cidade. Use o meu tom: próximo e curto.',
+      giftHint: 'Cole no chat da equipe. Se você gostar da resposta, ela fica como modelo.',
+      cta: 'Dar a primeira tarefa',
+      reason: 'Você recebeu este e-mail porque a sua equipe do Agent CEO acabou de ficar pronta.',
     }),
   },
   Email: ({ c, d, ctx }) => (
@@ -85,6 +100,16 @@ const MINUTES_SAMPLE = {
     approval: { agent: 'Inventory manager', title: 'Order 20 blue shirts in size M from the supplier', detail: 'Estimated cost based on your last order. If you don’t approve, nothing is ordered.' },
     ceoNote: 'Thursday afternoons are when most people message you. That’s why I suggested posting then.',
   },
+  pt: {
+    numbers: [['3', 'vendas fechadas pelo WhatsApp'], ['14', 'conversas respondidas'], ['2', 'posts prontos para publicar']],
+    done: [
+      { agent: 'Vendedor de WhatsApp', text: 'Respondi 14 conversas e fechei 3 vendas enquanto você dormia' },
+      { agent: 'Responsável pelo estoque', text: 'Contei o estoque: a camisa azul tamanho M está acabando' },
+    ],
+    next: [{ agent: 'Criador de conteúdo', text: 'Publicar os 2 posts da semana na quinta-feira às 18h' }],
+    approval: { agent: 'Responsável pelo estoque', title: 'Pedir 20 camisas azuis tamanho M ao fornecedor', detail: 'Custo estimado com base no seu último pedido. Se você não aprovar, nada é pedido.' },
+    ceoNote: 'Quinta à tarde é quando mais te mandam mensagem. Por isso sugeri publicar nesse horário.',
+  },
 }
 
 export const dailyMinutes = {
@@ -92,7 +117,7 @@ export const dailyMinutes = {
   phase: 'B',
   kind: 'transactional',
   tone: 'edición',
-  title: { es: 'El acta de la reunión diaria', en: 'Daily meeting minutes' },
+  title: { es: 'El acta de la reunión diaria', en: 'Daily meeting minutes', pt: 'A ata da reunião diária' },
   when: 'Cada mañana a la hora que elija (por defecto 7:00), solo si el equipo hizo algo o hay algo que aprobar.',
   required: ['appUrl', 'date', 'done'],
   sample: (locale) => ({ name: sampleName(locale), date: '2026-11-20T12:00:00Z', appUrl: 'https://app.agentceo.io/acta/2026-11-20', approvalUrl: 'https://app.agentceo.io/aprobar/EJEMPLO', ...MINUTES_SAMPLE[locale], sentAt: '2026-11-20T12:00:00Z' }),
@@ -125,6 +150,21 @@ export const dailyMinutes = {
         done: 'What we did',
         next: 'What’s next',
         reason: 'You get the minutes every morning because they’re turned on in your Agent CEO account.',
+      }
+    },
+    pt: (d) => {
+      const day = fmtDate('pt', d.date, { weekday: 'long', day: 'numeric', month: 'long' })
+      return {
+        subject: `Ata de ${day}: ${d.done.length} ${d.done.length === 1 ? 'coisa feita' : 'coisas feitas'}${d.approval ? ', 1 espera o seu OK' : ''}`,
+        preheader: d.approval ? `${d.approval.agent} precisa da sua aprovação: ${d.approval.title.charAt(0).toLowerCase()}${d.approval.title.slice(1)}.` : 'O que a sua equipe fez, em um minuto de leitura.',
+        label: 'Reunião diária',
+        title: <>Bom dia{d.name ? `, ${d.name}` : ''}. <Em>Isto foi o que a sua equipe fez.</Em></>,
+        approvalLabel: `Espera a sua aprovação · ${d.approval?.agent ?? ''}`,
+        cta: 'Revisar e aprovar',
+        ctaAlt: 'Ler a ata completa',
+        done: 'O que fizemos',
+        next: 'O que vem agora',
+        reason: 'Você recebe a ata toda manhã porque ela está ativada na sua conta do Agent CEO.',
       }
     },
   },

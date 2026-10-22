@@ -1,12 +1,12 @@
 // FASE A · la landing de hoy (solo lista de espera). Ver docs/EMAILS-PLAN.md.
-import { Layout, Header, Hero, Em, P, Block, Eyebrow, CTA, LinkFallback, Bubble, PromptCard, Tip, Steps, Stat, TeamRow, Note, Signature, Footer } from '../components.jsx'
+import { Layout, Header, Hero, Em, P, Block, Eyebrow, CTA, LinkFallback, Bubble, PromptCard, GiftIdeas, Tip, Steps, Stat, TeamRow, Note, Signature, Footer } from '../components.jsx'
 import { fmtShort, num, hi, lead } from '../format.js'
-import { businessPrompt, PROMPT_HINT, TEAM } from '../gifts.js'
+import { businessIdeas, IDEAS_COPY, TEAM } from '../gifts.js'
 import { COLORS as C, FONTS as F } from '../brand.js'
 import { Text } from 'react-email'
 
 const SENT = '2026-10-20T15:00:00Z'
-const sampleName = (locale) => (locale === 'es' ? 'Ana' : 'Sam')
+const sampleName = (locale) => (locale === 'en' ? 'Sam' : 'Ana')
 
 // ── A1 · Confirma tu correo (double opt-in) ─────────────────────────────────────────────────────────
 export const waitlistConfirm = {
@@ -14,7 +14,7 @@ export const waitlistConfirm = {
   phase: 'A',
   kind: 'transactional',
   tone: 'sobrio',
-  title: { es: 'Confirma tu correo (doble opt-in)', en: 'Confirm your email (double opt-in)' },
+  title: { es: 'Confirma tu correo (doble opt-in)', en: 'Confirm your email (double opt-in)', pt: 'Confirme seu e-mail (opt-in duplo)' },
   when: 'Justo al apuntarse en la landing. Hasta que no confirma, no recibe ningún otro correo.',
   required: ['confirmUrl'],
   sample: (locale) => ({ name: sampleName(locale), confirmUrl: 'https://agentceo.io/api/waitlist/confirm?t=EJEMPLO-no-real', expiresHours: 48, sentAt: SENT }),
@@ -45,6 +45,19 @@ export const waitlistConfirm = {
       note: 'Wasn’t you? Just ignore this email: without confirming, we won’t add you to anything or write again.',
       reason: 'You got this email because someone entered this address on agentceo.io.',
     }),
+    pt: (d) => ({
+      subject: lead(d.name, 'Confirme seu e-mail e guardamos o seu lugar'),
+      preheader: 'Um toque e você está na lista do Agent CEO. É só para saber que este e-mail é seu.',
+      label: 'Lista de espera',
+      eyebrow: 'Um passo e pronto',
+      title: <>Um toque e <Em>você está dentro.</Em></>,
+      lead: `${hi('pt', d.name)} Confirme que este e-mail é seu e guardamos o seu lugar na lista do Agent CEO.`,
+      cta: 'Confirmar meu e-mail',
+      ctaNote: `O link expira em ${d.expiresHours ?? 48} horas.`,
+      bubble: 'Abrimos por grupos para cuidar de cada negócio que entra. Assim que você confirmar, te conto como está a fila. 😉',
+      note: 'Não foi você? Ignore este e-mail: sem confirmar, não te inscrevemos em nada nem escrevemos de novo.',
+      reason: 'Você recebeu este e-mail porque alguém digitou este endereço em agentceo.io.',
+    }),
   },
   Email: ({ c, d, ctx }) => (
     <Layout ctx={ctx} preheader={c.preheader}>
@@ -66,14 +79,14 @@ export const waitlistWelcome = {
   phase: 'A',
   kind: 'marketing',
   tone: 'celebración',
-  title: { es: 'Bienvenida a la lista', en: 'Welcome to the waitlist' },
+  title: { es: 'Bienvenida a la lista', en: 'Welcome to the waitlist', pt: 'Boas-vindas à lista' },
   when: 'Al confirmar el correo (A1). Una sola vez por persona.',
   required: [],
   sample: (locale) => ({ name: sampleName(locale), position: 318, business: 'tienda', referralUrl: 'https://agentceo.io/?ref=ana-7k2', siteUrl: 'https://agentceo.io', unsubscribeUrl: 'https://agentceo.io/api/unsubscribe?t=EJEMPLO', sentAt: SENT }),
   copy: {
     es: (d) => ({
       subject: lead(d.name, 'Ya tienes tu lugar en Agent CEO 🎉'),
-      preheader: 'Tu lugar está guardado. Y un regalo para estrenar: un prompt listo para copiar.',
+      preheader: 'Tu lugar está guardado. Y un regalo para estrenar: ideas de prompts listas para copiar.',
       label: 'Lista de espera',
       sticker: '¡confirmado!',
       title: <>¡Estás <Em>dentro</Em>{d.name ? `, ${d.name}` : ''}!</>,
@@ -82,13 +95,14 @@ export const waitlistWelcome = {
       team: 'Tu equipo te está esperando',
       share: '¿Conoces a alguien a quien le vendría bien?',
       shareText: 'Pásale tu enlace: así sabemos que viene de tu parte.',
-      cta: 'Ver cómo trabaja tu equipo',
+      // T60c: «Ver cómo trabaja tu equipo» parecía un login; apunta a la demo de la landing.
+      cta: 'Mira cómo trabajará tu equipo',
       signature: 'Te guardo el lugar',
       reason: 'Recibes este correo porque confirmaste tu lugar en la lista de Agent CEO.',
     }),
     en: (d) => ({
       subject: lead(d.name, 'Your spot in Agent CEO is saved 🎉'),
-      preheader: 'Your spot is saved. Plus a gift to get started: a ready-to-copy prompt.',
+      preheader: 'Your spot is saved. Plus a gift to get started: prompt ideas ready to copy.',
       label: 'Waitlist',
       sticker: 'confirmed!',
       title: <>You’re <Em>in</Em>{d.name ? `, ${d.name}` : ''}!</>,
@@ -97,22 +111,41 @@ export const waitlistWelcome = {
       team: 'Your team is waiting for you',
       share: 'Know someone who could use it?',
       shareText: 'Send them your link so we know they came from you.',
-      cta: 'See how your team works',
+      cta: 'See how your team will work',
       signature: 'Keeping your spot',
       reason: 'You got this email because you confirmed your spot on the Agent CEO waitlist.',
     }),
+    pt: (d) => ({
+      subject: lead(d.name, 'Seu lugar no Agent CEO está garantido 🎉'),
+      preheader: 'Seu lugar está guardado. E um presente para começar: ideias de prompts prontas para copiar.',
+      label: 'Lista de espera',
+      sticker: 'confirmado!',
+      title: <>Você está <Em>dentro</Em>{d.name ? `, ${d.name}` : ''}!</>,
+      lead: 'Seu e-mail foi confirmado e seu lugar, guardado. Abrimos a Agent CEO por grupos para cuidar de cada negócio que entra: quando chegar o seu, eu mesmo te escrevo.',
+      statLabel: 'Seu lugar na lista',
+      team: 'Sua equipe está te esperando',
+      share: 'Conhece alguém que ia gostar?',
+      shareText: 'Mande o seu link: assim sabemos que a pessoa veio da sua parte.',
+      cta: 'Veja como sua equipe vai trabalhar',
+      signature: 'Guardo o seu lugar',
+      reason: 'Você recebeu este e-mail porque confirmou seu lugar na lista do Agent CEO.',
+    }),
   },
-  // d.gift y d.dateLabel: los usa el pre-render del Worker (emails/scripts/worker-templates.mjs), que deja
-  // marcas en su lugar y las rellena al enviar. Sin ellos, el regalo sale del negocio y la fecha de sentAt.
+  // d.ideas, d.dateLabel y d.positionLabel: los usa el pre-render del Worker (emails/scripts/worker-templates.mjs),
+  // que deja marcas en su lugar y las rellena al enviar. Sin ellos: las ideas salen del negocio, la fecha de
+  // sentAt y la posición de d.position.
+  // T60b/c · La posición («Tu lugar en la lista · #318») NO salía en la bienvenida automática: el pre-render no
+  // pasaba position y el bloque se omitía. Ahora el pre-render deja la marca y el Worker pone la REAL de D1.
   Email: ({ c, d, ctx }) => {
-    const gift = d.gift || businessPrompt(ctx.locale, d.business)
+    const ideas = d.ideas || businessIdeas(ctx.locale, d.business)
+    const position = d.positionLabel ?? (d.position ? `#${num(ctx.locale, d.position)}` : null)
     return (
       <Layout ctx={ctx} preheader={c.preheader}>
         <Header label={c.label} date={d.dateLabel ?? fmtShort(ctx.locale, d.sentAt)} />
         <Hero ctx={ctx} sticker={c.sticker} title={c.title} lead={c.lead} />
-        {d.position ? <Stat label={c.statLabel} value={`#${num(ctx.locale, d.position)}`} /> : null}
+        {position ? <Stat label={c.statLabel} value={position} /> : null}
         <TeamRow ctx={ctx} title={c.team} members={TEAM[ctx.locale]} />
-        <PromptCard ctx={ctx} title={gift.title} prompt={gift.prompt} hint={PROMPT_HINT[ctx.locale]} />
+        <GiftIdeas ctx={ctx} copy={IDEAS_COPY[ctx.locale]} ideas={ideas} />
         <CTA href={`${d.siteUrl || ctx.site}${ctx.locale === 'es' ? '/' : '/en/'}#reunion`}>{c.cta}</CTA>
         {d.referralUrl && (
           <Block style={{ paddingTop: 26 }}>
@@ -134,7 +167,7 @@ export const waitlistUpdate = {
   phase: 'A',
   kind: 'marketing',
   tone: 'edición',
-  title: { es: 'Así va la fila (posición y referidos)', en: 'Your place in line (position & referrals)' },
+  title: { es: 'Así va la fila (posición y referidos)', en: 'Your place in line (position & referrals)', pt: 'Sua posição na fila (posição e indicações)' },
   when: 'Cuando sube de puesto por sus referidos, o como mucho una vez cada 2 semanas si hay novedad. Nunca si no cambió nada.',
   required: ['position', 'referralUrl'],
   sample: (locale) => ({ name: sampleName(locale), position: 212, previousPosition: 318, referrals: 3, referralUrl: 'https://agentceo.io/?ref=ana-7k2', unsubscribeUrl: 'https://agentceo.io/api/unsubscribe?t=EJEMPLO', sentAt: '2026-11-03T15:00:00Z' }),
@@ -183,6 +216,28 @@ export const waitlistUpdate = {
         reason: 'You got this email because you’re on the Agent CEO waitlist.',
       }
     },
+    pt: (d) => {
+      const up = d.previousPosition > d.position
+      const n = d.referrals || 0
+      return {
+        subject: up ? lead(d.name, `Você subiu para a posição #${d.position} 🚀`) : lead(d.name, `Sua posição na fila: #${d.position}`),
+        preheader: n
+          ? `${n === 1 ? 'Uma pessoa se inscreveu' : `${n} pessoas se inscreveram`} com o seu link. E uma dica para o seu negócio enquanto espera.`
+          : 'Veja como está a fila. E uma dica para o seu negócio enquanto espera.',
+        label: 'Como está a fila',
+        title: up ? <>Você está <Em>subindo.</Em></> : <>Assim está <Em>a fila.</Em></>,
+        lead: `${hi('pt', d.name)} ${up ? `Você estava na posição #${d.previousPosition} e agora está na #${d.position}.` : `Você continua na posição #${d.position}.`} Abrimos por grupos e te escrevo assim que chegar o seu.`,
+        statLabel: 'Seu lugar hoje',
+        statSub: n ? `${n === 1 ? 'Uma pessoa se inscreveu' : `${n} pessoas se inscreveram`} com o seu link. Obrigado por espalhar a notícia!` : null,
+        tipTitle: 'Prepare sua equipe antes que ela chegue',
+        tip: 'Anote suas 3 perguntas mais frequentes (preço, entrega, horário) com a resposta que você dá hoje. Quando entrar, você ensina isso ao seu Vendedor em um minuto e ele responde como você.',
+        share: 'Seu link para compartilhar',
+        shareText: d.boost ? `Cada pessoa que se inscreve com o seu link te faz subir ${d.boost} posições.` : 'Quem se inscreve com o seu link chega da sua parte.',
+        cta: 'Compartilhar no WhatsApp',
+        waText: `Entrei no Agent CEO, uma equipe de funcionários de IA para o seu negócio. Inscreva-se com o meu link: ${d.referralUrl}`,
+        reason: 'Você recebeu este e-mail porque está na lista de espera do Agent CEO.',
+      }
+    },
   },
   Email: ({ c, d, ctx }) => (
     <Layout ctx={ctx} preheader={c.preheader}>
@@ -208,7 +263,7 @@ export const launchInvite = {
   phase: 'A',
   kind: 'marketing',
   tone: 'celebración',
-  title: { es: 'Invitación de lanzamiento (es tu turno)', en: 'Launch invite (it’s your turn)' },
+  title: { es: 'Invitación de lanzamiento (es tu turno)', en: 'Launch invite (it’s your turn)', pt: 'Convite de lançamento (é a sua vez)' },
   when: 'Cuando abre su grupo. Es el correo que la página de gracias promete («te escribimos apenas abra tu grupo»).',
   required: ['inviteUrl'],
   sample: (locale) => ({ name: sampleName(locale), inviteUrl: 'https://agentceo.io/entrar?i=EJEMPLO-no-real', expiresDays: 7, unsubscribeUrl: 'https://agentceo.io/api/unsubscribe?t=EJEMPLO', sentAt: '2026-11-17T14:00:00Z' }),
@@ -254,6 +309,27 @@ export const launchInvite = {
       giftHint: 'Paste it into the chat with your CEO as soon as you’re in.',
       bubble: 'Arranque is free with no card required: take your time, and move up a plan whenever you like.',
       reason: 'You got this email because you joined the Agent CEO waitlist.',
+    }),
+    pt: (d) => ({
+      subject: lead(d.name, 'É a sua vez: sua equipe de IA já está pronta'),
+      preheader: 'Entre quando quiser: seu CEO está te esperando para montar sua equipe com você.',
+      label: 'É a sua vez',
+      sticker: 'chegou!',
+      title: <>Chegou <Em>o seu grupo.</Em></>,
+      lead: `${hi('pt', d.name)} Abrimos a porta para o seu grupo e o seu lugar está pronto. Entre com este e-mail e seu CEO te recebe.`,
+      cta: 'Entrar no Agent CEO',
+      ctaNote: d.expiresDays ? `Seu convite é pessoal e fica disponível por ${d.expiresDays} dias.` : 'Seu convite é pessoal: não o encaminhe.',
+      steps: 'Seus primeiros passos',
+      items: [
+        { title: 'Conte ao seu CEO do que é o seu negócio', text: 'Ou a sua ideia, se está começando do zero. Com isso ele monta sua equipe.' },
+        { title: 'Conecte seu WhatsApp', text: 'Com um código QR ou com o número oficial do WhatsApp.' },
+        { title: 'Aprove a primeira coisa que te propuserem', text: 'O que custa dinheiro ou não dá para desfazer, sempre te perguntam antes.' },
+      ],
+      giftTitle: 'Sua primeira mensagem para o seu CEO',
+      gift: 'Tenho [SEU NEGÓCIO] em [CIDADE]. O que mais toma o meu tempo é [TAREFA]. Monte minha equipe e me diga o que cada um faria esta semana.',
+      giftHint: 'Cole no chat com o seu CEO assim que entrar.',
+      bubble: 'O Arranque é grátis e sem cartão: você pode testar com calma e mudar de plano quando quiser.',
+      reason: 'Você recebeu este e-mail porque se inscreveu na lista de espera do Agent CEO.',
     }),
   },
   Email: ({ c, d, ctx }) => (

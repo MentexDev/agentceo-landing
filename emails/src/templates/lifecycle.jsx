@@ -1,10 +1,10 @@
 // FASE B · ciclo de vida (marketing: siempre con baja). Win-back por inactividad y el resumen del mes.
 import { Layout, Header, Hero, Em, P, Block, Eyebrow, CTA, PromptCard, Steps, Numbers, Signature, Footer } from '../components.jsx'
-import { fmtShort, fmtDate, num, lead } from '../format.js'
+import { fmtShort, fmtDate, num, lead, tr } from '../format.js'
 import { COLORS as C, FONTS as F } from '../brand.js'
 import { Link, Text } from 'react-email'
 
-const sampleName = (locale) => (locale === 'es' ? 'Ana' : 'Sam')
+const sampleName = (locale) => tr(locale, 'Ana', 'Sam', 'Ana')
 
 // ── B12 · Win-back por inactividad ──────────────────────────────────────────────────────────────────
 export const winback = {
@@ -12,14 +12,15 @@ export const winback = {
   phase: 'B',
   kind: 'marketing',
   tone: 'edición',
-  title: { es: 'Win-back por inactividad', en: 'Inactivity win-back' },
+  title: { es: 'Win-back por inactividad', en: 'Inactivity win-back', pt: 'Reconquista por inatividade' },
   when: 'A los 14 días sin entrar, solo si dejó algo a medias. Una sola vez por ausencia: si no vuelve, no insistimos.',
   required: ['resumeUrl', 'items'],
   sample: (locale) => ({
     name: sampleName(locale), days: 14, resumeUrl: 'https://app.agentceo.io', pauseUrl: 'https://agentceo.io/api/pausar?t=EJEMPLO', unsubscribeUrl: 'https://agentceo.io/api/unsubscribe?t=EJEMPLO', sentAt: '2026-12-15T15:00:00Z',
-    items: locale === 'es'
-      ? [{ label: 'Espera tu aprobación', text: '4 posts de Navidad listos para publicar' }, { label: 'A medias', text: 'La respuesta tipo para «¿hacen envíos?»' }, { label: 'Sin estrenar', text: 'El Experto en publicidad: lo tienes y nunca le pediste nada' }]
-      : [{ label: 'Needs your approval', text: '4 holiday posts ready to publish' }, { label: 'Half done', text: 'The template reply for "do you ship?"' }, { label: 'Never used', text: 'The Advertising expert: it’s on your team and you’ve never asked it for anything' }],
+    items: tr(locale,
+      [{ label: 'Espera tu aprobación', text: '4 posts de Navidad listos para publicar' }, { label: 'A medias', text: 'La respuesta tipo para «¿hacen envíos?»' }, { label: 'Sin estrenar', text: 'El Experto en publicidad: lo tienes y nunca le pediste nada' }],
+      [{ label: 'Needs your approval', text: '4 holiday posts ready to publish' }, { label: 'Half done', text: 'The template reply for "do you ship?"' }, { label: 'Never used', text: 'The Advertising expert: it’s on your team and you’ve never asked it for anything' }],
+      [{ label: 'Espera a sua aprovação', text: '4 posts de Natal prontos para publicar' }, { label: 'Pela metade', text: 'A resposta padrão para “vocês entregam?”' }, { label: 'Nunca usado', text: 'O Especialista em anúncios: está na sua equipe e você nunca pediu nada a ele' }]),
   }),
   copy: {
     es: (d) => ({
@@ -49,6 +50,20 @@ export const winback = {
       cta: 'Pick up where I left off',
       pause: 'Pause these emails for 30 days',
       reason: 'We write only once per absence. If you don’t come back, we won’t keep insisting.',
+    }),
+    pt: (d) => ({
+      subject: lead(d.name, `Sua equipe está te esperando: ${d.items[0].text.charAt(0).toLowerCase()}${d.items[0].text.slice(1)}`),
+      preheader: 'Eles continuam prontos, mas sem você não saem do lugar. Em dois minutos você está de volta.',
+      label: d.days ? `Há ${d.days} dias` : 'Sua equipe',
+      title: <>Sua equipe <Em>está com saudade.</Em></>,
+      lead: 'Eles continuam prontos, mas sem você não saem do lugar. Isto ficou pela metade:',
+      steps: 'O que está te esperando',
+      giftTitle: 'Para voltar em dois minutos',
+      gift: 'Me atualize: o que aconteceu no meu negócio desde a última vez que entrei e qual é a primeira coisa que eu deveria decidir hoje?',
+      giftHint: 'Cole para o seu CEO quando entrar. Ele responde com o mais urgente primeiro.',
+      cta: 'Continuar de onde parei',
+      pause: 'Pausar estes e-mails por 30 dias',
+      reason: 'Escrevemos uma única vez por ausência. Se você não voltar, não vamos insistir.',
     }),
   },
   Email: ({ c, d, ctx }) => (
@@ -81,6 +96,11 @@ const DIGEST_SAMPLE = {
     best: { title: 'You recovered 9 abandoned carts', text: 'The abandoned-cart automation messaged people who left without paying. 9 came back and bought.' },
     news: { title: 'New: your meetings, recorded and summarized', text: 'Connect your calendar and your CEO leaves you the summary and the tasks from every meeting.' },
   },
+  pt: {
+    numbers: { tasks: 186, approvals: 31, sales: 42 },
+    best: { title: 'Você recuperou 9 carrinhos abandonados', text: 'A automação de carrinhos escreveu para quem saiu sem pagar. 9 voltaram e compraram.' },
+    news: { title: 'Novidade: suas reuniões, gravadas e resumidas', text: 'Conecte a sua agenda e o seu CEO te deixa o resumo e as tarefas de cada reunião.' },
+  },
 }
 
 export const monthlyDigest = {
@@ -88,7 +108,7 @@ export const monthlyDigest = {
   phase: 'B',
   kind: 'marketing',
   tone: 'edición',
-  title: { es: 'El resumen del mes', en: 'Monthly digest' },
+  title: { es: 'El resumen del mes', en: 'Monthly digest', pt: 'O resumo do mês' },
   when: 'El primer martes de cada mes, si la cuenta tuvo actividad. Sin actividad, no sale.',
   required: ['month', 'numbers', 'appUrl'],
   sample: (locale) => ({ name: sampleName(locale), month: '2026-11-15T00:00:00Z', appUrl: 'https://app.agentceo.io/mes/2026-11', unsubscribeUrl: 'https://agentceo.io/api/unsubscribe?t=EJEMPLO', sentAt: '2026-12-01T14:00:00Z', ...DIGEST_SAMPLE[locale] }),
@@ -129,6 +149,25 @@ export const monthlyDigest = {
         giftHint: 'Ask your Content creator. It asks your permission before posting.',
         cta: 'See my full month',
         reason: 'You get the monthly digest because you have an Agent CEO account. If a month has no activity, we don’t write.',
+      }
+    },
+    pt: (d) => {
+      const m = fmtDate('pt', d.month, { month: 'long' })
+      return {
+        subject: `Seu ${m} com o Agent CEO: ${num('pt', d.numbers.tasks)} tarefas feitas pela sua equipe`,
+        preheader: 'O melhor do mês, uma novidade e o prompt do mês, pronto para copiar.',
+        label: 'Seu mês',
+        sticker: `${m}!`,
+        title: <>Seu mês, <Em>em um minuto.</Em></>,
+        lead: d.name ? `${d.name}, isto é o que a sua equipe fez este mês.` : 'Isto é o que a sua equipe fez este mês.',
+        numbers: [[num('pt', d.numbers.tasks), 'tarefas concluídas'], [num('pt', d.numbers.approvals), 'aprovações suas'], [num('pt', d.numbers.sales), 'vendas pelo WhatsApp']],
+        best: 'O melhor do mês',
+        news: 'Novo no Agent CEO',
+        giftTitle: 'O prompt do mês',
+        gift: 'Veja as perguntas que os meus clientes mais me fizeram este mês e escreva uma publicação que responda as três mais repetidas, com o meu tom.',
+        giftHint: 'Peça ao seu Criador de conteúdo. Antes de publicar, ele pede a sua permissão.',
+        cta: 'Ver meu mês completo',
+        reason: 'Você recebe o resumo do mês porque tem uma conta no Agent CEO. Se num mês não houver atividade, a gente não escreve.',
       }
     },
   },

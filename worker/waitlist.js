@@ -14,7 +14,7 @@ import { json } from './lib/http.js'
 import { str, cleanEmail, isBot } from './lib/validate.js'
 import { limited, foreignOrigin } from './lib/ratelimit.js'
 import { BUSINESS_TYPES, UTM_KEYS } from '../src/data/waitlist.js'
-import { enqueueWelcome, holdWelcome } from './email/welcome.js'
+import { enqueueWelcome, holdWelcome, emailLocale } from './email/welcome.js'
 import { turnstileConfig, tokenFrom, siteverify } from './lib/turnstile.js'
 import { scrub, logEvent } from './email/mask.js'
 
@@ -144,6 +144,7 @@ export async function handleWaitlist(request, env, ctx) {
     return reply(false, 'server_error', 500)
   }
   // El tipo de negocio guardado (el del paso 2, o el primero si ya estaba): el regalo del correo lo sigue.
-  scheduleWelcome(env, ctx, { email: row.email, locale: row.locale, business_type: row.business_type }, { hold })
+  // T60b: el idioma del correo puede ser pt (navegador o país) aunque la página sea es/en: emailLocale().
+  scheduleWelcome(env, ctx, { email: row.email, locale: emailLocale(request, row.locale), business_type: row.business_type }, { hold })
   return reply(true)
 }

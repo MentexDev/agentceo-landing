@@ -8,8 +8,9 @@
 // Aquí se pinta la MISMA plantilla (emails/src) con MARCAS en lugar de los datos de cada persona; el Worker
 // solo sustituye marcas por valores escapados (< 1 ms). Cero HTML duplicado: si la plantilla cambia, esto cambia.
 //
-// Variantes: idioma (es/en) × con nombre / sin nombre (el texto cambia: «¡Estás dentro, Ana!» vs «¡Estás dentro!»).
-// El regalo (prompt por tipo de negocio), la fecha, la baja y la base de los PNG son marcas.
+// Variantes: idioma (es/en/pt) × con nombre / sin nombre («¡Estás dentro, Ana!» / «¡Estás dentro!») × con posición /
+// sin posición (T60b: «Tu lugar en la lista · #N», la real de D1; si no se puede calcular, sin el bloque).
+// Las ideas de prompts (3 por tipo de negocio, T60c), la fecha, la posición, la baja y la base de los PNG son marcas.
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -22,8 +23,10 @@ const OUT = path.join(ROOT, 'worker/generated/emails.js')
 export const TOKENS = {
   name: 'zzacnamezz',
   date: 'zzacdatezz',
-  giftTitle: 'zzacgifttitlezz',
-  giftPrompt: 'zzacgiftpromptzz',
+  idea1: 'zzacideaunozz', use1: 'zzacusounozz',
+  idea2: 'zzacideadoszz', use2: 'zzacusodoszz',
+  idea3: 'zzacideatreszz', use3: 'zzacusotreszz',
+  position: 'zzacposicionzz',
   unsubscribeUrl: 'https://zzacunsubzz.invalid/u',
   assetBase: 'https://zzacassetszz.invalid/v1',
 }
@@ -37,17 +40,22 @@ export async function buildWorkerTemplates() {
     out[id] = { kind: t.kind, locales: {} }
     for (const locale of LOCALES) {
       out[id].locales[locale] = {}
-      for (const variant of ['named', 'anon']) {
+      for (const variant of ['named', 'anon', 'named+pos', 'anon+pos']) {
+        const named = variant.startsWith('named')
+        const withPos = variant.endsWith('+pos')
         const data = {
-          ...(variant === 'named' ? { name: TOKENS.name } : {}),
+          ...(named ? { name: TOKENS.name } : {}),
+          ...(withPos ? { positionLabel: TOKENS.position } : {}),
           dateLabel: TOKENS.date,
-          gift: { title: TOKENS.giftTitle, prompt: TOKENS.giftPrompt },
+          ideas: [1, 2, 3].map((n) => ({ prompt: TOKENS[`idea${n}`], use: TOKENS[`use${n}`] })),
           unsubscribeUrl: TOKENS.unsubscribeUrl,
         }
         const r = await render(t, locale, data, { assetBase: TOKENS.assetBase })
         // Cada marca tiene que estar donde se espera; si una plantilla deja de usarla, el build falla en voz alta.
-        const need = { html: ['date', 'giftTitle', 'giftPrompt', 'unsubscribeUrl', 'assetBase'], text: ['giftPrompt', 'unsubscribeUrl'] }
-        if (variant === 'named') { need.html.push('name'); need.text.push('name') }
+        const ideaKeys = ['idea1', 'use1', 'idea2', 'use2', 'idea3', 'use3']
+        const need = { html: ['date', ...ideaKeys, 'unsubscribeUrl', 'assetBase'], text: [...ideaKeys, 'unsubscribeUrl'] }
+        if (named) { need.html.push('name'); need.text.push('name') }
+        if (withPos) { need.html.push('position'); need.text.push('position') }
         for (const [part, keys] of Object.entries(need)) for (const k of keys) {
           if (!r[part].includes(TOKENS[k])) throw new Error(`worker-templates: ${id}.${locale}.${variant} sin la marca ${k} en ${part}`)
         }

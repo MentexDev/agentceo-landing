@@ -15,6 +15,20 @@ import { sendEmail, RESEND_API_URL } from './resend.js'
 import { maskEmail, scrub, logEvent } from './mask.js'
 
 export const TEMPLATE = 'waitlist-welcome'
+
+// T60b · Idioma del CORREO. La landing solo existe en es/en; el portugués llega por el navegador o el país:
+//   · Accept-Language cuyo primer idioma sea pt (pt-BR, pt-PT…) → pt;
+//   · país de Cloudflare (request.cf.country) lusófono → pt;
+//   · si no, el idioma de la página (es/en). Así un visitante de Brasil en la página en español recibe la
+//     bienvenida en portugués, y el resto, en el idioma en que se apuntó.
+const PT_COUNTRIES = new Set(['BR', 'PT', 'AO', 'MZ', 'CV', 'GW', 'ST', 'TL'])
+export function emailLocale(request, pageLocale = 'es') {
+  const al = String(request?.headers?.get('accept-language') || '').trim().toLowerCase()
+  const first = al.split(',')[0]?.split(';')[0]?.trim() || ''
+  if (first === 'pt' || first.startsWith('pt-')) return 'pt'
+  if (PT_COUNTRIES.has(String(request?.cf?.country || '').toUpperCase())) return 'pt'
+  return pageLocale === 'en' ? 'en' : 'es'
+}
 export const MAX_ATTEMPTS = 8
 export const INLINE_TRIES = 3 // intentos HTTP dentro de una misma entrega (antes de dejarlo al barrido)
 export const STUCK_MINUTES = 10 // un «sending» más viejo que esto se considera huérfano
@@ -102,7 +116,7 @@ export async function enqueueWelcome(env, row, deps = {}) {
   if (!cfg.enabled) return { status: 'disabled' }
   if (!env.DB || !row?.email) return { status: 'skipped' }
   const now = (deps.now || (() => new Date()))()
-  const locale = row.locale === 'en' ? 'en' : 'es'
+  const locale = ['en', 'pt'].includes(row.locale) ? row.locale : 'es'
   const due = row.business_type ? now : new Date(now.getTime() + cfg.delayS * 1000)
   const ins = await env.DB.prepare(
     `INSERT OR IGNORE INTO email_send_log (email, template, locale, status, next_attempt_at) VALUES (?, ?, ?, 'pending', ?)`,
@@ -131,7 +145,7 @@ export async function holdWelcome(env, row, reason) {
   if (!emailConfig(env).enabled || !env.DB || !row?.email) return { status: 'disabled' }
   const ins = await env.DB.prepare(
     `INSERT OR IGNORE INTO email_send_log (email, template, locale, status, last_error) VALUES (?, ?, ?, 'failed', ?)`,
-  ).bind(row.email, TEMPLATE, row.locale === 'en' ? 'en' : 'es', `held: ${reason}`.slice(0, 200)).run()
+  ).bind(row.email, TEMPLATE, ['en', 'pt'].includes(row.locale) ? row.locale : 'es', `held: ${reason}`.slice(0, 200)).run()
   if ((ins.meta?.changes ?? 0) > 0) logEvent('warn', 'email.held', { template: TEMPLATE, to: maskEmail(row.email), reason })
   return { status: 'held' }
 }
@@ -172,14 +186,17 @@ export async function deliver(env, id, deps = {}) {
   }
 
   try {
-    const signup = await db.prepare('SELECT name, business_type FROM signups WHERE email = ?').bind(job.email).first()
+    const signup = await db.prepare('SELECT id, name, business_type FROM signups WHERE email = ?').bind(job.email).first()
+    // T60b · El puesto REAL en la lista: cuántas altas hay hasta la suya, por id (autoincremental y estable).
+    // Idempotente: un reintento calcula el mismo número (salvo que se borren altas anteriores).
+    const position = signup?.id ? (await db.prepare('SELECT COUNT(*) AS n FROM signups WHERE id <= ?').bind(signup.id).first())?.n ?? null : null
     const pref = await unsubscribeToken(db, job.email)
     if (pref?.unsubscribed_at) {
       logEvent('info', 'email.suppressed', { template: job.template, to })
       return await finish('failed', { last_error: 'suppressed: se dio de baja' })
     }
     const unsubscribeUrl = `${cfg.site}/api/unsubscribe?t=${pref.unsub_token}`
-    const msg = fillTemplate({ template: job.template, locale: job.locale, name: signup?.name, business: signup?.business_type, unsubscribeUrl, assetBase: cfg.assetBase, now: now() })
+    const msg = fillTemplate({ template: job.template, locale: job.locale, name: signup?.name, business: signup?.business_type, position, unsubscribeUrl, assetBase: cfg.assetBase, now: now() })
     const payload = { from: cfg.from, to: [job.email], subject: msg.subject, html: msg.html, text: msg.text, headers: msg.headers, tags: [{ name: 'template', value: job.template }] }
     const key = await idempotencyKey(job.email, job.template)
 

@@ -1,5 +1,5 @@
 // Formatos por idioma. Deterministas (zona UTC salvo que el dato traiga la suya): mismo dato → mismo correo.
-const TAG = { es: 'es-CO', en: 'en-US' }
+const TAG = { es: 'es-CO', en: 'en-US', pt: 'pt-BR' }
 
 export function fmtDate(locale, iso, opts = { day: 'numeric', month: 'long' }, timeZone = 'UTC') {
   if (!iso) return ''
@@ -28,6 +28,9 @@ export function num(locale, n) {
 }
 
 /** Saludo sin nombre → «Hola» a secas; nunca «Hola, ,» (regla de NeuralOS). */
-export const hi = (locale, name) => (locale === 'es' ? (name ? `Hola, ${name}.` : 'Hola.') : name ? `Hi ${name},` : 'Hi there,')
+export const hi = (locale, name) => (locale === 'es' ? (name ? `Hola, ${name}.` : 'Hola.') : locale === 'pt' ? (name ? `Olá, ${name}.` : 'Olá.') : name ? `Hi ${name},` : 'Hi there,')
 /** «Ana, …» o nada. */
 export const lead = (name, rest) => (name ? `${name}, ${rest.charAt(0).toLowerCase()}${rest.slice(1)}` : rest)
+
+/** Texto fijo por idioma (es/en/pt): pt cae a en si falta. */
+export const tr = (locale, es, en, pt) => (locale === 'es' ? es : locale === 'pt' ? (pt ?? en) : en)

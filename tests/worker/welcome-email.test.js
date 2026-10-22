@@ -8,7 +8,8 @@ import { fillTemplate, displayName } from '../../worker/email/fill.js'
 import { maskEmail, scrub } from '../../worker/email/mask.js'
 import { isRetryable } from '../../worker/email/resend.js'
 import { handleWaitlist, saveSignup, toRow } from '../../worker/waitlist.js'
-import { BUSINESS_PROMPTS } from '../../emails/src/gifts.js'
+import { BUSINESS_IDEAS, IDEAS_COPY } from '../../emails/src/gifts.js'
+import { emailLocale } from '../../worker/email/welcome.js'
 
 const FAKE_KEY = 're_FALSA_de_mentira_0123456789'
 const ON = { ...env, WELCOME_EMAIL_ENABLED: 'true', RESEND_API_KEY: FAKE_KEY }
@@ -187,7 +188,7 @@ describe('idioma y contenido', () => {
     expect(body.subject).toBe(`Ana, ${subject} 🎉`)
     expect(body.html).toContain(lang)
     expect(body.text).toContain(team)
-    expect(body.text).toContain(BUSINESS_PROMPTS[locale].servicios.prompt.slice(0, 50))
+    expect(body.text).toContain(BUSINESS_IDEAS[locale].servicios[0].prompt.slice(0, 50))
     expect(body.from).toBe('Agent CEO <info@agentceo.io>')
     expect(body.to).toEqual([email])
     expect(body.tags).toEqual([{ name: 'template', value: 'waitlist-welcome' }])
@@ -209,7 +210,7 @@ describe('idioma y contenido', () => {
     await saveSignup(env.DB, toRow({ email, business: 'moda' }, new Request('https://agentceo.io/')))
     await enqueueWelcome(ON, { email, locale: 'es', business_type: 'moda' }, { fetch: r.fetch, now: at(20_000) })
     expect(r.calls).toHaveLength(1)
-    expect(r.calls[0].body.text).toContain(BUSINESS_PROMPTS.es.moda.prompt.slice(0, 50))
+    expect(r.calls[0].body.text).toContain(BUSINESS_IDEAS.es.moda[0].prompt.slice(0, 50))
   })
   it('si nunca hace el paso 2, el barrido la manda tras la espera con el regalo por defecto', async () => {
     const email = mail('sin-paso2')
@@ -219,7 +220,7 @@ describe('idioma y contenido', () => {
     expect(callsTo(r, email)).toHaveLength(0)
     await sweepEmails(ON, { fetch: r.fetch, now: at(150_000) })
     expect(callsTo(r, email)).toHaveLength(1)
-    expect(callsTo(r, email)[0].body.text).toContain(BUSINESS_PROMPTS.en.tienda.prompt.slice(0, 50))
+    expect(callsTo(r, email)[0].body.text).toContain(BUSINESS_IDEAS.en.tienda[0].prompt.slice(0, 50))
   })
   it('un «sending» huérfano (Worker caído) lo reclama el barrido a los 10 min, no antes', async () => {
     const email = mail('huerfano')
@@ -356,5 +357,58 @@ describe('/api/unsubscribe', () => {
   it('token inválido o desconocido → 404 sin pistas; otros métodos → 405', async () => {
     for (const t of ['', 'xyz', tok('d'), "aaaa' OR 1=1 --"]) expect((await call('GET', encodeURIComponent(t))).status).toBe(404)
     expect((await call('PUT', tok('b'))).status).toBe(405)
+  })
+})
+
+describe('T60b/c · posición real, ideas, CTA e idioma pt', () => {
+  it('la bienvenida automática lleva «Tu lugar en la lista · #N» con la posición REAL de D1 (por id), estable en reintentos', async () => {
+    const before = (await env.DB.prepare('SELECT COUNT(*) AS n FROM signups').first()).n
+    const email = mail('posicion')
+    const r = fakeResend({ status: 503, body: {} }, { status: 503, body: {} }, { status: 503, body: {} }, { status: 200, body: { id: 're_pos' } })
+    await enqueueWelcome(ON, await signup(email, { business: 'moda' }), { fetch: r.fetch, now: at(0), sleep: noSleep })
+    await sweepEmails(ON, { fetch: r.fetch, now: at(10 * 60_000), sleep: noSleep })
+    const sent = callsTo(r, email)
+    expect(sent.length).toBe(4)
+    const n = before + 1
+    for (const c of sent) {
+      expect(c.body.html).toContain('Tu lugar en la lista')
+      expect(c.body.html).toContain(`#${n}`)
+      expect(c.body.text).toContain(`#${n}`)
+    }
+  })
+  it('sin alta en signups (no se puede calcular) → la variante sin el bloque, nunca un número inventado', () => {
+    const m = fillTemplate({ locale: 'es', unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v2', now: T0 })
+    expect(m.html).not.toContain('Tu lugar en la lista')
+    expect(fillTemplate({ locale: 'es', position: 1234, unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v2', now: T0 }).html).toContain('#1.234')
+  })
+  it.each(['es', 'en', 'pt'])('%s · el regalo son IDEAS (título, para qué es, 3 ideas con su «para qué sirve») y el CTA apunta a la demo', (l) => {
+    const m = fillTemplate({ locale: l, business: 'comida', unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v2', now: T0 })
+    const C = IDEAS_COPY[l]
+    for (const x of [C.title, C.intro.slice(0, 40), C.after.slice(0, 30)]) expect(m.text).toContain(x)
+    for (const idea of BUSINESS_IDEAS[l].comida) { expect(m.text).toContain(idea.prompt.slice(0, 40)); expect(m.text).toContain(idea.use) }
+    expect(m.text).toContain({ es: 'Mira cómo trabajará tu equipo', en: 'See how your team will work', pt: 'Veja como sua equipe vai trabalhar' }[l])
+    expect(m.text).toContain('#reunion')
+    expect(m.text).not.toMatch(/Ver cómo trabaja tu equipo|See how your team works|Prompt listo para copiar/)
+  })
+  it('idioma del correo: pt por navegador o país; si no, el de la página', () => {
+    const rq = (al, country) => { const r = new Request('https://agentceo.io/api/waitlist', { headers: al ? { 'accept-language': al } : {} }); return country ? { headers: r.headers, cf: { country } } : r }
+    expect(emailLocale(rq('pt-BR,pt;q=0.9'), 'es')).toBe('pt')
+    expect(emailLocale(rq('pt'), 'en')).toBe('pt')
+    expect(emailLocale(rq('es-CO', 'BR'), 'es')).toBe('pt')
+    expect(emailLocale(rq('en-US', 'PT'), 'en')).toBe('pt')
+    expect(emailLocale(rq('es-CO', 'CO'), 'es')).toBe('es')
+    expect(emailLocale(rq('fr-FR', 'FR'), 'en')).toBe('en')
+    expect(emailLocale(rq('', ''), 'es')).toBe('es')
+  })
+  it('una bienvenida en pt sale en portugués de punta a punta', async () => {
+    const email = mail('pt')
+    const r = fakeResend()
+    await enqueueWelcome(ON, { ...(await signup(email, { business: 'servicios' })), locale: 'pt' }, { fetch: r.fetch, now: at(0) })
+    const { body } = callsTo(r, email)[0]
+    expect(body.subject).toBe('Seu lugar no Agent CEO está garantido 🎉')
+    expect(body.html).toContain('lang="pt"')
+    expect(body.text).toContain('Ideias de prompts prontas para copiar')
+    expect(body.text).toContain('Seu lugar na lista')
+    expect(await logRow(email)).toMatchObject({ locale: 'pt', status: 'sent' })
   })
 })

@@ -1,8 +1,8 @@
 // Rellena el pre-render de la plantilla (worker/generated/emails.js, de emails/scripts/worker-templates.mjs)
 // con los datos de una persona. Solo sustitución de marcas: < 1 ms de CPU, sin React en el Worker.
 import { TOKENS, TEMPLATES } from '../generated/emails.js'
-import { businessPrompt } from '../../emails/src/gifts.js'
-import { fmtShort } from '../../emails/src/format.js'
+import { businessIdeas } from '../../emails/src/gifts.js'
+import { fmtShort, num } from '../../emails/src/format.js'
 
 /** @typedef {{ subject: string, html: string, text: string, headers: Record<string, string> }} RenderedEmail */
 
@@ -22,22 +22,24 @@ export function displayName(raw) {
 }
 
 /**
- * @param {{ template?: string, locale: 'es'|'en', name?: string|null, business?: string|null,
+ * @param {{ template?: string, locale: 'es'|'en'|'pt', name?: string|null, business?: string|null, position?: number|null,
  *           unsubscribeUrl: string, assetBase: string, now?: Date }} input
+ *   position: el puesto REAL en la lista (D1, T60b). Sin él, la variante sin el bloque «Tu lugar en la lista».
  * @returns {RenderedEmail}
  */
-export function fillTemplate({ template = 'waitlist-welcome', locale, name, business, unsubscribeUrl, assetBase, now = new Date() }) {
+export function fillTemplate({ template = 'waitlist-welcome', locale, name, business, position = null, unsubscribeUrl, assetBase, now = new Date() }) {
   const t = TEMPLATES[template]
   if (!t) throw new Error(`fill: plantilla sin pre-render «${template}»`)
   const loc = t.locales[locale] ? locale : 'es'
   const who = displayName(name)
-  const v = t.locales[loc][who ? 'named' : 'anon']
-  const gift = businessPrompt(loc, business)
+  const pos = Number.isInteger(position) && position > 0 ? position : null
+  const v = t.locales[loc][`${who ? 'named' : 'anon'}${pos ? '+pos' : ''}`]
+  const ideas = businessIdeas(loc, business)
   const values = {
     name: who,
     date: fmtShort(loc, now.toISOString()),
-    giftTitle: gift.title,
-    giftPrompt: gift.prompt,
+    ...Object.fromEntries(ideas.flatMap((it, i) => [[`idea${i + 1}`, it.prompt], [`use${i + 1}`, it.use]])),
+    position: pos ? `#${num(loc, pos)}` : '',
     unsubscribeUrl,
     assetBase: assetBase.replace(/\/+$/, ''),
   }
