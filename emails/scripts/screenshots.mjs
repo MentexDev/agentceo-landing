@@ -26,8 +26,11 @@ const MODES = {
 }
 const INVERT = 'html{filter:invert(1) hue-rotate(180deg)}img{filter:invert(1) hue-rotate(180deg)}'
 
-fs.rmSync(OUT, { recursive: true, force: true })
+// Solo se borra lo que ESTE script crea (<id>.<idioma>.<modo>.png y overview.png). Antes vaciaba la carpeta
+// entera (rmSync recursivo) y en T60 se llevó por delante una carpeta ajena, emails/screenshots/prod/: nunca más.
 fs.mkdirSync(OUT, { recursive: true })
+const OWN = /^([a-z0-9-]+\.(es|en|pt)\.(escritorio|movil|oscuro|invertido|sinimagenes)|overview)\.png$/
+for (const e of fs.readdirSync(OUT, { withFileTypes: true })) if (e.isFile() && OWN.test(e.name)) fs.rmSync(path.join(OUT, e.name))
 const browser = await chromium.launch()
 let n = 0
 for (const [mode, cfg] of Object.entries(MODES)) {
