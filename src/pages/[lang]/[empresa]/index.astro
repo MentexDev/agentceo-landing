@@ -1,0 +1,8 @@
+---
+// /<lang>/… de los idiomas no predeterminados · vista CompanyView (src/lib/locale-pages.js · T62).
+import CompanyView from '../../../views/CompanyView.astro'
+import { pathsFor } from '../../../lib/locale-pages.js'
+export const getStaticPaths = () => pathsFor('company', 'empresa')
+const { lang, kind, item, doc } = Astro.props
+---
+<CompanyView lang={lang} />

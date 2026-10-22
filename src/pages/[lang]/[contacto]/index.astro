@@ -1,0 +1,8 @@
+---
+// /<lang>/… de los idiomas no predeterminados · vista ContactView (src/lib/locale-pages.js · T62).
+import ContactView from '../../../views/ContactView.astro'
+import { pathsFor } from '../../../lib/locale-pages.js'
+export const getStaticPaths = () => pathsFor('contact', 'contacto')
+const { lang, kind, item, doc } = Astro.props
+---
+<ContactView lang={lang} />

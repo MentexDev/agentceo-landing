@@ -1,0 +1,8 @@
+---
+// /<lang>/… de los idiomas no predeterminados · vista PressView (src/lib/locale-pages.js · T62).
+import PressView from '../../../views/PressView.astro'
+import { pathsFor } from '../../../lib/locale-pages.js'
+export const getStaticPaths = () => pathsFor('press', 'prensa')
+const { lang, kind, item, doc } = Astro.props
+---
+<PressView lang={lang} />

@@ -1,0 +1,8 @@
+---
+// /<lang>/… de los idiomas no predeterminados · vista LegalView (src/lib/locale-pages.js · T62).
+import LegalView from '../../../views/LegalView.astro'
+import { pathsFor } from '../../../lib/locale-pages.js'
+export const getStaticPaths = () => pathsFor('legal')
+const { lang, kind, item, doc } = Astro.props
+---
+<LegalView doc={doc} />

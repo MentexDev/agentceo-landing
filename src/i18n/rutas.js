@@ -7,7 +7,7 @@
 // del sitio apunta a una página que todavía no se ha construido.
 // Un test (tests/site/rutas.test.js) exige que cada ruta exista en dist/.
 // ─────────────────────────────────────────────────────────────────────────────
-import { LOCALES } from './config.js'
+import { LOCALES, prefix } from './meta.js'
 
 /** id → { es, en }: rutas estáticas (las de contenido se generan desde content/). */
 export const RUTAS = {
@@ -33,7 +33,7 @@ import { legalDocs } from '../lib/legal.js'
 for (const d of legalDocs()) {
   const key = `legal:${d.id}`
   RUTAS[key] ||= { label: {} }
-  RUTAS[key][d.lang] = d.lang === 'es' ? `/legal/${d.slug}` : `/${d.lang}/legal/${d.slug}`
+  RUTAS[key][d.lang] = `${prefix(d.lang)}/legal/${d.slug}`
   RUTAS[key].label[d.lang] = d.titulo
   RUTAS[key].updated = d.actualizado
 }

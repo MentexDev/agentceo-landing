@@ -1,0 +1,8 @@
+---
+// /<lang>/… de los idiomas no predeterminados · vista NotFoundView (src/lib/locale-pages.js · T62).
+import NotFoundView from '../../views/NotFoundView.astro'
+import { pathsFor } from '../../lib/locale-pages.js'
+export const getStaticPaths = () => pathsFor('notFound')
+const { lang, kind, item, doc } = Astro.props
+---
+<NotFoundView lang={lang} />

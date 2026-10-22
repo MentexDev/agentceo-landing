@@ -1,27 +1,18 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // i18n · configuración de idiomas.
 //
-// Añadir un idioma (p. ej. 'pt') = añadirlo a LOCALES + un diccionario en
-// ui/<lang>.js + sus slugs en rutas.js. No hay que tocar componentes.
+// Añadir un idioma: docs/I18N.md (registro en meta.js + diccionario ui/<lang>.js aquí abajo + contenido).
 // El idioma por defecto vive en la RAÍZ (sin prefijo): no cambia ninguna URL
 // que ya está en producción. Los demás viven bajo /<lang>/.
 // ─────────────────────────────────────────────────────────────────────────────
 import es from './ui/es.js'
 import en from './ui/en.js'
 
-export const DEFAULT_LOCALE = 'es'
-export const LOCALES = ['es', 'en']
-
-/** Metadatos por idioma: nombre en SU propio idioma, etiqueta BCP 47 y og:locale. */
-export const LOCALE_META = {
-  es: { name: 'Español', short: 'ES', bcp47: 'es', og: 'es_ES', dateLocale: 'es-ES' },
-  en: { name: 'English', short: 'EN', bcp47: 'en', og: 'en_US', dateLocale: 'en-US' },
-}
+// Idiomas y metadatos: src/i18n/meta.js (registro ligero, también para el navegador y Node).
+import { DEFAULT_LOCALE, LOCALES, LOCALE_META, prefix, asLocale } from './meta.js'
+export { DEFAULT_LOCALE, LOCALES, LOCALE_META, prefix, asLocale }
 
 const DICTS = { es, en }
-
-/** Prefijo de URL del idioma ('' para el idioma por defecto). */
-export const prefix = (lang) => (lang === DEFAULT_LOCALE ? '' : `/${lang}`)
 
 /** Devuelve el diccionario completo (para pasar a islas un subárbol). */
 export function dict(lang) {

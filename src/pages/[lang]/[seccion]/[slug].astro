@@ -1,0 +1,8 @@
+---
+// /<lang>/… de los idiomas no predeterminados · vista ArticleView (src/lib/locale-pages.js · T62).
+import ArticleView from '../../../views/ArticleView.astro'
+import { pathsFor } from '../../../lib/locale-pages.js'
+export const getStaticPaths = () => pathsFor('article')
+const { lang, kind, item, doc } = Astro.props
+---
+<ArticleView kind={kind} lang={lang} item={item} />

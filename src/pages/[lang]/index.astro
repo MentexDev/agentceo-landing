@@ -1,0 +1,8 @@
+---
+// /<lang>/… de los idiomas no predeterminados · vista HomeView (src/lib/locale-pages.js · T62).
+import HomeView from '../../views/HomeView.astro'
+import { pathsFor } from '../../lib/locale-pages.js'
+export const getStaticPaths = () => pathsFor('home')
+const { lang, kind, item, doc } = Astro.props
+---
+<HomeView lang={lang} />

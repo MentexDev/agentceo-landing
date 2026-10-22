@@ -1,0 +1,8 @@
+---
+// /<lang>/… de los idiomas no predeterminados · vista DoNotSellView (src/lib/locale-pages.js · T62).
+import DoNotSellView from '../../../views/DoNotSellView.astro'
+import { pathsFor } from '../../../lib/locale-pages.js'
+export const getStaticPaths = () => pathsFor('donotsell', 'novender')
+const { lang, kind, item, doc } = Astro.props
+---
+<DoNotSellView lang={lang} />

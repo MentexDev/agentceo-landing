@@ -1,0 +1,8 @@
+---
+// /<lang>/… de los idiomas no predeterminados · vista ThanksView (src/lib/locale-pages.js · T62).
+import ThanksView from '../../../views/ThanksView.astro'
+import { pathsFor } from '../../../lib/locale-pages.js'
+export const getStaticPaths = () => pathsFor('thanks', 'gracias')
+const { lang, kind, item, doc } = Astro.props
+---
+<ThanksView lang={lang} />
