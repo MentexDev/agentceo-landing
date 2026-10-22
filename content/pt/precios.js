@@ -91,7 +91,7 @@ export const GUARANTEES = [
 ]
 
 export const FAQ = [
-  { q: 'É grátis mesmo?', a: 'Sim. O plano Arranque custa $0: vem com 300 créditos por semana para 1 usuário e não pede cartão.' },
+  { q: 'É grátis mesmo?', a: 'Sim. O plano Arranque custa US$ 0: vem com 300 créditos por semana para 1 usuário e não pede cartão.' },
   { q: 'O que acontece se meus créditos acabarem?', a: 'Seus agentes param até os créditos se renovarem (toda segunda-feira) ou até você comprar um pacote de créditos: Chispa, Envión, Turbina ou Reserva. Não há cobranças automáticas por uso excedente.' },
   { q: 'Quando os créditos se renovam?', a: 'Toda segunda-feira, em todos os planos. Os créditos semanais que você não usou expiram nessa segunda-feira: eles não se acumulam.' },
   { q: 'Posso pedir reembolso?', a: 'Sim, nestes casos: na sua primeira assinatura, em até 7 dias se você usou menos de 10% dos créditos; os pacotes Chispa, Envión e Turbina, em até 14 dias se você não os usou; e erros de cobrança, sempre. Os planos pagos se renovam automaticamente todo mês até você cancelar. Detalhes em Reembolsos e cancelamento.' },

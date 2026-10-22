@@ -117,7 +117,7 @@
 **Publicadas** [web]
 - Conecta com **mais de 70 ferramentas**:
   - **Lojas:** Shopify, WooCommerce, Wix, Squarespace, PrestaShop.
-  - **Marketplaces:** MercadoLibre, Amazon, Etsy, eBay.
+  - **Marketplaces:** Mercado Livre, Amazon, Etsy, eBay.
   - **Faturamento:** Alegra, Siigo, Factus, QuickBooks.
   - **CRM:** HubSpot, Kommo, Bitrix24.
   - **Google:** Gmail, Drive, Sheets, Calendar.
@@ -167,10 +167,10 @@ Só o que foi publicado. Preços em USD. [web: /pt/precos/ · `content/precios.j
 
 | Plano | Preço | Créditos por semana | Pessoas |
 |---|---|---|---|
-| Arranque | $0 (sem cartão) | 300 | 1 |
-| Impulso | $29 por mês | 2.300 | 5 |
-| Motor | $99 por mês | 40.000 | 20 |
-| Imperio | $249 por mês | 200.000 | ilimitadas |
+| Arranque | US$ 0 (sem cartão) | 300 | 1 |
+| Impulso | US$ 29 por mês | 2.300 | 5 |
+| Motor | US$ 99 por mês | 40.000 | 20 |
+| Imperio | US$ 249 por mês | 200.000 | ilimitadas |
 
 **Em todos os planos**
 - **Agentes ilimitados.**
@@ -178,10 +178,10 @@ Só o que foi publicado. Preços em USD. [web: /pt/precos/ · `content/precios.j
 - Histórico de 30 dias.
 
 **Pacotes de créditos (pagamento único)**
-- **Chispa:** 1.000 créditos, $5.
-- **Envión:** 3.000, $12.
-- **Turbina:** 8.000, $29.
-- **Reserva:** 20.000, $65, não expira.
+- **Chispa:** 1.000 créditos, US$ 5.
+- **Envión:** 3.000, US$ 12.
+- **Turbina:** 8.000, US$ 29.
+- **Reserva:** 20.000, US$ 65, não expira.
 - Não há cobranças automáticas por excesso. Sem créditos, os agentes param até a segunda-feira ou até você comprar um pacote.
 
 **Reembolsos** (detalhes na página de Reembolsos e cancelamento)
@@ -267,7 +267,7 @@ Só o que foi publicado. Preços em USD. [web: /pt/precos/ · `content/precios.j
 4. **Eles fazem coisas sem me avisar?** Só o que você permitir. O que custa dinheiro, eles sempre te perguntam. [web]
 5. **Funciona com WhatsApp?** Sim: responde a qualquer hora com o tom da sua marca, fecha vendas e se conecta por QR code ou pelo número oficial do WhatsApp. [web]
 6. **Serve com minha loja Shopify?** Sim. Acompanha pedidos, carrinhos abandonados e estoque. [web]
-7. **Com quais ferramentas se conecta?** Com mais de 70: Shopify, WooCommerce, MercadoLibre, Amazon, Gmail, Drive, Sheets, WhatsApp, TikTok e mais. [web]
+7. **Com quais ferramentas se conecta?** Com mais de 70: Shopify, WooCommerce, Mercado Livre, Amazon, Gmail, Drive, Sheets, WhatsApp, TikTok e mais. [web]
 8. **Pode criar um site ou um app pra mim?** Sim: sites, landing pages, lojas, apps e ferramentas internas, publicados no seu GitHub e na sua Vercel. [web]
 9. **O código é meu?** Sim. [web]
 10. **E se eu não gostar do que ele fez?** Você rejeita ou pede mudanças com as suas palavras. [web]
@@ -276,7 +276,7 @@ Só o que foi publicado. Preços em USD. [web: /pt/precos/ · `content/precios.j
 13. **Vocês treinam IA com meus dados?** Não, nem modelos próprios nem de terceiros. [web]
 14. **Posso exportar ou apagar meus dados?** Sim. [web]
 15. **Posso gerenciar vários negócios?** Sim, com um resumo de todos. [web]
-16. **Quanto custa?** O Arranque é grátis. Impulso $29, Motor $99 e Imperio $249 por mês. [web]
+16. **Quanto custa?** O Arranque é grátis. Impulso US$ 29, Motor US$ 99 e Imperio US$ 249 por mês. [web]
 17. **É grátis de verdade?** Sim: Arranque, 300 créditos por semana, 1 usuário, sem cartão. [web]
 18. **Preciso de cartão?** Só para um plano pago ou um pacote de créditos. [web]
 19. **E se meus créditos acabarem?** Os agentes param até a segunda-feira ou até você comprar um pacote. Sem cobranças automáticas. [web]

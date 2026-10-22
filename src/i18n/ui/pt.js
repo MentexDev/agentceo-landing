@@ -216,7 +216,7 @@ export default {
     faq: { eyebrow: 'Perguntas', h2a: 'Pergunte ', h2b: 'ao seu CEO.', more: 'Mais detalhes →' },
   },
   logic,
-  jsonld: { freeOffer: 'Plano Arranque grátis (300 créditos por semana, sem cartão); planos pagos a partir de $29 por mês.' },
+  jsonld: { freeOffer: 'Plano Arranque grátis (300 créditos por semana, sem cartão); planos pagos a partir de US$ 29 por mês.' },
   pages: {
     all: 'Todas',
     filterBy: 'Filtrar por categoria',

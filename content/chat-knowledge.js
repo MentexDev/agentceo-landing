@@ -163,7 +163,7 @@ export const CURATED = [
     },
     pt: {
       title: 'Com quais ferramentas se conecta?',
-      text: 'Com mais de 70: lojas (Shopify, WooCommerce, Wix, Squarespace, PrestaShop), marketplaces (MercadoLibre, Amazon, Etsy, eBay), faturamento (Alegra, Siigo, Factus, QuickBooks), CRM (HubSpot, Kommo, Bitrix24), Google (Gmail, Drive, Sheets, Calendar) e canais (WhatsApp, Telegram, TikTok, YouTube). Além disso, uma extensão para o Chrome permite que seu agente abra abas, preencha formulários e aprenda um processo vendo você fazer uma vez; o que é importante, ele continua te perguntando.',
+      text: 'Com mais de 70: lojas (Shopify, WooCommerce, Wix, Squarespace, PrestaShop), marketplaces (Mercado Livre, Amazon, Etsy, eBay), faturamento (Alegra, Siigo, Factus, QuickBooks), CRM (HubSpot, Kommo, Bitrix24), Google (Gmail, Drive, Sheets, Calendar) e canais (WhatsApp, Telegram, TikTok, YouTube). Além disso, uma extensão para o Chrome permite que seu agente abra abas, preencha formulários e aprenda um processo vendo você fazer uma vez; o que é importante, ele continua te perguntando.',
     },
   },
   {

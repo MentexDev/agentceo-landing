@@ -4,7 +4,7 @@
 // Solo actúa si hay una PISTA de integración («se integra», «se conecta», «funciona con», «works with»…) y la
 // marca va en el OBJETO de la frase: «¿funciona con mi negocio de comida?» no es una pregunta de integración.
 // WhatsApp y Shopify tienen ficha curada propia (más rica): esas las responde la ficha.
-import { INTEGRATIONS, TOTAL, fold } from '../../content/integraciones.js'
+import { INTEGRATIONS, TOTAL, fold, nameIn } from '../../content/integraciones.js'
 import { LOCALES } from '../../src/i18n/meta.js'
 
 const CURATED_OWN = new Set(['WhatsApp Business', 'Shopify'])
@@ -54,7 +54,7 @@ const lowerFirst = (t) => (/^[A-Z]{2}/.test(t) ? t : t.charAt(0).toLowerCase() +
 export function integrationReply(lang, q) {
   const L = LOCALES.includes(lang) ? lang : 'es'
   if (q.known.length) {
-    const names = join(q.known.map((it) => `**${it.name}**`), L)
+    const names = join(q.known.map((it) => `**${nameIn(it.name, L)}**`), L)
     const cats = [...new Set(q.known.map((it) => lowerFirst(it.label[L] || it.label.es)))].join(' · ')
     const text = {
       es: `¡Sí! Agent CEO se integra con ${names} (${cats}). Tus agentes trabajan directamente ahí, sin copiar y pegar, y lo importante te lo preguntan antes.`,

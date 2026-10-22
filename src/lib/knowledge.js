@@ -56,8 +56,8 @@ export function buildKnowledge(lang) {
     const base = { blog: `${RUTAS.blog?.[lang] || ''}`, rec: `${RUTAS.recursos?.[lang] || ''}` }
     const L = t(lang, 'gen.price')
     const fmt = (n) => n.toLocaleString(LOCALE_META[lang].dateLocale)
-    const plans = P.PLANS.map((p) => `${p.name}: $${p.price} ${L.mo}, ${fmt(p.credits)} ${L.cw}, ${p.seats === null ? L.un : `${p.seats} ${p.seats === 1 ? L.u1 : L.un2}`}.`).join(' ')
-    const packs = P.PACKS.map((k) => `${k.name}: ${fmt(k.credits)} → $${k.price}${k.noExpiry ? ` ${L.ne}` : ''}`).join('; ')
+    const plans = P.PLANS.map((p) => `${p.name}: ${LOCALE_META[lang].money}${p.price} ${L.mo}, ${fmt(p.credits)} ${L.cw}, ${p.seats === null ? L.un : `${p.seats} ${p.seats === 1 ? L.u1 : L.un2}`}.`).join(' ')
+    const packs = P.PACKS.map((k) => `${k.name}: ${fmt(k.credits)} → ${LOCALE_META[lang].money}${k.price}${k.noExpiry ? ` ${L.ne}` : ''}`).join('; ')
     const purl = routeUrl('precios', lang) || `${home}#faq`
     out.push({ id: 'pricing', kind: 'pricing', title: P.META.h1, text: clip(`${P.META.sub} ${plans} ${L.all}: ${P.ALL_PLANS.join(', ')}. ${L.packs}: ${packs}. ${L.cur}`), url: purl })
     for (const f of P.FAQ) out.push({ id: `pricing-faq:${f.q}`, kind: 'faq', title: f.q, text: f.a, url: purl })

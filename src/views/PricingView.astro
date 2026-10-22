@@ -16,7 +16,7 @@ const { lang } = Astro.props
 const P = contentOf(lang, 'precios')
 const tr = (k: string) => t(lang, `precios.${k}`)
 const num = new Intl.NumberFormat(LOCALE_META[lang].dateLocale)
-const money = (n: number) => (n === 0 ? '$0' : `$${num.format(n)}`)
+const money = (n: number) => `${LOCALE_META[lang].money}${n === 0 ? '0' : num.format(n)}`
 const path = href('precios', lang)
 const crumbs = [{ name: t(lang, 'pages.breadcrumbHome'), url: href('home', lang) }, { name: P.META.eyebrow, url: path }]
 const icons: Record<string, string> = {

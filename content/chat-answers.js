@@ -35,7 +35,7 @@ export const ANSWERS = [
     a: {
       es: `¡Buena pregunta! Arranque es gratis: ${n(P.arranque.credits, 'es')} créditos por semana, 1 usuario y sin tarjeta. Cuando crezcas: Impulso ($${P.impulso.price} al mes), Motor ($${P.motor.price}) e Imperio ($${P.imperio.price}). Todos con agentes sin límite. ¿Te guardo un sitio en la lista?`,
       en: `Good question! Arranque is free: ${n(P.arranque.credits, 'en')} credits a week, 1 user, no card. As you grow: Impulso ($${P.impulso.price}/month), Motor ($${P.motor.price}) and Imperio ($${P.imperio.price}). Every plan has unlimited agents. Want me to save you a spot on the waitlist?`,
-      pt: `Boa pergunta! O Arranque é grátis: ${n(P.arranque.credits, 'pt')} créditos por semana, 1 usuário e sem cartão. Quando você crescer: Impulso ($${P.impulso.price} por mês), Motor ($${P.motor.price}) e Imperio ($${P.imperio.price}). Todos com agentes ilimitados. Quer que eu guarde um lugar pra você na lista?`,
+      pt: `Boa pergunta! O Arranque é grátis: ${n(P.arranque.credits, 'pt')} créditos por semana, 1 usuário e sem cartão. Quando você crescer: Impulso (US$ ${P.impulso.price} por mês), Motor (US$ ${P.motor.price}) e Imperio (US$ ${P.imperio.price}). Todos com agentes ilimitados. Quer que eu guarde um lugar pra você na lista?`,
     },
   },
   {
@@ -52,7 +52,7 @@ export const ANSWERS = [
     a: {
       es: `Así quedan: Arranque $0 (${n(P.arranque.credits, 'es')} créditos/semana, 1 usuario) · Impulso $${P.impulso.price}/mes (${n(P.impulso.credits, 'es')}, hasta ${P.impulso.seats} personas) · Motor $${P.motor.price} (${n(P.motor.credits, 'es')}, hasta ${P.motor.seats}) · Imperio $${P.imperio.price} (${n(P.imperio.credits, 'es')}, personas sin límite). Agentes sin límite en todos.`,
       en: `Here's the lineup: Arranque $0 (${n(P.arranque.credits, 'en')} credits/week, 1 user) · Impulso $${P.impulso.price}/month (${n(P.impulso.credits, 'en')}, up to ${P.impulso.seats} people) · Motor $${P.motor.price} (${n(P.motor.credits, 'en')}, up to ${P.motor.seats}) · Imperio $${P.imperio.price} (${n(P.imperio.credits, 'en')}, unlimited people). Unlimited agents on all of them.`,
-      pt: `Fica assim: Arranque $0 (${n(P.arranque.credits, 'pt')} créditos/semana, 1 usuário) · Impulso $${P.impulso.price}/mês (${n(P.impulso.credits, 'pt')}, até ${P.impulso.seats} pessoas) · Motor $${P.motor.price} (${n(P.motor.credits, 'pt')}, até ${P.motor.seats}) · Imperio $${P.imperio.price} (${n(P.imperio.credits, 'pt')}, pessoas ilimitadas). Agentes ilimitados em todos.`,
+      pt: `Fica assim: Arranque US$ 0 (${n(P.arranque.credits, 'pt')} créditos/semana, 1 usuário) · Impulso US$ ${P.impulso.price}/mês (${n(P.impulso.credits, 'pt')}, até ${P.impulso.seats} pessoas) · Motor US$ ${P.motor.price} (${n(P.motor.credits, 'pt')}, até ${P.motor.seats}) · Imperio US$ ${P.imperio.price} (${n(P.imperio.credits, 'pt')}, pessoas ilimitadas). Agentes ilimitados em todos.`,
     },
   },
   {
@@ -67,7 +67,7 @@ export const ANSWERS = [
     a: {
       es: `¡Claro! Si una semana necesitas más: Chispa (${n(K.chispa.credits, 'es')} créditos, $${K.chispa.price}), Envión (${n(K.envion.credits, 'es')}, $${K.envion.price}), Turbina (${n(K.turbina.credits, 'es')}, $${K.turbina.price}) y Reserva (${n(K.reserva.credits, 'es')}, $${K.reserva.price}, no caduca). Pago único, sin cobros automáticos por exceso.`,
       en: `Sure! If you need more in a given week: Chispa (${n(K.chispa.credits, 'en')} credits, $${K.chispa.price}), Envión (${n(K.envion.credits, 'en')}, $${K.envion.price}), Turbina (${n(K.turbina.credits, 'en')}, $${K.turbina.price}) and Reserva (${n(K.reserva.credits, 'en')}, $${K.reserva.price}, never expires). One-off payment, no automatic overage charges.`,
-      pt: `Claro! Se numa semana você precisar de mais: Chispa (${n(K.chispa.credits, 'pt')} créditos, $${K.chispa.price}), Envión (${n(K.envion.credits, 'pt')}, $${K.envion.price}), Turbina (${n(K.turbina.credits, 'pt')}, $${K.turbina.price}) e Reserva (${n(K.reserva.credits, 'pt')}, $${K.reserva.price}, não expira). Pagamento único, sem cobranças automáticas por excesso.`,
+      pt: `Claro! Se numa semana você precisar de mais: Chispa (${n(K.chispa.credits, 'pt')} créditos, US$ ${K.chispa.price}), Envión (${n(K.envion.credits, 'pt')}, US$ ${K.envion.price}), Turbina (${n(K.turbina.credits, 'pt')}, US$ ${K.turbina.price}) e Reserva (${n(K.reserva.credits, 'pt')}, US$ ${K.reserva.price}, não expira). Pagamento único, sem cobranças automáticas por excesso.`,
     },
   },
   {
@@ -227,7 +227,7 @@ export const ANSWERS = [
     a: {
       es: 'Con más de 70 que seguro ya usas: Shopify, WooCommerce, MercadoLibre, Amazon, Gmail, Google Drive y Sheets, WhatsApp, TikTok y muchas más. Tus agentes trabajan directamente en ellas.',
       en: 'With 70+ tools you probably already use: Shopify, WooCommerce, MercadoLibre, Amazon, Gmail, Google Drive and Sheets, WhatsApp, TikTok and many more. Your agents work right inside them.',
-      pt: 'Com mais de 70 que você provavelmente já usa: Shopify, WooCommerce, MercadoLibre, Amazon, Gmail, Google Drive e Sheets, WhatsApp, TikTok e muitas mais. Seus agentes trabalham direto nelas.',
+      pt: 'Com mais de 70 que você provavelmente já usa: Shopify, WooCommerce, Mercado Livre, Amazon, Gmail, Google Drive e Sheets, WhatsApp, TikTok e muitas mais. Seus agentes trabalham direto nelas.',
     },
   },
   {

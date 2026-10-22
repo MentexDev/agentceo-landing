@@ -27,7 +27,7 @@ for (const [es, pt] of [
 
 test('precios en pt: precios reales y números en formato brasileño', async ({ page }) => {
   await page.goto('/pt/precos/')
-  await expect(page.locator('[data-plan="impulso"] .plan-amount')).toHaveText('$29')
+  await expect(page.locator('[data-plan="impulso"] .plan-amount')).toHaveText('US$ 29')
   await expect(page.locator('main')).toContainText('2.300')
 })
 

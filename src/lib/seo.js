@@ -106,9 +106,9 @@ export function llmsFullTxt(lang, extra = []) {
     const P = contentOf(lang, 'precios')
     const W = t(lang, 'gen.price')
     parts.push(`# ${P.META.title} (${abs(href('precios', lang))})`, '', P.META.sub, '')
-    for (const p of P.PLANS) parts.push(`- ${p.name}: $${p.price}/${W.moShort} · ${p.credits} ${W.cw} · ${p.seats === null ? W.un : `${p.seats} ${W.pp}`}`)
+    for (const p of P.PLANS) parts.push(`- ${p.name}: ${LOCALE_META[lang].money}${p.price}/${W.moShort} · ${p.credits} ${W.cw} · ${p.seats === null ? W.un : `${p.seats} ${W.pp}`}`)
     parts.push(`- ${W.all}: ${P.ALL_PLANS.join('; ')}`)
-    for (const k of P.PACKS) parts.push(`- ${W.pk} ${k.name}: ${k.credits} ${W.cr} $${k.price}${k.noExpiry ? ` ${W.ne}` : ''}`)
+    for (const k of P.PACKS) parts.push(`- ${W.pk} ${k.name}: ${k.credits} ${W.cr} ${LOCALE_META[lang].money}${k.price}${k.noExpiry ? ` ${W.ne}` : ''}`)
     parts.push('', W.cur, '')
   }
   for (const k of KINDS) {

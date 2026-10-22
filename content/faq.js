@@ -156,7 +156,7 @@ export const FAQ = [
     a: {
       es: 'El plan Arranque es gratis: 300 créditos por semana, 1 usuario y sin tarjeta. Los planes de pago son Impulso ($29 al mes), Motor ($99) e Imperio ($249). Todos tienen agentes sin límite y los créditos se renuevan cada lunes.',
       en: 'The Arranque plan is free: 300 credits per week, 1 user and no card. The paid plans are Impulso ($29 a month), Motor ($99) and Imperio ($249). All of them include unlimited agents, and credits renew every Monday.',
-      pt: 'O plano Arranque é grátis: 300 créditos por semana, 1 usuário e sem cartão. Os planos pagos são Impulso ($29 por mês), Motor ($99) e Imperio ($249). Todos têm agentes sem limite, e os créditos se renovam toda segunda-feira.',
+      pt: 'O plano Arranque é grátis: 300 créditos por semana, 1 usuário e sem cartão. Os planos pagos são Impulso (US$ 29 por mês), Motor (US$ 99) e Imperio (US$ 249). Todos têm agentes sem limite, e os créditos se renovam toda segunda-feira.',
     },
     more: 'precios',
     cta: 'waitlist',

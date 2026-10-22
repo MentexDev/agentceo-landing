@@ -91,6 +91,10 @@ export const CATEGORIES = [
   ]],
 ]
 
+/** Nombre de la marca en un idioma, si allí se escribe distinto (T62 · Diego: en pt, «Mercado Livre»). */
+export const LOCAL_NAMES = { 'Mercado Libre': { pt: 'Mercado Livre' } }
+export const nameIn = (name, lang) => LOCAL_NAMES[name]?.[lang] || name
+
 export const fold = (s = '') => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 const key = (s) => fold(s).replace(/[^a-z0-9]+/g, ' ').trim()
 
@@ -113,7 +117,7 @@ export function integrationChunks(lang) {
     id: `integraciones:${id}`,
     kind: 'integracion',
     title: `${W[lang] || W.es} · ${label[lang] || label.es}`,
-    text: `${brands.map((b) => (Array.isArray(b) ? b[0] : b)).join(', ')}.`,
+    text: `${brands.map((b) => nameIn(Array.isArray(b) ? b[0] : b, lang)).join(', ')}.`,
     url: `${prefix(lang)}/`,
   }))
 }

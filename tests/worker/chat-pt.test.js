@@ -71,7 +71,7 @@ describe('intenciones pt', () => {
   it('stub: respuestas fijas en pt (sin español)', () => {
     expect(stubReply('pt', 'oi').text).toBe(T_PT.greet)
     expect(stubReply('pt', 'quero me inscrever').meta.cta).toBe('waitlist')
-    expect(stubReply('pt', 'tem integração com Mercado Livre?').text).toMatch(/^Sim! O Agent CEO se integra com \*\*Mercado Libre\*\* \(lojas online e marketplaces\)/)
+    expect(stubReply('pt', 'tem integração com Mercado Livre?').text).toMatch(/^Sim! O Agent CEO se integra com \*\*Mercado Livre\*\* \(lojas online e marketplaces\)/)
     expect(stubReply('pt', 'integra com o Foobarzinho?').text).toMatch(/^Com Foobarzinho ainda não consigo te confirmar/)
   })
 })
@@ -81,7 +81,7 @@ describe('fichas curadas y KB en pt', () => {
     for (const a of ANSWERS) {
       expect(a.ask.pt?.length, a.id).toBeGreaterThan(0)
       expect(a.a.pt, a.id).toBeTruthy()
-      expect(a.a.pt.match(/\$\d[\d.,]*/g) || [], a.id).toEqual(a.a.en.match(/\$\d[\d.,]*/g) || [])
+      expect(a.a.pt.replace(/US\$ /g, '$').match(/\$\d[\d.,]*/g) || [], a.id).toEqual(a.a.en.match(/\$\d[\d.,]*/g) || [])
     }
   })
   it('cifras en formato brasileño (2.300, 40.000)', () => {
