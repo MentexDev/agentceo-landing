@@ -79,7 +79,7 @@ function gallery(meta) {
       <h2>${esc(m.title.es)}</h2>
       <p class="when">${esc(m.when)}</p>
     </header>
-    <div class="pair">${['es', 'en'].map((l) => `
+    <div class="pair">${Object.keys(m.locales).map((l) => `
       <section>
         <p class="subj"><b>${l.toUpperCase()}</b> ${esc(m.locales[l].subject)}</p>
         <p class="pre">${esc(m.locales[l].preheader)}</p>
@@ -116,7 +116,7 @@ nav.idx{display:flex;flex-wrap:wrap;gap:6px;font-size:13px}nav.idx a{color:var(-
 </style></head><body>
 <div class="top">
   <h1>Correos de <i>Agent CEO</i></h1>
-  <span class="count">${meta.length} plantillas × ES/EN · datos de ejemplo ficticios · nada se envía</span>
+  <span class="count">${meta.length} plantillas × ES/EN/PT · datos de ejemplo ficticios · nada se envía</span>
   <div class="ctl" role="group" aria-label="Ancho"><button data-w="desk" aria-pressed="true">Escritorio</button><button data-w="mobile" aria-pressed="false">Móvil 375</button></div>
   <div class="ctl" role="group" aria-label="Tema"><button data-t="light" aria-pressed="true">Claro</button><button data-t="dark" aria-pressed="false">Oscuro (Apple Mail)</button><button data-t="invert" aria-pressed="false">Invertido (Gmail/Outlook)</button></div>
   <div class="ctl" role="group" aria-label="Filtro"><button data-f="all" aria-pressed="true">Todas</button><button data-f="A" aria-pressed="false">Fase A</button><button data-f="B" aria-pressed="false">Fase B</button><button data-f="marketing" aria-pressed="false">Marketing</button><button data-f="transactional" aria-pressed="false">Transaccionales</button></div>

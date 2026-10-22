@@ -121,7 +121,7 @@ export const waitlistWelcome = {
       label: 'Lista de espera',
       sticker: 'confirmado!',
       title: <>Você está <Em>dentro</Em>{d.name ? `, ${d.name}` : ''}!</>,
-      lead: 'Seu e-mail foi confirmado e seu lugar, guardado. Abrimos a Agent CEO por grupos para cuidar de cada negócio que entra: quando chegar o seu, eu mesmo te escrevo.',
+      lead: 'Seu e-mail foi confirmado e seu lugar, guardado. Abrimos o Agent CEO por grupos para cuidar de cada negócio que entra: quando chegar o seu, eu mesmo te escrevo.',
       statLabel: 'Seu lugar na lista',
       team: 'Sua equipe está te esperando',
       share: 'Conhece alguém que ia gostar?',
