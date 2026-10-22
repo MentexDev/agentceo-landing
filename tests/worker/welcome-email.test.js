@@ -43,7 +43,7 @@ const signup = async (email, extra = {}) => {
 afterEach(() => vi.restoreAllMocks())
 
 describe('flag WELCOME_EMAIL_ENABLED', () => {
-  it('apagado (lo que trae wrangler.jsonc) → no encola, no envía, no barre', async () => {
+  it('apagado (binding de test) → no encola, no envía, no barre', async () => {
     expect(env.WELCOME_EMAIL_ENABLED).toBe('false')
     const email = mail('apagado')
     const row = await signup(email, { business: 'moda' })
@@ -57,7 +57,7 @@ describe('flag WELCOME_EMAIL_ENABLED', () => {
     for (const v of ['false', 'TRUE', '1', 'yes', '', undefined]) expect(emailConfig({ WELCOME_EMAIL_ENABLED: v }).enabled, String(v)).toBe(false)
     expect(emailConfig({ WELCOME_EMAIL_ENABLED: 'true' }).enabled).toBe(true)
   })
-  it('signup real por /api/waitlist con el flag de wrangler.jsonc → ni una fila de correo', async () => {
+  it('signup real por /api/waitlist con el flag apagado → ni una fila de correo', async () => {
     const email = mail('signup-apagado')
     const res = await exports.default.fetch(new Request('https://agentceo.io/api/waitlist', {
       method: 'POST', headers: { 'content-type': 'application/json', 'cf-connecting-ip': '10.9.0.1' }, body: JSON.stringify({ email, business: 'tienda' }),
@@ -117,9 +117,11 @@ describe('backoff exponencial', () => {
 })
 
 describe('4xx vs 5xx', () => {
-  it('clasificación: 2xx ok; 408/409/429/5xx/red reintentables; el resto de 4xx, no', () => {
-    for (const s of [0, 408, 409, 429, 500, 502, 503]) expect(isRetryable(s), String(s)).toBe(true)
-    for (const s of [400, 401, 403, 404, 422]) expect(isRetryable(s), String(s)).toBe(false)
+  it('clasificación: 2xx ok; 408/429/5xx/red y 409 concurrente reintentables; el resto de 4xx, no', () => {
+    for (const s of [0, 408, 429, 500, 502, 503]) expect(isRetryable(s), String(s)).toBe(true)
+    for (const s of [400, 401, 403, 404, 409, 422]) expect(isRetryable(s), String(s)).toBe(false)
+    expect(isRetryable(409, 'concurrent_idempotent_requests')).toBe(true)
+    expect(isRetryable(409, 'invalid_idempotent_request')).toBe(false)
   })
   it('422 de Resend → failed al PRIMER intento, sin reintentos, error sin el correo ni la clave', async () => {
     const email = mail('cuatro22')

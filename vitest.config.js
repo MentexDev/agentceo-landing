@@ -18,7 +18,7 @@ export default defineConfig(async () => {
             cloudflareTest({
               wrangler: { configPath: './wrangler.jsonc' },
               miniflare: {
-                bindings: { TEST_MIGRATIONS: migrations, TEST_MIGRATIONS_V1: migrationsV1 },
+                bindings: { TEST_MIGRATIONS: migrations, TEST_MIGRATIONS_V1: migrationsV1, WELCOME_EMAIL_ENABLED: "false" }, // tests herméticos: el flag de producción (wrangler.jsonc) no envía correos desde los tests
                 d1Databases: ['DB_V1'],
               },
             }),

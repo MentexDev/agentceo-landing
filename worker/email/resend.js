@@ -8,9 +8,14 @@ export const RESEND_API_URL = 'https://api.resend.com/emails'
  * @typedef {{ ok: false, retryable: boolean, status: number, error: string }} SendErr
  */
 
-/** 2xx = enviado · 408/409/429/5xx y red = reintentable · el resto de 4xx = definitivo (no se reintenta). */
-export function isRetryable(status) {
-  return status === 0 || status === 408 || status === 409 || status === 429 || status >= 500
+/**
+ * 2xx = enviado · 408/429/5xx y red = reintentable · el resto de 4xx = definitivo.
+ * 409 de Resend: solo `concurrent_idempotent_requests` (otra petición con la misma clave en curso) se reintenta;
+ * `invalid_idempotent_request` (misma clave, otro payload) es definitivo.
+ */
+export function isRetryable(status, name = '') {
+  if (status === 409) return name === 'concurrent_idempotent_requests'
+  return status === 0 || status === 408 || status === 429 || status >= 500
 }
 
 /**
@@ -38,9 +43,11 @@ export async function sendEmail({ apiKey, apiUrl = RESEND_API_URL, payload, idem
     return { ok: true, id, status: res.status }
   }
   let error = `http ${res.status}`
+  let name = ''
   try {
     const j = JSON.parse(body)
-    error += `: ${j.name || ''} ${j.message || ''}`.trimEnd()
+    name = String(j.name || '')
+    error += `: ${name} ${j.message || ''}`.trimEnd()
   } catch {}
-  return { ok: false, retryable: isRetryable(res.status), status: res.status, error }
+  return { ok: false, retryable: isRetryable(res.status, name), status: res.status, error }
 }
