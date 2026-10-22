@@ -39,8 +39,14 @@
   "vars": {
     "CHAT_MODE": "live",
     "CHAT_MODEL": "google/gemini-2.5-flash-lite",
-    "CHAT_DAILY_BUDGET_USD": "5"
+    "CHAT_DAILY_BUDGET_USD": "5",
+    // Bienvenida por correo a la lista de espera (T57 · docs/EMAILS-ENVIO.md). APAGADA hasta que se aplique
+    // la migración 0003 en producción y Diego/Luca la enciendan ("true"). Usa el secreto RESEND_API_KEY.
+    "WELCOME_EMAIL_ENABLED": "false"
   },
+  // Barrido de correos pendientes (reintentos con backoff y bienvenidas que esperaban al paso 2 del modal).
+  // Cron Triggers son gratis en el plan Free; con el flag apagado, el barrido no toca nada.
+  "triggers": { "crons": ["*/2 * * * *"] },
   // Topes diarios del widget (por IP con hash, y gasto global del modo live).
   "durable_objects": {
     "bindings": [{ "name": "CHAT_GUARD", "class_name": "ChatGuard" }]

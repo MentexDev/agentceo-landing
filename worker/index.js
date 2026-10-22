@@ -4,10 +4,14 @@
 // - Captura los leads de los recursos vía POST /api/lead.
 // - Widget de soporte vía POST /api/chat (flag CHAT_MODE; hoy «stub», sin LLM). Es el canal
 //   web del backend de chat agnóstico de canal (worker/chat/channels/).
+// - Bienvenida por correo a la lista de espera (T57, flag WELCOME_EMAIL_ENABLED): se encola en el signup y
+//   un Cron Trigger barre los pendientes (scheduled). Baja de un clic en /api/unsubscribe.
 import { json, withSecurityHeaders, withCache } from './lib/http.js'
 import { handleWaitlist } from './waitlist.js'
 import { handleLead } from './lead.js'
 import { handleChat } from './chat/handler.js'
+import { handleUnsubscribe } from './unsubscribe.js'
+import { sweepEmails } from './email/welcome.js'
 
 // Durable Object de los topes del widget (lo exige wrangler: se exporta desde el main).
 export { ChatGuard } from './chat/guard.js'
@@ -43,6 +47,8 @@ export default {
 
     if (url.pathname === '/api/chat') return handleChat(request, env, ctx)
 
+    if (url.pathname === '/api/unsubscribe') return handleUnsubscribe(request, env)
+
     if (url.pathname === '/api/lead') {
       if (request.method === 'POST') return handleLead(request, env, ctx)
       return json({ ok: false, error: 'Método no permitido' }, 405, { allow: 'POST' })
@@ -53,5 +59,10 @@ export default {
     const ct = res.headers.get('content-type') || ''
     if (!ct.includes('text/html')) return withCache(res, url.pathname)
     return withSecurityHeaders(res, url.protocol === 'https:', { turnstile: Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY) })
+  },
+
+  // Cron Trigger (wrangler.jsonc → triggers.crons): reintentos y bienvenidas que esperaban al paso 2.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(sweepEmails(env).catch((e) => console.error(JSON.stringify({ evt: 'email.sweep_failed', error: String(e?.message || e).slice(0, 200) }))))
   },
 }

@@ -14,6 +14,8 @@ import { json } from './lib/http.js'
 import { str, cleanEmail, isBot } from './lib/validate.js'
 import { limited, foreignOrigin } from './lib/ratelimit.js'
 import { BUSINESS_TYPES, UTM_KEYS } from '../src/data/waitlist.js'
+import { enqueueWelcome } from './email/welcome.js'
+import { scrub, logEvent } from './email/mask.js'
 
 const LOCALES = ['es', 'en']
 const THANKS = { es: '/gracias/', en: '/en/thanks/' }
@@ -80,7 +82,17 @@ export async function saveSignup(db, row) {
   }
 }
 
-export async function handleWaitlist(request, env) {
+/**
+ * La bienvenida por correo (T57), FUERA de la respuesta: ctx.waitUntil. Un fallo aquí jamás tumba el signup.
+ * Con el flag WELCOME_EMAIL_ENABLED distinto de "true", enqueueWelcome no toca nada.
+ */
+export function scheduleWelcome(env, ctx, row) {
+  const p = enqueueWelcome(env, row).catch((e) => logEvent('error', 'email.enqueue_failed', { error: scrub(e?.message || e, { secrets: [env.RESEND_API_KEY] }) }))
+  if (ctx && typeof ctx.waitUntil === 'function') ctx.waitUntil(p)
+  return p
+}
+
+export async function handleWaitlist(request, env, ctx) {
   const url = new URL(request.url)
   const parsed = await readBody(request)
   const isForm = parsed?.isForm ?? false
@@ -107,8 +119,10 @@ export async function handleWaitlist(request, env) {
 
   try {
     await saveSignup(env.DB, row)
-    return reply(true)
   } catch {
     return reply(false, 'server_error', 500)
   }
+  // El tipo de negocio guardado (el del paso 2, o el primero si ya estaba): el regalo del correo lo sigue.
+  scheduleWelcome(env, ctx, { email: row.email, locale: row.locale, business_type: row.business_type })
+  return reply(true)
 }
