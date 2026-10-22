@@ -70,11 +70,16 @@ const KIND_RE = {
     '(ignora|ignore|ignorez|ignoriere|ignorar|salta|saltate|omite|skip|bypass|desactiva|disable|rompe|break|evita|evade|umgehe|aggira|pula)[^.?!]{0,20}(tus|tu|your|tes|deine|le tue|suas|las|los|the|tes) (reglas|instrucciones|normas|restricciones|limites|filtros|rules|instructions|restrictions|guidelines|limits|filters|regles|regeln|regole|regras)',
     'olvida (tus|las) (reglas|instrucciones)', 'forget (your|all|the) (rules|instructions)', 'developer mode', 'modo (desarrollador|dios|sin restricciones)', '\\bdan\\b', 'jailbreak',
     '(eres|soy|el usuario es|the user is|you are now|ahora eres|i am) (un )?(admin|administrador|desarrollador|developer|root)( verificado| verified)?',
+    // T58b (eval de regresión): pedir el texto de arriba o el código interno, y «finge… y suelta tus reglas».
+    'repite (todo )?lo (de arriba|anterior|que te (dijeron|escribieron))', 'repeat (everything|all|the text|what was said|what is) (above|before)', 'palabra por palabra', '\\bverbatim\\b',
+    '(reveal|revela|dime|show|muestra|muestrame|dame|give me|print)[^.?!]{0,15}(internal code|codigo interno|canario|canary)',
+    '(pretend|finge|actua como|act as)[^.?!]{0,50}(drop|forget|ignore|olvida|ignora|sin|without|suelta)[^.?!]{0,15}(rules|reglas|restrictions|restricciones)',
   ]),
   personal: anyOf([
     `(whatsapp|telefono|celular|movil|numero|phone|cell|mobile|number|e-?mail|correo|direccion|address|casa|home|domicilio|instagram|linkedin|telegram|adresse|telefon|handy|indirizzo|cellulare|endereco|celular)[^.?!]{0,40}(personal|privad[oa]|private|perso)?[^.?!]{0,25}\\b(de|del|of|du|von|des|di|della|do|da)\\b[^.?!]{0,12}${WHO}`,
     `${WHO}[^.?!]{0,40}(whatsapp|telefono|celular|movil|phone|cell|mobile|correo personal|personal (e-?mail|email|number)|direccion|address|donde vive|where (does )?(he|she|they) live|vive|lives?|edad|age|familia|family|casa|home)`,
     '(whatsapp|telefono|phone|numero|number) (personal|privad[oa]|private)', 'donde vive', 'where does .{1,30} live',
+    '(correo|e-?mail|telefono|phone|celular|numero) personal (de|del|of) (la |el |the )?ceo', "ceo'?s? (personal|private) (e-?mail|email|phone|number)",
   ]),
   internal: anyOf([
     // cuánto les cuesta a ellos / gasto / límite interno
@@ -83,7 +88,10 @@ const KIND_RE = {
     '(limite|limit) (diario )?de (gasto|spend)', 'daily (spend|spending|budget|limit)', 'cada mensaje (de este chat|del chat)', 'each message (of|in) this chat',
     'costos? internos?', 'internal costs?',
     '(que|cual|which|what|quel|welches|quale) (modelo|model|modele|modell|llm|ia usan|ai do you use)\\b(?! de (negocio|precios|suscripcion|cobro))', 'modelo de (ia|lenguaje)', '\\bstack\\b', 'tecnologia (usan|utilizan)', 'tech(nology)? stack', 'built with', 'hech[oa] con que',
-    'proveedor(es)? (de ia|que usan|del modelo)', '\\b(openrouter|openai|gemini|chatgpt|gpt|anthropic|claude|cloudflare|wrangler)\\b', 'api ?key', 'clave(s)? (de api|secreta)',
+    'proveedor(es)? (de ia|que usan|del modelo)',
+    // T58b: «¿quién es tu proveedor?», «which AI model are you?», «¿qué base de datos usan?».
+    '(quien|cual|who|which|what) (es|is|son|are) (tu|tus|your) (proveedor|proveedores|provider|providers|vendor)', '(which|what|que|cual) (ai |ia )(model|modelo)',
+    '(que|cual|cuales|which|what) (base de datos|bases de datos|database|databases|hosting|servidor|servidores|server|servers|nube|cloud) (usan|utilizan|tienen|do you use|are you on|is it on)', '\\b(openrouter|openai|gemini|chatgpt|gpt|anthropic|claude|cloudflare|wrangler)\\b', 'api ?key', 'clave(s)? (de api|secreta)',
     'cuanto (les |te )?cuesta (operar|mantener|el servidor|la ia|cada (mensaje|respuesta))', 'how much does (it|each message) cost you',
     'inversor', 'inversionista', 'investor', 'funding', 'ronda de', 'valuacion', 'valuation', 'facturacion', 'revenue', '\\bingresos\\b',
     'cuantos (usuarios|clientes|empleados) (tienen|hay|usan)', 'how many (users|customers|clients|employees) (do you have|have you got|are there|use (it|agent ceo|you))', '\\bmetricas\\b', '\\bmetrics\\b',
@@ -93,7 +101,10 @@ const KIND_RE = {
     'constitu(id[ao]|cion|yo|yeron|ir)', 'se fundo', 'fecha de (fundacion|creacion) de la (empresa|sociedad|compania)', 'expediente', 'numero de registro', 'registro mercantil',
     '\\bein\\b', 'tax id', '(numero|identificacion) fiscal', '\\b(nif|cif|rfc|cnpj|siret|siren|tva|ust-?id|partita iva|codice fiscale)\\b', 'agente registrad', 'registered (agent|office)', 'oficina registrada',
     'domicilio (social|fiscal)', 'direccion (de la empresa|de la oficina|fisica|postal|legal|de klinworks|de agent ceo)', 'donde (esta|estan) (la empresa|ubicad|la oficina|sus oficinas|klinworks)',
-    'where (are you|is the company|is klinworks|is agent ceo) (located|based|registered)', '(company|office|mailing|business|legal|registered) address', 'delaware', 'incorporat', 'file number', 'state of (formation|incorporation)',
+    'where (are you|is the company|is klinworks|is agent ceo) (located|based|registered)',
+    // T58b: «¿dónde está registrada la empresa?», «when was the company formed?».
+    '(donde|en que (estado|pais)) (esta|fue|se) (registrad|constitu|fundad|cread)[a-z]* (la empresa|la sociedad|la compania|klinworks|agent ceo)', 'registrada (la empresa|la sociedad|klinworks)',
+    'when (was|did) (the company|klinworks|agent ceo|your company) (formed|founded|registered|created|incorporated|start)', '(company|klinworks) (was )?(formed|registered)', '(company|office|mailing|business|legal|registered) address', 'delaware', 'incorporat', 'file number', 'state of (formation|incorporation)',
     // fr / de / it / pt
     'adresse (legale|du siege|de (la|votre) (societe|entreprise))', 'siege social', "numero d'?(enregistrement|immatriculation)", 'date de (creation|constitution)',
     'handelsregister', 'registernummer', 'grundungsdatum', 'gegrundet', 'firmensitz', 'geschaftsadresse', 'steuernummer',
