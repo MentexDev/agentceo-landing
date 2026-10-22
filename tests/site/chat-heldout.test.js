@@ -4,6 +4,8 @@
 //  · #2 (2026-10-20): escrito DESPUÉS de esos arreglos y NO usado para afinar. Es la
 //    estimación honesta: 44,0 % (es 6/15 · en 5/10) para un motor léxico sin LLM ante
 //    frases nuevas. Si se afina mirando sus fallos, hay que escribir un #3.
+// T60: «¿se conecta con Google Drive / Gmail?» acepta también intent:integration (respuesta concreta de
+// content/integraciones.js, más precisa que la ficha genérica de herramientas).
 // Estos tests NO exigen un objetivo: son un SUELO DE REGRESIÓN con lo medido (que
 // ningún cambio lo empeore) y dejan la cifra en la salida.
 import { describe, it, expect } from 'vitest'
@@ -15,7 +17,7 @@ const HELD1 = {
     ['¿hay prueba gratis?', ['faq:precio', 'pricing-faq:¿Es gratis de verdad?']],
     ['¿me sirve si vendo por instagram?', ['fallback']],
     ['¿los agentes contestan a mis clientes?', ['faq:whatsapp', 'faq:agente']],
-    ['¿se puede conectar google drive?', ['faq:herramientas']],
+    ['¿se puede conectar google drive?', ['faq:herramientas', 'intent:integration']],
     ['¿quién es la empresa dueña de agent ceo?', ['faq:que-es']],
     ['¿qué pasa con mi información?', ['faq:datos', 'faq:datos-ia']],
     ['¿la IA aprende de mis datos para otros clientes?', ['faq:datos-ia']],
@@ -30,7 +32,7 @@ const HELD1 = {
   en: [
     ['is there a monthly fee?', ['faq:precio']],
     ['can it reply to my customers on whatsapp?', ['faq:whatsapp']],
-    ['does it connect to google drive?', ['faq:herramientas']],
+    ['does it connect to google drive?', ['faq:herramientas', 'intent:integration']],
     ['what company makes this?', ['faq:que-es']],
     ['will my data be used for training?', ['faq:datos-ia']],
     ['when can I start using it?', ['faq:cuando']],
@@ -46,7 +48,7 @@ const HELD2 = {
     ['¿funciona para una cafetería?', ['fallback', 'faq:que-es']],
     ['¿puede responder mensajes de mis clientes de noche?', ['faq:whatsapp']],
     ['¿cómo sé que no va a hacer algo raro?', ['faq:solos']],
-    ['¿se integra con mi correo de gmail?', ['faq:herramientas']],
+    ['¿se integra con mi correo de gmail?', ['faq:herramientas', 'intent:integration']],
     ['¿borran mis datos si me voy?', ['fallback', 'faq:datos', 'pricing-faq:¿Mis datos son míos?']],
     ['¿qué diferencia hay entre un chatbot y un agente?', ['faq:agente', 'blog:que-es-un-agente-de-ia']],
     ['¿sirve para controlar el inventario?', ['faq:shopify', 'faq:agente']],
@@ -63,7 +65,7 @@ const HELD2 = {
     ['do I have to pay to try it?', ['faq:precio', 'pricing', 'pricing-faq:Is it really free?']],
     ['can it answer my customers at night?', ['faq:whatsapp']],
     ['how do I know it will not do something weird?', ['faq:solos']],
-    ['does it integrate with gmail?', ['faq:herramientas']],
+    ['does it integrate with gmail?', ['faq:herramientas', 'intent:integration']],
     ['what is the difference between a chatbot and an agent?', ['faq:agente', 'blog:what-an-ai-agent-really-is-and-why-its-not-a-chatbot']],
     ['can it handle inventory?', ['faq:shopify', 'faq:agente']],
     ['do you have an iphone app?', ['fallback']],

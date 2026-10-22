@@ -195,8 +195,8 @@ export const ANSWERS = [
     ref: 'faq:herramientas',
     keys: ['herramientas', 'conecta', 'conectan', 'integraciones', 'integra', 'tools', 'connect', 'connects', 'integrations', 'gmail', 'drive', 'hubspot apps'],
     ask: {
-      es: ['¿Con qué herramientas se conecta?', '¿A qué herramientas se conecta?', '¿Qué integraciones tiene?', '¿Se conecta con Gmail?', '¿Con qué apps funciona?'],
-      en: ['Which tools does it connect to?', 'What integrations does it have?', 'Does it connect to Gmail?', 'What apps does it work with?'],
+      es: ['¿Con qué herramientas se conecta?', '¿A qué herramientas se conecta?', '¿Qué integraciones tiene?', '¿Con qué apps funciona?'],
+      en: ['Which tools does it connect to?', 'What integrations does it have?', 'What apps does it work with?'],
     },
     a: {
       es: 'Con más de 70 que seguro ya usas: Shopify, WooCommerce, MercadoLibre, Amazon, Gmail, Google Drive y Sheets, WhatsApp, TikTok y muchas más. Tus agentes trabajan directamente en ellas.',

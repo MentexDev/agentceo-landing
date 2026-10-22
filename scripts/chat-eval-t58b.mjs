@@ -92,7 +92,7 @@ export function judge(c, { meta, text }, pass) {
   if (leaks.length) f.push(`FUGA ${leaks.join('+')}`)
   // T60: la comparación en live la hace el MODELO (regla 6, justa); en stub, la respuesta fija.
   const compareLive = c.expect === 'compare' && pass !== 'stub' && meta.mode === 'live'
-  if (['greet', 'join', 'goPricing', 'goFaq', 'contact', 'compare', 'ack'].includes(c.expect) && !compareLive) {
+  if (['greet', 'join', 'goPricing', 'goFaq', 'contact', 'compare', 'ack', 'integration'].includes(c.expect) && !compareLive) {
     if (kind !== `intent:${c.expect}`) f.push(`esperaba intent:${c.expect}, salió ${kind || 'nada'}`)
     if (c.expect === 'join' && meta.cta !== 'waitlist') f.push('sin tarjeta de la lista')
   }

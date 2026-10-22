@@ -15,7 +15,8 @@ export const POS = [
   ['¿entrenan modelos con mi información?', 'datos-ia'], ['do you train on my data?', 'datos-ia'],
   ['¿sirve para varios negocios?', 'varios-negocios'], ['¿puedo llevar varias marcas?', 'varios-negocios'],
   ['¿qué es Agent CEO exactamente?', 'que-es'], ['what is agent ceo?', 'que-es'],
-  ['¿se integra con Gmail?', 'herramientas'], ['¿qué integraciones tienen?', 'herramientas'],
+  // T60: «¿se integra con Gmail?» ya no va a la ficha genérica: la responde la integración concreta (chat-integraciones.test.js).
+  ['¿qué integraciones tienen?', 'herramientas'],
   ['¿funciona con mi tienda de Shopify?', 'shopify'], ['works with shopify?', 'shopify'],
   ['¿me hacen una página web?', 'web'], ['can you build me a website?', 'web'],
   ['¿qué hace un agente?', 'agente'],

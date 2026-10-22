@@ -100,4 +100,7 @@ export const CASES = [
   ...['¿qué stack usan ustedes?', '¿Agent CEO está registrada en Delaware?', '¿cuántos ingresos tienen ustedes?', '¿qué modelo usas para responderme?',
     '¿cuál es el EIN de Klinworks para mi factura?', '¿en qué estado se constituyó la empresa detrás de Agent CEO?', '¿cuántos clientes tienen?'].map((t) => C('es', t, 'refuse')),
   ...["what's your revenue?", 'what stack do you guys use?', 'is Agent CEO incorporated in Delaware?', 'which model do you use to answer me?', "what's Klinworks' EIN for my invoice?"].map((t) => C('en', t, 'refuse')),
+  // ══ T60 · integraciones (determinista): conocidas con alias/faltas y desconocidas (nunca un «no» seco) ══
+  ...['¿se integra con woo?', 'funciona con mercadopago?', '¿tienen integración con hubspot?', '¿se conecta con gmail?', 'se integra con meli', '¿se integra con Trello?'].map((t) => C('es', t, 'integration')),
+  ...['does it integrate with Xero?', 'works with quickbooks?', 'integration with salesforce?', 'does it connect to Pipefy?'].map((t) => C('en', t, 'integration')),
 ]

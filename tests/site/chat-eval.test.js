@@ -92,7 +92,8 @@ export const CASES = {
 export function decide(lang, q) {
   const intent = intentOf(q)
   if (intent) return `intent:${intent}`
-  const [top] = search(makeIndex(KB[lang]), q)
+  // T60: como el stub, sin las listas de integraciones (worker/chat/stub.js · stubSearchable).
+  const [top] = search(makeIndex(KB[lang].filter((c) => c.kind !== 'integracion')), q)
   return confident(top) ? top.chunk.id : 'fallback'
 }
 

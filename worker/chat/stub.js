@@ -4,10 +4,15 @@
 // sin confianza → lo dice y ofrece la lista. Nunca genera texto nuevo: solo cita la web.
 // ─────────────────────────────────────────────────────────────────────────────
 import KB from '../generated/knowledge.json' with { type: 'json' }
+import { integrationQuery, integrationReply } from './integrations.js'
 import { makeIndex, search, confident } from './search.js'
 import { intentOf, say, privateReply } from './persona.js'
 
 export const INDEX = { es: makeIndex(KB.es), en: makeIndex(KB.en) }
+// T60: la búsqueda del STUB no mira las listas de integraciones (las responde integrations.js de forma
+// determinista); esos fragmentos son contexto para el MODELO (pickContext usa INDEX, completo).
+export const stubSearchable = (chunks) => chunks.filter((c) => c.kind !== 'integracion')
+export const SEARCH = { es: makeIndex(stubSearchable(KB.es)), en: makeIndex(stubSearchable(KB.en)) }
 // Sugerencias por defecto (las preguntas más útiles para decidir apuntarse).
 const DEFAULT_CHIPS = ['faq:precio', 'faq:cuando', 'faq:whatsapp', 'faq:solos']
 
@@ -29,6 +34,10 @@ export function stubReply(lang, userText) {
   if (intent) {
     const cta = intent === 'join' || intent === 'thanks' ? 'waitlist' : null
     const chips = intent === 'join' ? [] : [...chipsFrom(L, DEFAULT_CHIPS).slice(0, 3), join]
+    if (intent === 'integration') {
+      const r = integrationReply(L, integrationQuery(userText))
+      return { text: r.text, meta: { mode: 'stub', kind: 'intent:integration', cta: r.cta, integrations: r.known, chips: r.cta ? [] : chipsFrom(L, DEFAULT_CHIPS).slice(0, 3), matched: null, sources: [] } }
+    }
     if (intent === 'private') {
       const r = privateReply(userText, L)
       return { text: r.text, meta: { mode: 'stub', kind: 'intent:private', privateKind: r.kind, cta: null, chips, matched: null, sources: [] } }
@@ -37,7 +46,7 @@ export function stubReply(lang, userText) {
   }
 
   const exact = exactFaq(L, userText)
-  const results = exact ? [{ chunk: exact, score: 99, coverage: 1, titleHit: 1 }] : search(INDEX[L], userText)
+  const results = exact ? [{ chunk: exact, score: 99, coverage: 1, titleHit: 1 }] : search(SEARCH[L], userText)
   const top = results[0]
   if (!confident(top)) {
     return {

@@ -6,6 +6,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { norm } from './search.js'
 import { privateKind, userLang } from './private.js'
+import { integrationQuery } from './integrations.js'
 
 export const CONTACT = 'info@agentceo.io'
 
@@ -157,6 +158,8 @@ export function intentOf(text = '') {
   if (pk && pk !== 'internal') return 'private'
   if (COMPARE_CUE.test(s) && RIVAL.test(s)) return 'compare'
   if (pk) return 'private'
+  // T60: «¿se integra con X?» → respuesta determinista desde content/integraciones.js (worker/chat/integrations.js).
+  if (integrationQuery(text)) return 'integration'
   for (const it of INTENTS) if (it.re.test(s)) return it.id
   if (GREET_RE.test(s.replace(/[^\p{L}\p{N} ]/gu, ' ').replace(/\s+/g, ' ').trim())) return 'greet'
   return null
