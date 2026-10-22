@@ -8,6 +8,8 @@
 import { withSecurityHeaders } from './lib/http.js'
 import { limited } from './lib/ratelimit.js'
 import { maskEmail, logEvent } from './email/mask.js'
+import { normLocale } from './lib/locale.js'
+import { LOCALE_META, prefix } from '../src/i18n/meta.js'
 
 const TOKEN = /^[a-f0-9]{32,64}$/
 
@@ -33,14 +35,14 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&
 
 function page(locale, body, status = 200, https = true) {
   const c = COPY[locale]
-  const html = `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  const html = `<!doctype html><html lang="${LOCALE_META[locale].bcp47}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>${esc(c.title)} · Agent CEO</title>
 <style>:root{color-scheme:light dark}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#F4F2ED;color:#111113;font:16px/1.6 Geist,'Helvetica Neue',Helvetica,Arial,sans-serif;padding:16px}
 main{max-width:460px;width:100%;background:#FBFAF7;border:1px solid #E2DED4;border-radius:20px;padding:32px 28px}
 h1{margin:0 0 12px;font:400 34px/1.1 'Instrument Serif',Georgia,serif}p{margin:0 0 14px}.m{color:#4E4C47;font-size:14px}
 button{font:inherit;font-weight:600;background:#111113;color:#F4F2ED;border:0;border-radius:999px;padding:13px 24px;cursor:pointer}
 a{color:#7A5C17}@media (prefers-color-scheme:dark){body{background:#111113;color:#F4F2ED}main{background:#1D1D20;border-color:#34343A}.m{color:#A9A7A0}button{background:#D9B866;color:#111113}a{color:#D9B866}}</style>
-</head><body><main><h1>${esc(c.title)}</h1>${body}<p class="m"><a href="${locale === 'es' ? '/' : '/en/'}">${esc(c.home)}</a></p></main></body></html>`
+</head><body><main><h1>${esc(c.title)}</h1>${body}<p class="m"><a href="${prefix(locale)}/">${esc(c.home)}</a></p></main></body></html>`
   const res = new Response(html, { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } })
   return withSecurityHeaders(res, https)
 }
@@ -66,7 +68,7 @@ export async function handleUnsubscribe(request, env) {
     ).bind(token).first().catch(() => null)
     : null
   const want = pref?.locale || url.searchParams.get('l')
-  const locale = want === 'en' || want === 'pt' ? want : 'es'
+  const locale = normLocale(want) || 'es'
   const c = COPY[locale]
   if (!pref) return page(locale, `<p>${esc(c.invalid)}</p>`, 404, https)
 

@@ -13,7 +13,7 @@
 import { fillTemplate } from './fill.js'
 import { sendEmail, RESEND_API_URL } from './resend.js'
 import { maskEmail, scrub, logEvent } from './mask.js'
-import { signupLocale } from '../lib/locale.js'
+import { signupLocale, normLocale } from '../lib/locale.js'
 
 export const TEMPLATE = 'waitlist-welcome'
 
@@ -108,7 +108,7 @@ export async function enqueueWelcome(env, row, deps = {}) {
   if (!cfg.enabled) return { status: 'disabled' }
   if (!env.DB || !row?.email) return { status: 'skipped' }
   const now = (deps.now || (() => new Date()))()
-  const locale = ['en', 'pt'].includes(row.locale) ? row.locale : 'es'
+  const locale = normLocale(row.locale) || 'es'
   const due = row.business_type ? now : new Date(now.getTime() + cfg.delayS * 1000)
   const ins = await env.DB.prepare(
     `INSERT OR IGNORE INTO email_send_log (email, template, locale, status, next_attempt_at) VALUES (?, ?, ?, 'pending', ?)`,
@@ -137,7 +137,7 @@ export async function holdWelcome(env, row, reason) {
   if (!emailConfig(env).enabled || !env.DB || !row?.email) return { status: 'disabled' }
   const ins = await env.DB.prepare(
     `INSERT OR IGNORE INTO email_send_log (email, template, locale, status, last_error) VALUES (?, ?, ?, 'failed', ?)`,
-  ).bind(row.email, TEMPLATE, ['en', 'pt'].includes(row.locale) ? row.locale : 'es', `held: ${reason}`.slice(0, 200)).run()
+  ).bind(row.email, TEMPLATE, normLocale(row.locale) || 'es', `held: ${reason}`.slice(0, 200)).run()
   if ((ins.meta?.changes ?? 0) > 0) logEvent('warn', 'email.held', { template: TEMPLATE, to: maskEmail(row.email), reason })
   return { status: 'held' }
 }

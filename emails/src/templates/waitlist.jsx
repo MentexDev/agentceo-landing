@@ -2,7 +2,7 @@
 import { Layout, Header, Hero, Em, P, Block, Eyebrow, CTA, LinkFallback, Bubble, PromptCard, GiftIdeas, Tip, Steps, Stat, TeamRow, Note, Signature, Footer } from '../components.jsx'
 import { fmtShort, num, hi, lead } from '../format.js'
 import { businessIdeas, IDEAS_COPY, TEAM } from '../gifts.js'
-import { COLORS as C, FONTS as F } from '../brand.js'
+import { COLORS as C, FONTS as F, ROUTES } from '../brand.js'
 import { Text } from 'react-email'
 
 const SENT = '2026-10-20T15:00:00Z'
@@ -146,7 +146,7 @@ export const waitlistWelcome = {
         {position ? <Stat label={c.statLabel} value={position} /> : null}
         <TeamRow ctx={ctx} title={c.team} members={TEAM[ctx.locale]} />
         <GiftIdeas ctx={ctx} copy={IDEAS_COPY[ctx.locale]} ideas={ideas} />
-        <CTA href={`${d.siteUrl || ctx.site}${ctx.locale === 'es' ? '/' : '/en/'}#reunion`}>{c.cta}</CTA>
+        <CTA href={`${d.siteUrl || ctx.site}${ROUTES.home[ctx.locale] || ROUTES.home.es}#reunion`}>{c.cta}</CTA>
         {d.referralUrl && (
           <Block style={{ paddingTop: 26 }}>
             <Eyebrow>{c.share}</Eyebrow>

@@ -70,10 +70,11 @@ export const DEFAULT_POSTAL_ADDRESS = 'Klinworks, LLC · 131 Continental Dr, Sui
 export const POSTAL_PLACEHOLDER = '[FALTA POSTAL_ADDRESS · dirección postal sin configurar]'
 
 export const ROUTES = {
-  home: { es: '/', en: '/en/', pt: '/en/' },
-  privacy: { es: '/legal/privacidad', en: '/en/legal/privacy', pt: '/en/legal/privacy' },
-  pricing: { es: '/precios/', en: '/en/pricing/', pt: '/en/pricing/' },
+  home: { es: '/', en: '/en/', pt: '/pt/' },
+  privacy: { es: '/legal/privacidad', en: '/en/legal/privacy', pt: '/pt/legal/privacidade' },
+  pricing: { es: '/precios/', en: '/en/pricing/', pt: '/pt/precos/' },
 }
 
-// T60b: pt-BR. La landing aún no tiene portugués: sus enlaces (privacidad, precios, inicio) van a las páginas en inglés.
+// T62: la landing ya tiene portugués: los enlaces pt van a /pt/ (antes, T60b, a las páginas en inglés).
+// = RUTAS de src/i18n/rutas.js (home, precios, legal:privacidad): tests/site/i18n-registros.test.js lo exige.
 export const LOCALES = ['es', 'en', 'pt']

@@ -354,6 +354,14 @@ describe('/api/unsubscribe', () => {
     expect((await env.DB.prepare('SELECT unsubscribed_at FROM email_preferences WHERE email = ?').bind(email).first()).unsubscribed_at).toBe(first)
     expect(await (await call('GET', tok('c'))).text()).toMatch(/Ya estabas dado de baja/)
   })
+  it('T62 · quien se apuntó en pt ve la baja en pt (lang pt-BR) y vuelve a /pt/', async () => {
+    const email = mail('unsub-pt')
+    await env.DB.prepare('INSERT INTO email_preferences (email, unsub_token) VALUES (?, ?)').bind(email, tok('e')).run()
+    await env.DB.prepare("INSERT INTO signups (email, locale) VALUES (?, 'pt')").bind(email).run()
+    const html = await (await call('GET', tok('e'))).text()
+    expect(html).toContain('<html lang="pt-BR">')
+    expect(html).toContain('<a href="/pt/">')
+  })
   it('token inválido o desconocido → 404 sin pistas; otros métodos → 405', async () => {
     for (const t of ['', 'xyz', tok('d'), "aaaa' OR 1=1 --"]) expect((await call('GET', encodeURIComponent(t))).status).toBe(404)
     expect((await call('PUT', tok('b'))).status).toBe(405)
@@ -389,6 +397,14 @@ describe('T60b/c · posición real, ideas, CTA e idioma pt', () => {
     expect(m.text).toContain({ es: 'Mira cómo trabajará tu equipo', en: 'See how your team will work', pt: 'Veja como sua equipe vai trabalhar' }[l])
     expect(m.text).toContain('#reunion')
     expect(m.text).not.toMatch(/Ver cómo trabaja tu equipo|See how your team works|Prompt listo para copiar/)
+  })
+  it('T62 · el correo pt enlaza a la landing pt: botón a /pt/#reunion, privacidad y nada en /en/', () => {
+    const m = fillTemplate({ locale: 'pt', business: 'comida', unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v2', now: T0 })
+    expect(m.html).toContain('https://agentceo.io/pt/#reunion')
+    expect(m.html).toContain('https://agentceo.io/pt/legal/privacidade')
+    expect(m.html).not.toMatch(/agentceo\.io\/en\//)
+    const es = fillTemplate({ locale: 'es', business: 'comida', unsubscribeUrl: 'https://agentceo.io/u', assetBase: 'https://agentceo.io/email-assets/v2', now: T0 })
+    expect(es.html).toContain('https://agentceo.io/#reunion')
   })
   it('idioma del correo (T62): MANDA la página donde se apuntó; navegador y país solo de reserva', () => {
     const rq = (al, country) => { const r = new Request('https://agentceo.io/api/waitlist', { headers: al ? { 'accept-language': al } : {} }); return country ? { headers: r.headers, cf: { country } } : r }

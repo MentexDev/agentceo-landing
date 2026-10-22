@@ -84,6 +84,15 @@ describe('islas: cada isla lleva los textos de TODOS los idiomas', () => {
 })
 
 describe('Worker: idiomas en el servidor', () => {
+  it('los enlaces de los correos (emails/src/brand.js · ROUTES) = las rutas del sitio en cada idioma', async () => {
+    const { ROUTES, LOCALES: EMAIL_LOCALES } = await import('../../emails/src/brand.js')
+    expect([...EMAIL_LOCALES].sort()).toEqual([...LOCALES].sort())
+    for (const l of LOCALES) {
+      expect(ROUTES.home[l], `home ${l}`).toBe(RUTAS.home[l])
+      expect(ROUTES.pricing[l], `pricing ${l}`).toBe(RUTAS.precios[l])
+      expect(ROUTES.privacy[l], `privacy ${l}`).toBe(RUTAS['legal:privacidad'][l])
+    }
+  })
   it('la página de gracias por idioma del formulario sin JS = RUTAS.gracias', () => {
     const src = read('worker/waitlist.js')
     const THANKS = Function(`return (${/const THANKS = (\{[^}]*\})/.exec(src)[1]})`)()
