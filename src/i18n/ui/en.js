@@ -114,6 +114,7 @@ export default {
     errInvalid: 'Enter a valid email, for example you@email.com',
     errServer: "We couldn't save it. Check your connection and try again.",
     errRate: 'Too many attempts in a row. Wait a minute and try again.',
+    errVerify: "We couldn't check that you're a person. Reload the page and try again.",
     notice: "We store your email and technical visit data (language, source campaign and browser) only to tell you when Agent CEO launches. We don't sell or share it. You can unsubscribe from any email.",
     noticePrivacy: 'Privacy',
     noticeCalifornia: 'California notice',

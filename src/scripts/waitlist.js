@@ -10,6 +10,7 @@
 import { captureAttribution, getAttribution } from './attribution.js'
 import { track } from './track.js'
 import { ls, ss } from './storage.js'
+import { initTurnstile, prime, tokenFor, consume } from './turnstile.js'
 
 const JOINED = 'ac_wl'          // localStorage: '1' si ya se apuntó (sin el correo)
 const STICKY_OFF = 'ac_sticky'  // sessionStorage: CTA fijo cerrado en esta sesión
@@ -19,23 +20,34 @@ const t0 = performance.now()
 
 let msgs = {}
 let lastEmail = '' // en memoria: solo para el paso 2 del modal de ESTA página
+let lastForm = null // el formulario del paso 1: su widget de Turnstile da el token del paso 2
 let modal = null
 
 const joined = () => ls.get(JOINED) === '1'
 
-async function send(payload) {
-  const res = await fetch('/api/waitlist', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  let data = {}
-  try { data = await res.json() } catch {}
-  if (res.ok && data.ok) return { ok: true }
-  return { ok: false, error: data.error || (res.status === 429 ? 'rate_limited' : 'server_error') }
+/**
+ * Envía a /api/waitlist. `form` es el formulario cuyo widget de Turnstile pone el token (si está activo):
+ * el token es de un solo uso, así que tras cada envío se gasta y el widget pide otro.
+ */
+async function send(payload, form) {
+  const token = await tokenFor(form)
+  if (token === null) return { ok: false, error: 'verification_failed' }
+  try {
+    const res = await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(token ? { ...payload, turnstile: token } : payload),
+    })
+    let data = {}
+    try { data = await res.json() } catch {}
+    if (res.ok && data.ok) return { ok: true }
+    return { ok: false, error: data.error || (res.status === 429 ? 'rate_limited' : 'server_error') }
+  } finally {
+    if (token) consume(form)
+  }
 }
 
-const errText = (code) => (code === 'invalid_email' ? msgs.invalid : code === 'rate_limited' ? msgs.rate : msgs.server)
+const errText = (code) => (code === 'invalid_email' ? msgs.invalid : code === 'rate_limited' ? msgs.rate : code === 'verification_failed' ? msgs.verify : msgs.server)
 
 function setBusy(form, busy) {
   form.setAttribute('aria-busy', String(busy))
@@ -106,7 +118,7 @@ function bindForm(form) {
     setBusy(form, true)
     let r
     try {
-      r = await send(payload)
+      r = await send(payload, form)
     } catch {
       r = { ok: false, error: 'network' }
     }
@@ -118,6 +130,7 @@ function bindForm(form) {
       return
     }
     onJoined(email, source)
+    lastForm = form
     form.dispatchEvent(new CustomEvent('wl:joined', { bubbles: true, detail: { source } }))
     if (form.hasAttribute('data-no-modal')) {
       markDone(form, msgs.success)
@@ -179,7 +192,7 @@ function bindModal() {
     setBusy(biz, true)
     let r
     try {
-      r = await send({ email: lastEmail, business, locale: document.documentElement.lang, source: modal.dataset.source || 'modal', t: Math.round(performance.now() - t0) })
+      r = await send({ email: lastEmail, business, locale: document.documentElement.lang, source: modal.dataset.source || 'modal', t: Math.round(performance.now() - t0) }, lastForm)
     } catch {
       r = { ok: false, error: 'network' }
     }
@@ -251,6 +264,7 @@ export function enhanceForm(form) {
 export function initWaitlist() {
   try { msgs = JSON.parse(document.getElementById('wl-i18n').textContent) } catch {}
   captureAttribution()
+  initTurnstile()
   for (const f of document.querySelectorAll('form[data-waitlist]')) enhanceForm(f)
   bindModal()
   bindSticky()

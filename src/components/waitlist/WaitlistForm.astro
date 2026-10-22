@@ -66,6 +66,10 @@ const label = submitLabel ?? tr('wl.submit')
     </div>
   </div>
 
+  <!-- Turnstile (T58): aquí aparece el reto SOLO si Cloudflare pide interactuar (src/scripts/turnstile.js).
+       Vacío y sin altura si Turnstile está apagado o no hace falta. -->
+  <div class="wl-ts" data-wl-ts></div>
+
   <p class="wl-msg" id={`${id}-msg`} role="alert" data-wl-msg></p>
 
   <p class="wl-ok" role="status" data-wl-ok hidden>
@@ -144,6 +148,8 @@ const label = submitLabel ?? tr('wl.submit')
 
   .wl-msg { margin: 0; padding-left: 18px; font-size: 13px; color: var(--danger); min-height: 0; }
   .wl-msg:empty { display: none; }
+  .wl-ts:empty { display: none; }
+  .wl-ts { max-width: 100%; overflow: hidden; }
   .wl-dark .wl-msg { color: var(--danger-dark); }
   .wl-stack .wl-msg { padding-left: 2px; }
 

@@ -117,6 +117,7 @@ export default {
     errInvalid: 'Escribe un correo válido, por ejemplo tu@correo.com',
     errServer: 'No pudimos guardarlo. Revisa tu conexión e intenta de nuevo.',
     errRate: 'Demasiados intentos seguidos. Espera un minuto e inténtalo otra vez.',
+    errVerify: 'No pudimos comprobar que eres una persona. Recarga la página e inténtalo otra vez.',
     // Aviso en el momento de la recogida (CCPA/CPRA «notice at collection») + baja (CAN-SPAM).
     notice: 'Guardamos tu correo y datos técnicos de la visita (idioma, campaña de origen y navegador) solo para avisarte del lanzamiento de Agent CEO. No los vendemos ni los compartimos. Puedes darte de baja desde cualquier correo.',
     noticePrivacy: 'Privacidad',
